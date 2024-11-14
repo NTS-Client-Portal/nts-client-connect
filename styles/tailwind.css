@@ -24,11 +24,11 @@
 }
 
 .btn-reverse-zinc {
-  @apply border border-zinc-700 text-zinc-800 bg-stone-100 font-bold py-2 px-4 rounded text-center;
+  @apply border text-nowrap border-zinc-700 text-zinc-800 bg-stone-100 font-bold py-2 px-4 rounded text-center;
 }
 
 .dark-light-btn {
-  @apply m-0 px-4 py-2 border border-amber-400 rounded-sm
+  @apply m-0 px-4 text-nowrap py-2 border border-amber-400 rounded-sm
   bg-amber-400 text-zinc-900 font-medium hover:border-amber-400 hover:bg-amber-400/90
   dark:border-zinc-900 dark:bg-amber-400 dark:text-zinc-900 dark:hover:border-amber-400;
 }
@@ -38,11 +38,11 @@
 }
 
 .body-btn {
-  @apply m-0 px-4 py-2 border border-zinc-800 rounded-sm bg-zinc-800 text-zinc-50 font-medium hover:bg-zinc-800/90 hover:border dark:border-zinc-900 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-900/90 dark:hover:text-zinc-100 dark:hover:border-amber-400/90;
+  @apply m-0 px-4 py-2 text-nowrap border border-zinc-800 rounded-sm bg-zinc-800 text-zinc-50 font-medium hover:bg-zinc-800/90 hover:border dark:border-zinc-900 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-900/90 dark:hover:text-zinc-100 dark:hover:border-amber-400/90;
 }
 
 .upload-button {
-    @apply m-0 px-4 py-2 border border-amber-400 rounded-sm bg-amber-400 text-zinc-100 font-medium hover:border-amber-400 hover:bg-amber-400/90 hover:border hover:text-zinc-900 dark:border-amber-400 dark:bg-amber-400 dark:text-zinc-900 dark:hover:bg-amber-300 dark:hover:text-zinc-900 dark:hover:border-amber-300;
+    @apply m-0 px-4 py-2 text-nowrap border border-amber-400 rounded-sm bg-amber-400 text-zinc-100 font-medium hover:border-amber-400 hover:bg-amber-400/90 hover:border hover:text-zinc-900 dark:border-amber-400 dark:bg-amber-400 dark:text-zinc-900 dark:hover:bg-amber-300 dark:hover:text-zinc-900 dark:hover:border-amber-300;
 }
 
 .contact-btn {
