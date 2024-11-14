@@ -10,8 +10,8 @@ const ContactPage = () => {
         <>
 
             <Head>
-                <title>Welcome to Heavy Construct</title>
-                <meta name="description" content="Welcome to Heavy Construct - Your trusted partner in Inventory Management, Procurement, and Logistics." />
+                <title>Welcome to Shipper Connect</title>
+                <meta name="description" content="Welcome to Shipper Connect - Your trusted partner in Inventory Management, Procurement, and Logistics." />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <link rel="icon" href="/hc-28.png" />
             </Head>

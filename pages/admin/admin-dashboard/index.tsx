@@ -12,7 +12,7 @@ const AdminDashboard = () => {
 
     return (
         <AdminLayout>
-            <div className='flex justify-start mt-28 h-full'>
+            <div className='flex justify-center sm:mt-28 md:mt-2 h-full'>
                 <AdminAnalytics />
             </div>
         </AdminLayout>

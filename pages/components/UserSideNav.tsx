@@ -41,7 +41,7 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
     return (
         <>
             <div>
-                <div className="md:hidden">
+                <div className="xl:hidden">
                     <button
                         className="fixed z-50 top-1 left-0 p-2 drop-shadow-lg rounded-full"
                         onClick={toggleSidebar}
@@ -49,8 +49,8 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                         {isSidebarOpen ? <PanelRightClose size={24} className='text-white z-50 drop-shadow-lg' /> : <PanelLeftOpen size={28} className='z-50 text-zinc-100 dark:text-zinc-100 drop-shadow-lg ' />}
                     </button>
                 </div>
-                <nav className={`side-navbar pr-0.5 md:pr-1 z-50 flex flex-col h-screen py-6 drop-shadow absolute top-0 left-0 transform ${isSidebarOpen ? 'translate-x-0 z-50' : '-translate-x-full'} transition-transform duration-300 h-screen ease-in-out z-50 ${className}`}>
-                    <span className='flex mt-5 md:mt-0 mb-3 items-center justify-center font-bold  flex-nowrap'><Move3d className='size-6 text-red-700' /> <h1 className='text-lg md:mt-0  self-center font-extrabold underline underline-offset-2 tracking-wider'>Heavy Construct</h1></span>
+                <nav className={`side-navbar px-1 md:pr-1 z-50 flex flex-col h-screen py-6 drop-shadow absolute top-0 left-0 transform ${isSidebarOpen ? 'translate-x-0 z-50' : '-translate-x-full'} transition-transform duration-300 h-screen ease-in-out z-50 ${className}`}>
+                    <span className='flex mt-5 lg:mt-2 2xl:mt-0 mb-3 items-center justify-center font-bold  flex-nowrap'><Move3d className='size-6 text-red-700' /> <h1 className='text-lg md:mt-0  self-center font-extrabold underline underline-offset-2 tracking-wider'>SHIPPER CONNECT</h1></span>
                     <span className="w-full flex flex-col items-center gap-1 justify-center mb-6 border-b border-stone-100/40 pb-4">
                         <h3>Welcome {userProfile?.first_name || 'User'}</h3>
                     </span>

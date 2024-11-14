@@ -73,7 +73,7 @@ const ProfileSetup = () => {
                 <div className="md:grid min-w-full min-h-screen md:grid-cols-1 ">
                     <div className="sm:row-span-1 md:col-span-1 w-full h-full flex flex-col justify-center items-center bg-zinc-100">
                         <div className=" w-full text-zinc-900 h-full sm:h-auto sm:w-full max-w-md p-5 bg-white shadow flex flex-col justify-center items-center text-base">
-                            <h2 className="mt-12 md:mt-0 text-2xl font-bold text-center">Heavy Construct</h2>
+                            <h2 className="mt-12 md:mt-0 text-2xl font-bold text-center">SHIPPER CONNECT</h2>
                             <div className="xs:w-2/5 md:w-full h-full sm:h-auto p-5 bg-white shadow flex flex-col text-base">
                                 <span className="font-sans text-4xl text-center pb-2 mb-1 border-b mx-4 align-center">
                                     Complete Profile

@@ -13,9 +13,9 @@ const Feature = () => {
           {/* <!-- Section Title Start --> */}
           <SectionHeader
             headerInfo={{
-              title: "HEAVY CONSTRUCT FEATURES",
-              subtitle: "Core Features of Heavy Construct",
-              description: "Heavy Construct is a construction management system that helps you manage your construction projects, procurement, and logistics. Here are some of the core features of Heavy Construct.",
+              title: "Shipper Connect Features",
+              subtitle: "Core Features of Shipper Connect",
+              description: "Shipper Connect is a construction management system that helps you manage your construction projects, procurement, and logistics. Here are some of the core features of Shipper Connect.",
             }}
           />
           {/* <!-- Section Title End --> */}
