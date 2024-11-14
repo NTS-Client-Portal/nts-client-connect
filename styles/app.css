@@ -784,10 +784,6 @@ body:is(.dark *) {
   z-index: 50;
 }
 
-.z-\[-1\] {
-  z-index: -1;
-}
-
 .z-\[0\] {
   z-index: 0;
 }
@@ -933,10 +929,6 @@ body:is(.dark *) {
 
 .mt-20 {
   margin-top: 5rem;
-}
-
-.mt-24 {
-  margin-top: 6rem;
 }
 
 .mt-28 {
@@ -3600,10 +3592,6 @@ main:is(.dark *) {
     position: relative;
   }
 
-  .md\:left-9 {
-    left: 2.25rem;
-  }
-
   .md\:right-0 {
     right: 0px;
   }
@@ -3650,10 +3638,6 @@ main:is(.dark *) {
 
   .md\:block {
     display: block;
-  }
-
-  .md\:inline {
-    display: inline;
   }
 
   .md\:flex {

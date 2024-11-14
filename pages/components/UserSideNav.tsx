@@ -5,8 +5,7 @@ import { Database } from '@/lib/database.types';
 import { useUser } from '@/context/UserContext';
 import Image from 'next/image';
 import Link from 'next/link';
-import { PanelLeftOpen, PanelRightClose, ListCollapse, Workflow, Folders, Signature, Settings, Hammer, NotebookTabs, Handshake, Users, Move3d } from 'lucide-react';
-import withProfileCheck from '@/components/hoc/withProfileCheck';
+import { PanelLeftOpen, PanelRightClose, Workflow, Folders, NotebookTabs, Settings, Move3d } from 'lucide-react';
 
 interface UserSideNavProps {
     isSidebarOpen: boolean;
@@ -56,11 +55,6 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                         <h3>Welcome {userProfile?.first_name || 'User'}</h3>
                     </span>
                     <ul className='flex gap-3 flex-col flex-grow space-y-2 overflow-y-auto'>
-                        <li className={`w-full flex justify-center mt-0 ${router.pathname == "/user/inventory" ? "active" : ""}`}>
-                            <Link href="/user/inventory" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "/user/inventory" ? "active" : ""}`}>
-                                <span className='flex items-center flex-nowrap justify-normal gap-2 text-xs'><ListCollapse size={'20px'} /> <span className='text-xs md:text-sm'>Inventory Management</span></span>
-                            </Link>
-                        </li>
                         <li className={`w-full flex justify-normal m-0 ${router.pathname == "/user/freight-rfq" ? "active" : ""}`}>
                             <Link href="/user/freight-rfq" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "/user/freight-rfq" ? "active" : ""}`}>
                                 <span className='flex items-center flex-nowrap justify-normal gap-2'><Workflow size={'20px'} /> <span className='text-xs md:text-sm'>Logistics RFQ </span></span>
@@ -68,29 +62,15 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                         </li>
                         <li className={`w-full flex justify-normal m-0 ${router.pathname == "/user/user-documents" ? "active" : ""}`}>
                             <Link href="/user/user-documents" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "/user/user-documents" ? "active" : ""}`}>
-                                <span className='flex items-center flex-nowrap justify-normal gap-2'><Folders size={'20px'} /> <span className='text-xs md:text-sm'>Documents </span></span>
+                                <span className='flex items-center flex-nowrap justify-normal gap-2'><Folders size={'20px'} /> <span className='text-xs md:text-sm'>Documents/Pictures</span></span>
                             </Link>
                         </li>
 
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname == "/user/procurement" ? "active" : ""}`}>
-                            <Link href="/user/procurement" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "/user/procurement" ? "active" : ""}`}>
-                                <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><Signature size={'20px'} /> <span className='text-xs md:text-sm'>Procurement </span></span>
-                            </Link>
-                        </li>
-{/* 
                         <li className={`w-full flex justify-normal m-0 ${router.pathname == "/user/equipment-directory" ? "active" : ""}`}>
                             <Link href="/user/equipment-directory" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "/user/equipment-directory" ? "active" : ""}`}>
                                 <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><NotebookTabs size={'20px'} /> <span className='text-xs md:text-sm'>Equipment Directory </span></span>
                             </Link>
-                        </li> */}
-
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname == "/user/field-planner" ? "active" : ""}`}>
-                            <Link href="/user/field-planner" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "/user/field-planner" ? "active" : ""}`}>
-                                <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><Hammer size={'20px'} /> 
-                                    <span className='text-xs md:text-sm'>Field Planner/Management</span></span>
-                            </Link>
                         </li>
-
                     </ul>
                     <ul className='flex flex-col gap-4 justify-end items-center'>
                         <li className={`w-full text-nowrap flex justify-normal m-0 ${router.pathname == "/user/settings" ? "active" : ""}`}>

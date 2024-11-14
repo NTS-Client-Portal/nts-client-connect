@@ -11,7 +11,7 @@ const HomePage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Welcome to Heavy Construct</title>
+        <title>NTS Client Connect</title>
         <meta name="description" content="Welcome to Heavy Construct - Your trusted partner in Inventory Management, Procurement, and Logistics." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/hc-28.png" />
@@ -23,8 +23,7 @@ const HomePage: NextPage = () => {
     
           <div className=' mt-4 md:mt-12 flex flex-col justify-start items-center text-center"'>
             <h1 className="text-center md:text-start text-lg md:text-3xl font-bold mb-4">
-              All In One
-              <span className="block md:inline"> Construction, Procurement, &amp; Logistics Management System</span>
+              NTS Client Connect
             </h1>
           </div>
           <Hero />

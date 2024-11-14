@@ -33,10 +33,10 @@ const Hero = () => {
                 <div className="flex flex-col items-center md:items-start gap-2 md:gap-5 pt-13">
                     <div className="w-full flex md:flex-row flex-col gap-2 justify-center items-center">
                         <h1 className="inline text-lg">Your trusted partner in </h1>
-                        <h1 className="inline text-xl font-semibold">Construction Management </h1>
+                        <h1 className="inline text-xl font-semibold">Logistics</h1>
                     </div>
                     <p className="max-w-400px text-lg mb-2 md:mb-0 mx-2 text-center md:text-justify">
-                        The easiest way to build. Save time and focus on your project.
+                        The easiest way to save time and focus on your business.
                     </p>
                     <div className="md:hidden w-full">
                         <img src={darkMode ? "dark-app-display.png" : "light-app-display.png"} className="object-contain" alt="Mockup" />
@@ -56,13 +56,10 @@ const Hero = () => {
                     </div>
                     <div className="flex flex-col sm:py-4 gap-2 md:flex-wrap md:gap-8 md:py-7">
   <div className="flex md:items-center">
-        <span className='max-h-6 min-h-6 w-auto'><CheckIcon /></span> lifetime discount for Users who sign up during Beta.
-  </div>
-  <div className="flex md:items-center">
     <span className='max-h-6 min-h-6 w-auto'><CheckIcon  /></span> Direct Support (We really appreciate your feedback.)
   </div>
   <div className="flex md:items-center">
-        <span className='max-h-6 min-h-6 w-auto'><CheckIcon /></span> Completely free during Beta.
+        <span className='max-h-6 min-h-6 w-auto'><CheckIcon /></span> Completely free
   </div>
 </div>
                 </div>

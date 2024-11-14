@@ -4,7 +4,7 @@ const featuresData: Feature[] = [
   {
     id: 1,
     icon: "/images/icon/icon-01.svg",
-    title: "Data Analytics & Reporting",
+    title: "Analytics & Reporting",
     description:
       "",
   },
@@ -18,14 +18,14 @@ const featuresData: Feature[] = [
   {
     id: 3,
     icon: "/images/icon/icon-03.svg",
-    title: "Procurement Management",
+    title: "Documentation & Live Updates",
     description:
       "",
   },
   {
     id: 4,
     icon: "/images/icon/icon-04.svg",
-    title: "Manage Projects Efficiently",
+    title: "Manage Your Shipments Efficiently",
     description:
       "",
   },
@@ -39,7 +39,7 @@ const featuresData: Feature[] = [
   {
     id: 6,
     icon: "/images/icon/icon-02.svg",
-    title: "High-quality Client Support",
+    title: "High-quality Shipper Support",
     description:
       "",
   },

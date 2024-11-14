@@ -1,84 +1,45 @@
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import Layout from '../components/Layout';
 import UserLayout from '../components/UserLayout';
-import AdminLayout from '../components/admin-portal/AdminLayout';
-import { UserProvider, useUser } from '@/context/UserContext';
 import CustomSignInForm from '@/components/CustomSignInForm';
 import { Move3d } from 'lucide-react';
-import HomePageContent from '../components/HomePageContent';
-import ProfileSetup from '@/pages/components/ProfileSetup';
 
-interface UserProfile {
-    id: string;
-    email: string;
-    role: string;
-    inserted_at: string;
-    first_name?: string | null;
-    last_name?: string | null;
-    company_name?: string | null;
-    profile_picture?: string | null;
-    address?: string | null;
-    phone_number?: string | null;
-}
-
-export default function DashboardPage() {
+export default function LoginPage() {
     const session = useSession();
     const supabase = useSupabaseClient();
-    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const router = useRouter();
     const [resendLoading, setResendLoading] = useState(false);
     const [resendSuccess, setResendSuccess] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        console.log('Session:', session);
-
-        const createUserProfile = async () => {
-            if (session?.user) {
-                const { id, email } = session.user;
-
-                const { data: existingUser, error: checkError } = await supabase
+        const checkUserRole = async () => {
+            if (session && session.user.email_confirmed_at) {
+                const { data: userProfile, error } = await supabase
                     .from('profiles')
-                    .select('id, email, role, inserted_at')
-                    .eq('email', email)
+                    .select('role')
+                    .eq('id', session.user.id)
                     .single();
 
-                if (checkError && checkError.code !== 'PGRST116') {
-                    console.error(`Error checking user ${id}:`, checkError.message);
-                    return;
-                }
-
-                if (existingUser) {
-                    console.log(`User with email ${email} already exists. Skipping insertion.`);
-                    setUserProfile(existingUser as UserProfile);
-                    return;
-                }
-
-                const { data, error } = await supabase
-                    .from('profiles')
-                    .insert({
-                        id,
-                        email,
-                        role: 'user',
-                        inserted_at: new Date().toISOString(),
-                    })
-                    .select();
-
                 if (error) {
-                    console.error('Error creating/updating user profile:', error.message);
+                    console.error('Error fetching user profile:', error.message);
+                    return;
+                }
+
+                if (userProfile.role === 'admin') {
+                    router.push('/admin/admin-dashboard');
                 } else {
-                    console.log('User profile created/updated:', data);
-                    setUserProfile(data[0] as UserProfile);
+                    router.push('/user/freight-rfq');
                 }
             }
         };
 
-        if (session) {
-            createUserProfile();
-        }
-    }, [session, supabase]);
+        checkUserRole();
+    }, [session, router, supabase]);
 
     const handleResendConfirmation = async () => {
         setResendLoading(true);
@@ -104,18 +65,6 @@ export default function DashboardPage() {
         }
 
         setResendLoading(false);
-    };
-
-    const handleForgotPassword = async (email: string) => {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/reset-password`,
-        });
-
-        if (error) {
-            setError(error.message);
-        } else {
-            setResendSuccess(true);
-        }
     };
 
     if (!session) {
@@ -219,20 +168,8 @@ export default function DashboardPage() {
     }
 
     return (
-        <UserProvider>
-            {userProfile?.role === 'admin' ? (
-                <AdminLayout>
-                    <HomePageContent />
-                </AdminLayout>
-            ) : (
-                <UserLayout>
-                        <div className='w-full z-[-1] '>
-                            <div className="w-full fixed top-0 left-0  md:left-9 mt-24">
-                                <ProfileSetup />
-                            </div>
-                    </div>
-                </UserLayout>
-            )}
-        </UserProvider>
+        <div>
+            <p>Welcome!</p>
+        </div>
     );
 }

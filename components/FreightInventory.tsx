@@ -624,7 +624,6 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
 
             </div>
             <div className="w-full">
-                {activeTab === 'inventory' && (
                     <InventoryTab
                         freightList={freightList}
                         editFreight={editFreight}
@@ -633,18 +632,7 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
                         maintenanceList={maintenanceList}
                         handleAddFreight={addFreightItem}
                     />
-                )}
-                {activeTab === 'maintenance' && (
-                    <MaintenanceTab
-                        maintenanceList={maintenanceList}
-                        editFreight={editMaintenanceItem}
-                        handleDeleteClick={(id) => handleDeleteClick(id, 'maintenance')}
-                        userId={String(user?.id)}
-                        setMaintenanceList={(items: MaintenanceItem[]) => void setMaintenanceList(items)}
-                        freightList={freightList}
-                        
-                      />
-                )}
+
             </div>
         </div>
     );
