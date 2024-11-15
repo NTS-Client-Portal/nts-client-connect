@@ -123,9 +123,9 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
 
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
-            <form onSubmit={handleSubmit} className="flex flex-col w-full gap-2 dark:bg-zinc-800 dark:text-zinc-100">
-                <div className='flex flex-col gap-4 w-full dark:text-zinc-100'>
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium '>Select Freight (Optional)
+            <form onSubmit={handleSubmit} className="flex flex-col z-50  w-full gap-2 p-2 dark:bg-zinc-800 dark:text-zinc-100">
+                <div className='flex flex-col z-50 gap-4 dark:bg-zinc-800 w-full dark:text-zinc-100'>
+                    <label className='text-zinc-900  dark:text-zinc-100 font-medium '>Select Freight (Optional)
                         <select
                             className="rounded dark:text-zinc-800  w-full p-2 border  border-zinc-800"
                             value={selectedFreight}
@@ -417,12 +417,14 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
                         />
                     </label>
                 </div>
-                <button className="btn-slate dark:hover:bg-amber-400 dark:hover:text-zinc-800" type="submit">
-                    Request Quote
-                </button>
-                <button type="button" className="bg-stone-300  text-zinc-800 py-2 px-4 font-semibold mt-2 hover:bg-stone-300/50 hover:text-zinc-700" onClick={onClose}>
-                    Close
-                </button>
+                <div className='flex flex-col gap-2 my-2'>
+                    <button className="body-btn" type="submit">
+                        Request Quote
+                    </button>
+                    <button type="button" className="bg-stone-300  text-zinc-800 py-2 px-4 font-semibold mt-2 hover:bg-stone-300/50 hover:text-zinc-700" onClick={onClose}>
+                        Close
+                    </button>
+                </div>
                 {errorText && <p className="text-red-500">{errorText}</p>}
             </form>
         </Modal>

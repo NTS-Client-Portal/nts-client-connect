@@ -165,8 +165,8 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
             />
             <div className="hidden 2xl:block overflow-x-auto">
                 <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
-                    <thead className="bg-zinc-50 dark:bg-zinc-800 dark:text-white">
-                        <tr className='border-b border-zinc-100'>
+                    <thead className="bg-zinc-50 dark:bg-zinc-900 sticky top-0">
+                        <tr className='text-zinc-50 border-b border-zinc-900 dark:border-zinc-100'>
                             <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-white uppercase tracking-wider border-r border-zinc-300">ID</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-white uppercase tracking-wider border-r border-zinc-300">Origin/Destination</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-white uppercase tracking-wider border-r border-zinc-300">Freight</th>

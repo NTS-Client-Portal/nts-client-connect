@@ -80,8 +80,8 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ session, className = '' }) => {
                             src={profilePictureUrl}
                             alt='profile-img'
                             className='rounded-full shadow-md'
-                            width={40}
-                            height={40} />
+                            width={34}
+                            height={34} />
                     </li>
                 </ul>
                 <FeedBack />
@@ -107,9 +107,9 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ session, className = '' }) => {
                         <Image
                             src={profilePictureUrl}
                             alt='profile-img'
-                            className='rounded-full shadow-2xl'
-                            width={60}
-                            height={60} />
+                            className='rounded-full shadow-md'
+                            width={34}
+                            height={34} />
                     </li>
                 </ul>
             </nav>

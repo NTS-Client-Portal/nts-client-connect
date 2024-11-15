@@ -1,19 +1,16 @@
 import React, { useState } from 'react';
 import { Database } from '@/lib/database.types';
-import TransferToMaintenanceModal from '../TransferToMaintenanceModal';
 import { addMaintenanceItem, fetchFreightData, addFreightItem } from '@/lib/database';
 import { MaintenanceItem } from '@/lib/database.types'; // Import the MaintenanceItem type
 
 interface InventoryTabProps {
     freightList: Database['public']['Tables']['freight']['Row'][];
-    maintenanceList: Database['public']['Tables']['maintenance']['Row'][];
     editFreight: (freight: Database['public']['Tables']['freight']['Row']) => void;
     handleDeleteClick: (id: number) => void;
-    handleTransferToMaintenance: (freight: Database['public']['Tables']['freight']['Row']) => void;
     handleAddFreight: (freight: Database['public']['Tables']['freight']['Row']) => void; // Add this prop
 }
 
-const InventoryTab = ({ freightList = [], maintenanceList, editFreight, handleDeleteClick, handleTransferToMaintenance, handleAddFreight }: InventoryTabProps) => {
+const InventoryTab = ({ freightList = [], editFreight, handleDeleteClick, handleAddFreight }: InventoryTabProps) => {
     const [isTransferModalOpen, setIsTransferModalOpen] = useState<boolean>(false);
     const [selectedFreight, setSelectedFreight] = useState<Database['public']['Tables']['freight']['Row'] | null>(null);
     const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
@@ -24,82 +21,15 @@ const InventoryTab = ({ freightList = [], maintenanceList, editFreight, handleDe
         setIsTransferModalOpen(true);
     };
 
-    const handleTransferSubmit = async (data: any) => {
-        const user = { id: 'some-uuid' };
-        if (!user || !selectedFreight) return;
-        // Fetch the user ID from the maintenance or freight table
-        const userId = selectedFreight.user_id;
-        if (!userId) return;
-        // Fetch the freight data from the API
-        const freightData = await fetchFreightData(selectedFreight.id);
-        if (!freightData) return;
-
-        const maintenanceItem: Omit<MaintenanceItem, 'id' | 'created_at'> = {
-            user_id: user.id.toString(),
-            freight_id: selectedFreight.id,
-            urgency: data.urgency,
-            notes: data.notes,
-            need_parts: data.need_parts,
-            part: data.part,
-            maintenance_crew: data.maintenance_crew,
-            schedule_date: data.schedule_date || null,
-            make: freightData.make,
-            model: freightData.model,
-            pallets: freightData.pallets,
-            serial_number: freightData.serial_number,
-            dimensions: freightData.dimensions,
-            commodity: freightData.commodity,
-            inventory_number: freightData.inventory_number,
-            year: freightData.year,
-        };
-
-        try {
-            const newItem = await addMaintenanceItem(maintenanceItem);
-            if (newItem) {
-                // Call the parent component's function to update the maintenance list
-                handleTransferToMaintenance(newItem);
-            }
-            setIsTransferModalOpen(false);
-        } catch (error) {
-            if (error instanceof Error) {
-                console.error('Error adding maintenance item:', error.message);
-            } else {
-                console.error('Error adding maintenance item:', error);
-            }
-        }
-    };
-
-    const isInMaintenance = (freight: Database['public']['Tables']['freight']['Row']) => {
-        return maintenanceList.some(item => item.inventory_number === freight.inventory_number || item.serial_number === freight.serial_number);
-    };
-
-    const handleAddFreightSubmit = async (freight: Database['public']['Tables']['freight']['Row']) => {
-        try {
-            const newFreight = await addFreightItem(freight);
-            if (newFreight) {
-                handleAddFreight(newFreight);
-                setError(null); // Clear any previous error
-            }
-        } catch (error) {
-            if (error instanceof Error) {
-                if (error.message.includes('unique constraint')) {
-                    setError('Duplicate inventory number. Please use a unique inventory number.');
-                } else {
-                    setError('Error adding freight item: ' + error.message);
-                }
-            } else {
-                setError('Error adding freight item.');
-            }
-        }
-    };
+    
 
     return (
-        <div className="w-full bg-white shadow rounded-md border border-zinc-400 max-h-max flex-grow">
+        <div className="w-full bg-white dark:bg-zinc-700 shadow rounded-md border border-zinc-400 max-h-max flex-grow">
             {error && <div className="text-red-500 p-4">{error}</div>} {/* Display error message */}
             <div className="hidden xl:block parent-container overflow-x-auto ">
                 <table className="min-w-full divide-y  divide-zinc-200">
-                    <thead className="bg-zinc-50 dark:bg-zinc-300 dark:text-zinc-900">
-                        <tr className='border-b border-zinc-900/20  dark:border-zinc-900'>
+                    <thead className="bg-zinc-50 dark:bg-zinc-700 dark:text-zinc-900">
+                        <tr className='border-b dark:text-zinc-50 border-zinc-900/20  dark:border-zinc-900'>
                             <th className="dark:border-zinc-900 px-6 py-1 text-left text-nowrap text-xs font-normal dark:text-normal dark:font-medium uppercase tracking-wider border-r border-zinc-900/20  dark:border-zinc-100/20 ">Inventory Item</th>
                             <th className="dark:border-zinc-900 px-6 py-1 text-left text-nowrap text-xs font-normal dark:text-normal dark:font-medium uppercase tracking-wider border-r border-zinc-900/20  dark:border-zinc-100/20 ">Dimensions</th>
                             <th className="dark:border-zinc-900 px-6 py-1 text-left text-nowrap text-xs font-normal dark:text-normal dark:font-medium uppercase tracking-wider border-r border-zinc-900/20  dark:border-zinc-100/20 ">Serial Number</th>
@@ -153,13 +83,6 @@ const InventoryTab = ({ freightList = [], maintenanceList, editFreight, handleDe
                                             </div>
                                         )}
                                     </div>
-                                    <button
-                                        onClick={() => openTransferModal(freight)}
-                                        className={`${isInMaintenance(freight) ? 'text-red-800 cursor-not-allowed shadow-sm bg-zinc-800 font-normal text-nowrap py-2 px-4 rounded text-center' : 'text-stone-50 bg-zinc-800 shadow-sm font-semibold text-nowrap z-[0] py-2 px-4 rounded text-center'}`}
-                                        disabled={isInMaintenance(freight)}
-                                    >
-                                        {isInMaintenance(freight) ? 'In Maintenance' : 'Add to Maintenance'}
-                                    </button>
                                 </td>
                             </tr>
                         ))}
@@ -217,27 +140,11 @@ const InventoryTab = ({ freightList = [], maintenanceList, editFreight, handleDe
                                     </div>
                                 )}
                             </div>
-                            <button
-                                onClick={() => openTransferModal(freight)}
-                                className={`${isInMaintenance(freight) ? 'text-red-400 cursor-not-allowed shadow-sm bg-zinc-800 font-normal text-nowrap py-2 px-4 rounded text-center ' : 'text-amber-300 bg-zinc-800 shadow-sm font-normal text-nowrap py-1 px-3 rounded text-center'}`}
-                                disabled={isInMaintenance(freight)}
-                            >
-                                {isInMaintenance(freight) ? 'Already in Maintenance' : 'Add to Maintenance'}
-                            </button>
+
                         </div>
                     </div>
                 ))}
             </div>
-            {isTransferModalOpen && selectedFreight && (
-                <TransferToMaintenanceModal
-                    isOpen={isTransferModalOpen}
-                    onClose={() => setIsTransferModalOpen(false)}
-                    onSubmit={handleTransferSubmit}
-                    freight={selectedFreight}
-                    maintenanceList={maintenanceList}
-                    freightList={freightList} // Add this prop
-                />
-            )}
         </div>
     );
 };

@@ -182,8 +182,7 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
         <div className="w-full h-full overflow-auto">
             <div className="w-full">
                 <div className='flex flex-col justify-center items-center gap-2'>
-                    <h1 className="mb-12 text-2xl text-center text-wrap ">Request a Shipping Quote</h1>
-                    <h3 className='text-center'>Provide details about your freight and request a quote.</h3>
+                    <h1 className="xs:text-md mb-2 text-xl md:text-2xl font-medium text-center underline underline-offset-8">Request a Shipping Quote</h1>
                     <button onClick={() => setIsModalOpen(true)} className="body-btn">
                         Request a Shipping Estimate
                     </button>

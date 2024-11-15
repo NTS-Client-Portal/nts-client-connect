@@ -13,7 +13,7 @@ const DashboardTabs = () => {
         switch (activeTab) {
             case 'Freight Inventory':
                 return <FreightInventory session={session} />;
-            case 'Admin Quote Requests':
+            case 'Logistics RFQ':
                 return <QuoteRequest session={session} />;
             case 'Chrome Quote Request':
                 return <ChromeQuoteRequest session={session} />;
@@ -24,19 +24,19 @@ const DashboardTabs = () => {
 
     return (
         <UserLayout>
-            <div className="flex flex-col items-start justify-center w-full h-full">
-                <div className="tabs flex space-x-4 border-b-2 border-zinc-300">
-                    {['Freight Inventory', 'Admin Quote Requests', 'Chrome Quote Request'].map(tab => (
+            <div className="flex flex-col  items-start justify-center w-full h-full">
+                <div className="tabs  flex space-x-4 border-b-2 border-zinc-300 dark:border-zinc-900">
+                    {['Freight Inventory', 'Logistics RFQ', 'Chrome Quote Request'].map(tab => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`px-4 py-2 rounded-t-lg ${activeTab === tab ? 'bg-white border-l border-t border-r border-zinc-300' : 'bg-zinc-200'}`}
+                            className={`px-4 bg-zinc-50 dark:bg-zinc-600 dark:border-zinc-900 py-2 rounded-t-lg ${activeTab === tab ? 'bg-zinc-50 dark:bg-zinc-800 border-l border-t border-r border-zinc-300 dark:border-zinc-900' : 'bg-zinc-200'}`}
                         >
                             {tab}
                         </button>
                     ))}
                 </div>
-                <div className="tab-content p-4 border-l border-r border-b border-zinc-300 bg-white w-full">
+                <div className="tab-content p-4 border border-zinc-300 dark:border-zinc-900 bg-white dark:bg-zinc-600 w-full">
                     {renderTabContent()}
                 </div>
             </div>

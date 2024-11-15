@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
 import Papa from 'papaparse';
-import { Database, MaintenanceItem } from '@lib/database.types';
+import { Database } from '@lib/database.types';
 import InventoryTab from '@/components/inventory/InventoryTab';
-import MaintenanceTab from '@/components/inventory/MaintenanceTab';
-import TransferToMaintenanceModal from '@/components/TransferToMaintenanceModal';
-import { checkDuplicateInventoryNumber, addFreightItem, addMaintenanceItem } from '@lib/database';
+import { checkDuplicateInventoryNumber, addFreightItem } from '@lib/database';
 
 interface FreightInventoryProps {
     session: Session | null;
@@ -17,7 +15,6 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
     const supabase = useSupabaseClient<Database>();
     const [freightList, setFreightList] = useState<Freight[]>([]);
     const [selectedFreight, setSelectedFreight] = useState<Freight | null>(null);
-    const [isTransferModalOpen, setIsTransferModalOpen] = useState<boolean>(false);
     const [selectedOption, setSelectedOption] = useState<string>('equipment'); // Default to "equipment"
     const [yearAmount, setYearAmount] = useState<string>('');
     const [make, setMake] = useState<string>('');
@@ -38,7 +35,6 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
     const [editingFreight, setEditingFreight] = useState<Freight | null>(null);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [activeTab, setActiveTab] = useState('inventory');
-    const [maintenanceList, setMaintenanceList] = useState<MaintenanceItem[]>([]);
     const [error, setError] = useState<string | null>(null);
 
     const user = session?.user;
@@ -57,34 +53,12 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
             setFreightList(data);
         }
     }, [user, supabase]);
-    const fetchMaintenance = useCallback(async () => {
-        if (!user) return;
-
-        const { data, error } = await supabase
-            .from('maintenance')
-            .select('*')
-            .eq('user_id', user.id);
-
-        if (error) {
-            setErrorText(error.message);
-        } else {
-            setMaintenanceList(data);
-        }
-    }, [user, supabase]);
 
     useEffect(() => {
         if (user) {
             fetchFreight();
-            fetchMaintenance();
         }
-    }, [user, fetchFreight, fetchMaintenance]);
-
-    useEffect(() => {
-        if (user) {
-            fetchFreight();
-            fetchMaintenance();
-        }
-    }, [user, fetchFreight, fetchMaintenance]);
+    }, [user, fetchFreight]);
 
     const checkDuplicateInventoryNumber = async (inventoryNumber: string) => {
         const { data, error } = await supabase
@@ -100,16 +74,22 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
         return data.length > 0;
     };
 
-
-
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             Papa.parse(file, {
                 header: true,
                 complete: async (results) => {
-                    console.log('Parsed results:', results); // Add logging to debug
                     const data = results.data as Database['public']['Tables']['freight']['Insert'][];
+                    const headers = results.meta.fields;
+
+                    // Determine the selected option based on the headers
+                    if (headers?.includes('year') && headers?.includes('make') && headers?.includes('model')) {
+                        setSelectedOption('equipment');
+                    } else if (headers?.includes('palletCount') && headers?.includes('commodity')) {
+                        setSelectedOption('ltl_ftl');
+                    }
+
                     for (const item of data) {
                         if (item.inventory_number && await checkDuplicateInventoryNumber(item.inventory_number)) {
                             window.alert(`Duplicate inventory number found: ${item.inventory_number}. Please use unique inventory numbers.`);
@@ -121,7 +101,7 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
                         item.width_unit = item.width_unit || 'ft';
                         item.height_unit = item.height_unit || 'ft';
                         item.weight_unit = item.weight_unit || 'lbs';
-                        item.freight_type = item.freight_type || 'equipment'; // Default to "equipment"
+                        item.freight_type = item.freight_type || selectedOption; // Use the determined selected option
                         item.user_id = user?.id || ''; // Add user_id from session
 
                         try {
@@ -171,7 +151,7 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
             freight_type: selectedOption
         };
 
-        let response;
+        let response: { data: Freight[] | null; error: { message: string } | null };
         if (editingFreight) {
             response = await supabase
                 .from('freight')
@@ -210,8 +190,6 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
         } else {
             if (table === 'freight') {
                 fetchFreight();
-            } else {
-                fetchMaintenance();
             }
         }
     };
@@ -280,104 +258,18 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
         }
     };
 
-
-    const handleTransferToMaintenance = async (freight: Database['public']['Tables']['freight']['Row']) => {
-        if (!user) return;
-    
-        // Check for duplicates in the maintenance table
-        const { data: maintenanceList, error } = await supabase
-            .from('maintenance')
-            .select('*')
-            .or(`inventory_number.eq.${freight.inventory_number},serial_number.eq.${freight.serial_number}`);
-    
-        if (error) {
-            console.error('Error checking maintenance items:', error.message);
-            return;
-        }
-    
-        if (maintenanceList && maintenanceList.length > 0) {
-            alert('This item is already in the maintenance list.');
-            return;
-        }
-    
-        setSelectedFreight(freight);
-        setIsTransferModalOpen(true);
-    };
-
-        const handleTransferSubmit = async (data: any) => {
-            const user = { id: data.user_id }; // Replace this with the actual user object or import it
-            if (!user || !selectedFreight) return;
-
-            const maintenanceItem: Omit<MaintenanceItem, 'id' | 'created_at'> = {
-                user_id: user.id.toString(),
-                freight_id: selectedFreight.id,
-                urgency: data.urgency,
-                notes: data.notes,
-                need_parts: data.need_parts,
-                part: data.part,
-                maintenance_crew: data.maintenance_crew,
-                schedule_date: data.schedule_date || null,
-                make: selectedFreight.make,
-                model: selectedFreight.model,
-                year: selectedFreight.year,
-                pallets: selectedFreight.pallet_count,
-                serial_number: selectedFreight.serial_number,
-                dimensions: selectedFreight.dimensions,
-                commodity: selectedFreight.commodity,
-                inventory_number: selectedFreight.inventory_number,
-            };
-
-            const newItem = await addMaintenanceItem(maintenanceItem);
-            if (newItem) {
-                setMaintenanceList([...maintenanceList, newItem]);
-            }
-            setIsTransferModalOpen(false);
-        };
-
-        const editMaintenanceItem = async (updatedItem: MaintenanceItem) => {
-            if (!user) return;
-
-            const { data, error } = await supabase
-                .from('maintenance')
-                .update(updatedItem)
-                .eq('id', updatedItem.id)
-                .select();
-
-            if (error) {
-                console.error('Error updating maintenance item:', error.message);
-            } else {
-                setMaintenanceList((prevList) =>
-                    prevList.map((item) => (item.id === updatedItem.id ? updatedItem : item))
-                );
-            }
-        };
-
-
-        function handleAddFreight(freight: { id: number; inserted_at: string; is_complete: boolean | null; freight_type: string | null; make: string | null; model: string | null; year: string | null; pallets: string | null; serial_number: string | null; dimensions: string | null; freight_id: string | null; freight_class: string | null; status: string | null; user_id: string; due_date: string | null; in_progress: boolean | null; reminder_time: string | null; year_amount: string | null; pallet_count: string | null; commodity: string | null; length: string | null; length_unit: string | null; width: string | null; width_unit?: string | null | undefined; height: string | null; height_unit?: string | null | undefined; weight: string | null; weight_unit: string | null; inventory_number: string | null; }): void {
-            throw new Error('Function not implemented.');
-        }
-
     return (
-        <div className="w-full grid grid-rows md:gap-6 md:mt-6">
+        <div className="w-full grid grid-rows md:gap-6 md:pt-6 dark:bg-zinc-600">
             <div className="w-full">
                 <div className='flex flex-col justify-center items-center'>
-                    <h1 className="xs:text-md mb-2 text-xl md:text-2xl font-semibold text-center">Your Inventory/Equipment</h1>
-                    
+                    <h1 className="xs:text-md mb-2 text-xl md:text-2xl font-medium text-center underline underline-offset-8">Freight Inventory</h1>
                 </div>
-                <TransferToMaintenanceModal
-                    isOpen={isTransferModalOpen}
-                    onClose={() => setIsTransferModalOpen(false)}
-                    onSubmit={handleTransferSubmit}
-                    freight={selectedFreight}
-                    maintenanceList={maintenanceList}
-                    freightList={freightList}
-                />
                 {isModalOpen && (
-                    <div className="fixed inset-0 dark:text-zinc-100  z-50 h-full bg-zinc-100 bg-opacity-50 flex justify-center items-center ">
-                        <div className="dark:text-zinc-100 dark:bg-zinc-700 border border-zinc-700/20 shadow-lg bg-zinc-100 z-50 p-4 md:p-8 h-[770px] max-h-max my-16 rounded  w-full md:w-1/2 overflow-y-auto">
+                    <div className="fixed inset-0 dark:text-zinc-100  z-50 h-full  bg-opacity-50 flex justify-center items-center ">
+                        <div className="dark:text-zinc-100 dark:bg-zinc-900 border border-zinc-700 shadow-lg bg-zinc-100 z-50 p-4 md:p-8 h-[770px] max-h-max my-16 rounded  w-full md:w-1/2 overflow-y-auto">
                             <h2 className="text-xl dark:text-zinc-100 mb-4 ">{editingFreight ? 'Edit Inventory' : 'Add Inventory'}</h2>
-                            <form onSubmit={addOrUpdateFreight} className="flex  bg-zinc-100 flex-col w-full gap-2 my-2 dark:bg-zinc-700 dark:text-zinc-100">
-                                <div className='flex flex-col gap-4 w-full dark:text-zinc-100'>
+                            <form onSubmit={addOrUpdateFreight} className="flex  flex-col w-full gap-2 my-2 p-2 bg-zinc-50 dark:bg-zinc-900 dark:text-zinc-100">
+                                <div className='flex flex-col gap-4 w-full dark:bg-zinc-900 dark:text-zinc-100'>
                                     <label className='text-zinc-900 font-medium dark:text-zinc-100'>Inventory Type
                                         <select
                                             className="rounded w-full p-2 border text-zinc-900 border-zinc-900"
@@ -580,12 +472,10 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
                                     Close
                                 </button>
                             </form>
-
                         </div>
                     </div>
                 )}
                 {!!errorText && <div className="text-red-500">{errorText}</div>}
-                
             </div>
 
             <div className='flex flex-col gap-2 justify-center items-center w-full'>
@@ -595,41 +485,47 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
                             Add Inventory Item
                         </button>
                     </div>
-                    <div className="mt-4 md:m-0">
+                    <div className="mt-4 md:m-0 place-content-center self-center">
                         <label className="custom-file-upload">
                                 <input className='hidden' type="file" accept=".csv" onChange={handleFileUpload} />
                             <span className="body-btn">Upload CSV</span>
                         
                         </label>
+
                     </div>
+
                     {errorText && <div className="text-red-500">{errorText}</div>}
 
                 </div>
 
-            <div className="flex justify-center w-full border-b border-zinc-300">
+            </div>
+
+
+            <div className="flex justify-between w-full border-b border-zinc-300">
+            
                 <button
                     className={`px-4 py-2 ${activeTab === 'inventory' ? 'border-b-2 border-red-300' : ''}`}
                     onClick={() => setActiveTab('inventory')}
                 >
                     Inventory
                 </button>
-                <button
-                    className={`px-4 py-2 ${activeTab === 'maintenance' ? 'border-b-2 border-red-500' : ''}`}
-                    onClick={() => setActiveTab('maintenance')}
-                >
-                    Maintenance
-                </button>
+                <div className='flex flex-col gap-2 justify-normal items-end'>
+                    <div>
+                        <a href="/public/EQUIPMENT_CSV_TEMPLATE.csv" download className="upload-button m-0 px-5 py-2 ">Download Equipment CSV Template </a>
+                    </div>
+                    <div className="mt-4 md:m-0">
+                        <a href="/public/LTL-FTL_CSV_TEMPLATE.csv" download className="upload-button m-0 px-7 py-2">Download LTL/FTL CSV Template </a>
+                    </div>
 
                 </div>
+                </div>
 
-            </div>
+            
             <div className="w-full">
                     <InventoryTab
                         freightList={freightList}
                         editFreight={editFreight}
                         handleDeleteClick={(id) => handleDeleteClick(id, 'freight')}
-                        handleTransferToMaintenance={handleTransferToMaintenance}
-                        maintenanceList={maintenanceList}
                         handleAddFreight={addFreightItem}
                     />
 

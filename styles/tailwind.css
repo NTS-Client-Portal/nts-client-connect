@@ -42,7 +42,7 @@
 }
 
 .upload-button {
-    @apply m-0 px-4 py-2 text-nowrap border border-amber-400 rounded-sm bg-amber-400 text-zinc-100 font-medium hover:border-amber-400 hover:bg-amber-400/90 hover:border hover:text-zinc-900 dark:border-amber-400 dark:bg-amber-400 dark:text-zinc-900 dark:hover:bg-amber-300 dark:hover:text-zinc-900 dark:hover:border-amber-300;
+    @apply text-base text-nowrap underline underline-offset-4 text-blue-600 dark:text-blue-400 dark:font-bold dark:text-base font-medium;
 }
 
 .contact-btn {
