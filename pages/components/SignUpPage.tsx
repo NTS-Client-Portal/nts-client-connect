@@ -61,7 +61,7 @@ export default function SignUpPage() {
     return (
         <>
             <Head>
-                <title>SSTA - Sign Up</title>
+                <title>SHIPPER-CONNECT - Sign Up</title>
                 <meta name="description" content="Sign up for an account" />
             </Head>
             <div className="w-full h-full bg-200">

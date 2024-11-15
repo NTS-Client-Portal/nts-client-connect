@@ -1,7 +1,5 @@
 import React from 'react'
 import DimensionSearch from "@/components/DimensionSearch";
-import Aside from '@/components/ui/Aside';
-import CaterpillarSearch from '@/components/CaterpillarSearch';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import UserLayout from '@/pages/components/UserLayout';
 import { UserProvider } from '@/context/UserContext';
