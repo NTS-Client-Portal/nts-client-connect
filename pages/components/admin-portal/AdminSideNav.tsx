@@ -25,12 +25,12 @@ const AdminSideNav: React.FC<AdminSideNavProps> = ({ isSidebarOpen, toggleSideba
                 console.error('Error logging out:', error.message);
                 alert('Failed to log out. Please try again.');
             } else {
-                router.push('/login'); // Redirect to login page
+                router.push('/'); // Redirect to login page
             }
         } catch (err) {
             console.error('Unexpected error during logout:', err);
             alert('An unexpected error occurred. Please try again.');
-            router.push('/login'); // Redirect to login page
+            router.push('/'); // Redirect to login page
         }
     };
 

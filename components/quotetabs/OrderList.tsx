@@ -64,7 +64,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, archiveQuot
         doc.text(`Order ID: ${order.id}`, 10, 20);
         doc.text(`Origin: ${order.origin_street}, ${order.shippingquotes.origin_city}, ${order.shippingquotes.origin_state} ${order.shippingquotes.origin_zip}`, 10, 30);
         doc.text(`Destination: ${order.destination_street}, ${order.shippingquotes.destination_city}, ${order.shippingquotes.destination_state} ${order.shippingquotes.destination_zip}`, 10, 40);
-        doc.text(`Freight: ${order.shippingquotes.year_amount} ${order.shippingquotes.make} ${order.shippingquotes.model}`, 10, 50);
+        doc.text(`Freight: ${order.shippingquotes.year} ${order.shippingquotes.make} ${order.shippingquotes.model}`, 10, 50);
         doc.text(`Shipping Date: ${order.shippingquotes.due_date || 'No due date'}`, 10, 60);
         doc.text(`Price: ${order.shippingquotes.price ? `$${order.shippingquotes.price}` : 'Not priced yet'}`, 10, 70);
         return doc;
@@ -251,7 +251,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, archiveQuot
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap border-r border-zinc-900/20 dark:border-zinc-100 ">
-                                    {order.shippingquotes.year_amount} {order.shippingquotes.make} {order.shippingquotes.model}
+                                    {order.shippingquotes.year} {order.shippingquotes.make} {order.shippingquotes.model}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap border-r border-zinc-900/20 dark:border-zinc-100 ">
                                     {order.shippingquotes.due_date || 'No due date'}
@@ -301,7 +301,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, archiveQuot
                             </div>
                             <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
                                 <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Freight</div>
-                                <div className="text-sm font-medium text-zinc-900 dark:text-white">{order.shippingquotes.year_amount} {order.shippingquotes.make} {order.shippingquotes.model}</div>
+                                <div className="text-sm font-medium text-zinc-900 dark:text-white">{order.shippingquotes.year} {order.shippingquotes.make} {order.shippingquotes.model}</div>
                             </div>
                             <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
                                 <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Shipping Date</div>

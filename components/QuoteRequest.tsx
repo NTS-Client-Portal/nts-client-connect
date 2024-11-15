@@ -78,7 +78,6 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
                 email: quote.email || null,
                 inserted_at: quote.inserted_at || new Date().toISOString(),
                 is_complete: quote.is_complete || false,
-                price: quote.price || 0,
                 is_archived: quote.is_archived || false,
             }])
             .select();
@@ -238,7 +237,7 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
                     />
                 )}
                 {activeTab === 'history' && (
-                    <HistoryList 
+                    <HistoryList
                         session={session}
                     />
                 )}

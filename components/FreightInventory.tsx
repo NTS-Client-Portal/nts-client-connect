@@ -177,7 +177,7 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
         }
     };
 
-    const deleteItem = async (id: number, table: 'freight' | 'maintenance') => {
+    const deleteItem = async (id: number, table: 'freight') => {
         if (!user) return;
 
         const { error } = await supabase
@@ -194,7 +194,7 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
         }
     };
 
-    const handleDeleteClick = (id: number, table: 'freight' | 'maintenance') => {
+    const handleDeleteClick = (id: number, table: 'freight') => {
         const confirmed = window.confirm(`Are you sure you want to delete this ${table} item?`);
         if (confirmed) {
             deleteItem(id, table);

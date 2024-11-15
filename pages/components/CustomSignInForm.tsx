@@ -83,7 +83,7 @@ const CustomSignInForm = () => {
                 />
                 <button
                     type="submit"
-                    className="w-full body-btn-btn"
+                    className="w-full body-btn"
                     disabled={loading}
                 >
                     {loading ? 'Signing In...' : 'Sign In'}

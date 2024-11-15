@@ -188,7 +188,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap border-r border-zinc-300">
-                                    {quote.year_amount} {quote.make} {quote.model}
+                                    {quote.year} {quote.make} {quote.model}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap border-r border-zinc-300">
                                     {quote.due_date || 'No due date'}
@@ -244,7 +244,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                         </div>
                         <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
                             <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Freight</div>
-                            <div className="text-sm font-medium text-zinc-900">{quote.year_amount} {quote.make} {quote.model}</div>
+                            <div className="text-sm font-medium text-zinc-900">{quote.year} {quote.make} {quote.model}</div>
                         </div>
                         <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
                             <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Shipping Date</div>

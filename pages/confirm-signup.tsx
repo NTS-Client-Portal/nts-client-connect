@@ -32,7 +32,7 @@ export default function ConfirmSignup() {
                 setError(error.message);
             } else {
                 setSuccess(true);
-                router.push(redirect_to as string || '/user/profile-setup');
+                router.push(redirect_to as string || '/profile-setup');
             }
 
             setLoading(false);

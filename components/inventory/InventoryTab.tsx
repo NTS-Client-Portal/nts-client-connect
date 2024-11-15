@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Database } from '@/lib/database.types';
-import { addMaintenanceItem, fetchFreightData, addFreightItem } from '@/lib/database';
-import { MaintenanceItem } from '@/lib/database.types'; // Import the MaintenanceItem type
+import { fetchFreightData, addFreightItem } from '@/lib/database';
 
 interface InventoryTabProps {
     freightList: Database['public']['Tables']['freight']['Row'][];

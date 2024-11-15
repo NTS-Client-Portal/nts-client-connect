@@ -18,7 +18,6 @@ const EquipmentDirectory: React.FC = () => {
             <UserLayout>
                 <span className='flex flex-col justify-around items-stretch gap-32'>
                     <DimensionSearch />
-                    <CaterpillarSearch />
                 </span>
             </UserLayout>
         </UserProvider>

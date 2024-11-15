@@ -5,23 +5,61 @@ import { useRouter } from 'next/router';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import Layout from './components/Layout';
 import UserLayout from './components/UserLayout';
+import AdminLayout from './components/admin-portal/AdminLayout';
 import CustomSignInForm from '@/components/CustomSignInForm';
 import { Move3d } from 'lucide-react';
+import { UserProvider, useUser } from '@/context/UserContext';
+import withProfileCheck from '@/components/hoc/withProfileCheck';
+import DashboardTabs from '@/components/DashboardTabs';
 
-export default function LoginPage() {
+interface UserProfile {
+  id: string;
+  email: string;
+  role: string;
+  inserted_at: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  company_name?: string | null;
+  profile_picture?: string | null;
+  address?: string | null;
+  phone_number?: string | null;
+}
+
+const HomePageContent = () => {
+  const { userProfile } = useUser();
+
+  return (
+    <>
+      <Head>
+        <title>NTS Client Portal</title>
+        <meta name="description" content="Welcome to SSTA Reminders & Tasks" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/hc-28.png" />
+      </Head>
+      <div className="w-full flex justify-center items-center p-4">
+        <div className="w-full sm:w-2/3 lg:w-3/4">
+          {userProfile?.role === 'admin' && <DashboardTabs />}
+        </div>
+      </div>
+    </>
+  );
+};
+
+const LoginPage = () => {
   const session = useSession();
   const supabase = useSupabaseClient();
   const router = useRouter();
   const [resendLoading, setResendLoading] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     const checkUserRole = async () => {
       if (session && session.user.email_confirmed_at) {
         const { data: userProfile, error } = await supabase
           .from('profiles')
-          .select('role')
+          .select('id, email, role, inserted_at')
           .eq('id', session.user.id)
           .single();
 
@@ -30,10 +68,31 @@ export default function LoginPage() {
           return;
         }
 
-        if (userProfile.role === 'admin') {
-          router.push('/admin/admin-dashboard');
+        if (userProfile) {
+          setUserProfile(userProfile as UserProfile);
+          if (userProfile.role === 'admin') {
+            router.push('/admin/admin-dashboard');
+          } else {
+            router.push('/user/freight-rfq');
+          }
         } else {
-          router.push('/user/freight-rfq');
+          // Create a new profile if it doesn't exist
+          const { data, error } = await supabase
+            .from('profiles')
+            .insert({
+              id: session.user.id,
+              email: session.user.email,
+              role: 'user',
+              inserted_at: new Date().toISOString(),
+            })
+            .select();
+
+          if (error) {
+            console.error('Error creating/updating user profile:', error.message);
+          } else {
+            setUserProfile(data[0] as UserProfile);
+            router.push('/user/freight-rfq');
+          }
         }
       }
     };
@@ -168,8 +227,18 @@ export default function LoginPage() {
   }
 
   return (
-    <div>
-      <p>Welcome!</p>
-    </div>
+    <UserProvider>
+      {userProfile?.role === 'admin' ? (
+        <AdminLayout>
+          <HomePageContent />
+        </AdminLayout>
+      ) : (
+        <UserLayout>
+          <HomePageContent />
+        </UserLayout>
+      )}
+    </UserProvider>
   );
-}
+};
+
+export default withProfileCheck(LoginPage);
