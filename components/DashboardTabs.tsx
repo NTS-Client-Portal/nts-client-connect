@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
 import FreightInventory from '@/components/FreightInventory';
 import QuoteRequest from '@/components/QuoteRequest';
-import UserLayout from '@/pages/components/UserLayout';
 
 const DashboardTabs = () => {
     const session = useSession();
@@ -20,7 +19,7 @@ const DashboardTabs = () => {
     };
 
     return (
-        <UserLayout>
+        
             <div className="flex flex-col items-start justify-center w-full h-full">
                 <div className="tabs flex space-x-4 border-b-2 border-zinc-300 dark:border-zinc-900">
                     {['Freight Inventory', 'Logistics RFQ'].map(tab => (
@@ -37,7 +36,6 @@ const DashboardTabs = () => {
                     {renderTabContent()}
                 </div>
             </div>
-        </UserLayout>
     );
 };
 
