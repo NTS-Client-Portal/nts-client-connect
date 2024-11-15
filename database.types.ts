@@ -132,6 +132,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_documents_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       freight: {
@@ -199,6 +206,13 @@ export type Database = {
           year?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_freight_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "freight_user_id_fkey"
             columns: ["user_id"]
@@ -274,6 +288,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_notifications_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "notifications_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -308,6 +329,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_orders_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_quote_id_fkey"
             columns: ["quote_id"]
@@ -383,6 +411,50 @@ export type Database = {
           },
         ]
       }
+      purchase_order: {
+        Row: {
+          createddate: string | null
+          expecteddate: string | null
+          id: number
+          order_description: string | null
+          ponumber: string | null
+          status: string | null
+          user_id: string | null
+          vendorname: string | null
+          vendornumber: string | null
+        }
+        Insert: {
+          createddate?: string | null
+          expecteddate?: string | null
+          id?: number
+          order_description?: string | null
+          ponumber?: string | null
+          status?: string | null
+          user_id?: string | null
+          vendorname?: string | null
+          vendornumber?: string | null
+        }
+        Update: {
+          createddate?: string | null
+          expecteddate?: string | null
+          id?: number
+          order_description?: string | null
+          ponumber?: string | null
+          status?: string | null
+          user_id?: string | null
+          vendorname?: string | null
+          vendornumber?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_order_vendornumber_fkey"
+            columns: ["vendornumber"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["vendornumber"]
+          },
+        ]
+      }
       shippingquotes: {
         Row: {
           commodity: string | null
@@ -402,6 +474,10 @@ export type Database = {
           length: string | null
           make: string | null
           model: string | null
+          origin_address: string | null
+          origin_city: string | null
+          origin_state: string | null
+          origin_zip: string | null
           pallet_count: string | null
           price: number | null
           user_id: string | null
@@ -427,6 +503,10 @@ export type Database = {
           length?: string | null
           make?: string | null
           model?: string | null
+          origin_address?: string | null
+          origin_city?: string | null
+          origin_state?: string | null
+          origin_zip?: string | null
           pallet_count?: string | null
           price?: number | null
           user_id?: string | null
@@ -452,6 +532,10 @@ export type Database = {
           length?: string | null
           make?: string | null
           model?: string | null
+          origin_address?: string | null
+          origin_city?: string | null
+          origin_state?: string | null
+          origin_zip?: string | null
           pallet_count?: string | null
           price?: number | null
           user_id?: string | null
@@ -460,6 +544,13 @@ export type Database = {
           year?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_shippingquotes_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "shippingquotes_user_id_fkey"
             columns: ["user_id"]

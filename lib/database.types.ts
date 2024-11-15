@@ -132,6 +132,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_documents_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       freight: {
@@ -199,6 +206,13 @@ export type Database = {
           year?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_freight_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "freight_user_id_fkey"
             columns: ["user_id"]
@@ -274,6 +288,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_notifications_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "notifications_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -284,214 +305,261 @@ export type Database = {
       }
       orders: {
         Row: {
-          cancellation_reason: string | null;
-          created_at: string | null;
-          destination_street: string | null;
-          earliest_pickup_date: string | null;
-          id: number;
-          is_archived: boolean | null;
-          latest_pickup_date: string | null;
-          notes: string | null;
-          origin_street: string | null;
-          quote_id: number | null;
-          status: string | null;
-          user_id: string | null;
-        };
+          created_at: string
+          id: number
+          quote_id: number | null
+          status: string | null
+          updated_at: string
+          user_id: string | null
+        }
         Insert: {
-          cancellation_reason?: string | null;
-          created_at?: string | null;
-          destination_street?: string | null;
-          earliest_pickup_date?: string | null;
-          id?: number;
-          is_archived?: boolean | null;
-          latest_pickup_date?: string | null;
-          notes?: string | null;
-          origin_street?: string | null;
-          quote_id?: number | null;
-          status?: string | null;
-          user_id?: string | null;
-        };
+          created_at?: string
+          id?: number
+          quote_id?: number | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
         Update: {
-          cancellation_reason?: string | null;
-          created_at?: string | null;
-          destination_street?: string | null;
-          earliest_pickup_date?: string | null;
-          id?: number;
-          is_archived?: boolean | null;
-          latest_pickup_date?: string | null;
-          notes?: string | null;
-          origin_street?: string | null;
-          quote_id?: number | null;
-          status?: string | null;
-          user_id?: string | null;
-        };
+          created_at?: string
+          id?: number
+          quote_id?: number | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
         Relationships: [
           {
-            foreignKeyName: "fk_orders_shippingquotes";
-            columns: ["quote_id"];
-            isOneToOne: false;
-            referencedRelation: "shippingquotes";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
+            foreignKeyName: "fk_orders_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "shippingquotes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
-          company_id: string | null;
-          email: string | null;
-          first_name: string | null;
-          id: string;
-          inserted_at: string;
-          last_name: string | null;
-          role: string | null;
-          company_name: string | null;
-          company_size: string | null;
-          phone_number: string | null;
-          address: string | null;
-          profile_picture: string | null;
-          email_notifications: boolean | null;
-          profile_complete: boolean | null;
-        };
+          address: string | null
+          company_id: string | null
+          company_name: string | null
+          company_size: string | null
+          email: string | null
+          email_notifications: boolean | null
+          first_name: string | null
+          id: string
+          inserted_at: string
+          last_name: string | null
+          phone_number: string | null
+          profile_complete: boolean | null
+          profile_picture: string | null
+          role: string | null
+        }
         Insert: {
-          company_id?: string | null;
-          email?: string | null;
-          first_name?: string | null;
-          id: string;
-          inserted_at?: string;
-          last_name?: string | null;
-          role?: string | null;
-          company_name?: string | null;
-          company_size?: string | null;
-          phone_number?: string | null;
-          address?: string | null;
-          profile_picture?: string | null;
-          email_notifications?: boolean | null;
-          profile_complete?: boolean | null;
-        };
+          address?: string | null
+          company_id?: string | null
+          company_name?: string | null
+          company_size?: string | null
+          email?: string | null
+          email_notifications?: boolean | null
+          first_name?: string | null
+          id: string
+          inserted_at?: string
+          last_name?: string | null
+          phone_number?: string | null
+          profile_complete?: boolean | null
+          profile_picture?: string | null
+          role?: string | null
+        }
         Update: {
-          company_id?: string | null;
-          email?: string | null;
-          first_name?: string | null;
-          id?: string;
-          inserted_at?: string;
-          last_name?: string | null;
-          role?: string | null;
-          company_name?: string | null;
-          company_size?: string | null;
-          phone_number?: string | null;
-          address?: string | null;
-          profile_picture?: string | null;
-          email_notifications?: boolean | null;
-          profile_complete?: boolean | null;
-        };
+          address?: string | null
+          company_id?: string | null
+          company_name?: string | null
+          company_size?: string | null
+          email?: string | null
+          email_notifications?: boolean | null
+          first_name?: string | null
+          id?: string
+          inserted_at?: string
+          last_name?: string | null
+          phone_number?: string | null
+          profile_complete?: boolean | null
+          profile_picture?: string | null
+          role?: string | null
+        }
         Relationships: [
           {
-            foreignKeyName: "profiles_company_id_fkey";
-            columns: ["company_id"];
-            isOneToOne: false;
-            referencedRelation: "companies";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
+            foreignKeyName: "profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      purchase_order: {
+        Row: {
+          createddate: string | null
+          expecteddate: string | null
+          id: number
+          order_description: string | null
+          ponumber: string | null
+          status: string | null
+          user_id: string | null
+          vendorname: string | null
+          vendornumber: string | null
+        }
+        Insert: {
+          createddate?: string | null
+          expecteddate?: string | null
+          id?: number
+          order_description?: string | null
+          ponumber?: string | null
+          status?: string | null
+          user_id?: string | null
+          vendorname?: string | null
+          vendornumber?: string | null
+        }
+        Update: {
+          createddate?: string | null
+          expecteddate?: string | null
+          id?: number
+          order_description?: string | null
+          ponumber?: string | null
+          status?: string | null
+          user_id?: string | null
+          vendorname?: string | null
+          vendornumber?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_order_vendornumber_fkey"
+            columns: ["vendornumber"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["vendornumber"]
+          },
+        ]
+      }
       shippingquotes: {
         Row: {
-          commodity: string | null;
-          destination_city: string | null;
-          destination_state: string | null;
-          destination_street: string | null;
-          destination_zip: string | null;
-          due_date: string | null;
-          email: string | null;
-          first_name: string | null;
-          height: string | null;
-          id: number;
-          inserted_at: string;
-          last_name: string | null;
-          length: string | null;
-          make: string | null;
-          model: string | null;
-          pallet_count: string | null;
-          price: number | null;
-          user_id: string | null;
-          weight: string | null;
-          width: string | null;
-          year: string | null;
-          is_complete: boolean | null;
-          is_archived: boolean | null;
-          origin_zip: string | null;
-          origin_city: string | null; // Add origin_city
-          origin_state: string | null; // Add origin_state
-          origin_address: string | null; // Add origin_address
-        };
+          commodity: string | null
+          destination_city: string | null
+          destination_state: string | null
+          destination_street: string | null
+          destination_zip: string | null
+          due_date: string | null
+          email: string | null
+          first_name: string | null
+          height: string | null
+          id: number
+          inserted_at: string
+          is_archived: boolean | null
+          is_complete: boolean | null
+          last_name: string | null
+          length: string | null
+          make: string | null
+          model: string | null
+          origin_address: string | null
+          origin_city: string | null
+          origin_state: string | null
+          origin_zip: string | null
+          pallet_count: string | null
+          price: number | null
+          user_id: string | null
+          weight: string | null
+          width: string | null
+          year: string | null
+        }
         Insert: {
-          commodity?: string | null;
-          destination_city?: string | null;
-          destination_state?: string | null;
-          destination_street?: string | null;
-          destination_zip?: string | null;
-          due_date?: string | null;
-          email?: string | null;
-          first_name?: string | null;
-          height?: string | null;
-          id?: number;
-          inserted_at?: string;
-          last_name?: string | null;
-          length?: string | null;
-          make?: string | null;
-          model?: string | null;
-          pallet_count?: string | null;
-          price?: number | null;
-          user_id?: string | null;
-          weight?: string | null;
-          width?: string | null;
-          year?: string | null;
-          is_complete?: boolean | null;
-          is_archived?: boolean | null;
-          origin_zip?: string | null;
-          origin_city?: string | null; // Add origin_city
-          origin_state?: string | null; // Add origin_state
-          origin_address?: string | null; // Add origin_address
-        };
+          commodity?: string | null
+          destination_city?: string | null
+          destination_state?: string | null
+          destination_street?: string | null
+          destination_zip?: string | null
+          due_date?: string | null
+          email?: string | null
+          first_name?: string | null
+          height?: string | null
+          id?: number
+          inserted_at?: string
+          is_archived?: boolean | null
+          is_complete?: boolean | null
+          last_name?: string | null
+          length?: string | null
+          make?: string | null
+          model?: string | null
+          origin_address?: string | null
+          origin_city?: string | null
+          origin_state?: string | null
+          origin_zip?: string | null
+          pallet_count?: string | null
+          price?: number | null
+          user_id?: string | null
+          weight?: string | null
+          width?: string | null
+          year?: string | null
+        }
         Update: {
-          commodity?: string | null;
-          destination_city?: string | null;
-          destination_state?: string | null;
-          destination_street?: string | null;
-          destination_zip?: string | null;
-          due_date?: string | null;
-          email?: string | null;
-          first_name?: string | null;
-          height?: string | null;
-          id?: number;
-          inserted_at?: string;
-          last_name?: string | null;
-          length?: string | null;
-          make?: string | null;
-          model?: string | null;
-          pallet_count?: string | null;
-          price?: number | null;
-          user_id?: string | null;
-          weight?: string | null;
-          width?: string | null;
-          year?: string | null;
-          is_complete?: boolean | null;
-          is_archived?: boolean | null;
-          origin_zip?: string | null;
-          origin_city?: string | null; // Add origin_city
-          origin_state?: string | null; // Add origin_state
-          origin_address?: string | null; // Add origin_address
-        };
+          commodity?: string | null
+          destination_city?: string | null
+          destination_state?: string | null
+          destination_street?: string | null
+          destination_zip?: string | null
+          due_date?: string | null
+          email?: string | null
+          first_name?: string | null
+          height?: string | null
+          id?: number
+          inserted_at?: string
+          is_archived?: boolean | null
+          is_complete?: boolean | null
+          last_name?: string | null
+          length?: string | null
+          make?: string | null
+          model?: string | null
+          origin_address?: string | null
+          origin_city?: string | null
+          origin_state?: string | null
+          origin_zip?: string | null
+          pallet_count?: string | null
+          price?: number | null
+          user_id?: string | null
+          weight?: string | null
+          width?: string | null
+          year?: string | null
+        }
         Relationships: [
           {
-            foreignKeyName: "shippingquotes_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "profiles";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
+            foreignKeyName: "fk_shippingquotes_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shippingquotes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       usage_stats: {
         Row: {
           active_time: number
@@ -516,50 +584,6 @@ export type Database = {
         }
         Relationships: []
       }
-      purchase_order: {
-        Row: {
-          id: number;
-          createddate: string | null;
-          expecteddate: string | null;
-          order_description: string | null;
-          ponumber: string | null;
-          status: string | null;
-          user_id: string | null;
-          vendorname: string | null;
-          vendornumber: string | null;
-        };
-        Insert: {
-          id?: number;
-          createddate?: string | null;
-          expecteddate?: string | null;
-          order_description?: string | null;
-          ponumber?: string | null;
-          status?: string | null;
-          user_id?: string | null;
-          vendorname?: string | null;
-          vendornumber?: string | null;
-        };
-        Update: {
-          id?: number;
-          createddate?: string | null;
-          expecteddate?: string | null;
-          order_description?: string | null;
-          ponumber?: string | null;
-          status?: string | null;
-          user_id?: string | null;
-          vendorname?: string | null;
-          vendornumber?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "purchase_order_vendornumber_fkey";
-            columns: ["vendornumber"];
-            isOneToOne: false;
-            referencedRelation: "vendors";
-            referencedColumns: ["vendornumber"];
-          }
-        ];
-      };
       vendors: {
         Row: {
           businesscity: string | null
