@@ -1,11 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
-import { supabase } from './initSupabase'; // Adjust the import path as needed
+import { supabase } from './supabaseClient'; // Adjust the import path as needed
 
 export const sendInvitations = async (emails: string[], userId: string, companyId: string) => {
     for (const email of emails) {
         try {
             // Send an invite link to the user's email address
-            const { data, error } = await supabase.auth.admin.invite_user_by_email(email);
+            const { data, error } = await supabase.auth.admin.inviteUserByEmail(email);
 
             if (error) {
                 throw new Error(error.message);
