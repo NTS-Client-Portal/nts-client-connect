@@ -43,7 +43,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ session, children })
 
             const { data, error } = await supabase
                 .from('profiles')
-                .select('id, email, first_name, last_name, company_name, address, phone_number, profile_picture, role')
+                .select('id, email, first_name, last_name, company_name, address, phone_number, profile_picture, role, team_role')
                 .eq('id', session.user.id)
                 .single();
 

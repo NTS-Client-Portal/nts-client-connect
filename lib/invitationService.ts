@@ -4,15 +4,10 @@ import { supabase } from './initSupabase'; // Adjust the import path as needed
 export const sendInvitations = async (emails: string[], userId: string, companyId: string) => {
     for (const email of emails) {
         try {
-            // Send an invite link to the user's email address
-            const { data, error } = await supabase.auth.admin.inviteUserByEmail(email);
-
-            if (error) {
-                throw new Error(error.message);
-            }
+            // Generate a unique token
+            const token = uuidv4();
 
             // Store the invitation token in the database
-            const token = uuidv4(); // Generate a unique token
             const { error: insertError } = await supabase
                 .from('invitations')
                 .insert({

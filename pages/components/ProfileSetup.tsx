@@ -30,7 +30,11 @@ const ProfileSetup = () => {
                     .single();
 
                 if (error) {
-                    console.error('Error fetching profile:', error.message);
+                    if (error.code === 'PGRST116') {
+                        console.error('No profile found for user');
+                    } else {
+                        console.error('Error fetching profile:', error.message);
+                    }
                 } else if (data) {
                     setFirstName(data.first_name || '');
                     setLastName(data.last_name || '');

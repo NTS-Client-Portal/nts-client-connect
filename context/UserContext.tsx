@@ -12,6 +12,7 @@ interface UserProfile {
     profile_picture: string | null;
     address: string | null;
     phone_number: string | null;
+    team_role: string | null;
 }
 
 interface UserContextType {
@@ -39,7 +40,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             const { data, error } = await supabase
                 .from('profiles')
-                .select('id, email, role, first_name, last_name, company_name, profile_picture, address, phone_number')
+                .select('id, email, role, first_name, last_name, company_name, profile_picture, address, phone_number, team_role')
                 .eq('id', session.user.id)
                 .single();
 
