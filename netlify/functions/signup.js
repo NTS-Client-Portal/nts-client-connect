@@ -74,8 +74,10 @@ exports.handler = async (event) => {
             throw new Error('User ID not found in response');
         }
 
-        // Update the user's profile with the default role and team_role
-        const updateResponse = await axios.patch(`${SUPABASE_URL}/rest/v1/profiles`, {
+        // Insert the user's profile into the profiles table
+        const profileResponse = await axios.post(`${SUPABASE_URL}/rest/v1/profiles`, {
+            id: userId,
+            email: email,
             role: 'user',
             team_role: 'manager'
         }, {
@@ -84,24 +86,21 @@ exports.handler = async (event) => {
                 Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
                 'Content-Type': 'application/json',
                 Prefer: 'return=representation'
-            },
-            params: {
-                id: `eq.${userId}` // Ensure the ID is correctly passed as a query parameter
             }
         });
 
-        if (updateResponse.data.error) {
-            throw new Error(updateResponse.data.error.message);
+        if (profileResponse.data.error) {
+            throw new Error(profileResponse.data.error.message);
         }
 
-        console.log('Profile update successful:', updateResponse.data);
+        console.log('Profile creation successful:', profileResponse.data);
 
         return {
             statusCode: 200,
             headers: {
                 'Access-Control-Allow-Origin': '*',
             },
-            body: JSON.stringify({ message: 'Signup successful', data: updateResponse.data }),
+            body: JSON.stringify({ message: 'Signup successful', data: profileResponse.data }),
         };
     } catch (error) {
         console.error('Error during signup:', error.response ? error.response.data : error.message);
