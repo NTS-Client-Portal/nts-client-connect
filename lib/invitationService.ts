@@ -27,7 +27,7 @@ export const sendInvitations = async (emails: string[], userId: string, companyI
 
         // Send the invitation email with the unique link
         const invitationLink = `${process.env.NEXT_PUBLIC_REDIRECT_URL}/invite?token=${token}`;
-        await fetch('/api/sendInviteEmail', {
+        await fetch('/api/sendInvite', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
