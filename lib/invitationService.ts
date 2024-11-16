@@ -1,8 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from './initSupabase'; // Adjust the import path as needed
 
+const isValidUUID = (uuid: string) => {
+    const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return regex.test(uuid);
+};
+
 export const sendInvitations = async (emails: string[], userId: string, companyId: string) => {
-    if (!uuidv4().test(companyId)) {
+    if (!isValidUUID(companyId)) {
         console.error('Invalid company_id:', companyId);
         return;
     }
