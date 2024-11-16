@@ -2,6 +2,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { supabase } from './initSupabase'; // Adjust the import path as needed
 
 export const sendInvitations = async (emails: string[], userId: string, companyId: string) => {
+    if (!uuidv4().test(companyId)) {
+        console.error('Invalid company_id:', companyId);
+        return;
+    }
+
     for (const email of emails) {
         try {
             // Generate a unique token

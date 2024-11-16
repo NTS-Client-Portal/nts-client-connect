@@ -45,7 +45,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 .single();
 
             if (error) {
-                console.error('Error fetching user profile:', error.message);
+                if (error.code === 'PGRST116') {
+                    console.error('No profile found for user');
+                } else {
+                    console.error('Error fetching user profile:', error.message);
+                }
                 setError('Error fetching user profile');
             } else {
                 console.log('Fetched user profile:', data);
