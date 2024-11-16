@@ -16,6 +16,7 @@ interface UserProfile {
   id: string;
   email: string;
   role: string;
+  team_role: string;
   inserted_at: string;
   first_name?: string | null;
   last_name?: string | null;
@@ -38,7 +39,7 @@ const HomePageContent = () => {
       </Head>
       <div className="w-full flex justify-center items-center p-4">
         <div className="w-full sm:w-2/3 lg:w-3/4">
-          {userProfile?.role === 'admin' && <DashboardTabs />}
+          {userProfile && <DashboardTabs />}
         </div>
       </div>
     </>
@@ -59,7 +60,7 @@ const LoginPage = () => {
       if (session && session.user.email_confirmed_at) {
         const { data: userProfile, error } = await supabase
           .from('profiles')
-          .select('id, email, role, inserted_at')
+          .select('id, email, role, team_role, inserted_at')
           .eq('id', session.user.id)
           .single();
 
@@ -83,6 +84,7 @@ const LoginPage = () => {
               id: session.user.id,
               email: session.user.email,
               role: 'user',
+              team_role: 'member',
               inserted_at: new Date().toISOString(),
             })
             .select();
@@ -228,7 +230,7 @@ const LoginPage = () => {
 
   return (
     <UserProvider>
-      {userProfile?.role === 'admin' ? (
+      {userProfile?.team_role === 'admin' ? (
         <AdminLayout>
           <HomePageContent />
         </AdminLayout>

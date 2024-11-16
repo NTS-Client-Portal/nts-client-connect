@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useSupabaseClient, useSession } from '@supabase/auth-helpers-react';
+import { v4 as uuidv4 } from 'uuid'; // Import UUID library
 import { sendInvitations } from '@/lib/invitationService'; // Adjust the import path as needed
 
 const ProfileSetup = () => {
@@ -12,6 +13,7 @@ const ProfileSetup = () => {
     const [lastName, setLastName] = useState('');
     const [companyName, setCompanyName] = useState('');
     const [companySize, setCompanySize] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState(''); // Add phone number state
     const [inviteEmails, setInviteEmails] = useState<string[]>([]);
     const [inviteEmail, setInviteEmail] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -34,6 +36,7 @@ const ProfileSetup = () => {
                     setLastName(data.last_name || '');
                     setCompanyName(data.company_name || '');
                     setCompanySize(data.company_size || '');
+                    setPhoneNumber(data.phone_number || ''); // Set phone number
                 }
             }
         };
@@ -47,6 +50,9 @@ const ProfileSetup = () => {
         setError(null);
 
         try {
+            // Generate a unique company_id if the company name is not provided
+            const companyId = companyName ? uuidv4() : `${firstName}-${lastName}-${uuidv4()}`;
+
             const { data, error } = await supabase
                 .from('profiles')
                 .upsert({
@@ -54,8 +60,10 @@ const ProfileSetup = () => {
                     email: session?.user?.email,
                     first_name: firstName,
                     last_name: lastName,
-                    company_name: companyName,
+                    company_name: companyName || `${firstName} ${lastName}`,
                     company_size: companySize,
+                    phone_number: phoneNumber, // Include phone number
+                    company_id: companyId,
                     profile_complete: true, // Set profile_complete to true
                 });
 
@@ -153,6 +161,15 @@ const ProfileSetup = () => {
                                             <option value="501-1000">501-1000</option>
                                             <option value="1001+">1001+</option>
                                         </select>
+                                        <label htmlFor="phoneNumber" className="mt-4">Phone Number</label>
+                                        <input
+                                            type="text"
+                                            id="phoneNumber"
+                                            value={phoneNumber}
+                                            onChange={(e) => setPhoneNumber(e.target.value)}
+                                            className="w-full p-2 mt-2 border rounded"
+                                            disabled={loading}
+                                        />
                                         <div className="mt-8">
                                             <h3 className="text-xl font-bold text-center">Invite Others</h3>
                                             <div className="flex mt-4">

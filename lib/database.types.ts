@@ -368,6 +368,7 @@ export type Database = {
           profile_complete: boolean | null
           profile_picture: string | null
           role: string | null
+          team_role: string | null
         }
         Insert: {
           address?: string | null
@@ -384,6 +385,7 @@ export type Database = {
           profile_complete?: boolean | null
           profile_picture?: string | null
           role?: string | null
+          team_role?: string | null
         }
         Update: {
           address?: string | null
@@ -400,6 +402,7 @@ export type Database = {
           profile_complete?: boolean | null
           profile_picture?: string | null
           role?: string | null
+          team_role?: string | null
         }
         Relationships: [
           {

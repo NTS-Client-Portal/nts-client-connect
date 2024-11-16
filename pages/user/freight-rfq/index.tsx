@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
 import UserLayout from '@/pages/components/UserLayout';
 import { UserProvider } from '@/context/UserContext';
 import DashboardTabs from '@/components/DashboardTabs';
-
 
 const UserDash = () => {
     const session = useSession();
@@ -15,7 +14,7 @@ const UserDash = () => {
     return (
         <UserProvider>
             <UserLayout>
-                <DashboardTabs session={session} />
+                <DashboardTabs />
             </UserLayout>
         </UserProvider>
     );

@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { UserRoundPen, BellRing, Building2, Shield, Menu, Sun, Moon } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
-const UserProfileForm = () => {
+const UserSettings = () => {
     const session = useSession();
     const supabase = useSupabaseClient<Database>();
     const [firstName, setFirstName] = useState('');
@@ -504,4 +504,4 @@ const UserProfileForm = () => {
     );
 };
 
-export default UserProfileForm;
+export default UserSettings;

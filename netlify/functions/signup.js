@@ -69,12 +69,33 @@ exports.handler = async (event) => {
 
         console.log('Signup successful:', response.data);
 
+        // Update the user's profile with the default role and team_role
+        const userId = response.data.id;
+        const updateResponse = await axios.patch(`${SUPABASE_URL}/rest/v1/profiles`, {
+            id: userId,
+            role: 'user',
+            team_role: 'manager'
+        }, {
+            headers: {
+                apikey: SERVICE_ROLE_KEY,
+                Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
+                'Content-Type': 'application/json',
+                Prefer: 'return=representation'
+            },
+        });
+
+        if (updateResponse.data.error) {
+            throw new Error(updateResponse.data.error.message);
+        }
+
+        console.log('Profile update successful:', updateResponse.data);
+
         return {
             statusCode: 200,
             headers: {
                 'Access-Control-Allow-Origin': '*',
             },
-            body: JSON.stringify({ message: 'Signup successful', data: response.data }),
+            body: JSON.stringify({ message: 'Signup successful', data: updateResponse.data }),
         };
     } catch (error) {
         console.error('Error during signup:', error.response ? error.response.data : error.message);

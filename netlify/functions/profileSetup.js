@@ -12,7 +12,7 @@ exports.handler = async (event) => {
         };
     }
 
-    const { email, firstName, lastName, companyName, companySize } = JSON.parse(event.body);
+    const { email, firstName, lastName, companyName, companySize, phoneNumber } = JSON.parse(event.body);
 
     if (!email || !firstName || !lastName) {
         return {
@@ -66,6 +66,7 @@ exports.handler = async (event) => {
             email,
             first_name: firstName,
             last_name: lastName,
+            phone_number: phoneNumber, // Include phone number
             company_name: companyName,
             company_size: companySize,
             company_id: companyId,
