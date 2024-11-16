@@ -69,8 +69,12 @@ exports.handler = async (event) => {
 
         console.log('Signup successful:', response.data);
 
+        const userId = response.data.user?.id; // Check if user and id exist
+        if (!userId) {
+            throw new Error('User ID not found in response');
+        }
+
         // Update the user's profile with the default role and team_role
-        const userId = response.data.user.id; // Correctly access the user ID
         const updateResponse = await axios.patch(`${SUPABASE_URL}/rest/v1/profiles`, {
             role: 'user',
             team_role: 'manager'
