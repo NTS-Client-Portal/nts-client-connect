@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { supabase } from './supabaseClient'; // Adjust the import path as needed
+import { supabase } from './initSupabase'; // Adjust the import path as needed
 
 export const sendInvitations = async (emails: string[], userId: string, companyId: string) => {
     for (const email of emails) {
