@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useSupabaseClient, useSession } from '@supabase/auth-helpers-react';
 import { sendInvitations } from '@/lib/invitationService'; // Adjust the import path as needed
+import { v4 as uuidv4 } from 'uuid'; // Import uuidv4
 
 const ProfileSetup = () => {
     const router = useRouter();
