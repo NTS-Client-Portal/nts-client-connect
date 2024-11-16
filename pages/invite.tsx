@@ -46,7 +46,7 @@ const InvitePage = () => {
         }
 
         try {
-            const { user, error: signUpError } = await supabase.auth.signUp({
+            const { data, error: signUpError } = await supabase.auth.signUp({
                 email,
                 password,
             });
@@ -54,6 +54,8 @@ const InvitePage = () => {
             if (signUpError) {
                 throw new Error(signUpError.message);
             }
+
+            const user = data.user;
 
             // Update the user's profile
             const { error: profileError } = await supabase
