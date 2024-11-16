@@ -70,9 +70,8 @@ exports.handler = async (event) => {
         console.log('Signup successful:', response.data);
 
         // Update the user's profile with the default role and team_role
-        const userId = response.data.id;
+        const userId = response.data.user.id; // Correctly access the user ID
         const updateResponse = await axios.patch(`${SUPABASE_URL}/rest/v1/profiles`, {
-            id: userId,
             role: 'user',
             team_role: 'manager'
         }, {
@@ -82,6 +81,9 @@ exports.handler = async (event) => {
                 'Content-Type': 'application/json',
                 Prefer: 'return=representation'
             },
+            params: {
+                id: `eq.${userId}` // Ensure the ID is correctly passed as a query parameter
+            }
         });
 
         if (updateResponse.data.error) {
