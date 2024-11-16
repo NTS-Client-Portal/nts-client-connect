@@ -6,12 +6,16 @@ import DashboardTabs from '@/components/DashboardTabs';
 
 
 const UserDash = () => {
+    const session = useSession();
 
+    if (!session) {
+        return <p>Loading...</p>;
+    }
 
     return (
         <UserProvider>
             <UserLayout>
-                <DashboardTabs />
+                <DashboardTabs session={session} />
             </UserLayout>
         </UserProvider>
     );

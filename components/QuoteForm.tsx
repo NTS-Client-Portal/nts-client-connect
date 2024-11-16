@@ -14,7 +14,7 @@ interface QuoteFormProps {
 const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText, setErrorText, isOpen, onClose }) => {
     const [selectedFreight, setSelectedFreight] = useState<string>('');
     const [selectedOption, setSelectedOption] = useState<string>('');
-    const [yearAmount, setYearAmount] = useState<string>('');
+    const [year, setYear] = useState<string>('');
     const [make, setMake] = useState<string>('');
     const [model, setModel] = useState<string>('');
     const [palletCount, setPalletCount] = useState<string>('');
@@ -36,7 +36,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
         setSelectedFreight(freightId);
         const selected = freightList.find(freight => freight.id === parseInt(freightId));
         if (selected) {
-            setYearAmount(selected.year || '');
+            setYear(selected.year || '');
             setMake(selected.make || '');
             setModel(selected.model || '');
             setPalletCount(selected.pallet_count || '');
@@ -47,7 +47,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
             setWeight(selected.weight || '');
             setSelectedOption(selected.freight_type || '');
         } else {
-            setYearAmount('');
+            setYear('');
             setMake('');
             setModel('');
             setPalletCount('');
@@ -107,7 +107,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
             destination_city: destinationCity,
             destination_state: destinationState,
             destination_zip: destinationZip,
-            year_amount: yearAmount,
+            year: year,
             make: make,
             model: model,
             pallet_count: selectedOption === 'equipment' ? '' : palletCount,
@@ -163,10 +163,10 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
                                         <input
                                             className="rounded dark:text-zinc-800 w-full  p-2 border border-zinc-900"
                                             type="text"
-                                            value={yearAmount}
+                                            value={year}
                                             onChange={(e) => {
                                                 setErrorText('');
-                                                setYearAmount(e.target.value);
+                                                setYear(e.target.value);
                                             }}
                                         />
                                     </label>
@@ -225,15 +225,15 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
                     )}
 
                     <div className='flex gap-2'>
-                        {yearAmount && (
+                        {year && (
                             <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Year/Amount
                                 <input
                                     className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
                                     type="text"
-                                    value={yearAmount}
+                                    value={year}
                                     onChange={(e) => {
                                         setErrorText('');
-                                        setYearAmount(e.target.value);
+                                        setYear(e.target.value);
                                     }}
                                 />
                             </label>
