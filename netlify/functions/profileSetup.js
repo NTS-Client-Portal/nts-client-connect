@@ -39,8 +39,8 @@ exports.handler = async (event) => {
             throw new Error(companyError.message);
         }
 
-        if (existingCompany) {
-            companyId = existingCompany.id;
+        if (existingCompany && existingCompany.length > 0) {
+            companyId = existingCompany[0].id;
         } else {
             // Create a new company record
             const { data: newCompany, error: newCompanyError } = await axios.post(`${SUPABASE_URL}/rest/v1/rpc/create_company`, {
@@ -58,7 +58,7 @@ exports.handler = async (event) => {
                 throw new Error(newCompanyError.message);
             }
 
-            companyId = newCompany.id;
+            companyId = newCompany[0].id;
         }
 
         // Store additional user information in the profiles table
@@ -88,6 +88,7 @@ exports.handler = async (event) => {
             body: JSON.stringify({ message: 'Profile setup successful' }),
         };
     } catch (error) {
+        console.error('Error during profile setup:', error.response ? error.response.data : error.message);
         return {
             statusCode: 500,
             body: JSON.stringify({ error: 'Failed to complete profile setup', details: error.response ? error.response.data : error.message }),

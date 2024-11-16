@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useSupabaseClient, useSession } from '@supabase/auth-helpers-react';
-import { v4 as uuidv4 } from 'uuid'; // Import UUID library
 import { sendInvitations } from '@/lib/invitationService'; // Adjust the import path as needed
 
 const ProfileSetup = () => {
@@ -28,7 +27,7 @@ const ProfileSetup = () => {
                     .select('*')
                     .eq('id', session.user.id)
                     .single();
-    
+
                 if (error) {
                     console.error('Error fetching profile:', error.message);
                 } else if (data) {
@@ -40,7 +39,7 @@ const ProfileSetup = () => {
                 }
             }
         };
-    
+
         fetchProfile();
     }, [session, supabase]);
 

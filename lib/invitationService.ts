@@ -1,23 +1,19 @@
-import { createClient } from '@supabase/supabase-js';
-import { Database } from '@/lib/database.types';
 import { v4 as uuidv4 } from 'uuid';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Supabase URL and Anon Key must be set in environment variables');
-}
-
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+import { supabase } from './initSupabase'; // Adjust the import path as needed
 
 export const sendInvitations = async (emails: string[], userId: string, companyId: string) => {
     for (const email of emails) {
-        const token = uuidv4(); // Generate a unique token
-
         try {
+            // Send an invite link to the user's email address
+            const { data, error } = await supabase.auth.admin.invite_user_by_email(email);
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
             // Store the invitation token in the database
-            await supabase
+            const token = uuidv4(); // Generate a unique token
+            const { error: insertError } = await supabase
                 .from('invitations')
                 .insert({
                     email,
@@ -26,9 +22,13 @@ export const sendInvitations = async (emails: string[], userId: string, companyI
                     company_id: companyId,
                 });
 
+            if (insertError) {
+                throw new Error(insertError.message);
+            }
+
             // Send the invitation email with the unique link
             const invitationLink = `${process.env.NEXT_PUBLIC_REDIRECT_URL}/invite?token=${token}`;
-            await fetch('/api/sendEmail', {
+            const response = await fetch('/api/sendEmail', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -39,6 +39,10 @@ export const sendInvitations = async (emails: string[], userId: string, companyI
                     text: `You have been invited to join NTS Portal. Please sign up using the following link: ${invitationLink}`,
                 }),
             });
+
+            if (!response.ok) {
+                throw new Error('Failed to send invitation email');
+            }
         } catch (error) {
             console.error('Error sending invitation:', error);
         }
