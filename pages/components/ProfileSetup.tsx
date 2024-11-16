@@ -28,7 +28,7 @@ const ProfileSetup = () => {
                     .select('*')
                     .eq('id', session.user.id)
                     .single();
-
+    
                 if (error) {
                     console.error('Error fetching profile:', error.message);
                 } else if (data) {
@@ -40,7 +40,7 @@ const ProfileSetup = () => {
                 }
             }
         };
-
+    
         fetchProfile();
     }, [session, supabase]);
 
@@ -50,8 +50,40 @@ const ProfileSetup = () => {
         setError(null);
 
         try {
-            // Generate a unique company_id if the company name is not provided
-            const companyId = companyName ? uuidv4() : `${firstName}-${lastName}-${uuidv4()}`;
+            // Ensure the company exists or create a new one
+            let companyId;
+            if (companyName) {
+                const { data: existingCompany, error: companyError } = await supabase
+                    .from('companies')
+                    .select('id')
+                    .eq('name', companyName)
+                    .single();
+
+                if (companyError && companyError.code !== 'PGRST116') {
+                    throw new Error(companyError.message);
+                }
+
+                if (existingCompany) {
+                    companyId = existingCompany.id;
+                } else {
+                    const { data: newCompany, error: newCompanyError } = await supabase
+                        .from('companies')
+                        .insert({
+                            name: companyName,
+                            size: companySize,
+                        })
+                        .select()
+                        .single();
+
+                    if (newCompanyError) {
+                        throw new Error(newCompanyError.message);
+                    }
+
+                    companyId = newCompany.id;
+                }
+            } else {
+                companyId = uuidv4();
+            }
 
             const { data, error } = await supabase
                 .from('profiles')
