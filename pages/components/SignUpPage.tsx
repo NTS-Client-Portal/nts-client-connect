@@ -2,8 +2,10 @@ import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { Move3d } from 'lucide-react';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
 
 export default function SignUpPage() {
+    const supabase = useSupabaseClient();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -36,18 +38,16 @@ export default function SignUpPage() {
         }
 
         try {
-            const response = await fetch('/.netlify/functions/signup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
+            const { error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/profile-setup`,
                 },
-                body: JSON.stringify({ email, password }),
             });
 
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.error || 'Failed to sign up');
+            if (error) {
+                throw new Error(error.message);
             }
 
             setSuccess(true);
