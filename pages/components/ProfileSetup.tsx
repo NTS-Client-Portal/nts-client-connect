@@ -54,57 +54,25 @@ const ProfileSetup = () => {
         setError(null);
 
         try {
-            // Ensure the company exists or create a new one
-            let companyId;
-            if (companyName) {
-                const { data: existingCompany, error: companyError } = await supabase
-                    .from('companies')
-                    .select('id')
-                    .eq('name', companyName)
-                    .single();
-
-                if (companyError && companyError.code !== 'PGRST116') {
-                    throw new Error(companyError.message);
-                }
-
-                if (existingCompany) {
-                    companyId = existingCompany.id;
-                } else {
-                    const { data: newCompany, error: newCompanyError } = await supabase
-                        .from('companies')
-                        .insert({
-                            name: companyName,
-                            size: companySize,
-                        })
-                        .select()
-                        .single();
-
-                    if (newCompanyError) {
-                        throw new Error(newCompanyError.message);
-                    }
-
-                    companyId = newCompany.id;
-                }
-            } else {
-                companyId = uuidv4();
-            }
-
-            const { data, error } = await supabase
-                .from('profiles')
-                .upsert({
-                    id: session?.user?.id,
+            const response = await fetch('/.netlify/functions/profileSetup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
                     email: session?.user?.email,
-                    first_name: firstName,
-                    last_name: lastName,
-                    company_name: companyName || `${firstName} ${lastName}`,
-                    company_size: companySize,
-                    phone_number: phoneNumber, // Include phone number
-                    company_id: companyId,
-                    profile_complete: true, // Set profile_complete to true
-                });
+                    firstName,
+                    lastName,
+                    companyName,
+                    companySize,
+                    phoneNumber,
+                }),
+            });
 
-            if (error) {
-                throw new Error(error.message);
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to complete profile setup');
             }
 
             setSuccess(true);

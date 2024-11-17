@@ -6,9 +6,9 @@ const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const getRedirectUrl = () => {
     if (process.env.NODE_ENV === 'development') {
-        return 'http://localhost:8888/user/profile-setup';
+        return 'http://localhost:8888/profile-setup';
     }
-    return `${process.env.NEXT_PUBLIC_REDIRECT_URL}/user/profile-setup`;
+    return `${process.env.NEXT_PUBLIC_REDIRECT_URL}/profile-setup`;
 };
 
 exports.handler = async (event) => {
@@ -63,11 +63,11 @@ exports.handler = async (event) => {
             },
         });
 
+        console.log('Supabase response:', response.data);
+
         if (response.data.error) {
             throw new Error(response.data.error.message);
         }
-
-        console.log('Signup successful:', response.data);
 
         const userId = response.data.user?.id; // Check if user and id exist
         if (!userId) {
