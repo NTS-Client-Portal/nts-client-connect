@@ -3,8 +3,9 @@ import { useSession } from '@supabase/auth-helpers-react';
 import UserLayout from '@/pages/components/UserLayout';
 import { UserProvider } from '@/context/UserContext';
 import DashboardTabs from '@/components/DashboardTabs';
+import withProfileCheck from '@/components/hoc/withProfileCheck';
 
-const UserDash = () => {
+const UserDash: React.FC = () => {
     const session = useSession();
 
     if (!session) {
@@ -20,4 +21,4 @@ const UserDash = () => {
     );
 };
 
-export default UserDash;
+export default withProfileCheck(UserDash);
