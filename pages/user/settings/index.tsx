@@ -33,13 +33,13 @@ const UserProfilePage: React.FC = () => {
                             className={`px-4 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'settings' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
                             onClick={() => setActiveTab('settings')}
                         >
-                            User's Settings
+                            User&apos;s Settings
                         </button>
                         <button
                             className={`px-4 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'manager' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
                             onClick={() => setActiveTab('manager')}
                         >
-                            Manager's Panel
+                            Manager&apos;s Panel
                         </button>
 
                     </div>
