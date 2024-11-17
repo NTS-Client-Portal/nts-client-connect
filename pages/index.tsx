@@ -84,7 +84,7 @@ const LoginPage = () => {
               id: session.user.id,
               email: session.user.email,
               role: 'user',
-              team_role: 'member',
+              team_role: 'manager',
               inserted_at: new Date().toISOString(),
             })
             .select();
