@@ -46,7 +46,7 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                         className="fixed z-50 top-1 left-0 p-2 drop-shadow-lg rounded-full"
                         onClick={toggleSidebar}
                     >
-                        {isSidebarOpen ? <PanelRightClose size={24} className='text-white z-50 drop-shadow-lg' /> : <PanelLeftOpen size={28} className='z-50 text-zinc-100 dark:text-zinc-100 drop-shadow-lg ' />}
+                        {isSidebarOpen ? <PanelRightClose size={24} className='text-white z-50 drop-shadow-lg' /> : <PanelLeftOpen size={28} className='z-50 text-zinc-100 drop-shadow-lg ' />}
                     </button>
                 </div>
                 <nav className={`side-navbar px-1 md:pr-1 z-50 flex flex-col h-screen py-6 drop-shadow absolute top-0 left-0 transform ${isSidebarOpen ? 'translate-x-0 z-50' : '-translate-x-full'} transition-transform duration-300 h-screen ease-in-out z-50 ${className}`}>

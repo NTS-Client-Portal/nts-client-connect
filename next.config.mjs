@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['fazytsvctdzbhvsavvwj.supabase.co', 'www.gravatar.com'],
+    domains: ['cbarvnrqvxroetrcuikv.supabase.co', 'www.gravatar.com'],
   },
 };
 

@@ -212,11 +212,11 @@ const UserSettings = () => {
     };
 
     return (
-        <div className="flex h-screen">
+        <div className="flex h-screen z-0">
             {/* Sidebar */}
-            <div className={`fixed inset-y-0 left-0 transform ${sidebarOpen ? 'tranzinc-x-0' : '-tranzinc-x-full'} transition-transform duration-300 ease-in-out w-64 bg-zinc-200 dark:bg-zinc-900 dark:text-white p-4 border-r border-t border-zinc-700/20 shadow-lg z-50 md:relative md:tranzinc-x-0`}>
-                <h2 className="text-xl font-bold mb-4">Settings</h2>
-                <ul className="space-y-2">
+            <div className={`fixed inset-y-0 top-0 left-0 z-0 transform ${sidebarOpen ? 'tranzinc-x-0' : '-tranzinc-x-full'} transition-transform duration-300 ease-in-out w-64 bg-zinc-200 dark:bg-zinc-900 dark:text-white p-4 border-r border-t border-zinc-700/20 shadow-lg z-0 md:relative md:tranzinc-x-0`}>
+                <h2 className="text-xl font-bold mb-4 pt-8 md:pt-0">Settings</h2>
+                <ul className="space-y-2 z-0">
                     <li className='flex gap-1 items-center'>
                         <UserRoundPen />
                         <button
@@ -284,7 +284,7 @@ const UserSettings = () => {
                 </div>
 
                 {activeSection === 'personal' && (
-                    <div className=' flex flex-col w-full lg:w-1/2 md:items-center justify-center'>
+                    <div className=' flex flex-col w-full lg:w-2/3 md:items-end justify-center'>
                         <button
                             onClick={() => setIsEditing(true)}
                             className="body-btn"

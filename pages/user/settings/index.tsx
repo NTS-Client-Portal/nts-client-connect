@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
 import UserLayout from '@/pages/components/UserLayout';
 import { UserProvider } from '@/context/UserContext';
@@ -9,6 +9,7 @@ import withProfileCheck from '@/components/hoc/withProfileCheck';
 
 const UserProfilePage: React.FC = () => {
     const session = useSession();
+    const [activeTab, setActiveTab] = useState('settings');
 
     if (!session) {
         return <p>Loading...</p>;
@@ -25,8 +26,28 @@ const UserProfilePage: React.FC = () => {
     return (
         <UserProvider>
             <UserLayout>
-                <UserSettings />
-                <ManagerPanel profile={userProfile} />
+                <div className="flex flex-col w-full">
+                    <div className="flex border-b border-gray-300">
+
+                        <button
+                            className={`px-4 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'settings' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                            onClick={() => setActiveTab('settings')}
+                        >
+                            User's Settings
+                        </button>
+                        <button
+                            className={`px-4 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'manager' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                            onClick={() => setActiveTab('manager')}
+                        >
+                            Manager's Panel
+                        </button>
+
+                    </div>
+                    <div className="p-4 bg-white border border-gray-300 rounded-b-md">
+                        {activeTab === 'settings' && <UserSettings />}
+                        {activeTab === 'manager' && <ManagerPanel profile={userProfile} />}
+                    </div>
+                </div>
             </UserLayout>
         </UserProvider>
     );

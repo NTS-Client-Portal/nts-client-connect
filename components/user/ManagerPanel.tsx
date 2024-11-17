@@ -64,27 +64,52 @@ const ManagerPanel = ({ profile }) => {
   };
 
   return (
-    <div>
-      <h2>Manager Panel</h2>
-      <div>
-        <h3>Add New User</h3>
-        <input
-          type="email"
-          value={newUserEmail}
-          onChange={(e) => setNewUserEmail(e.target.value)}
-          placeholder="Enter member's email"
-        />
-        <button onClick={handleAddUser}>Add User</button>
+    <div className="flex flex-col w-full lg:w-2/3 md:items-start justify-center gap-4 bg-stone-200 dark:text-zinc-800 px-12 pt-6 pb-12 border border-zinc-600/40 shadow-sm rounded-sm">
+      <h2 className="text-2xl font-bold mb-4">Manager Panel</h2>
+      <div className="flex flex-col gap-4">
+        <h3 className="text-xl font-semibold">Add New User</h3>
+        <div className="flex flex-col gap-2">
+          <input
+            type="email"
+            value={newUserEmail}
+            onChange={(e) => setNewUserEmail(e.target.value)}
+            placeholder="Enter member's email"
+            className="rounded w-full p-2 border border-zinc-900"
+          />
+          <button
+            onClick={handleAddUser}
+            className="body-btn"
+          >
+            Add User
+          </button>
+        </div>
       </div>
-      <div>
-        <h3>Manage Users</h3>
-        <ul>
+      <div className="flex flex-col gap-4 mt-6">
+        <h3 className="text-xl font-semibold">Manage Users</h3>
+        <ul className="space-y-2">
           {users.map((user) => (
-            <li key={user.id}>
-              {user.email} - {user.team_role}
-              <button onClick={() => handleDeleteUser(user.id)}>Delete</button>
-              <button onClick={() => handleGrantPermissions(user.id, 'manager')}>Make Manager</button>
-              <button onClick={() => handleGrantPermissions(user.id, 'member')}>Make User</button>
+            <li key={user.id} className="flex justify-between items-center p-2 border border-zinc-900 rounded">
+              <span>{user.email} - {user.team_role}</span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleDeleteUser(user.id)}
+                  className="body-btn"
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={() => handleGrantPermissions(user.id, 'manager')}
+                  className="body-btn"
+                >
+                  Make Manager
+                </button>
+                <button
+                  onClick={() => handleGrantPermissions(user.id, 'member')}
+                  className="body-btn"
+                >
+                  Make User
+                </button>
+              </div>
             </li>
           ))}
         </ul>
