@@ -77,6 +77,8 @@ export const sendInvitations = async (emails: string[], userId: string, companyN
             });
 
             if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Error response from sendEmail API:', errorText);
                 throw new Error('Failed to send invitation email');
             }
         }
