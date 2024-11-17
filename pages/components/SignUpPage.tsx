@@ -38,16 +38,32 @@ export default function SignUpPage() {
         }
 
         try {
-            const { error } = await supabase.auth.signUp({
+            const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
-                options: {
-                    emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/profile-setup`,
-                },
             });
 
             if (error) {
                 throw new Error(error.message);
+            }
+
+            const userId = data.user?.id;
+            if (!userId) {
+                throw new Error('User ID not found in response');
+            }
+
+            // Insert the user's profile into the profiles table
+            const { error: profileError } = await supabase
+                .from('profiles')
+                .insert({
+                    id: userId,
+                    email: email,
+                    role: 'user',
+                    team_role: 'manager',
+                });
+
+            if (profileError) {
+                throw new Error(profileError.message);
             }
 
             setSuccess(true);

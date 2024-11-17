@@ -22,20 +22,24 @@ export default function ConfirmSignup() {
             setLoading(true);
             setError(null);
 
-            const { error } = await supabase.auth.verifyOtp({
-                token: token as string,
-                type: 'signup',
-                email: email as string,
-            });
+            try {
+                const { error } = await supabase.auth.verifyOtp({
+                    token: token as string,
+                    type: 'signup',
+                    email: email as string,
+                });
 
-            if (error) {
-                setError(error.message);
-            } else {
-                setSuccess(true);
-                router.push(redirect_to as string || '/profile-setup');
+                if (error) {
+                    setError(error.message);
+                } else {
+                    setSuccess(true);
+                    router.push(redirect_to as string || '/profile-setup');
+                }
+            } catch (err) {
+                setError('An unexpected error occurred');
+            } finally {
+                setLoading(false);
             }
-
-            setLoading(false);
         };
 
         confirmSignup();
