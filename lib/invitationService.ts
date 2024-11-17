@@ -6,14 +6,45 @@ const isValidUUID = (uuid: string) => {
     return regex.test(uuid);
 };
 
-export const sendInvitations = async (emails: string[], userId: string, companyId: string) => {
-    if (!isValidUUID(companyId)) {
-        console.error('Invalid company_id:', companyId);
-        return;
-    }
+export const sendInvitations = async (emails: string[], userId: string, companyName: string) => {
+    try {
+        // Check if the company already exists
+        const { data: existingCompany, error: companyError } = await supabase
+            .from('companies')
+            .select('id')
+            .eq('name', companyName)
+            .single();
 
-    for (const email of emails) {
-        try {
+        let companyId;
+
+        if (companyError && companyError.code !== 'PGRST116') {
+            throw new Error(companyError.message);
+        }
+
+        if (existingCompany) {
+            companyId = existingCompany.id;
+        } else {
+            // Create a new company record
+            const { data: newCompany, error: newCompanyError } = await supabase
+                .from('companies')
+                .insert({
+                    name: companyName,
+                })
+                .select()
+                .single();
+
+            if (newCompanyError) {
+                throw new Error(newCompanyError.message);
+            }
+
+            companyId = newCompany.id;
+        }
+
+        if (!isValidUUID(companyId)) {
+            throw new Error(`Invalid company_id: ${companyId}`);
+        }
+
+        for (const email of emails) {
             // Generate a unique token
             const token = uuidv4();
 
@@ -48,8 +79,8 @@ export const sendInvitations = async (emails: string[], userId: string, companyI
             if (!response.ok) {
                 throw new Error('Failed to send invitation email');
             }
-        } catch (error) {
-            console.error('Error sending invitation:', error);
         }
+    } catch (error) {
+        console.error('Error sending invitations:', error);
     }
 };
