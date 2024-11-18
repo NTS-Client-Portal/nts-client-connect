@@ -983,11 +983,6 @@ body:is(.dark *) {
   display: none;
 }
 
-.size-10 {
-  width: 2.5rem;
-  height: 2.5rem;
-}
-
 .size-5 {
   width: 1.25rem;
   height: 1.25rem;
@@ -1047,6 +1042,10 @@ body:is(.dark *) {
   height: 1.5rem;
 }
 
+.h-8 {
+  height: 2rem;
+}
+
 .h-9 {
   height: 2.25rem;
 }
@@ -1082,14 +1081,6 @@ body:is(.dark *) {
 
 .h-screen {
   height: 100vh;
-}
-
-.h-7 {
-  height: 1.75rem;
-}
-
-.h-8 {
-  height: 2rem;
 }
 
 .max-h-60 {
@@ -1169,6 +1160,10 @@ body:is(.dark *) {
   width: 18rem;
 }
 
+.w-8 {
+  width: 2rem;
+}
+
 .w-80 {
   width: 20rem;
 }
@@ -1187,14 +1182,6 @@ body:is(.dark *) {
 
 .w-full {
   width: 100%;
-}
-
-.w-7 {
-  width: 1.75rem;
-}
-
-.w-8 {
-  width: 2rem;
 }
 
 .min-w-\[8rem\] {
@@ -1283,10 +1270,6 @@ body:is(.dark *) {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.flex-row {
-  flex-direction: row;
-}
-
 .flex-row-reverse {
   flex-direction: row-reverse;
 }
@@ -1367,6 +1350,10 @@ body:is(.dark *) {
   gap: 0px;
 }
 
+.gap-0\.5 {
+  gap: 0.125rem;
+}
+
 .gap-1 {
   gap: 0.25rem;
 }
@@ -1393,10 +1380,6 @@ body:is(.dark *) {
 
 .gap-6 {
   gap: 1.5rem;
-}
-
-.gap-0\.5 {
-  gap: 0.125rem;
 }
 
 .gap-y-10 {
@@ -1712,11 +1695,6 @@ body:is(.dark *) {
   background-color: hsl(var(--muted));
 }
 
-.bg-ntsBlue {
-  --tw-bg-opacity: 1;
-  background-color: rgb(54 64 78 / var(--tw-bg-opacity));
-}
-
 .bg-ntsLightBlue {
   --tw-bg-opacity: 1;
   background-color: rgb(51 122 183 / var(--tw-bg-opacity));
@@ -2016,6 +1994,10 @@ body:is(.dark *) {
   padding-top: 2rem;
 }
 
+.pl-3 {
+  padding-left: 0.75rem;
+}
+
 .text-left {
   text-align: left;
 }
@@ -2038,10 +2020,6 @@ body:is(.dark *) {
 
 .font-sans {
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-}
-
-.font-serif {
-  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
 .text-2xl {
@@ -2161,6 +2139,11 @@ body:is(.dark *) {
   color: hsl(var(--muted-foreground));
 }
 
+.text-ntsLightBlue {
+  --tw-text-opacity: 1;
+  color: rgb(51 122 183 / var(--tw-text-opacity));
+}
+
 .text-orange-500 {
   --tw-text-opacity: 1;
   color: rgb(249 115 22 / var(--tw-text-opacity));
@@ -2186,16 +2169,6 @@ body:is(.dark *) {
 .text-red-600 {
   --tw-text-opacity: 1;
   color: rgb(220 38 38 / var(--tw-text-opacity));
-}
-
-.text-red-700 {
-  --tw-text-opacity: 1;
-  color: rgb(185 28 28 / var(--tw-text-opacity));
-}
-
-.text-red-800 {
-  --tw-text-opacity: 1;
-  color: rgb(153 27 27 / var(--tw-text-opacity));
 }
 
 .text-secondary-foreground {
@@ -2265,11 +2238,6 @@ body:is(.dark *) {
 .text-zinc-950 {
   --tw-text-opacity: 1;
   color: rgb(9 9 11 / var(--tw-text-opacity));
-}
-
-.text-ntsLightBlue {
-  --tw-text-opacity: 1;
-  color: rgb(51 122 183 / var(--tw-text-opacity));
 }
 
 .underline {
@@ -3101,8 +3069,8 @@ main:is(.dark *) {
   background-color: rgb(67 56 202 / var(--tw-bg-opacity));
 }
 
-.hover\:bg-ntsLightBlue\/90:hover {
-  background-color: rgb(51 122 183 / 0.9);
+.hover\:bg-ntsLightBlue\/80:hover {
+  background-color: rgb(51 122 183 / 0.8);
 }
 
 .hover\:bg-primary\/90:hover {
@@ -3130,10 +3098,6 @@ main:is(.dark *) {
 .hover\:bg-zinc-800:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(39 39 42 / var(--tw-bg-opacity));
-}
-
-.hover\:bg-ntsLightBlue\/80:hover {
-  background-color: rgb(51 122 183 / 0.8);
 }
 
 .hover\:text-accent-foreground:hover {
@@ -3498,10 +3462,6 @@ main:is(.dark *) {
     justify-content: center;
   }
 
-  .xs\:justify-between {
-    justify-content: space-between;
-  }
-
   .xs\:pr-8 {
     padding-right: 2rem;
   }
@@ -3542,11 +3502,6 @@ main:is(.dark *) {
 
   .sm\:gap-2 {
     gap: 0.5rem;
-  }
-
-  .sm\:text-base {
-    font-size: 1rem;
-    line-height: 1.5rem;
   }
 
   .sm\:text-sm {
@@ -3688,10 +3643,6 @@ main:is(.dark *) {
     align-items: center;
   }
 
-  .md\:justify-start {
-    justify-content: flex-start;
-  }
-
   .md\:justify-end {
     justify-content: flex-end;
   }
@@ -3734,11 +3685,6 @@ main:is(.dark *) {
     line-height: 2rem;
   }
 
-  .md\:text-3xl {
-    font-size: 1.875rem;
-    line-height: 2.25rem;
-  }
-
   .md\:text-lg {
     font-size: 1.125rem;
     line-height: 1.75rem;
@@ -3752,10 +3698,6 @@ main:is(.dark *) {
   .md\:text-xl {
     font-size: 1.25rem;
     line-height: 1.75rem;
-  }
-
-  .md\:leading-10 {
-    line-height: 2.5rem;
   }
 }
 
