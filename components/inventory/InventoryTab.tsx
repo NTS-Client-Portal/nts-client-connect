@@ -23,17 +23,17 @@ const InventoryTab = ({ freightList = [], editFreight, handleDeleteClick, handle
     
 
     return (
-        <div className="w-full bg-white dark:bg-zinc-700 shadow rounded-md border border-zinc-400 max-h-max flex-grow">
+        <div className="w-full dark:bg-zinc-700 shadow rounded-md border border-zinc-400 max-h-max flex-grow">
             {error && <div className="text-red-500 p-4">{error}</div>} {/* Display error message */}
             <div className="hidden xl:block parent-container overflow-x-auto ">
-                <table className="min-w-full divide-y  divide-zinc-200">
-                    <thead className="bg-zinc-50 dark:bg-zinc-700 dark:text-zinc-900">
-                        <tr className='border-b dark:text-zinc-50 border-zinc-900/20  dark:border-zinc-900'>
-                            <th className="dark:border-zinc-900 px-6 py-1 text-left text-nowrap text-xs font-normal dark:text-normal dark:font-medium uppercase tracking-wider border-r border-zinc-900/20  dark:border-zinc-100/20 ">Inventory Item</th>
-                            <th className="dark:border-zinc-900 px-6 py-1 text-left text-nowrap text-xs font-normal dark:text-normal dark:font-medium uppercase tracking-wider border-r border-zinc-900/20  dark:border-zinc-100/20 ">Dimensions</th>
-                            <th className="dark:border-zinc-900 px-6 py-1 text-left text-nowrap text-xs font-normal dark:text-normal dark:font-medium uppercase tracking-wider border-r border-zinc-900/20  dark:border-zinc-100/20 ">Serial Number</th>
-                            <th className="dark:border-zinc-900 px-6 py-1 text-left text-nowrap text-xs font-normal dark:text-normal dark:font-medium uppercase tracking-wider border-r border-zinc-900/20  dark:border-zinc-100/20 ">Inventory Number</th>
-                            <th className="dark:border-zinc-900 px-6 py-1  text-center text-nowrap text-xs font-normal dark:text-normal dark:font-medium uppercase tracking-tighter border-r border-zinc-900/20  dark:border-zinc-100/20">Actions</th>
+                <table className="min-w-full divide-y divide-zinc-200">
+                    <thead className="bg-ntsLightBlue  text-white dark:bg-zinc-700 dark:text-zinc-900">
+                        <tr className='border-b pt-6 dark:text-zinc-50 border-zinc-900/20  dark:border-zinc-900'>
+                            <th className="dark:border-zinc-900 px-6 pt-4 pb-1 text-left text-nowrap text-xs font-semibold dark:text-semibold dark:font-medium uppercase tracking-wider border-r border-zinc-900/20  dark:border-zinc-100/20 ">Inventory Item</th>
+                            <th className="dark:border-zinc-900 px-6 pt-4 pb-1 text-left text-nowrap text-xs font-semibold dark:text-semibold dark:font-medium uppercase tracking-wider border-r border-zinc-900/20  dark:border-zinc-100/20 ">Dimensions</th>
+                            <th className="dark:border-zinc-900 px-6 pt-4 pb-1 text-left text-nowrap text-xs font-semibold dark:text-semibold dark:font-medium uppercase tracking-wider border-r border-zinc-900/20  dark:border-zinc-100/20 ">Serial Number</th>
+                            <th className="dark:border-zinc-900 px-6 pt-4 pb-1 text-left text-nowrap text-xs font-semibold dark:text-semibold dark:font-medium uppercase tracking-wider border-r border-zinc-900/20  dark:border-zinc-100/20 ">Inventory Number</th>
+                            <th className="dark:border-zinc-900 px-6 pt-4 pb-1  text-center text-nowrap text-xs font-semibold dark:text-semibold dark:font-medium uppercase tracking-tighter border-r border-zinc-900/20  dark:border-zinc-100/20">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-zinc-800 dark:text-white divide-y divide-zinc-200 dark:divide-stone-100/20">
@@ -93,20 +93,20 @@ const InventoryTab = ({ freightList = [], editFreight, handleDeleteClick, handle
                     <div key={freight.id} className="bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md mb-4 p-4 border border-zinc-400">
                         <div className="flex justify-between items-center mb-2">
                             <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Inventory Number</div>
-                            <div className="text-sm font-normal text-nowrap text-zinc-900">{freight.inventory_number}</div>
+                            <div className="text-sm font-semibold text-nowrap text-zinc-900">{freight.inventory_number}</div>
                         </div>
                         <div className='border-b border-zinc-600 mb-4'></div>
                         <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
                             <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Inventory Item</div>
-                            <div className="text-sm font-normal text-nowrap dark:text-zinc-900">{freight.freight_type === 'ltl_ftl' ? freight.commodity : `${freight.year} ${freight.make} ${freight.model}`}</div>
+                            <div className="text-sm font-semibold text-nowrap dark:text-zinc-900">{freight.freight_type === 'ltl_ftl' ? freight.commodity : `${freight.year} ${freight.make} ${freight.model}`}</div>
                         </div>
                         <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
                             <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Dimensions</div>
-                            <div className="text-sm font-normal text-nowrap text-zinc-900">{freight.length} {freight.length_unit}, {freight.width} {freight.width_unit}, {freight.height} {freight.height_unit}, {freight.weight} {freight.weight_unit}</div>
+                            <div className="text-sm font-semibold text-nowrap text-zinc-900">{freight.length} {freight.length_unit}, {freight.width} {freight.width_unit}, {freight.height} {freight.height_unit}, {freight.weight} {freight.weight_unit}</div>
                         </div>
                         <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
                             <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Serial Number</div>
-                            <div className="text-sm font-normal text-nowrap text-zinc-900">{freight.serial_number}</div>
+                            <div className="text-sm font-semibold text-nowrap text-zinc-900">{freight.serial_number}</div>
                         </div>
                         <div className="block justify-between items-center md:flex md:flex-col ">
                             <div className="relative">

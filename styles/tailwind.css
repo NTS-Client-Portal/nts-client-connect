@@ -28,27 +28,27 @@
 }
 
 .dark-light-btn {
-  @apply m-0 px-4 text-nowrap py-2 border border-amber-400 rounded-sm
-  bg-amber-400 text-zinc-900 font-medium hover:border-amber-400 hover:bg-amber-400/90
-  dark:border-zinc-900 dark:bg-amber-400 dark:text-zinc-900 dark:hover:border-amber-400;
+  @apply m-0 px-4 text-nowrap py-2 border border-ntsLightBlue rounded-sm
+  bg-ntsLightBlue text-zinc-50 font-medium hover:border-ntsLightBlue hover:bg-ntsLightBlue/50
+  dark:border-zinc-900 dark:bg-ntsLightBlue dark:text-zinc-900 dark:hover:border-ntsLightBlue;
 }
 
 .dark-btn {
-  @apply px-4 py-1.5 font-semibold rounded-md w-full max-w-max text-nowrap bg-amber-400 text-zinc-900 border-2 border-amber-400 hover:border-2 hover:border-amber-300 hover:bg-amber-400/90 hover:text-zinc-800 dark:border-amber-400 dark:bg-amber-400 dark:text-zinc-900 dark:hover:bg-amber-400 dark:hover:text-zinc-900 dark:hover:border-2 dark:hover:border-amber-400
+  @apply px-4 py-1.5 font-semibold rounded-md w-full max-w-max text-nowrap bg-ntsLightBlue text-zinc-50 border-2 border-ntsLightBlue hover:border-2 hover:bg-ntsLightBlue/50 hover:text-zinc-50 dark:border-ntsLightBlue dark:bg-ntsLightBlue dark:text-zinc-50;
 }
 
 .body-btn {
-  @apply m-0 px-4 py-2 text-nowrap border border-zinc-800 rounded-sm bg-zinc-800 text-zinc-50 font-medium hover:bg-zinc-800/90 hover:border dark:border-zinc-900 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-900/90 dark:hover:text-zinc-100 dark:hover:border-amber-400/90;
+  @apply m-0 px-4 py-2 text-nowrap border border-zinc-800 rounded-sm bg-ntsLightBlue text-zinc-50 font-medium hover:bg-ntsLightBlue/80 hover:border dark:border-zinc-900 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-900/90 dark:hover:text-zinc-100 dark:hover:border-ntsLightBlue/90;
 }
 
 .upload-button {
-    @apply text-base text-nowrap underline underline-offset-4 text-blue-600 dark:text-blue-400 dark:font-bold dark:text-base font-medium;
+    @apply text-base text-nowrap underline underline-offset-4 text-white dark:text-blue-400 dark:font-bold dark:text-base font-medium;
 }
 
 .contact-btn {
-  @apply px-4 py-1.5 font-semibold rounded-sm w-full max-w-max text-nowrap border-amber-400 
-  bg-amber-400 text-zinc-900 hover:border-amber-400 hover:bg-amber-400/90
-  dark:border-zinc-900 dark:bg-amber-400 dark:text-zinc-900 dark:hover:bg-amber-400/90 dark:hover:text-zinc-900 dark:hover:border-amber-400;
+  @apply px-4 py-1.5 font-semibold rounded-sm w-full max-w-max text-nowrap border-ntsLightBlue
+  bg-ntsLightBlue text-zinc-100 hover:border-ntsLightBlue hover:bg-ntsLightBlue/90
+  dark:border-zinc-900 dark:bg-ntsLightBlue dark:text-zinc-900 dark:hover:bg-ntsLightBlue/90 dark:hover:text-zinc-900 dark:hover:border-ntsLightBlue;
 }
 
 input:placeholder-shown {
@@ -70,9 +70,10 @@ body,
 }
 
 .side-navbar {
-  @apply bg-zinc-800 flex-grow;
+  @apply bg-ntsBlue flex-grow;
   height: 100vh;
   /* Full height of the viewport */
+  width: 13em;
   color: white;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
@@ -94,8 +95,7 @@ body,
 }
 
 .side-nav-btn {
-  @apply text-stone-100 font-normal w-full box-border;
-  padding-left: 15px;
+  @apply text-gray-400 font-normal w-full box-border;
   border: none;
   cursor: pointer;
   transition: background-color 0.3s;
@@ -103,12 +103,12 @@ body,
 }
 
 .side-nav-btn:hover {
-  @apply text-amber-400 bg-zinc-800;
+  @apply text-white bg-slate-800 w-full;
 }
 
 .side-nav-btn.active {
-  border-bottom: 2px solid #fbbf24;
-  color: #fbbf24;
+  @apply text-white font-semibold;
+  border-bottom: 2px solid #f5f4f3;
   width: 100%;
 }
 

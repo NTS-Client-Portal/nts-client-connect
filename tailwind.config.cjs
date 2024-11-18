@@ -42,6 +42,12 @@ const config = {
 					DEFAULT: 'hsl(var(--destructive))',
 					foreground: 'hsl(var(--destructive-foreground))',
 				},
+				ntsLightBlue: {
+					DEFAULT: '#337ab7',
+				},
+				ntsBlue: {
+					DEFAULT: '#36404e',
+				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',

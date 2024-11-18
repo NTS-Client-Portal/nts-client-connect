@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { Move3d } from 'lucide-react';
+import { MoveHorizontal } from 'lucide-react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 
 export default function SignUpPage() {
@@ -85,7 +85,7 @@ export default function SignUpPage() {
 
                     <div className="hidden md:grid h-1/3 w-full md:h-full col-span-1 bg-zinc-900">
                         <div className='absolute top-5 left-5'>
-                            <h1 className='text-stone-100 font-medium text-3xl flex gap-2 items-center'><Move3d /> SHIPPER CONNECT</h1>
+                            <span className='flex mt-5 lg:mt-2 2xl:mt-0 mb-3 items-center justify-center font-bold  flex-nowrap'> <h1 className='text-lg md:mt-0  self-center font-extrabold tracking-tighter flex gap-0.5'>SHIPPER<MoveHorizontal className='size-6 text-orange-500' />CONNECT</h1></span>
                         </div>
                         <div className='hidden h-full pb-12 w-full md:flex items-end justify-center'>
                             <h1 className='text-stone-100 font-medium text-xl italic'>Your trusted partner in Inventory Management, Procurement, and Logistics.</h1>

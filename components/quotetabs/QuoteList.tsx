@@ -165,14 +165,14 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
             />
             <div className="hidden 2xl:block overflow-x-auto">
                 <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
-                    <thead className="bg-zinc-50 dark:bg-zinc-900 sticky top-0">
-                        <tr className='text-zinc-50 border-b border-zinc-900 dark:border-zinc-100'>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-white uppercase tracking-wider border-r border-zinc-300">ID</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-white uppercase tracking-wider border-r border-zinc-300">Origin/Destination</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-white uppercase tracking-wider border-r border-zinc-300">Freight</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-white uppercase tracking-wider border-r border-zinc-300">Shipping Date</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-white uppercase tracking-wider border-r border-zinc-300">Price</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-white uppercase tracking-wider">Actions</th>
+                    <thead className="bg-ntsLightBlue text-zinc-50 dark:bg-zinc-900 sticky top-0">
+                        <tr className='text-zinc-50 font-semibold border-b border-zinc-900 dark:border-zinc-100'>
+                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">ID</th>
+                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibolddark:text-white uppercase tracking-wider border-r border-zinc-300">Origin/Destination</th>
+                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibolddark:text-white uppercase tracking-wider border-r border-zinc-300">Freight</th>
+                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibolddark:text-white uppercase tracking-wider border-r border-zinc-300">Shipping Date</th>
+                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibolddark:text-white uppercase tracking-wider border-r border-zinc-300">Price</th>
+                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibolddark:text-white uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-zinc-800/90 divide-y divide-zinc-300">
@@ -231,7 +231,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                     <div key={quote.id} className="bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md mb-4 p-4 border border-zinc-400">
                         <div className="flex justify-between items-center mb-2">
                             <div className="text-sm font-extrabold text-zinc-500 dark:text-white">ID</div>
-                            <div className="text-sm font-medium text-zinc-900">{quote.id}</div>
+                            <div className="text-sm text-zinc-900">{quote.id}</div>
                         </div>
                         <div className='border-b border-zinc-600 mb-4'></div>
                         <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">

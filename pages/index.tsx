@@ -7,7 +7,7 @@ import Layout from './components/Layout';
 import UserLayout from './components/UserLayout';
 import AdminLayout from './components/admin-portal/AdminLayout';
 import CustomSignInForm from '@/components/CustomSignInForm';
-import { Move3d } from 'lucide-react';
+import { MoveHorizontal } from 'lucide-react';
 import { UserProvider, useUser } from '@/context/UserContext';
 import withProfileCheck from '@/components/hoc/withProfileCheck';
 import DashboardTabs from '@/components/DashboardTabs';
@@ -142,7 +142,7 @@ const LoginPage = () => {
 
             <div className="hidden md:block h-full w-full md:h-full col-span-1 bg-zinc-900">
               <div className='absolute top-5 left-5'>
-                <h1 className='text-stone-100 font-medium text-3xl flex gap-2 items-center'><Move3d /> SHIPPER CONNECT</h1>
+                <span className='flex mt-5 lg:mt-2 2xl:mt-0 mb-3 items-center justify-center font-bold  flex-nowrap'> <h1 className='text-lg md:mt-0  self-center font-extrabold tracking-tighter flex gap-0.5'>SHIPPER<MoveHorizontal className='size-6 text-orange-500' />CONNECT</h1></span>
               </div>
               <div className='hidden h-5/6 w-full md:flex items-end justify-center'>
                 <h1 className='text-stone-100 font-medium text-xl italic'>Your trusted partner in Logistics.</h1>
