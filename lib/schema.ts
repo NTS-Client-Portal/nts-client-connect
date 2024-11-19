@@ -1,3 +1,4 @@
+// interface.types.ts
 import { Database } from '@/lib/database.types';
 
 export type Json =
@@ -9,7 +10,9 @@ export type Json =
   | Json[];
 
 export type Freight = Database['public']['Tables']['freight']['Row'];
-export type Profile = Database['public']['Tables']['profiles']['Row'];
+export type Profile = Database['public']['Tables']['profiles']['Row'] & {
+  team_role: 'manager' | 'member' | null; // Extend the team_role type
+};
 export type Company = Database['public']['Tables']['companies']['Row'];
 export type ShippingQuote = Database['public']['Tables']['shippingquotes']['Row'];
 export type Order = Database['public']['Tables']['orders']['Row'];

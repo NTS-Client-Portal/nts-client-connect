@@ -14,8 +14,9 @@ const ProfileSetup = () => {
     const [companyName, setCompanyName] = useState('');
     const [companySize, setCompanySize] = useState('');
     const [phoneNumber, setPhoneNumber] = useState(''); // Add phone number state
-    const [inviteEmails, setInviteEmails] = useState<string[]>([]);
+    const [inviteEmails, setInviteEmails] = useState<{ email: string, role: 'manager' | 'member' }[]>([]);
     const [inviteEmail, setInviteEmail] = useState('');
+    const [inviteRole, setInviteRole] = useState<'manager' | 'member'>('member');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -107,6 +108,17 @@ const ProfileSetup = () => {
                 throw new Error(error.message);
             }
 
+            // Store invitations with roles
+            for (const invite of inviteEmails) {
+                await supabase
+                    .from('invitations')
+                    .insert({
+                        email: invite.email,
+                        team_role: invite.role,
+                        company_id: companyId,
+                    });
+            }
+
             setSuccess(true);
             router.push('/user/freight-rfq');
         } catch (error) {
@@ -117,8 +129,8 @@ const ProfileSetup = () => {
     };
 
     const handleAddInviteEmail = () => {
-        if (inviteEmail && !inviteEmails.includes(inviteEmail)) {
-            setInviteEmails([...inviteEmails, inviteEmail]);
+        if (inviteEmail && !inviteEmails.some(invite => invite.email === inviteEmail)) {
+            setInviteEmails([...inviteEmails, { email: inviteEmail, role: inviteRole }]);
             setInviteEmail('');
         }
     };
@@ -207,7 +219,7 @@ const ProfileSetup = () => {
                                             disabled={loading}
                                         />
                                         <div className="mt-8">
-                                            <h3 className="text-xl font-bold text-center">Invite Others</h3>
+                                            <h3 className="text-xl font-bold text-center">Invite Your Team!</h3>
                                             <div className="flex mt-4">
                                                 <input
                                                     type="email"
@@ -216,6 +228,14 @@ const ProfileSetup = () => {
                                                     onChange={(e) => setInviteEmail(e.target.value)}
                                                     className="w-full p-2 border rounded"
                                                 />
+                                                <select
+                                                    value={inviteRole}
+                                                    onChange={(e) => setInviteRole(e.target.value as 'manager' | 'member')}
+                                                    className="ml-2 p-2 border rounded"
+                                                >
+                                                    <option value="manager">Manager</option>
+                                                    <option value="member">Member</option>
+                                                </select>
                                                 <button
                                                     type="button"
                                                     onClick={handleAddInviteEmail}
@@ -225,9 +245,9 @@ const ProfileSetup = () => {
                                                 </button>
                                             </div>
                                             <ul className="mt-4">
-                                                {inviteEmails.map((email, index) => (
+                                                {inviteEmails.map((invite, index) => (
                                                     <li key={index} className="flex justify-between items-center">
-                                                        <span>{email}</span>
+                                                        <span>{invite.email} ({invite.role})</span>
                                                     </li>
                                                 ))}
                                             </ul>

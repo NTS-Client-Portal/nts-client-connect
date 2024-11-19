@@ -8,6 +8,7 @@ const InvitePage = () => {
     const supabase = useSupabaseClient();
     const { token } = router.query;
     const [email, setEmail] = useState('');
+    const [teamRole, setTeamRole] = useState<'manager' | 'member'>('member');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -19,7 +20,7 @@ const InvitePage = () => {
             if (token) {
                 const { data, error } = await supabase
                     .from('invitations')
-                    .select('email')
+                    .select('email, team_role')
                     .eq('token', token)
                     .single();
 
@@ -27,6 +28,7 @@ const InvitePage = () => {
                     setError('Invalid or expired invitation token');
                 } else {
                     setEmail(data.email);
+                    setTeamRole(data.team_role);
                 }
             }
         };
@@ -60,7 +62,7 @@ const InvitePage = () => {
             // Update the user's profile
             const { error: profileError } = await supabase
                 .from('profiles')
-                .update({ profile_complete: true })
+                .update({ profile_complete: true, team_role: teamRole })
                 .eq('email', email);
 
             if (profileError) {

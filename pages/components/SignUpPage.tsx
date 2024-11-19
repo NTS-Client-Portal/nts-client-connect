@@ -1,17 +1,38 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { MoveHorizontal } from 'lucide-react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useRouter } from 'next/router';
 
 export default function SignUpPage() {
     const supabase = useSupabaseClient();
+    const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [teamRole, setTeamRole] = useState<'manager' | 'member'>('manager');
+
+    useEffect(() => {
+        const inviteToken = router.query.inviteToken;
+        if (inviteToken) {
+            // Fetch the invite details from the database using the inviteToken
+            supabase
+                .from('invitations')
+                .select('*')
+                .eq('token', inviteToken)
+                .single()
+                .then(({ data, error }) => {
+                    if (data) {
+                        setEmail(data.email);
+                        setTeamRole(data.team_role);
+                    }
+                });
+        }
+    }, [router.query.inviteToken]);
 
     const validatePassword = (password: string): boolean => {
         const hasLowercase = /[a-z]/.test(password);
@@ -59,7 +80,7 @@ export default function SignUpPage() {
                     id: userId,
                     email: email,
                     role: 'user',
-                    team_role: 'manager',
+                    team_role: teamRole,
                 });
 
             if (profileError) {

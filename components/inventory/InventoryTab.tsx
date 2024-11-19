@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Database } from '@/lib/database.types';
-import { fetchFreightData, addFreightItem } from '@/lib/database';
 
 interface InventoryTabProps {
     freightList: Database['public']['Tables']['freight']['Row'][];
@@ -19,8 +18,6 @@ const InventoryTab = ({ freightList = [], editFreight, handleDeleteClick, handle
         setSelectedFreight(freight);
         setIsTransferModalOpen(true);
     };
-
-    
 
     return (
         <div className="w-full dark:bg-zinc-700 shadow rounded-md border border-zinc-400 max-h-max flex-grow">

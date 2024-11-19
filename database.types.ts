@@ -71,18 +71,21 @@ export type Database = {
       }
       companies: {
         Row: {
+          company_id: string | null
           id: string
           inserted_at: string
           name: string
           size: string | null
         }
         Insert: {
+          company_id?: string | null
           id?: string
           inserted_at?: string
           name: string
           size?: string | null
         }
         Update: {
+          company_id?: string | null
           id?: string
           inserted_at?: string
           name?: string
@@ -206,13 +209,6 @@ export type Database = {
           year?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "fk_freight_user_id"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "freight_user_id_fkey"
             columns: ["user_id"]
@@ -368,6 +364,7 @@ export type Database = {
           profile_complete: boolean | null
           profile_picture: string | null
           role: string | null
+          team_role: string | null
         }
         Insert: {
           address?: string | null
@@ -384,6 +381,7 @@ export type Database = {
           profile_complete?: boolean | null
           profile_picture?: string | null
           role?: string | null
+          team_role?: string | null
         }
         Update: {
           address?: string | null
@@ -400,6 +398,7 @@ export type Database = {
           profile_complete?: boolean | null
           profile_picture?: string | null
           role?: string | null
+          team_role?: string | null
         }
         Relationships: [
           {
@@ -622,7 +621,36 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_company: {
+        Args: {
+          name: string
+        }
+        Returns: {
+          id: string
+        }[]
+      }
+      create_company: {
+        Args: {
+          name: string
+          size: string
+        }
+        Returns: {
+          id: string
+        }[]
+      }
+      create_profile: {
+        Args: {
+          email: string
+          first_name: string
+          last_name: string
+          phone_number: string
+          company_name: string
+          company_size: string
+          company_id: string
+          role: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

@@ -71,18 +71,21 @@ export type Database = {
       }
       companies: {
         Row: {
+          company_id: string | null
           id: string
           inserted_at: string
           name: string
           size: string | null
         }
         Insert: {
+          company_id?: string | null
           id?: string
           inserted_at?: string
           name: string
           size?: string | null
         }
         Update: {
+          company_id?: string | null
           id?: string
           inserted_at?: string
           name?: string
@@ -206,13 +209,6 @@ export type Database = {
           year?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "fk_freight_user_id"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "freight_user_id_fkey"
             columns: ["user_id"]
@@ -359,7 +355,7 @@ export type Database = {
           company_name: string | null
           company_size: string | null
           email: string | null
-          email_notifications: boolean | null
+          email_notifications: string | null
           first_name: string | null
           id: string
           inserted_at: string
@@ -376,7 +372,7 @@ export type Database = {
           company_name?: string | null
           company_size?: string | null
           email?: string | null
-          email_notifications?: boolean | null
+          email_notifications?: string | null
           first_name?: string | null
           id: string
           inserted_at?: string
@@ -393,7 +389,7 @@ export type Database = {
           company_name?: string | null
           company_size?: string | null
           email?: string | null
-          email_notifications?: boolean | null
+          email_notifications?: string | null
           first_name?: string | null
           id?: string
           inserted_at?: string
@@ -625,7 +621,36 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_company: {
+        Args: {
+          name: string
+        }
+        Returns: {
+          id: string
+        }[]
+      }
+      create_company: {
+        Args: {
+          name: string
+          size: string
+        }
+        Returns: {
+          id: string
+        }[]
+      }
+      create_profile: {
+        Args: {
+          email: string
+          first_name: string
+          last_name: string
+          phone_number: string
+          company_name: string
+          company_size: string
+          company_id: string
+          role: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
@@ -732,17 +757,3 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
   ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
   : never
-
-
-export type Freight = Database['public']['Tables']['freight']['Row'];
-export type Profile = Database['public']['Tables']['profiles']['Row'];
-export type Company = Database['public']['Tables']['companies']['Row'];
-export type ShippingQuote = Database['public']['Tables']['shippingquotes']['Row'];
-export type Order = Database['public']['Tables']['orders']['Row'];
-export type Notification = Database['public']['Tables']['notifications']['Row'];
-export type Document = Database['public']['Tables']['documents']['Row'];
-export type Invitation = Database['public']['Tables']['invitations']['Row'];
-export type ChromeQuotes = Database['public']['Tables']['chrome_quotes']['Row'];
-export type Vendor = Database['public']['Tables']['vendors']['Row'];
-export type UsageStats = Database['public']['Tables']['usage_stats']['Row'];
-export type PurchaseOrder = Database['public']['Tables']['purchase_order']['Row'];

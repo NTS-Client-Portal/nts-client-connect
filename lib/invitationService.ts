@@ -1,12 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from './initSupabase'; // Adjust the import path as needed
 
-const isValidUUID = (uuid: string) => {
-    const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    return regex.test(uuid);
-};
-
-export const sendInvitations = async (emails: string[], userId: string, companyName: string) => {
+export const sendInvitations = async (emails: { email: string, role: 'manager' | 'member' }[], userId: string, companyName: string) => {
     try {
         // Check if the company already exists
         const { data: existingCompany, error: companyError } = await supabase
@@ -15,51 +10,45 @@ export const sendInvitations = async (emails: string[], userId: string, companyN
             .eq('name', companyName)
             .single();
 
-        let companyId;
+        let companyId: string;
 
         if (companyError && companyError.code !== 'PGRST116') {
             throw new Error(companyError.message);
         }
 
         if (existingCompany) {
-            companyId = existingCompany.id;
+            companyId = existingCompany.id as string;
         } else {
-            // Create a new company record
+            // Create a new company
             const { data: newCompany, error: newCompanyError } = await supabase
                 .from('companies')
-                .insert({
-                    name: companyName,
-                })
-                .select()
+                .insert({ name: companyName })
+                .select('id')
                 .single();
 
             if (newCompanyError) {
                 throw new Error(newCompanyError.message);
             }
 
-            companyId = newCompany.id;
+            companyId = newCompany.id as string;
         }
 
-        if (!isValidUUID(companyId)) {
-            throw new Error(`Invalid company_id: ${companyId}`);
-        }
-
-        for (const email of emails) {
-            // Generate a unique token
+        for (const { email, role } of emails) {
             const token = uuidv4();
 
-            // Store the invitation token in the database
-            const { error: insertError } = await supabase
+            // Insert the invitation into the database
+            const { error: invitationError } = await supabase
                 .from('invitations')
                 .insert({
                     email,
+                    team_role: role,
                     token,
-                    invited_by: userId,
                     company_id: companyId,
+                    invited_by: userId,
                 });
 
-            if (insertError) {
-                throw new Error(insertError.message);
+            if (invitationError) {
+                throw new Error(invitationError.message);
             }
 
             // Send the invitation email with the unique link
