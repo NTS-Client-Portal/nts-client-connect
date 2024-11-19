@@ -43,17 +43,21 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
         if (!user) return;
 
         try {
-            const response = await fetch(`/api/fetchFreightData?userId=${user.id}`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch freight data');
+            const { data, error } = await supabase
+                .from('freight')
+                .select('*')
+                .eq('user_id', user.id);
+
+            if (error) {
+                throw new Error(error.message);
             }
-            const data = await response.json();
-            setFreightList(data);
+
+            setFreightList(data || []);
         } catch (error) {
             console.error('Error fetching freight data:', error);
             setErrorText('Error fetching freight data');
         }
-    }, [user]);
+    }, [user, supabase]);
 
     useEffect(() => {
         if (user) {
