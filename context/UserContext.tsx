@@ -30,7 +30,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 .select(`
                     id, email, role, first_name, last_name, company_name, profile_picture, address, phone_number, team_role,
                     company_id, company_size, email_notifications, inserted_at, profile_complete,
-                    assigned_sales_user:profiles!companies_assigned_sales_user_fkey ( id, first_name, last_name, email )
+                    assigned_sales_user
                 `)
                 .eq('id', session.user.id)
                 .single();
@@ -47,7 +47,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 if (data) {
                     const userProfile: Profile = {
                         ...data,
-                        assigned_sales_user: data.assigned_sales_user ? data.assigned_sales_user[0] : null,
+                        assigned_sales_user: data.assigned_sales_user,
                     };
                     setUserProfile(userProfile);
                 }

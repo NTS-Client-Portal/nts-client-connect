@@ -1,7 +1,12 @@
 import SuperadminDashboard from "../components/Superdashboard";
+import { UserProvider } from "../../context/UserContext";
 
 const SuperadminDash = () => {
-    return <SuperadminDashboard />;
+    return (
+    <UserProvider>
+        <SuperadminDashboard />
+        </UserProvider>
+);
 };
 
 export default SuperadminDash;
