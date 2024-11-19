@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 
@@ -25,7 +25,7 @@ const SuperadminLogin = () => {
         if (error) {
             setError('Invalid email or password');
         } else {
-            router.push('/superadmin/superadminDashboard');
+            router.push('/superdash');
         }
     };
 
