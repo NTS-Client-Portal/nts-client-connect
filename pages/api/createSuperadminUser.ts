@@ -10,11 +10,9 @@ const createSuperadminUser = async (req: NextApiRequest, res: NextApiResponse) =
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Email and password are required' });
-    }
+    // Hardcoded user and password
+    const email = 'noah@nationwidetransportservices.com';
+    const password = 'LlamasinPajamas613!';
 
     try {
         const { data, error } = await supabase.auth.admin.createUser({
