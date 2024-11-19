@@ -1,23 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
-import { Database } from '@/lib/database.types';
-
-interface UserProfile {
-    id: string;
-    email: string;
-    role: string;
-    first_name: string | null;
-    last_name: string | null;
-    company_name: string | null;
-    profile_picture: string | null;
-    address: string | null;
-    phone_number: string | null;
-    team_role: string | null;
-}
+import { Profile } from '@/lib/schema'; // Import the Profile type from schema.ts
 
 interface UserContextType {
-    userProfile: UserProfile | null;
-    setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>;
+    userProfile: Profile | null;
+    setUserProfile: React.Dispatch<React.SetStateAction<Profile | null>>;
     loading: boolean;
     error: string | null;
 }
@@ -26,8 +13,8 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const session = useSession();
-    const supabase = useSupabaseClient<Database>();
-    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const supabase = useSupabaseClient();
+    const [userProfile, setUserProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -40,7 +27,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             const { data, error } = await supabase
                 .from('profiles')
-                .select('id, email, role, first_name, last_name, company_name, profile_picture, address, phone_number, team_role')
+                .select(`
+                    id, email, role, first_name, last_name, company_name, profile_picture, address, phone_number, team_role,
+                    company_id, company_size, email_notifications, inserted_at, profile_complete,
+                    assigned_sales_user:profiles!companies_assigned_sales_user_fkey ( id, first_name, last_name, email )
+                `)
                 .eq('id', session.user.id)
                 .single();
 
@@ -53,7 +44,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setError('Error fetching user profile');
             } else {
                 console.log('Fetched user profile:', data);
-                setUserProfile(data);
+                if (data) {
+                    const userProfile: Profile = {
+                        ...data,
+                        assigned_sales_user: data.assigned_sales_user ? data.assigned_sales_user[0] : null,
+                    };
+                    setUserProfile(userProfile);
+                }
             }
 
             setLoading(false);

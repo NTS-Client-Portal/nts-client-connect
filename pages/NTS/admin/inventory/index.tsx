@@ -1,11 +1,11 @@
-// admin-dash/index.tsx
+// pages/freight-inventory/page.tsx
 import React from 'react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
-import Procurement from '@/components/procurement/Procurement';
-import AdminLayout from '../../components/admin-portal/AdminLayout'; 
+import AdminLayout from '../../../components/admin-portal/AdminLayout';
+import FreightInventory from '@/components/FreightInventory';
 import { UserProvider } from '@/context/UserContext';
 
-const AdminProcurement = () => {
+const FreightInventoryPage = () => {
     const session = useSession();
 
     if (!session) {
@@ -13,12 +13,12 @@ const AdminProcurement = () => {
     }
 
     return (
-       <UserProvider>
+        <UserProvider>
             <AdminLayout>
-                <Procurement />
+                <FreightInventory session={session} />
             </AdminLayout>
-       </UserProvider>
+        </UserProvider>
     );
 };
 
-export default AdminProcurement;
+export default FreightInventoryPage;

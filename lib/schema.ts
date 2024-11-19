@@ -1,4 +1,3 @@
-// interface.types.ts
 import { Database } from '@/lib/database.types';
 
 export type Json =
@@ -12,8 +11,17 @@ export type Json =
 export type Freight = Database['public']['Tables']['freight']['Row'];
 export type Profile = Database['public']['Tables']['profiles']['Row'] & {
   team_role: 'manager' | 'member' | null; // Extend the team_role type
+  assigned_sales_user: {
+    id: string;
+    first_name: string | null;
+    last_name: string | null;
+    email: string;
+  } | null; // Add assigned sales user information
 };
-export type Company = Database['public']['Tables']['companies']['Row'];
+export type Company = Database['public']['Tables']['companies']['Row'] & {
+  assigned_sales_user: string | null; // Add assigned_sales_user field
+  assigned_at: string | null; // Add assigned_at field
+};
 export type ShippingQuote = Database['public']['Tables']['shippingquotes']['Row'];
 export type Order = Database['public']['Tables']['orders']['Row'];
 export type Notification = Database['public']['Tables']['notifications']['Row'];

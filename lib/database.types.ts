@@ -71,6 +71,8 @@ export type Database = {
       }
       companies: {
         Row: {
+          assigned_at: string | null
+          assigned_sales_user: string | null
           company_id: string | null
           id: string
           inserted_at: string
@@ -78,6 +80,8 @@ export type Database = {
           size: string | null
         }
         Insert: {
+          assigned_at?: string | null
+          assigned_sales_user?: string | null
           company_id?: string | null
           id?: string
           inserted_at?: string
@@ -85,13 +89,23 @@ export type Database = {
           size?: string | null
         }
         Update: {
+          assigned_at?: string | null
+          assigned_sales_user?: string | null
           company_id?: string | null
           id?: string
           inserted_at?: string
           name?: string
           size?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "companies_assigned_sales_user_fkey"
+            columns: ["assigned_sales_user"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       documents: {
         Row: {
@@ -621,6 +635,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_sales_user: {
+        Args: {
+          company_id: string
+        }
+        Returns: string
+      }
       check_company: {
         Args: {
           name: string
@@ -650,6 +670,12 @@ export type Database = {
           role: string
         }
         Returns: undefined
+      }
+      get_tables: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          table_name: string
+        }[]
       }
     }
     Enums: {

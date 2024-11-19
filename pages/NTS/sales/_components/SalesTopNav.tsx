@@ -3,18 +3,17 @@ import { supabase } from '@/lib/initSupabase';
 import { useUser } from '@/context/UserContext';
 import Image from 'next/image';
 import NotificationBell from '@/components/NotificationBell';
+import { useSession, Session } from '@supabase/auth-helpers-react';
 import FeedBack from '@/components/FeedBack';
 import DarkModeToggle from '@/components/DarkModeToggle';
-import Link from 'next/link';
-import { useSession } from '@supabase/auth-helpers-react';
 
-interface UserTopNavProps {
+interface SalesTopNavProps {
+    session: Session | null;
     className?: string;
 }
 
-const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
+const SalesTopNav: React.FC<SalesTopNavProps> = ({ session, className = '' }) => {
     const { userProfile } = useUser();
-    const session = useSession();
     const [darkMode, setDarkMode] = useState(false);
     const [profilePictureUrl, setProfilePictureUrl] = useState<string>('https://www.gravatar.com/avatar?d=mp&s=100');
 
@@ -63,52 +62,46 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
 
     return (
         <>
-            <nav className={`md:hidden w-full max-h-max bg-white  flex flex-col md:flex-row gap-1 justify-end px-4 z-20 py-1 drop-shadow ${className}`}>
-                <div className='flex gap-6 items-center z-20 justify-between mr-4'>
-                    <ul className='flex gap-2 items-center justify-end w-full'>
-                        <li>
-                            <NotificationBell session={session} />
-                        </li>
-                    </ul>
-                    <ul>
-                        <li>
-                            <Image
-                                src={profilePictureUrl}
-                                alt='profile-img'
-                                className='rounded-full shadow-md'
-                                width={34}
-                                height={34} />
-                        </li>
-                    </ul>
-                </div>
-                <div className='flex justify-between'>
-                    <FeedBack />
-                    {/* <DarkModeToggle /> */}
-                </div>
-            </nav>
-            <nav className={`hidden w-full bg-white z-20 md:flex flex-col md:flex-row gap-1 justify-between px-4 py-2 drop-shadow ${className}`}>
-                <ul className='w-full flex gap-2 md:gap-4 items-center z-20 justify-start pl-64'>
-                    <li>
-                        <FeedBack />
-                    </li>
-                    {/* <li>
-                        <DarkModeToggle />
-                    </li> */}
-                </ul>
-                <ul className='w-full flex gap-2 md:gap-4 items-baseline z-20 justify-end mr-12'>
+            <nav className={`md:hidden w-full  max-h-max bg-stone-50 dark:bg-zinc-700 flex flex-col md:flex-row gap-1 justify-end px-4 z-50 py-1 drop-shadow ${className}`}>
+
+                <ul className='flex gap-2 md:gap-4 items-center z-50 justify-end mr-4'>
                     <li>
                         <NotificationBell session={session} />
                     </li>
+
                     <li>
-                        {userProfile?.assigned_sales_user && (
-                            <div className="flex flex-col items-end">
-                                <span className="text-sm">Assigned Sales User:</span>
-                                <span className="font-bold">
-                                    {userProfile.assigned_sales_user.first_name} {userProfile.assigned_sales_user.last_name}
-                                </span>
-                                <span className="text-xs">{userProfile.assigned_sales_user.email}</span>
-                            </div>
-                        )}
+                        <DarkModeToggle />
+                    </li>
+                    <li className='hidden md:block'>
+                        <FeedBack />
+                    </li>
+                    <li>
+                        <Image
+                            src={profilePictureUrl}
+                            alt='profile-img'
+                            className='rounded-full shadow-md'
+                            width={34}
+                            height={34} />
+                    </li>
+                </ul>
+                <FeedBack />
+            </nav>
+
+            <nav className={`hidden w-full bg-stone-50 dark:bg-zinc-900 md:flex flex-col md:flex-row gap-1 justify-between px-4 z-50 py-2 drop-shadow ${className}`}>
+
+                <ul className='w-full flex gap-2 md:gap-4 items-center z-50 justify-start pl-64'>
+                    <li>
+                        <FeedBack />
+                    </li>
+                    <li>
+                        <DarkModeToggle />
+                    </li>
+                </ul>
+                <ul className='w-full flex gap-2 md:gap-4 items-center z-50 justify-end mr-12'>
+
+
+                    <li>
+                        <NotificationBell session={session} />
                     </li>
                     <li>
                         <Image
@@ -124,4 +117,4 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
     );
 };
 
-export default UserTopNav;
+export default SalesTopNav;

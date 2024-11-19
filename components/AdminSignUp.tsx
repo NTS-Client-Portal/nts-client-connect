@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
-import Layout from '../pages/components/Layout';
-import Head from 'next/head';
+import { useRouter } from 'next/router';
 
-export function AdminSignUp() {
+const AdminSignUp = () => {
     const supabase = useSupabaseClient();
+    const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [invitationCode, setInvitationCode] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -17,7 +16,6 @@ export function AdminSignUp() {
         e.preventDefault();
         setLoading(true);
         setError(null);
-        setSuccess(false);
 
         if (password !== confirmPassword) {
             setError('Passwords do not match');
@@ -25,144 +23,88 @@ export function AdminSignUp() {
             return;
         }
 
-        // Check if the email is already registered
-        const { data: existingUser, error: existingUserError } = await supabase
-            .from('profiles')
-            .select('email')
-            .eq('email', email)
-            .single();
-
-        if (existingUserError && existingUserError.code !== 'PGRST116') {
-            setError('Error checking existing user');
+        // Restrict access based on email domain
+        const allowedDomain = 'ntslogistics.com';
+        const emailDomain = email.split('@')[1];
+        if (emailDomain !== allowedDomain) {
+            setError('You are not authorized to sign up as an admin.');
             setLoading(false);
             return;
         }
 
-        if (existingUser) {
-            setError('Email is already registered');
-            setLoading(false);
-            return;
-        }
+        try {
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+            });
 
-        // Validate invitation code
-        const { data: validCode, error: codeError } = await supabase
-            .from('invitation_codes')
-            .select('code')
-            .eq('code', invitationCode)
-            .eq('is_used', false)
-            .single();
+            if (error) {
+                throw new Error(error.message);
+            }
 
-        if (codeError || !validCode) {
-            setError('Invalid or already used invitation code');
-            setLoading(false);
-            return;
-        }
+            const userId = data.user?.id;
+            if (!userId) {
+                throw new Error('User ID not found in response');
+            }
 
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-        });
-
-        if (error) {
-            setError(error.message);
-            setLoading(false);
-            return;
-        }
-
-        const user = data.user;
-
-        if (user) {
-            // Store additional user information in the profiles table
+            // Insert the user's profile into the profiles table
             const { error: profileError } = await supabase
                 .from('profiles')
                 .insert({
-                    id: user.id,
-                    email: user.email,
-                    role: 'admin', // Grant admin role
+                    id: userId,
+                    email: email,
+                    role: 'admin',
                 });
 
             if (profileError) {
-                setError(profileError.message);
-                setLoading(false);
-                return;
+                throw new Error(profileError.message);
             }
 
-            // Mark the invitation code as used
-            await supabase
-                .from('invitation_codes')
-                .update({ is_used: true })
-                .eq('code', invitationCode);
-
             setSuccess(true);
+            router.push('/admin/dashboard');
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
         }
-
-        setLoading(false);
     };
 
     return (
-        <Layout>
-            <Head>
-                <title>Admin Sign Up</title>
-            </Head>
-            <div className="w-full h-full flex flex-col justify-center items-center">
-                <h2 className="text-2xl font-bold mb-4">Admin Sign Up</h2>
-                {error && <div className="text-red-500 mb-4">{error}</div>}
-                {success ? (
-                    <div className="text-green-500 mb-4">Sign up successful! You can now log in.</div>
-                ) : (
-                    <form className="w-full max-w-md" onSubmit={handleSignUp}>
-                        <label htmlFor="email" className="block mb-2">Email</label>
-                        <input
-                            type="email"
-                            id="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            className="w-full p-2 mb-4 border rounded"
-                            disabled={loading}
-                        />
-                        <label htmlFor="password" className="block mb-2">Password</label>
-                        <input
-                            type="password"
-                            id="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            className="w-full p-2 mb-4 border rounded"
-                            disabled={loading}
-                        />
-                        <label htmlFor="confirmPassword" className="block mb-2">Confirm Password</label>
-                        <input
-                            type="password"
-                            id="confirmPassword"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            required
-                            className="w-full p-2 mb-4 border rounded"
-                            disabled={loading}
-                        />
-                        <label htmlFor="invitationCode" className="block mb-2">Invitation Code</label>
-                        <input
-                            type="text"
-                            id="invitationCode"
-                            value={invitationCode}
-                            onChange={(e) => setInvitationCode(e.target.value)}
-                            required
-                            className="w-full p-2 mb-4 border rounded"
-                            disabled={loading}
-                        />
-                        <button
-                            type="submit"
-                            className="w-full p-2 bg-blue-500 text-white rounded"
-                            disabled={loading}
-                        >
-                            {loading ? 'Signing Up...' : 'Sign Up'}
-                        </button>
-                    </form>
-                )}
-            </div>
-        </Layout>
+        <div>
+            <h1>Admin Sign Up</h1>
+            {error && <div>{error}</div>}
+            {success ? (
+                <div>Sign up successful! Redirecting...</div>
+            ) : (
+                <form onSubmit={handleSignUp}>
+                    <label>Email</label>
+                    <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                    <label>Password</label>
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                    <label>Confirm Password</label>
+                    <input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                    />
+                    <button type="submit" disabled={loading}>
+                        {loading ? 'Signing Up...' : 'Sign Up'}
+                    </button>
+                </form>
+            )}
+        </div>
     );
-}
+};
 
 export default AdminSignUp;

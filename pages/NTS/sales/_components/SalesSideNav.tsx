@@ -7,13 +7,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { PanelLeftOpen, PanelRightClose, ListCollapse, Workflow, Folders, Signature, Settings, ChartArea, Handshake, NotebookTabs, Hammer, Move3d, MoveHorizontal } from 'lucide-react';
 
-interface AdminSideNavProps {
+interface SalesSideNavProps {
     isSidebarOpen: boolean;
     toggleSidebar: () => void;
     className?: string;
 }
 
-const AdminSideNav: React.FC<AdminSideNavProps> = ({ isSidebarOpen, toggleSidebar, className = '' }) => {
+const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSidebar, className = '' }) => {
     const supabase = useSupabaseClient<Database>();
     const { userProfile } = useUser();
     const router = useRouter();
@@ -112,4 +112,4 @@ const AdminSideNav: React.FC<AdminSideNavProps> = ({ isSidebarOpen, toggleSideba
     );
 };
 
-export default AdminSideNav;
+export default SalesSideNav;

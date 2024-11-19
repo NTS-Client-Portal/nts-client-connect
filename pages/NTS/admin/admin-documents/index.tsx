@@ -1,4 +1,4 @@
-import AdminLayout from '../../components/admin-portal/AdminLayout'; // Ensure consistent casing
+import AdminLayout from '../../../components/admin-portal/AdminLayout'; // Ensure consistent casing
 import React from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
 import { UserProvider } from '@/context/UserContext';
