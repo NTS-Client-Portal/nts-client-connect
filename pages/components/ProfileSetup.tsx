@@ -4,6 +4,7 @@ import Head from 'next/head';
 import { useSupabaseClient, useSession } from '@supabase/auth-helpers-react';
 import { sendInvitations } from '@/lib/invitationService'; // Adjust the import path as needed
 import { v4 as uuidv4 } from 'uuid'; // Import uuidv4
+import { assignSalesUser } from '@/lib/assignSalesUser'; // Import the assignSalesUser function
 
 const ProfileSetup = () => {
     const router = useRouter();
@@ -85,6 +86,9 @@ const ProfileSetup = () => {
                     }
 
                     companyId = newCompany.id;
+
+                    // Assign a sales user to the new company
+                    await assignSalesUser(companyId);
                 }
             } else {
                 companyId = uuidv4();
@@ -120,7 +124,7 @@ const ProfileSetup = () => {
             }
 
             setSuccess(true);
-            router.push('/user/freight-rfq');
+            router.push('companies/user/freight-rfq');
         } catch (error) {
             setError(error.message);
         } finally {
