@@ -19,6 +19,7 @@
     "@fullcalendar/react": "^6.1.15",
     "@netlify/cache-utils": "^5.1.6",
     "@netlify/functions": "^2.8.2",
+    "@netlify/plugin-nextjs": "^5.8.1",
     "@next/font": "13.1.6",
     "@nextui-org/react": "^2.4.8",
     "@radix-ui/react-dropdown-menu": "^2.1.2",
