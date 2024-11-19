@@ -12,3 +12,19 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+
+export const fetchTables = async () => {
+    try {
+        const { data, error } = await supabase.rpc('get_tables');
+        if (error) {
+            console.error('Error fetching tables:', error.message);
+        } else {
+            console.log('Fetched tables:', data);
+        }
+    } catch (error) {
+        console.error('Unexpected error fetching tables:', error);
+    }
+};
+
+// Call fetchTables to test the function
+fetchTables();
