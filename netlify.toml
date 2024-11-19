@@ -10,3 +10,12 @@
 
 [functions]
   directory = "netlify/functions"
+
+[build]
+  publish = "out"
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
