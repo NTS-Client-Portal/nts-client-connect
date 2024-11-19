@@ -104,7 +104,7 @@ export default function SignUpPage() {
             <div className="w-full h-full bg-200">
                 <div className="md:grid min-w-full min-h-screen md:grid-cols-2 ">
 
-                    <div className="hidden md:grid h-1/3 w-full md:h-full col-span-1 bg-zinc-900">
+                    <div style={{ backgroundImage: "url('/images/d9t-dozer-dark.jpg')" }} className="hidden md:grid h-1/3 w-full md:h-full col-span-1">
                         <div className='absolute top-5 left-5'>
                             <span className='flex mt-5 lg:mt-2 2xl:mt-0 mb-3 items-center justify-center font-bold  flex-nowrap'> <h1 className='text-lg md:mt-0  self-center font-extrabold tracking-tighter flex gap-0.5'>SHIPPER<MoveHorizontal className='size-6 text-orange-500' />CONNECT</h1></span>
                         </div>
