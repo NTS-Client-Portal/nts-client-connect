@@ -1,10 +1,10 @@
-require('dotenv').config();
-const axios = require('axios');
+import 'dotenv/config';
+import axios from 'axios';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
     if (event.httpMethod !== 'POST') {
         return {
             statusCode: 405,

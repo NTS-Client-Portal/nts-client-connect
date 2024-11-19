@@ -1,11 +1,11 @@
-require('dotenv').config();
-const axios = require('axios');
+import 'dotenv/config';
+import axios from 'axios';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
     if (event.httpMethod !== 'DELETE') {
         return {
             statusCode: 405,

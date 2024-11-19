@@ -1,11 +1,11 @@
 require('dotenv').config();
-const axios = require('axios');
+import { post } from 'axios';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
 
-exports.handler = async (event) => {
+export async function handler(event) {
     if (event.httpMethod !== 'POST') {
         return {
             statusCode: 405,
@@ -31,7 +31,7 @@ exports.handler = async (event) => {
     }
 
     try {
-        const response = await axios.post(`${SUPABASE_URL}/auth/v1/resend`, {
+        const response = await post(`${SUPABASE_URL}/auth/v1/resend`, {
             type: 'signup',
             email,
             options: {
@@ -59,4 +59,4 @@ exports.handler = async (event) => {
             body: JSON.stringify({ error: 'Failed to resend confirmation email', details: error.response ? error.response.data : error.message }),
         };
     }
-};
+}
