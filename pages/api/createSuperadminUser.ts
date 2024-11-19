@@ -11,8 +11,8 @@ const createSuperadminUser = async (req: NextApiRequest, res: NextApiResponse) =
     }
 
     // Hardcoded user and password
-    const email = 'noah@nationwidetransportservices.com';
-    const password = 'LlamasinPajamas613!';
+    const email = 'noah@ntslogistics.com';
+    const password = 'Adam123!';
 
     try {
         const { data, error } = await supabase.auth.admin.createUser({
