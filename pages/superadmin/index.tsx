@@ -7,16 +7,20 @@ const SuperadminLogin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
+        setLoading(true);
 
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
+
+        setLoading(false);
 
         if (error) {
             setError('Invalid email or password');
@@ -32,30 +36,35 @@ const SuperadminLogin = () => {
                 {error && <div className="text-red-500 mb-4">{error}</div>}
                 <form onSubmit={handleLogin}>
                     <div className="mb-4">
-                        <label className="block text-gray-700">Email</label>
+                        <label htmlFor="email" className="block text-gray-700">Email</label>
                         <input
+                            id="email"
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
                             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            aria-label="Email"
                         />
                     </div>
                     <div className="mb-6">
-                        <label className="block text-gray-700">Password</label>
+                        <label htmlFor="password" className="block text-gray-700">Password</label>
                         <input
+                            id="password"
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            aria-label="Password"
                         />
                     </div>
                     <button
                         type="submit"
                         className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+                        disabled={loading}
                     >
-                        Login
+                        {loading ? 'Logging in...' : 'Login'}
                     </button>
                 </form>
             </div>
