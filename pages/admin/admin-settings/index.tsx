@@ -56,7 +56,7 @@ const AdminSettings = () => {
                 console.log('Profile Picture URL:', profilePicUrl); // Log the profile picture URL
                 setProfilePictureUrl(encodedProfilePicUrl);
                 setEmail(session.user.email || '');
-                setEmailNotifications(data.email_notifications || false);
+                setEmailNotifications(!!data.email_notifications);
                 setProfilePicture(null); // Reset the profile picture input
             }
         };
@@ -122,7 +122,7 @@ const AdminSettings = () => {
                 phone_number: phoneNumber,
                 profile_picture: profilePictureUrl || undefined, // Update profile picture URL if available
                 email: email,
-                email_notifications: false,
+                email_notifications: emailNotifications.toString(),
             })
             .eq('id', session.user.id);
 
@@ -145,7 +145,7 @@ const AdminSettings = () => {
         const { error: updateError } = await supabase
             .from('profiles')
             .update({
-                email_notifications: emailNotifications,
+                email_notifications: emailNotifications.toString(),
             })
             .eq('id', session.user.id);
 

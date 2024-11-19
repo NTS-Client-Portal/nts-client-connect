@@ -54,7 +54,7 @@ const UserSettings = () => {
                     : 'https://www.gravatar.com/avatar?d=mp&s=100';
                 setProfilePictureUrl(profilePicUrl);
                 setEmail(session.user.email || '');
-                setEmailNotifications(data.email_notifications || false);
+                setEmailNotifications(data.email_notifications === 'true');
                 setProfilePicture(null); // Reset the profile picture input
             }
         };
@@ -118,7 +118,7 @@ const UserSettings = () => {
                 phone_number: phoneNumber,
                 profile_picture: profilePicturePath || undefined, // Update profile picture URL if available
                 email: email,
-                email_notifications: emailNotifications,
+                email_notifications: emailNotifications.toString(),
             })
             .eq('id', session.user.id);
         if (updateError) {
@@ -142,7 +142,7 @@ const UserSettings = () => {
         const { error: updateError } = await supabase
             .from('profiles')
             .update({
-                email_notifications: emailNotifications,
+                email_notifications: emailNotifications.toString(),
             })
             .eq('id', session.user.id);
 

@@ -4,31 +4,12 @@ import Papa from 'papaparse';
 import { Database } from '@lib/database.types';
 import InventoryTab from '@/components/inventory/InventoryTab';
 import { checkDuplicateInventoryNumber, addFreightItem } from '@lib/database';
-import { Client } from 'pg';
 
 interface FreightInventoryProps {
     session: Session | null;
 }
 
 type Freight = Database['public']['Tables']['freight']['Row'];
-
-// Define the fetchFreightData function
-async function fetchFreightData(userId: string): Promise<Freight[]> {
-    const client = new Client();
-    await client.connect();
-    const res = await client.query<Freight>(`
-    SELECT f.*
-    FROM freight f
-    JOIN profiles p ON f.user_id = p.user_id
-    WHERE p.company_id = (
-      SELECT company_id
-      FROM profiles
-      WHERE user_id = $1
-    );
-  `, [userId]);
-    await client.end();
-    return res.rows;
-}
 
 const FreightInventory = ({ session }: FreightInventoryProps) => {
     const supabase = useSupabaseClient<Database>();
@@ -62,7 +43,11 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
         if (!user) return;
 
         try {
-            const data = await fetchFreightData(user.id);
+            const response = await fetch(`/api/fetchFreightData?userId=${user.id}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch freight data');
+            }
+            const data = await response.json();
             setFreightList(data);
         } catch (error) {
             console.error('Error fetching freight data:', error);
