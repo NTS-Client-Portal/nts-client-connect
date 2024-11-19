@@ -39,7 +39,7 @@ const createSuperadminUser = async (req: NextApiRequest, res: NextApiResponse) =
             .insert({
                 id: userId,
                 email,
-                role: 'superadmin',
+                role: 'superadmin', // Ensure this value matches one of the allowed values
                 first_name: 'Super',
                 last_name: 'Admin',
             });
