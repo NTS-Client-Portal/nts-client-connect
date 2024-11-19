@@ -25,7 +25,7 @@ const SuperadminLogin = () => {
         if (error) {
             setError('Invalid email or password');
         } else {
-            router.push('/superadmin/dashboard');
+            router.push('/superadmin/superadminDashboard');
         }
     };
 
