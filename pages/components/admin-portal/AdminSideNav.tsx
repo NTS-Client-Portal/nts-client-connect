@@ -55,48 +55,48 @@ const AdminSideNav: React.FC<AdminSideNavProps> = ({ isSidebarOpen, toggleSideba
                         <h3>Welcome {userProfile?.first_name || 'User'}</h3>
                     </div>
                     <ul className='flex gap-3 flex-col flex-grow space-y-1 overflow-y-hidden'>
-                        <li className={`w-full flex justify-center mt-0 ${router.pathname == "NTS/adminadmin-dashboard" ? "active" : ""}`}>
-                            <Link href="NTS/adminadmin-dashboard" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "NTS/adminadmin-dashboard" ? "active" : ""}`}>
+                        <li className={`w-full flex justify-center mt-0 ${router.pathname == "nts/adminadmin-dashboard" ? "active" : ""}`}>
+                            <Link href="nts/adminadmin-dashboard" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "nts/adminadmin-dashboard" ? "active" : ""}`}>
                                 <span className='flex items-center flex-nowrap justify-normal gap-2 text-xs'><ChartArea size={'20px'} /> <span className='text-xs md:text-sm'>Analytics</span></span>
                             </Link>
                         </li>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname == "NTS/adminadmin-quote-requests" ? "active" : ""}`}>
-                            <Link href="NTS/admin/admin-quote-requests" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "NTS/adminadmin-quote-requests" ? "active" : ""}`}>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname == "nts/adminadmin-quote-requests" ? "active" : ""}`}>
+                            <Link href="nts/admin/admin-quote-requests" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "nts/adminadmin-quote-requests" ? "active" : ""}`}>
                                 <span className='flex items-center flex-nowrap justify-normal gap-2'><Workflow size={'20px'} /> <span className='text-xs md:text-sm'>Client&apos;s Logistics RFQ</span></span>
                             </Link>
                         </li>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname == "NTS/admininventory" ? "active" : ""}`}>
-                            <Link href="NTS/admininventory" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "NTS/admininventory" ? "active" : ""}`}>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname == "nts/admininventory" ? "active" : ""}`}>
+                            <Link href="nts/admininventory" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "nts/admininventory" ? "active" : ""}`}>
                                 <span className='flex items-center flex-nowrap justify-normal gap-2'><ListCollapse size={'20px'} /> <span className='text-xs md:text-sm'>Client&apos;s Inventory</span></span>
                             </Link>
                         </li>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname == "NTS/adminadmin-documents" ? "active" : ""}`}>
-                            <Link href="NTS/adminadmin-documents" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "NTS/adminadmin-documents" ? "active" : ""}`}>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname == "nts/adminadmin-documents" ? "active" : ""}`}>
+                            <Link href="nts/adminadmin-documents" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "nts/adminadmin-documents" ? "active" : ""}`}>
                                 <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><Folders size={'20px'} /> <span className='text-xs md:text-sm'>Documents/Photos</span></span>
                             </Link>
                         </li>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname == "NTS/adminprocurement" ? "active" : ""}`}>
-                            <Link href="NTS/adminprocurement" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "NTS/adminprocurement" ? "active" : ""}`}>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname == "nts/adminprocurement" ? "active" : ""}`}>
+                            <Link href="nts/adminprocurement" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "nts/adminprocurement" ? "active" : ""}`}>
                                 <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><Signature size={'20px'} /> <span className='text-xs md:text-sm'>Procurements</span></span>
                             </Link>
                         </li>
                         
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname == "NTS/adminfield-planner" ? "active" : ""}`}>
-                            <Link href="NTS/adminfield-planner" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "NTS/adminfield-planner" ? "active" : ""}`}>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname == "nts/adminfield-planner" ? "active" : ""}`}>
+                            <Link href="nts/adminfield-planner" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "nts/adminfield-planner" ? "active" : ""}`}>
                                 <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><Hammer size={'20px'} /> 
                                 <span className='text-xs md:text-sm'>Field Planner/Management</span></span>
                             </Link>
                         </li>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname == "NTS/adminequipment-directory" ? "active" : ""}`}>
-                            <Link href="NTS/adminequipment-directory" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "NTS/adminequipment-directory" ? "active" : ""}`}>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname == "nts/adminequipment-directory" ? "active" : ""}`}>
+                            <Link href="nts/adminequipment-directory" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "nts/adminequipment-directory" ? "active" : ""}`}>
                                 <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><NotebookTabs size={'20px'} /> <span className='text-xs md:text-sm'>Equipment Directory </span></span>
                             </Link>
                         </li>
         
                     </ul>
                     <ul className='flex flex-col gap-4 justify-end items-center'>
-                        <li className={`w-full text-nowrap flex justify-normal m-0 ${router.pathname == "NTS/adminadmin-settings" ? "active" : ""}`}>
-                            <Link href="NTS/adminadmin-settings" className={`logout mt-4 md:mt-0 dark:bg-zinc-300 dark:text-zinc-700 flex items-center justify-center gap-2 font-semibold py-1 w-full ${router.pathname == "NTS/adminadmin-settings" ? "active" : ""}`}>
+                        <li className={`w-full text-nowrap flex justify-normal m-0 ${router.pathname == "nts/adminadmin-settings" ? "active" : ""}`}>
+                            <Link href="nts/adminadmin-settings" className={`logout mt-4 md:mt-0 dark:bg-zinc-300 dark:text-zinc-700 flex items-center justify-center gap-2 font-semibold py-1 w-full ${router.pathname == "nts/adminadmin-settings" ? "active" : ""}`}>
                                 <Settings />   Settings
                             </Link>
                         </li>

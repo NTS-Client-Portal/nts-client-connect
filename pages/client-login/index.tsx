@@ -74,7 +74,7 @@ const LoginPage = () => {
                     if (userProfile.role === 'admin') {
                         router.push('/admin/admin-dashboard');
                     } else {
-                        router.push('companies/user/freight-rfq');
+                        router.push('/user/freight-rfq');
                     }
                 } else {
                     // Create a new profile if it doesn't exist
