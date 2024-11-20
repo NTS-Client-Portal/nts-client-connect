@@ -203,9 +203,9 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                                 <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
                                     <div className=" flex flex-col gap-1 text-sm font-medium text-zinc-900 w-full max-w-max">
                                         <span className='font-semibold flex gap-1'>
-                                            Length:<p className='font-normal'>{quote.length}'</p>
-                                            Width:<p className='font-normal'>{quote.width}'</p>
-                                            Height<p className='font-normal'>{quote.height}'</p></span>
+                                            Length:<p className='font-normal'>{quote.length}&apos;</p>
+                                            Width:<p className='font-normal'>{quote.width}&apos;</p>
+                                            Height<p className='font-normal'>{quote.height}&apos;</p></span>
                                         <span className='font-semibold flex gap-1'>Weight:<p className='font-normal'>{quote.weight} lbs</p></span>
                                     </div>
                                 </td>
@@ -267,7 +267,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                         </div>
                         <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
                             <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Dimensions</div>
-                            <div className="text-sm font-medium text-zinc-900">{quote.length}, {quote.width} {quote.height} <br />{quote.weight}</div>
+                            <div className="text-sm font-medium text-zinc-900">{quote.length}&apos; {quote.width}&apos; {quote.height}&apos; <br />{quote.weight} lbs</div>
                         </div>
                         <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
                             <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Shipping Date</div>
