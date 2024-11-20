@@ -114,9 +114,7 @@ const DashboardPage = () => {
                     <HomePageContent />
                 </AdminLayout>
             ) : (
-                <UserLayout>
                     <HomePageContent />
-                </UserLayout>
             )}
         </UserProvider>
     );
