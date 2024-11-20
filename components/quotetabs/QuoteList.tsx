@@ -156,6 +156,15 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
         }
     };
 
+    const formatDate = (dateString: string | null) => {
+        if (!dateString) return 'No due date';
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    };
+
     return (
         <div className="w-full bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md border border-zinc-400 max-h-max flex-grow">
             <OrderFormModal
@@ -170,6 +179,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                             <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">ID</th>
                             <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibolddark:text-white uppercase tracking-wider border-r border-zinc-300">Origin/Destination</th>
                             <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibolddark:text-white uppercase tracking-wider border-r border-zinc-300">Freight</th>
+                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibolddark:text-white uppercase tracking-wider border-r border-zinc-300">Dimensions</th>
                             <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibolddark:text-white uppercase tracking-wider border-r border-zinc-300">Shipping Date</th>
                             <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibolddark:text-white uppercase tracking-wider border-r border-zinc-300">Price</th>
                             <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibolddark:text-white uppercase tracking-wider">Actions</th>
@@ -178,25 +188,34 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                     <tbody className="bg-white dark:bg-zinc-800/90 divide-y divide-zinc-300">
                         {quotes.map((quote) => (
                             <tr key={quote.id}>
-                                <td className="px-6 py-4 whitespace-nowrap border-r border-zinc-300">
+                                <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
                                     {quote.id}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap border-r border-zinc-300">
+                                <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
                                     <div className="flex flex-col justify-start">
                                         <span><strong>Origin:</strong> {quote.origin_city}, {quote.origin_state} {quote.origin_zip}</span>
                                         <span><strong>Destination:</strong> {quote.destination_city}, {quote.destination_state} {quote.destination_zip}</span>
                                     </div>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap border-r border-zinc-300">
+                                <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
                                     {quote.year} {quote.make} {quote.model}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap border-r border-zinc-300">
-                                    {quote.due_date || 'No due date'}
+                                <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
+                                    <div className=" flex flex-col gap-1 text-sm font-medium text-zinc-900 w-full max-w-max">
+                                        <span className='font-semibold flex gap-1'>
+                                            Length:<p className='font-normal'>{quote.length}'</p>
+                                            Width:<p className='font-normal'>{quote.width}'</p>
+                                            Height<p className='font-normal'>{quote.height}'</p></span>
+                                        <span className='font-semibold flex gap-1'>Weight:<p className='font-normal'>{quote.weight} lbs</p></span>
+                                    </div>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap border-r border-zinc-300">
-                                    {quote.price ? `$${quote.price}` : 'Not priced yet'}
+                                <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
+                                    {formatDate(quote.due_date) || 'No due date'}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap flex justify-between">
+                                <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
+                                    {quote.price ? `$${quote.price}` : 'Quote Pending'}
+                                </td>
+                                <td className="px-6 py-3 whitespace-nowrap flex items-end justify-between">
                                     <button onClick={() => archiveQuote(quote.id)} className="text-red-500 ml-2">
                                         Archive
                                     </button>
@@ -247,12 +266,16 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                             <div className="text-sm font-medium text-zinc-900">{quote.year} {quote.make} {quote.model}</div>
                         </div>
                         <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
+                            <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Dimensions</div>
+                            <div className="text-sm font-medium text-zinc-900">{quote.length}, {quote.width} {quote.height} <br />{quote.weight}</div>
+                        </div>
+                        <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
                             <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Shipping Date</div>
-                            <div className="text-sm font-medium text-zinc-900">{quote.due_date || 'No due date'}</div>
+                            <div className="text-sm font-medium text-zinc-900">{formatDate(quote.due_date)}</div>
                         </div>
                         <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
                             <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Price</div>
-                            <div className="text-sm font-medium text-zinc-900">{quote.price ? `$${quote.price}` : 'Not priced yet'}</div>
+                            <div className="text-sm font-medium text-zinc-900">{quote.price ? `$${quote.price}` : 'Quote Pending'}</div>
                         </div>
                         <div className="flex justify-between items-center">
                             <button onClick={() => archiveQuote(quote.id)} className="text-red-500 ml-2">

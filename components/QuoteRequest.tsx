@@ -152,6 +152,15 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
         }
     };
 
+    const formatDate = (dateString: string | null) => {
+        if (!dateString) return 'No due date';
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    };
+
     return (
         <div className="w-full h-full overflow-auto">
             <div className="w-full">
@@ -170,27 +179,27 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
                     setErrorText={setErrorText}
                 />
             </div>
-            <div className="flex justify-center items-center border-b border-zinc-300">
+            <div className="flex border-b border-gray-300">
                 <button
-                    className={`px-4 py-2 ${activeTab === 'requests' ? 'border-b-2 border-blue-600' : ''}`}
+                    className={`px-4 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'requests' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
                     onClick={() => setActiveTab('requests')}
                 >
                     Shipping Requests
                 </button>
                 <button
-                    className={`px-4 py-2 ${activeTab === 'orders' ? 'border-b-2 border-amber-500' : ''}`}
+                    className={`px-4 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'orders' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
                     onClick={() => setActiveTab('orders')}
                 >
                     Shipping Orders
                 </button>
                 <button
-                    className={`px-4 py-2 ${activeTab === 'history' ? 'border-b-2 border-green-500' : ''}`}
+                    className={`px-4 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'history' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
                     onClick={() => setActiveTab('history')}
                 >
                     Completed Orders
                 </button>
             </div>
-            <div className="w-full bg-white shadow overflow-hidden rounded-md border border-zinc-400 flex-grow">
+            <div className="p-4 bg-white border border-gray-300 rounded-b-md">
                 {activeTab === 'requests' && (
                     <QuoteList
                         session={session}

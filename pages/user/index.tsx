@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import UserLayout from '@/pages/components/UserLayout';
 import { UserProvider } from '@/context/UserContext';
-import DashboardTabs from '@/components/DashboardTabs';
+import QuoteRequest from '@/components/QuoteRequest';
 import Documents from '@/components/Documents';
 import DimensionSearch from "@/components/DimensionSearch";
 import FreightInventory from '@/components/FreightInventory';
@@ -19,17 +19,17 @@ const UserDash: React.FC = () => {
     const renderView = () => {
         switch (currentView) {
             case 'freight-rfq':
-                return <DashboardTabs />;
+                return <QuoteRequest session={session} />;
+            case 'inventory':
+                return <FreightInventory session={session} />;
             case 'user-documents':
                 return <Documents session={session} />;
             case 'equipment-directory':
                 return <DimensionSearch />;
-            case 'inventory':
-                return <FreightInventory session={session} />;
             case 'settings':
                 return <Settings />;
             default:
-                return <DashboardTabs />;
+                return <QuoteRequest session={session} />;
         }
     };
 

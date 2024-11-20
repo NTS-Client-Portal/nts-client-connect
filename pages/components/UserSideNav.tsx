@@ -61,6 +61,11 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                                 <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><Workflow size={'20px'} /> <span className='text-xs md:text-sm '>Logistics RFQ </span></span>
                             </button>
                         </li>
+                        <li className={`w-full flex justify-normal m-0 ${currentView === 'inventory' ? "active" : ""}`}>
+                            <button onClick={() => setCurrentView('inventory')} className={`side-nav-btn text-stone-100 font-semibold w-full ${currentView === 'inventory' ? "active" : ""}`}>
+                                <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><NotebookTabs size={'20px'} /> <span className='text-xs md:text-sm'>Inventory </span></span>
+                            </button>
+                        </li>
                         <li className={`w-full flex justify-normal m-0 ${currentView === 'user-documents' ? "active" : ""}`}>
                             <button onClick={() => setCurrentView('user-documents')} className={`side-nav-btn text-stone-100 font-semibold w-full ${currentView === 'user-documents' ? "active" : ""}`}>
                                 <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><Folders size={'20px'} /> <span className='text-xs md:text-sm '>Documents/Pictures</span></span>
@@ -71,11 +76,7 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                                 <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><NotebookTabs size={'20px'} /> <span className='text-xs md:text-sm'>Equipment Directory </span></span>
                             </button>
                         </li>
-                        <li className={`w-full flex justify-normal m-0 ${currentView === 'inventory' ? "active" : ""}`}>
-                            <button onClick={() => setCurrentView('inventory')} className={`side-nav-btn text-stone-100 font-semibold w-full ${currentView === 'inventory' ? "active" : ""}`}>
-                                <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><NotebookTabs size={'20px'} /> <span className='text-xs md:text-sm'>Inventory </span></span>
-                            </button>
-                        </li>
+
                     </ul>
                     <ul className='flex flex-col gap-4 justify-end items-center'>
                         <li className={`w-full text-nowrap flex justify-normal m-0 ${currentView === 'settings' ? "active" : ""}`}>
