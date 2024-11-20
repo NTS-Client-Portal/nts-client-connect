@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useSession } from '@supabase/auth-helpers-react';
+import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import UserLayout from '@/pages/components/UserLayout';
 import { UserProvider } from '@/context/UserContext';
-import FreightRFQ from '@/pages/user/freight-rfq';
-import UserDocuments from '@/pages/user/user-documents';
-import EquipmentDirectory from '@/pages/user/equipment-directory';
-import Inventory from '@/pages/user/inventory';
+import DashboardTabs from '@/components/DashboardTabs';
+import Documents from '@/components/Documents';
+import DimensionSearch from "@/components/DimensionSearch";
+import FreightInventory from '@/components/FreightInventory';
 import Settings from '@/pages/user/settings';
 
 const UserDash: React.FC = () => {
@@ -19,17 +19,17 @@ const UserDash: React.FC = () => {
     const renderView = () => {
         switch (currentView) {
             case 'freight-rfq':
-                return <FreightRFQ />;
+                return <DashboardTabs />;
             case 'user-documents':
-                return <UserDocuments />;
+                return <Documents session={session} />;
             case 'equipment-directory':
-                return <EquipmentDirectory />;
+                return <DimensionSearch />;
             case 'inventory':
-                return <Inventory />;
+                return <FreightInventory session={session} />;
             case 'settings':
                 return <Settings />;
             default:
-                return <FreightRFQ />;
+                return <DashboardTabs />;
         }
     };
 

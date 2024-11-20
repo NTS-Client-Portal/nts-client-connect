@@ -25,7 +25,6 @@ const UserProfilePage: React.FC = () => {
 
     return (
         <UserProvider>
-            <UserLayout currentView={activeTab} setCurrentView={setActiveTab}>
                 <div className="flex flex-col w-full">
                     <div className="flex border-b border-gray-300">
 
@@ -48,7 +47,6 @@ const UserProfilePage: React.FC = () => {
                         {activeTab === 'manager' && <ManagerPanel profile={userProfile} />}
                     </div>
                 </div>
-            </UserLayout>
         </UserProvider>
     );
 };
