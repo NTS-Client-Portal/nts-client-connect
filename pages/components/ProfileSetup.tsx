@@ -124,7 +124,7 @@ const ProfileSetup = () => {
             }
 
             setSuccess(true);
-            router.push('companies/user/freight-rfq');
+            router.push('/user');
         } catch (error) {
             setError(error.message);
         } finally {

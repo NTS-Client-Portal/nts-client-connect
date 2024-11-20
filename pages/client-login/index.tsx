@@ -230,15 +230,7 @@ const LoginPage = () => {
 
     return (
         <UserProvider>
-            {userProfile?.team_role === 'admin' ? (
-                <AdminLayout>
-                    <HomePageContent />
-                </AdminLayout>
-            ) : (
-                <UserLayout currentView="dashboard" setCurrentView={() => { }}>
-                    <HomePageContent />
-                </UserLayout>
-            )}
+    <HomePageContent />
         </UserProvider>
     );
 };
