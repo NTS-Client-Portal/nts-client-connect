@@ -19,13 +19,19 @@ const SuperadminDashboard = () => {
     const [isNtsUserModalOpen, setIsNtsUserModalOpen] = useState(false);
     const [isCompanyUserModalOpen, setIsCompanyUserModalOpen] = useState(false);
 
-    useEffect(() => {
+    const checkSession = useCallback(() => {
         if (!session) {
-            router.push('/404');
+            router.push('/superadmin-login');
         }
     }, [session, router]);
 
+    useEffect(() => {
+        checkSession();
+    }, [checkSession]);
+
     const fetchProfiles = useCallback(async () => {
+        if (!session) return;
+
         setLoading(true);
         const { data, error } = await supabase.from('profiles').select('*');
         if (error) {
@@ -34,13 +40,11 @@ const SuperadminDashboard = () => {
             setProfiles(data);
         }
         setLoading(false);
-    }, [supabase]);
+    }, [session, supabase]);
 
     useEffect(() => {
-        if (session) {
-            fetchProfiles();
-        }
-    }, [session, fetchProfiles]);
+        fetchProfiles();
+    }, [fetchProfiles]);
 
     const handleDelete = async (id: string) => {
         setLoading(true);

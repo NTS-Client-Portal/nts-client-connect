@@ -1,18 +1,15 @@
-import { supabase } from '@/lib/initSupabase';
-import '@/styles/app.css';
-import '@/styles/tailwind.css';
+import { useState } from 'react';
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
+import { supabase } from '../lib/initSupabase'; // Import the Supabase client from initSupabase
 import type { AppProps } from 'next/app';
-import { UserProvider } from '@/context/UserContext'; // Adjust the import path as needed
-import { DarkModeProvider } from '@/context/DarkModeContext'; // Adjust the import path as needed
+import { UserProvider } from '../context/UserContext'; // Adjust the import path as needed
+import '@/styles/app.css';
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <SessionContextProvider supabaseClient={supabase} initialSession={pageProps.initialSession}>
       <UserProvider>
-        <DarkModeProvider>
-          <Component {...pageProps} />
-        </DarkModeProvider>
+        <Component {...pageProps} />
       </UserProvider>
     </SessionContextProvider>
   );
