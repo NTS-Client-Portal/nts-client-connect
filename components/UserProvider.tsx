@@ -56,7 +56,11 @@ export const UserProvider: React.FC<UserProviderProps> = ({ session, children })
                     setError('Error fetching profile');
                 }
             } else {
-                setUserProfile(data);
+                if (data && !('error' in data)) {
+                    setUserProfile(data as UserProfile);
+                } else {
+                    setError('Invalid user profile data');
+                }
             }
 
             setLoading(false);

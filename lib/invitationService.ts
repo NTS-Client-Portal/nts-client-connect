@@ -22,7 +22,7 @@ export const sendInvitations = async (emails: { email: string, role: 'manager' |
             // Create a new company
             const { data: newCompany, error: newCompanyError } = await supabase
                 .from('companies')
-                .insert({ name: companyName })
+                .insert({ id: uuidv4(), name: companyName })
                 .select('id')
                 .single();
 
@@ -40,6 +40,7 @@ export const sendInvitations = async (emails: { email: string, role: 'manager' |
             const { error: invitationError } = await supabase
                 .from('invitations')
                 .insert({
+                    id: uuidv4(),
                     email,
                     team_role: role,
                     token,

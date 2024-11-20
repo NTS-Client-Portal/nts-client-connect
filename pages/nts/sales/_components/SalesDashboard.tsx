@@ -14,6 +14,7 @@ type ShippingQuote = Database['public']['Tables']['shippingquotes']['Row'];
 type Order = Database['public']['Tables']['orders']['Row'];
 type Company = Database['public']['Tables']['companies']['Row'];
 type Freight = Database['public']['Tables']['freight']['Row'];
+type NtsUser = Database['public']['Tables']['nts_users']['Row'];
 
 const SalesDashboard = ({ session }: SalesDashboardProps) => {
     const supabase = useSupabaseClient<Database>();
@@ -32,7 +33,7 @@ const SalesDashboard = ({ session }: SalesDashboardProps) => {
         if (!user) return;
 
         const { data, error } = await supabase
-            .from('profiles')
+            .from('nts_users')
             .select('role')
             .eq('id', user.id)
             .single();
@@ -40,7 +41,7 @@ const SalesDashboard = ({ session }: SalesDashboardProps) => {
         if (error) {
             setErrorText(error.message);
         } else {
-            setUserRole(data.role);
+            setUserRole(data?.role || null);
         }
     }, [user, supabase]);
 

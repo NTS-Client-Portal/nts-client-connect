@@ -20,10 +20,24 @@ const SuperadminLogin = () => {
             password,
         });
 
+        if (error) {
+            setLoading(false);
+            setError('Invalid email or password');
+            return;
+        }
+
+        // Check if the user has the superadmin role
+        const { data: userProfile, error: profileError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', data.user.id)
+            .single();
+
         setLoading(false);
 
-        if (error) {
-            setError('Invalid email or password');
+        if (profileError || userProfile.role !== 'superadmin') {
+            setError('You do not have permission to access this page');
+            await supabase.auth.signOut();
         } else {
             router.push('/superdash');
         }

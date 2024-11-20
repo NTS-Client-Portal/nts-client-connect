@@ -32,7 +32,7 @@ export default function SignUpPage() {
                     }
                 });
         }
-    }, [router.query.inviteToken]);
+    }, [router.query.inviteToken, supabase]);
 
     const validatePassword = (password: string): boolean => {
         const hasLowercase = /[a-z]/.test(password);

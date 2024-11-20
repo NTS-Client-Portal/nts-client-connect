@@ -5,7 +5,7 @@ import AdminLayout from '@/pages/components/admin-portal/AdminLayout';
 import { UserProvider, useUser } from '@/context/UserContext';
 import { useEffect, useState } from 'react';
 import FreightInventory from '@/components/FreightInventory';
-import AdminQuoteRequests from '@/components/admin/AdminQuoteRequests';
+import UserDash from '@/pages/user';
 import withProfileCheck from '@/components/hoc/withProfileCheck';
 import { useRouter } from 'next/router';
 
@@ -36,7 +36,7 @@ const HomePageContent = () => {
             <div className="w-full flex justify-center items-center p-4">
                 <div className="w-full sm:w-2/3 lg:w-3/4">
                     <FreightInventory session={useSession()} />
-                    {userProfile?.role === 'admin' && <AdminQuoteRequests />}
+                    {userProfile?.team_role === 'manager' && <UserDash />}
                 </div>
             </div>
         </>
