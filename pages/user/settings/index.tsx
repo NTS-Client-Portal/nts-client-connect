@@ -25,7 +25,7 @@ const UserProfilePage: React.FC = () => {
 
     return (
         <UserProvider>
-            <UserLayout>
+            <UserLayout currentView={activeTab} setCurrentView={setActiveTab}>
                 <div className="flex flex-col w-full">
                     <div className="flex border-b border-gray-300">
 

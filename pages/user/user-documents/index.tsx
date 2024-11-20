@@ -14,7 +14,7 @@ const UserDocuments: React.FC = () => {
 
     return (
         <UserProvider>
-            <UserLayout>
+            <UserLayout currentView="documents" setCurrentView={() => {}}>
                 <Documents session={session} />
             </UserLayout>
         </UserProvider>

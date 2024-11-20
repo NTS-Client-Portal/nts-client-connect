@@ -74,7 +74,7 @@ const LoginPage = () => {
                     if (userProfile.role === 'admin') {
                         router.push('/admin/admin-dashboard');
                     } else {
-                        router.push('/user/freight-rfq');
+                        router.push('/user');
                     }
                 } else {
                     // Create a new profile if it doesn't exist
@@ -93,7 +93,7 @@ const LoginPage = () => {
                         console.error('Error creating/updating user profile:', error.message);
                     } else {
                         setUserProfile(data[0] as UserProfile);
-                        router.push('/user/freight-rfq');
+                        router.push('/user');
                     }
                 }
             }
@@ -235,7 +235,7 @@ const LoginPage = () => {
                     <HomePageContent />
                 </AdminLayout>
             ) : (
-                <UserLayout>
+                <UserLayout currentView="dashboard" setCurrentView={() => { }}>
                     <HomePageContent />
                 </UserLayout>
             )}

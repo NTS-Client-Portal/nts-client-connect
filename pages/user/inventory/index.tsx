@@ -15,7 +15,7 @@ const FreightInventoryPage: React.FC = () => {
 
     return (
         <UserProvider>
-            <UserLayout>
+            <UserLayout currentView="someView" setCurrentView={() => {}}>
                 <FreightInventory session={session} />
             </UserLayout>
         </UserProvider>

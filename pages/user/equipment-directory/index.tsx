@@ -13,7 +13,7 @@ const EquipmentDirectory: React.FC = () => {
     }
     return (
         <UserProvider>
-            <UserLayout>
+            <UserLayout currentView="someView" setCurrentView={() => {}}>
                 <span className='flex flex-col justify-around items-stretch gap-32'>
                     <DimensionSearch />
                 </span>

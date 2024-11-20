@@ -1,13 +1,14 @@
 import React, { ReactNode, useState, useEffect } from 'react';
-import UserSideNav from './UserSideNav'; 
+import UserSideNav from './UserSideNav';
 import UserTopNav from './UserTopNav';
-import { useSession } from '@supabase/auth-helpers-react';
 
 interface UserLayoutProps {
     children: ReactNode;
+    currentView: string;
+    setCurrentView: (view: string) => void;
 }
 
-const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
+const UserLayout: React.FC<UserLayoutProps> = ({ children, currentView, setCurrentView }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     useEffect(() => {
@@ -36,13 +37,16 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
 
     return (
         <div className="md:layout">
-            <div className='z-30'>
-                <UserSideNav isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} /></div>
+            <UserSideNav
+                isSidebarOpen={isSidebarOpen}
+                toggleSidebar={toggleSidebar}
+                currentView={currentView}
+                setCurrentView={setCurrentView}
+            />
             <div className="w-full fixed top-0 left-0">
                 <UserTopNav />
             </div>
-            <main className=" ml-0 xl:ml-52 md:p-4 mt-12 Z-0 md:mt-12 relative">
-
+            <main className="ml-0 xl:ml-52 md:p-4 mt-12 z-0 md:mt-12 relative">
                 {children}
             </main>
         </div>

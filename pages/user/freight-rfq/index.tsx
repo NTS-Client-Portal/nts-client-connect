@@ -14,7 +14,7 @@ const UserDash: React.FC = () => {
 
     return (
         <UserProvider>
-            <UserLayout>
+            <UserLayout currentView="someView" setCurrentView={() => {}}>
                 <DashboardTabs />
             </UserLayout>
         </UserProvider>
