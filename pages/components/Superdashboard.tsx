@@ -107,7 +107,8 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         if (error) {
             throw new Error(error.message);
         }
-        return data.users.some(user => user.email === email);
+        const users = data.users as { email: string }[]; // Ensure users are correctly typed
+        return users.some(user => user.email === email);
     };
 
     const handleAddNtsUser = async (e: React.FormEvent) => {
@@ -122,8 +123,8 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         try {
             // Check if the user already exists in auth.users
             const userExists = await checkUserExists(newNtsUser.email as string);
-            let userId;
-            let newProfileId;
+            let userId: string;
+            let newProfileId: string | null;
 
             if (!userExists) {
                 // Step 1: Generate a new profile_id
