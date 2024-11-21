@@ -1,10 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSupabaseClient, useSession, Session } from '@supabase/auth-helpers-react';
-import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/router';
 import { Database } from '@/lib/database.types';
 import AdminAnalytics from '@components/admin/AdminAnalytics';
-import { v4 as uuidv4 } from 'uuid';
 
 interface SuperadminDashboardProps {
     session: Session | null;
@@ -26,9 +24,6 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
     const [success, setSuccess] = useState<string | null>(null);
     const [newNtsUser, setNewNtsUser] = useState<Partial<NtsUser>>({});
     const [isNtsUserModalOpen, setIsNtsUserModalOpen] = useState(false);
-
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     const checkSession = useCallback(() => {
         if (!session) {
@@ -85,33 +80,6 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         fetchCompanies();
     }, [fetchProfiles, fetchNtsUsers, fetchCompanies]);
 
-    const generateProfileId = async () => {
-        const { data, error } = await supabase
-            .from('nts_users')
-            .select('profile_id')
-            .order('profile_id', { ascending: false })
-            .limit(1);
-
-        if (error) {
-            setError(error.message);
-            return null;
-        }
-
-        const latestProfileId = data.length > 0 ? data[0].profile_id : 'N0000';
-        const newProfileIdNumber = parseInt(latestProfileId.slice(1)) + 1;
-        return `N${newProfileIdNumber.toString().padStart(4, '0')}`;
-    };
-
-    const checkUserExists = async (email: string) => {
-        const serviceSupabase = createClient(supabaseUrl, serviceRoleKey);
-        const { data, error } = await serviceSupabase.auth.admin.listUsers();
-        if (error) {
-            throw new Error(error.message);
-        }
-        const users = data.users as { email: string }[]; // Ensure users are correctly typed
-        return users.some(user => user.email === email);
-    };
-
     const handleAddNtsUser = async (e: React.FormEvent) => {
         e.preventDefault();
         console.log('Form submitted');
@@ -123,103 +91,25 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         setLoading(true);
 
         try {
-            console.log('Checking if user exists');
-            // Check if the user already exists in auth.users
-            const userExists = await checkUserExists(newNtsUser.email as string);
-            let userId;
-            let newProfileId;
+            const response = await fetch('/.netlify/functions/addNtsUser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newNtsUser),
+            });
 
-            if (!userExists) {
-                console.log('User does not exist, creating new user');
-                // Step 1: Generate a new profile_id
-                newProfileId = await generateProfileId();
-                if (!newProfileId) {
-                    throw new Error('Failed to generate profile_id');
-                }
+            const result = await response.json();
 
-                // Step 2: Sign up the user in auth.users using the service role key
-                const serviceSupabase = createClient(supabaseUrl, serviceRoleKey);
-                const { data: authUser, error: authError } = await serviceSupabase.auth.admin.createUser({
-                    email: newNtsUser.email as string,
-                    password: 'NtsBlue123!', // You can generate a random password or handle it differently
-                    email_confirm: true,
-                });
-
-                if (authError) {
-                    throw new Error(authError.message);
-                }
-
-                userId = authUser.user.id;
+            if (response.ok) {
+                console.log('NTS User added successfully');
+                fetchNtsUsers();
+                setNewNtsUser({});
+                setIsNtsUserModalOpen(false);
+                setSuccess('NTS User added successfully');
             } else {
-                console.log('User exists, fetching user ID');
-                // Fetch the user ID from auth.users
-                const serviceSupabase = createClient(supabaseUrl, serviceRoleKey);
-                const { data: usersData, error: usersError } = await serviceSupabase.auth.admin.listUsers();
-                if (usersError) {
-                    throw new Error(usersError.message);
-                }
-                const existingUser = usersData.users.find((user: { email: string }) => user.email === newNtsUser.email);
-                userId = existingUser?.id;
-
-                // Generate a new profile_id for existing users
-                newProfileId = await generateProfileId();
-                if (!newProfileId) {
-                    throw new Error('Failed to generate profile_id');
-                }
+                throw new Error(result.error);
             }
-
-            console.log('Inserting into profiles table');
-            // Step 3: Insert into profiles table
-            const profileToInsert: Profile = {
-                id: userId,
-                email: newNtsUser.email as string,
-                first_name: newNtsUser.first_name || null,
-                last_name: newNtsUser.last_name || null,
-                phone_number: newNtsUser.phone_number || null,
-                company_id: uuidv4(), // Assign a random company_id
-                profile_picture: null,
-                address: newNtsUser.address || null,
-                email_notifications: null,
-                team_role: null,
-                assigned_sales_user: null,
-                company_name: null,
-                company_size: null,
-                profile_complete: true,
-                inserted_at: new Date().toISOString(), // Set inserted_at to the current date and time
-            };
-
-            const { error: profileError } = await supabase.from('profiles').insert([profileToInsert]);
-            if (profileError) {
-                throw new Error(profileError.message);
-            }
-
-            console.log('Inserting into nts_users table');
-            // Step 4: Insert into nts_users table
-            const ntsUserToInsert: NtsUser = {
-                id: userId,
-                profile_id: newProfileId,
-                company_id: uuidv4(), // Assign a random company_id
-                email: newNtsUser.email as string,
-                role: newNtsUser.role as string,
-                first_name: newNtsUser.first_name || null,
-                last_name: newNtsUser.last_name || null,
-                phone_number: newNtsUser.phone_number || null,
-                profile_picture: null,
-                address: newNtsUser.address || null,
-                email_notifications: false,
-                inserted_at: new Date().toISOString(), // Set inserted_at to the current date and time
-            };
-
-            const { error: ntsUserError } = await supabase.from('nts_users').insert([ntsUserToInsert]);
-            if (ntsUserError) {
-                throw new Error(ntsUserError.message);
-            }
-
-            console.log('NTS User added successfully');
-            fetchNtsUsers();
-            setNewNtsUser({});
-            setIsNtsUserModalOpen(false);
-            setSuccess('NTS User added successfully');
         } catch (error) {
             console.error('Error adding NTS User:', error.message);
             setError(error.message);
