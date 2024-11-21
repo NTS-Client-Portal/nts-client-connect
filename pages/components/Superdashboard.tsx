@@ -1,16 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSupabaseClient, useSession } from '@supabase/auth-helpers-react';
+import { useSupabaseClient, useSession, Session } from '@supabase/auth-helpers-react';
 import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/router';
 import { Database } from '@/lib/database.types';
 import AdminAnalytics from '@components/admin/AdminAnalytics';
 import { v4 as uuidv4 } from 'uuid';
 
+interface SuperadminDashboardProps {
+    session: Session | null;
+}
+
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type NtsUser = Database['public']['Tables']['nts_users']['Row'];
 type Company = Database['public']['Tables']['companies']['Row'];
 
-const SuperadminDashboard = () => {
+const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
     const supabase = useSupabaseClient<Database>();
     const session = useSession();
     const router = useRouter();
@@ -19,12 +23,11 @@ const SuperadminDashboard = () => {
     const [companies, setCompanies] = useState<Company[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
     const [newNtsUser, setNewNtsUser] = useState<Partial<NtsUser>>({});
     const [newProfile, setNewProfile] = useState<Partial<Profile>>({});
     const [isNtsUserModalOpen, setIsNtsUserModalOpen] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-    const [isEditNtsUserModalOpen, setIsEditNtsUserModalOpen] = useState(false);
-    const [editNtsUserId, setEditNtsUserId] = useState<string | null>(null);
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -101,7 +104,8 @@ const SuperadminDashboard = () => {
         return `N${newProfileIdNumber.toString().padStart(4, '0')}`;
     };
 
-    const handleAddNtsUser = async () => {
+    const handleAddNtsUser = async (e: React.FormEvent) => {
+        e.preventDefault();
         if (!newNtsUser.email || !newNtsUser.role) {
             setError('Email and role are required');
             return;
@@ -136,10 +140,10 @@ const SuperadminDashboard = () => {
                 last_name: newNtsUser.last_name || null,
                 phone_number: newNtsUser.phone_number || null,
                 company_id: newNtsUser.company_id || null,
-                profile_picture: newNtsUser.profile_picture || null,
+                profile_picture: null,
                 address: newNtsUser.address || null,
                 inserted_at: new Date().toISOString(),
-                email_notifications: newNtsUser.email_notifications || null,
+                email_notifications: null,
                 team_role: newNtsUser.role, // Assuming role is equivalent to team_role
                 assigned_sales_user: null,
                 company_name: null,
@@ -162,10 +166,10 @@ const SuperadminDashboard = () => {
                 first_name: newNtsUser.first_name || null,
                 last_name: newNtsUser.last_name || null,
                 phone_number: newNtsUser.phone_number || null,
-                profile_picture: newNtsUser.profile_picture || null,
+                profile_picture: null,
                 address: newNtsUser.address || null,
                 inserted_at: new Date().toISOString(),
-                email_notifications: newNtsUser.email_notifications || false,
+                email_notifications: false,
             };
 
             const { error: ntsUserError } = await supabase.from('nts_users').insert([ntsUserToInsert]);
@@ -176,6 +180,7 @@ const SuperadminDashboard = () => {
             fetchNtsUsers();
             setNewNtsUser({});
             setIsNtsUserModalOpen(false);
+            setSuccess('NTS User added successfully');
         } catch (error) {
             setError(error.message);
         } finally {
@@ -196,10 +201,10 @@ const SuperadminDashboard = () => {
             last_name: newProfile.last_name || null,
             phone_number: newProfile.phone_number || null,
             company_id: newProfile.company_id || null,
-            profile_picture: newProfile.profile_picture || null,
+            profile_picture: null,
             address: newProfile.address || null,
             inserted_at: new Date().toISOString(),
-            email_notifications: newProfile.email_notifications || null,
+            email_notifications: null,
             team_role: newProfile.team_role || null,
             assigned_sales_user: newProfile.assigned_sales_user || null,
             company_name: newProfile.company_name || null,
@@ -252,12 +257,6 @@ const SuperadminDashboard = () => {
         setLoading(false);
     };
 
-    const openEditNtsUserModal = (user: NtsUser) => {
-        setEditNtsUserId(user.id);
-        setNewNtsUser(user);
-        setIsEditNtsUserModalOpen(true);
-    };
-
     if (!session) {
         return null; // or a loading spinner
     }
@@ -268,11 +267,8 @@ const SuperadminDashboard = () => {
         first_name: '',
         last_name: '',
         phone_number: '',
-        profile_picture: '',
         address: '',
         inserted_at: '',
-        email_notifications: false,
-        profile_id: '',
         company_id: ''
     };
 
@@ -280,6 +276,7 @@ const SuperadminDashboard = () => {
         <div className="min-h-screen bg-gray-100 p-8">
             <h1 className="text-3xl font-bold mb-6 text-center">Superadmin Dashboard</h1>
             {error && <div className="text-red-500 mb-4">{error}</div>}
+            {success && <div className="text-green-500 mb-4">{success}</div>}
             <AdminAnalytics />
             <div className="mb-6">
                 <h2 className="text-2xl font-semibold mb-4">Profiles</h2>
@@ -377,70 +374,73 @@ const SuperadminDashboard = () => {
                             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
                                 <div className="bg-white p-6 rounded-lg shadow-lg w-3/4 max-w-4xl">
                                     <h3 className="text-xl font-semibold mb-4">Add New NTS User</h3>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        {Object.keys(ntsUsers[0] || ntsUserTemplate).map((key) => (
-                                            key !== 'id' && key !== 'company_id' && key !== 'inserted_at' && key !== 'profile_complete' && (
-                                                <div key={key} className="mb-4">
-                                                    <label className="block text-gray-700">{key}</label>
-                                                    {key === 'role' ? (
-                                                        <select
-                                                            value={newNtsUser[key] || ''}
-                                                            onChange={(e) =>
-                                                                setNewNtsUser({ ...newNtsUser, [key]: e.target.value })
-                                                            }
-                                                            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                        >
-                                                            <option value="">Select a role</option>
-                                                            <option value="sales">Sales</option>
-                                                            <option value="manager">Manager</option>
-                                                            <option value="admin">Admin</option>
-                                                            <option value="superadmin">Superadmin</option>
-                                                        </select>
-                                                    ) : (
-                                                        <input
-                                                            type="text"
-                                                            value={newNtsUser[key] || ''}
-                                                            onChange={(e) =>
-                                                                setNewNtsUser({ ...newNtsUser, [key]: e.target.value })
-                                                            }
-                                                            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                        />
-                                                    )}
-                                                </div>
-                                            )
-                                        ))}
-                                        <div className="mb-4">
-                                            <label className="block text-gray-700">Assigned Company</label>
-                                            <select
-                                                value={newNtsUser.company_id || ''}
-                                                onChange={(e) =>
-                                                    setNewNtsUser({ ...newNtsUser, company_id: e.target.value })
-                                                }
-                                                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            >
-                                                <option value="">Select a company</option>
-                                                {companies.map((company) => (
-                                                    <option key={company.id} value={company.id}>
-                                                        {company.name}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                    <form onSubmit={handleAddNtsUser}>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            {Object.keys(ntsUsers[0] || ntsUserTemplate).map((key) => (
+                                                key !== 'id' && key !== 'profile_picture' && key !== 'email_notifications' && key !== 'profile_id' && (
+                                                    <div key={key} className="mb-4">
+                                                        <label className="block text-gray-700">{key}</label>
+                                                        {key === 'role' ? (
+                                                            <select
+                                                                value={newNtsUser[key] || ''}
+                                                                onChange={(e) =>
+                                                                    setNewNtsUser({ ...newNtsUser, [key]: e.target.value })
+                                                                }
+                                                                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                            >
+                                                                <option value="">Select a role</option>
+                                                                <option value="sales">Sales</option>
+                                                                <option value="manager">Manager</option>
+                                                                <option value="admin">Admin</option>
+                                                                <option value="superadmin">Superadmin</option>
+                                                            </select>
+                                                        ) : (
+                                                            <input
+                                                                type="text"
+                                                                value={newNtsUser[key] || ''}
+                                                                onChange={(e) =>
+                                                                    setNewNtsUser({ ...newNtsUser, [key]: e.target.value })
+                                                                }
+                                                                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                            />
+                                                        )}
+                                                    </div>
+                                                )
+                                            ))}
+                                            <div className="mb-4">
+                                                <label className="block text-gray-700">Assigned Company</label>
+                                                <select
+                                                    value={newNtsUser.company_id || ''}
+                                                    onChange={(e) =>
+                                                        setNewNtsUser({ ...newNtsUser, company_id: e.target.value })
+                                                    }
+                                                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                >
+                                                    <option value="">Select a company</option>
+                                                    {companies.map((company) => (
+                                                        <option key={company.id} value={company.id}>
+                                                            {company.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="flex justify-end mt-4">
-                                        <button
-                                            onClick={handleAddNtsUser}
-                                            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-200"
-                                        >
-                                            Add NTS User
-                                        </button>
-                                        <button
-                                            onClick={() => setIsNtsUserModalOpen(false)}
-                                            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-200 ml-2"
-                                        >
-                                            Cancel
-                                        </button>
-                                    </div>
+                                        <div className="flex justify-end mt-4">
+                                            <button
+                                                type="submit"
+                                                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-200"
+                                            >
+                                                Add NTS User
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsNtsUserModalOpen(false)}
+                                                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-200 ml-2"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         )}

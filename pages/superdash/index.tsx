@@ -24,7 +24,7 @@ const SuperadminDash = () => {
 
     return (
         <UserProvider>
-            <SuperadminDashboard />
+            <SuperadminDashboard session={session}/>
         </UserProvider>
     );
 };

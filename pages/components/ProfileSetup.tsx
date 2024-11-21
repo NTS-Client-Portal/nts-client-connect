@@ -112,7 +112,18 @@ const ProfileSetup = () => {
                 throw new Error(error.message);
             }
 
-            // Store invitations with roles
+            // Add the user to the companies table
+            await supabase
+                .from('companies')
+                .upsert({
+                    id: companyId,
+                    name: companyName || `${firstName} ${lastName}`,
+                    size: companySize,
+                    assigned_sales_user: null,
+                    assigned_at: new Date().toISOString(),
+                });
+
+            // Store invitations with roles and add invited users to the companies table
             for (const invite of inviteEmails) {
                 await supabase
                     .from('invitations')
@@ -120,6 +131,17 @@ const ProfileSetup = () => {
                         email: invite.email,
                         team_role: invite.role,
                         company_id: companyId,
+                    });
+
+                // Add invited users to the companies table
+                await supabase
+                    .from('companies')
+                    .upsert({
+                        id: companyId,
+                        name: companyName || `${firstName} ${lastName}`,
+                        size: companySize,
+                        assigned_sales_user: null,
+                        assigned_at: new Date().toISOString(),
                     });
             }
 
