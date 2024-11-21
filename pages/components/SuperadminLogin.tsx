@@ -15,12 +15,12 @@ const SuperadminLogin = () => {
         setError(null);
         setLoading(true);
 
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
 
-        if (error) {
+        if (authError) {
             setLoading(false);
             setError('Invalid email or password');
             return;
@@ -28,14 +28,14 @@ const SuperadminLogin = () => {
 
         // Check if the user has the superadmin role
         const { data: userProfile, error: profileError } = await supabase
-            .from('profiles')
+            .from('nts_users')
             .select('role')
-            .eq('id', data.user.id)
+            .eq('id', authData.user.id)
             .single();
 
         setLoading(false);
 
-        if (profileError || userProfile.role !== 'superadmin') {
+        if (profileError || userProfile?.role !== 'superadmin') {
             setError('You do not have permission to access this page');
             await supabase.auth.signOut();
         } else {
