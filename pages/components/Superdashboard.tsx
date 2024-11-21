@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSupabaseClient, useSession } from '@supabase/auth-helpers-react';
+import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/router';
 import { Database } from '@/lib/database.types';
 import AdminAnalytics from '@components/admin/AdminAnalytics';
@@ -22,6 +23,11 @@ const SuperadminDashboard = () => {
     const [newProfile, setNewProfile] = useState<Partial<Profile>>({});
     const [isNtsUserModalOpen, setIsNtsUserModalOpen] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [isEditNtsUserModalOpen, setIsEditNtsUserModalOpen] = useState(false);
+    const [editNtsUserId, setEditNtsUserId] = useState<string | null>(null);
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     const checkSession = useCallback(() => {
         if (!session) {
@@ -110,8 +116,9 @@ const SuperadminDashboard = () => {
                 throw new Error('Failed to generate profile_id');
             }
 
-            // Step 2: Sign up the user in auth.users
-            const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+            // Step 2: Sign up the user in auth.users using the service role key
+            const serviceSupabase = createClient(supabaseUrl, serviceRoleKey);
+            const { data: authUser, error: authError } = await serviceSupabase.auth.admin.createUser({
                 email: newNtsUser.email,
                 password: 'TemporaryPassword123!', // You can generate a random password or handle it differently
                 email_confirm: true,
@@ -245,6 +252,12 @@ const SuperadminDashboard = () => {
         setLoading(false);
     };
 
+    const openEditNtsUserModal = (user: NtsUser) => {
+        setEditNtsUserId(user.id);
+        setNewNtsUser(user);
+        setIsEditNtsUserModalOpen(true);
+    };
+
     if (!session) {
         return null; // or a loading spinner
     }
@@ -369,14 +382,30 @@ const SuperadminDashboard = () => {
                                             key !== 'id' && key !== 'company_id' && key !== 'inserted_at' && key !== 'profile_complete' && (
                                                 <div key={key} className="mb-4">
                                                     <label className="block text-gray-700">{key}</label>
-                                                    <input
-                                                        type="text"
-                                                        value={newNtsUser[key] || ''}
-                                                        onChange={(e) =>
-                                                            setNewNtsUser({ ...newNtsUser, [key]: e.target.value })
-                                                        }
-                                                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                    />
+                                                    {key === 'role' ? (
+                                                        <select
+                                                            value={newNtsUser[key] || ''}
+                                                            onChange={(e) =>
+                                                                setNewNtsUser({ ...newNtsUser, [key]: e.target.value })
+                                                            }
+                                                            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        >
+                                                            <option value="">Select a role</option>
+                                                            <option value="sales">Sales</option>
+                                                            <option value="manager">Manager</option>
+                                                            <option value="admin">Admin</option>
+                                                            <option value="superadmin">Superadmin</option>
+                                                        </select>
+                                                    ) : (
+                                                        <input
+                                                            type="text"
+                                                            value={newNtsUser[key] || ''}
+                                                            onChange={(e) =>
+                                                                setNewNtsUser({ ...newNtsUser, [key]: e.target.value })
+                                                            }
+                                                            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        />
+                                                    )}
                                                 </div>
                                             )
                                         ))}
