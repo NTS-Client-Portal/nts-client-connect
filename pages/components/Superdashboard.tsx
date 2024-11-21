@@ -25,9 +25,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [newNtsUser, setNewNtsUser] = useState<Partial<NtsUser>>({});
-    const [newProfile, setNewProfile] = useState<Partial<Profile>>({});
     const [isNtsUserModalOpen, setIsNtsUserModalOpen] = useState(false);
-    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -123,7 +121,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
 
         try {
             // Check if the user already exists in auth.users
-            const userExists = await checkUserExists(newNtsUser.email);
+            const userExists = await checkUserExists(newNtsUser.email as string);
             let userId;
             let newProfileId;
 
@@ -137,7 +135,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                 // Step 2: Sign up the user in auth.users using the service role key
                 const serviceSupabase = createClient(supabaseUrl, serviceRoleKey);
                 const { data: authUser, error: authError } = await serviceSupabase.auth.admin.createUser({
-                    email: newNtsUser.email,
+                    email: newNtsUser.email as string,
                     password: 'NtsBlue123!', // You can generate a random password or handle it differently
                     email_confirm: true,
                 });
@@ -166,7 +164,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
             // Step 3: Insert into profiles table
             const profileToInsert: Profile = {
                 id: userId,
-                email: newNtsUser.email,
+                email: newNtsUser.email as string,
                 first_name: newNtsUser.first_name || null,
                 last_name: newNtsUser.last_name || null,
                 phone_number: newNtsUser.phone_number || null,
@@ -192,8 +190,8 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                 id: userId,
                 profile_id: newProfileId,
                 company_id: newNtsUser.company_id,
-                email: newNtsUser.email,
-                role: newNtsUser.role,
+                email: newNtsUser.email as string,
+                role: newNtsUser.role as string,
                 first_name: newNtsUser.first_name || null,
                 last_name: newNtsUser.last_name || null,
                 phone_number: newNtsUser.phone_number || null,
@@ -217,41 +215,6 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         } finally {
             setLoading(false);
         }
-    };
-    const handleAddProfile = async () => {
-        if (!newProfile.email || !newProfile.team_role) {
-            setError('Email and role are required');
-            return;
-        }
-
-        const profileToInsert: Profile = {
-            id: uuidv4(),
-            email: newProfile.email,
-            first_name: newProfile.first_name || null,
-            last_name: newProfile.last_name || null,
-            phone_number: newProfile.phone_number || null,
-            company_id: newProfile.company_id || null,
-            profile_picture: null,
-            address: newProfile.address || null,
-            inserted_at: new Date().toISOString(),
-            email_notifications: null,
-            team_role: newProfile.team_role || null,
-            assigned_sales_user: newProfile.assigned_sales_user || null,
-            company_name: newProfile.company_name || null,
-            company_size: newProfile.company_size || null,
-            profile_complete: newProfile.profile_complete || false,
-        };
-
-        setLoading(true);
-        const { error } = await supabase.from('profiles').insert([profileToInsert]);
-        if (error) {
-            setError(error.message);
-        } else {
-            fetchProfiles();
-            setNewProfile({});
-            setIsProfileModalOpen(false);
-        }
-        setLoading(false);
     };
 
     const handleDeleteProfile = async (id: string) => {
@@ -345,53 +308,6 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                     </tbody>
                 </table>
                 <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <h3 className="text-xl font-semibold mb-4">Add New Profile</h3>
-                        <button
-                            onClick={() => setIsProfileModalOpen(true)}
-                            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-200"
-                        >
-                            Add Profile
-                        </button>
-                        {isProfileModalOpen && (
-                            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                                <div className="bg-white p-6 rounded-lg shadow-lg w-3/4 max-w-4xl">
-                                    <h3 className="text-xl font-semibold mb-4">Add New Profile</h3>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        {Object.keys(profiles[0] || {}).map((key) => (
-                                            key !== 'id' && key !== 'company_id' && key !== 'inserted_at' && key !== 'profile_complete' && (
-                                                <div key={key} className="mb-4">
-                                                    <label className="block text-gray-700">{key}</label>
-                                                    <input
-                                                        type="text"
-                                                        value={newProfile[key] || ''}
-                                                        onChange={(e) =>
-                                                            setNewProfile({ ...newProfile, [key]: e.target.value })
-                                                        }
-                                                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                    />
-                                                </div>
-                                            )
-                                        ))}
-                                    </div>
-                                    <div className="flex justify-end mt-4">
-                                        <button
-                                            onClick={handleAddProfile}
-                                            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-200"
-                                        >
-                                            Add Profile
-                                        </button>
-                                        <button
-                                            onClick={() => setIsProfileModalOpen(false)}
-                                            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-200 ml-2"
-                                        >
-                                            Cancel
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
                     <div>
                         <h3 className="text-xl font-semibold mb-4">Add New NTS User</h3>
                         <button
