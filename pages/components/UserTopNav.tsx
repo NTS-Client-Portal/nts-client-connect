@@ -99,7 +99,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                     <li>
                         <NotificationBell session={session} />
                     </li>
-                    <li>
+                    {/* <li>
                         {userProfile?.assigned_sales_user && (
                             <div className="flex flex-col items-end">
                                 <span className="text-sm">Assigned Sales User:</span>
@@ -109,7 +109,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                                 <span className="text-xs">{userProfile.assigned_sales_user.email}</span>
                             </div>
                         )}
-                    </li>
+                    </li> */}
                     <li>
                         <Image
                             src={profilePictureUrl}

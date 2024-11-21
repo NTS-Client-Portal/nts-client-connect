@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
-import { useRouter } from 'next/router';
-import AdminDashboard from '@/pages/nts/admin/admin-dashboard'; // Ensure the correct path
+import { useRouter } from 'next/router'; // Ensure the correct path
 
 const AdminLogin = () => {
   const session = useSession();

@@ -3,9 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
-import Layout from '../components/Layout';
-import UserLayout from '../components/UserLayout';
-import AdminLayout from '../components/admin-portal/AdminLayout';
+import Layout from '../../components/Layout';
 import CustomSignInForm from '@/components/CustomSignInForm';
 import { MoveHorizontal } from 'lucide-react';
 import { UserProvider, useUser } from '@/context/UserContext';
@@ -60,7 +58,7 @@ const LoginPage = () => {
             if (session && session.user.email_confirmed_at) {
                 const { data: userProfile, error } = await supabase
                     .from('profiles')
-                    .select('id, email, role, team_role, inserted_at')
+                    .select('id, email, team_role, inserted_at')
                     .eq('id', session.user.id)
                     .single();
 
@@ -71,8 +69,8 @@ const LoginPage = () => {
 
                 if (userProfile) {
                     setUserProfile(userProfile as UserProfile);
-                    if (userProfile.role === 'admin') {
-                        router.push('/admin/admin-dashboard');
+                    if (userProfile.team_role === 'manager') {
+                        router.push('/user');
                     } else {
                         router.push('/user');
                     }
@@ -83,7 +81,6 @@ const LoginPage = () => {
                         .insert({
                             id: session.user.id,
                             email: session.user.email,
-                            role: 'user',
                             team_role: 'manager',
                             inserted_at: new Date().toISOString(),
                         })

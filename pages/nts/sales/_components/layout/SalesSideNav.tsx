@@ -58,7 +58,7 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                     <ul className='flex gap-3 flex-col flex-grow space-y-1 overflow-y-hidden'>
                         <li className={`w-full flex justify-normal m-0 ${currentView === 'quote-requests' ? "active" : ""}`}>
                             <button onClick={() => setCurrentView('salesdash')} className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${currentView === 'quote-requests' ? "active" : ""}`}>
-                                <span className='flex items-center flex-nowrap justify-normal gap-2'><Workflow size={'20px'} /> <span className='text-xs md:text-sm'>Broker's Dashboard</span></span>
+                                <span className='flex items-center flex-nowrap justify-normal gap-2'><Workflow size={'20px'} /> <span className='text-xs md:text-sm'>Broker&apos;s Dashboard</span></span>
                             </button>
                         </li>
                         <li className={`w-full flex justify-normal m-0 ${currentView === 'documents' ? "active" : ""}`}>
