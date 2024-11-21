@@ -28,7 +28,7 @@ const NtsLogin = () => {
             const user = data.user;
             if (user) {
                 const { data: profile, error: profileError } = await supabase
-                    .from('profiles')
+                    .from('nts_users')
                     .select('role')
                     .eq('id', user.id)
                     .single();
@@ -38,11 +38,11 @@ const NtsLogin = () => {
                 } else {
                     const role = profile.role;
                     if (role === 'admin') {
-                        router.push('/NTS/admin/admin-dashboard');
+                        router.push('/nts/admin/admin-dashboard');
                     } else if (role === 'manager') {
-                        router.push('/NTS/manager/dashboard');
+                        router.push('/nts/admin/admin-dashboard');
                     } else if (role === 'sales') {
-                        router.push('/NTS/sales/dashboard');
+                        router.push('/nts/sales');
                     } else {
                         setError('Unauthorized access');
                     }

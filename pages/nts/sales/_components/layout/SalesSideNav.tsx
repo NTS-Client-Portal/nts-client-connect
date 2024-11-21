@@ -1,19 +1,20 @@
 import React from 'react';
-import { useRouter } from "next/router";
+import { useRouter } from 'next/router';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import { useUser } from '@/context/UserContext';
 import Image from 'next/image';
-import Link from 'next/link';
-import { PanelLeftOpen, PanelRightClose, ListCollapse, Workflow, Folders, Signature, Settings, ChartArea, Handshake, NotebookTabs, Hammer, Move3d, MoveHorizontal } from 'lucide-react';
+import { PanelLeftOpen, PanelRightClose, Workflow, Folders, NotebookTabs, Settings, MoveHorizontal, ChartArea, Signature, Hammer } from 'lucide-react';
 
 interface SalesSideNavProps {
     isSidebarOpen: boolean;
     toggleSidebar: () => void;
     className?: string;
+    currentView: string;
+    setCurrentView: (view: string) => void;
 }
 
-const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSidebar, className = '' }) => {
+const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSidebar, className = '', currentView, setCurrentView }) => {
     const supabase = useSupabaseClient<Database>();
     const { userProfile } = useUser();
     const router = useRouter();
@@ -55,50 +56,27 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                         <h3>Welcome {userProfile?.first_name || 'User'}</h3>
                     </div>
                     <ul className='flex gap-3 flex-col flex-grow space-y-1 overflow-y-hidden'>
-                        <li className={`w-full flex justify-center mt-0 ${router.pathname == "nts/adminadmin-dashboard" ? "active" : ""}`}>
-                            <Link href="nts/adminadmin-dashboard" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "nts/adminadmin-dashboard" ? "active" : ""}`}>
-                                <span className='flex items-center flex-nowrap justify-normal gap-2 text-xs'><ChartArea size={'20px'} /> <span className='text-xs md:text-sm'>Analytics</span></span>
-                            </Link>
+                        <li className={`w-full flex justify-normal m-0 ${currentView === 'quote-requests' ? "active" : ""}`}>
+                            <button onClick={() => setCurrentView('salesdash')} className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${currentView === 'quote-requests' ? "active" : ""}`}>
+                                <span className='flex items-center flex-nowrap justify-normal gap-2'><Workflow size={'20px'} /> <span className='text-xs md:text-sm'>Broker's Dashboard</span></span>
+                            </button>
                         </li>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname == "nts/adminadmin-quote-requests" ? "active" : ""}`}>
-                            <Link href="nts/admin/admin-quote-requests" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "nts/adminadmin-quote-requests" ? "active" : ""}`}>
-                                <span className='flex items-center flex-nowrap justify-normal gap-2'><Workflow size={'20px'} /> <span className='text-xs md:text-sm'>Client&apos;s Logistics RFQ</span></span>
-                            </Link>
-                        </li>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname == "nts/admininventory" ? "active" : ""}`}>
-                            <Link href="nts/admininventory" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "nts/admininventory" ? "active" : ""}`}>
-                                <span className='flex items-center flex-nowrap justify-normal gap-2'><ListCollapse size={'20px'} /> <span className='text-xs md:text-sm'>Client&apos;s Inventory</span></span>
-                            </Link>
-                        </li>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname == "nts/adminadmin-documents" ? "active" : ""}`}>
-                            <Link href="nts/adminadmin-documents" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "nts/adminadmin-documents" ? "active" : ""}`}>
+                        <li className={`w-full flex justify-normal m-0 ${currentView === 'documents' ? "active" : ""}`}>
+                            <button onClick={() => setCurrentView('documents')} className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${currentView === 'documents' ? "active" : ""}`}>
                                 <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><Folders size={'20px'} /> <span className='text-xs md:text-sm'>Documents/Photos</span></span>
-                            </Link>
+                            </button>
                         </li>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname == "nts/adminprocurement" ? "active" : ""}`}>
-                            <Link href="nts/adminprocurement" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "nts/adminprocurement" ? "active" : ""}`}>
-                                <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><Signature size={'20px'} /> <span className='text-xs md:text-sm'>Procurements</span></span>
-                            </Link>
-                        </li>
-                        
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname == "nts/adminfield-planner" ? "active" : ""}`}>
-                            <Link href="nts/adminfield-planner" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "nts/adminfield-planner" ? "active" : ""}`}>
-                                <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><Hammer size={'20px'} /> 
-                                <span className='text-xs md:text-sm'>Field Planner/Management</span></span>
-                            </Link>
-                        </li>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname == "nts/adminequipment-directory" ? "active" : ""}`}>
-                            <Link href="nts/adminequipment-directory" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "nts/adminequipment-directory" ? "active" : ""}`}>
+                        <li className={`w-full flex justify-normal m-0 ${currentView === 'equipment-directory' ? "active" : ""}`}>
+                            <button onClick={() => setCurrentView('equipment-directory')} className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${currentView === 'equipment-directory' ? "active" : ""}`}>
                                 <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><NotebookTabs size={'20px'} /> <span className='text-xs md:text-sm'>Equipment Directory </span></span>
-                            </Link>
+                            </button>
                         </li>
-        
                     </ul>
                     <ul className='flex flex-col gap-4 justify-end items-center'>
-                        <li className={`w-full text-nowrap flex justify-normal m-0 ${router.pathname == "nts/adminadmin-settings" ? "active" : ""}`}>
-                            <Link href="nts/adminadmin-settings" className={`logout mt-4 md:mt-0 dark:bg-zinc-300 dark:text-zinc-700 flex items-center justify-center gap-2 font-semibold py-1 w-full ${router.pathname == "nts/adminadmin-settings" ? "active" : ""}`}>
+                        <li className={`w-full text-nowrap flex justify-normal m-0 ${currentView === 'settings' ? "active" : ""}`}>
+                            <button onClick={() => setCurrentView('settings')} className={`logout mt-4 md:mt-0 dark:bg-zinc-300 dark:text-zinc-700 flex items-center justify-center gap-2 font-semibold py-1 w-full ${currentView === 'settings' ? "active" : ""}`}>
                                 <Settings />   Settings
-                            </Link>
+                            </button>
                         </li>
                         <li className="w-full flex items-center justify-center m-0">
                             <button className="logout dark:bg-zinc-300 dark:text-zinc-700 font-semibold py-1 w-full" onClick={handleLogout}>

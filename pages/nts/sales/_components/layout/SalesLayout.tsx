@@ -5,12 +5,13 @@ import SalesTopNav from './SalesTopNav'; // Adjust the import path if necessary
 
 interface SalesLayoutProps {
     children: ReactNode;
+    currentView: string;
+    setCurrentView: (view: string) => void;
 }
 
-const SalesLayout: React.FC<SalesLayoutProps> = ({ children }) => {
+const SalesLayout: React.FC<SalesLayoutProps> = ({ children, currentView, setCurrentView }) => {
     const session = useSession();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    
 
     useEffect(() => {
         // Check if the screen size is large enough to display the sidebar by default
@@ -36,15 +37,18 @@ const SalesLayout: React.FC<SalesLayoutProps> = ({ children }) => {
         setIsSidebarOpen(!isSidebarOpen);
     };
 
-
     return (
         <div className="md:layout">
-            <div className='z-40'><SalesSideNav isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} /></div>
-
-            <main className="main-content ml-0 xl:ml-52 z-0 md:p-4 mt-28 md:mt-24 relative">
-                <div className="w-full fixed top-0 left-0">
-                    <SalesTopNav session={session} />
-                </div>
+            <SalesSideNav
+                isSidebarOpen={isSidebarOpen}
+                toggleSidebar={toggleSidebar}
+                currentView={currentView}
+                setCurrentView={setCurrentView}
+            />
+            <div className="w-full fixed top-0 left-0">
+                <SalesTopNav session={session} />
+            </div>
+            <main className="ml-0 xl:ml-52 md:p-4 mt-12 z-0 md:mt-12 relative">
                 {children}
             </main>
         </div>

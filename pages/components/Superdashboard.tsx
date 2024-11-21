@@ -78,26 +78,21 @@ const SuperadminDashboard = () => {
         fetchCompanies();
     }, [fetchProfiles, fetchNtsUsers, fetchCompanies]);
 
-    const handleDeleteProfile = async (id: string) => {
-        setLoading(true);
-        const { error } = await supabase.from('profiles').delete().eq('id', id);
-        if (error) {
-            setError(error.message);
-        } else {
-            fetchProfiles();
-        }
-        setLoading(false);
-    };
+    const generateProfileId = async () => {
+        const { data, error } = await supabase
+            .from('nts_users')
+            .select('profile_id')
+            .order('profile_id', { ascending: false })
+            .limit(1);
 
-    const handleDeleteNtsUser = async (id: string) => {
-        setLoading(true);
-        const { error } = await supabase.from('nts_users').delete().eq('id', id);
         if (error) {
             setError(error.message);
-        } else {
-            fetchNtsUsers();
+            return null;
         }
-        setLoading(false);
+
+        const latestProfileId = data.length > 0 ? data[0].profile_id : 'N0000';
+        const newProfileIdNumber = parseInt(latestProfileId.slice(1)) + 1;
+        return `N${newProfileIdNumber.toString().padStart(4, '0')}`;
     };
 
     const handleAddNtsUser = async () => {
@@ -106,31 +101,79 @@ const SuperadminDashboard = () => {
             return;
         }
 
-        const ntsUserToInsert: NtsUser = {
-            id: uuidv4(),
-            profile_id: newNtsUser.profile_id,
-            company_id: newNtsUser.company_id,
-            email: newNtsUser.email,
-            role: newNtsUser.role,
-            first_name: newNtsUser.first_name || null,
-            last_name: newNtsUser.last_name || null,
-            phone_number: newNtsUser.phone_number || null,
-            profile_picture: newNtsUser.profile_picture || null,
-            address: newNtsUser.address || null,
-            inserted_at: new Date().toISOString(),
-            email_notifications: newNtsUser.email_notifications || false,
-        };
-
         setLoading(true);
-        const { error } = await supabase.from('nts_users').insert([ntsUserToInsert]);
-        if (error) {
-            setError(error.message);
-        } else {
+
+        try {
+            // Step 1: Generate a new profile_id
+            const newProfileId = await generateProfileId();
+            if (!newProfileId) {
+                throw new Error('Failed to generate profile_id');
+            }
+
+            // Step 2: Sign up the user in auth.users
+            const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+                email: newNtsUser.email,
+                password: 'TemporaryPassword123!', // You can generate a random password or handle it differently
+                email_confirm: true,
+            });
+
+            if (authError) {
+                throw new Error(authError.message);
+            }
+
+            // Step 3: Insert into profiles table
+            const profileToInsert: Profile = {
+                id: authUser.user.id,
+                email: newNtsUser.email,
+                first_name: newNtsUser.first_name || null,
+                last_name: newNtsUser.last_name || null,
+                phone_number: newNtsUser.phone_number || null,
+                company_id: newNtsUser.company_id || null,
+                profile_picture: newNtsUser.profile_picture || null,
+                address: newNtsUser.address || null,
+                inserted_at: new Date().toISOString(),
+                email_notifications: newNtsUser.email_notifications || null,
+                team_role: newNtsUser.role, // Assuming role is equivalent to team_role
+                assigned_sales_user: null,
+                company_name: null,
+                company_size: null,
+                profile_complete: true,
+            };
+
+            const { error: profileError } = await supabase.from('profiles').insert([profileToInsert]);
+            if (profileError) {
+                throw new Error(profileError.message);
+            }
+
+            // Step 4: Insert into nts_users table
+            const ntsUserToInsert: NtsUser = {
+                id: authUser.user.id,
+                profile_id: newProfileId,
+                company_id: newNtsUser.company_id,
+                email: newNtsUser.email,
+                role: newNtsUser.role,
+                first_name: newNtsUser.first_name || null,
+                last_name: newNtsUser.last_name || null,
+                phone_number: newNtsUser.phone_number || null,
+                profile_picture: newNtsUser.profile_picture || null,
+                address: newNtsUser.address || null,
+                inserted_at: new Date().toISOString(),
+                email_notifications: newNtsUser.email_notifications || false,
+            };
+
+            const { error: ntsUserError } = await supabase.from('nts_users').insert([ntsUserToInsert]);
+            if (ntsUserError) {
+                throw new Error(ntsUserError.message);
+            }
+
             fetchNtsUsers();
             setNewNtsUser({});
             setIsNtsUserModalOpen(false);
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const handleAddProfile = async () => {
@@ -165,6 +208,17 @@ const SuperadminDashboard = () => {
             fetchProfiles();
             setNewProfile({});
             setIsProfileModalOpen(false);
+        }
+        setLoading(false);
+    };
+
+    const handleDeleteProfile = async (id: string) => {
+        setLoading(true);
+        const { error } = await supabase.from('profiles').delete().eq('id', id);
+        if (error) {
+            setError(error.message);
+        } else {
+            fetchProfiles();
         }
         setLoading(false);
     };

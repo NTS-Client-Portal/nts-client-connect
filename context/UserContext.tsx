@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
-import { Profile } from '@/lib/schema'; // Import the Profile type from schema.ts
+import { Profile, NtsUser } from '@/lib/schema'; // Import the Profile and NtsUser types from schema.ts
 
 interface UserContextType {
-    userProfile: Profile | null;
-    setUserProfile: React.Dispatch<React.SetStateAction<Profile | null>>;
+    userProfile: Profile | NtsUser | null;
+    setUserProfile: React.Dispatch<React.SetStateAction<Profile | NtsUser | null>>;
     loading: boolean;
     error: string | null;
 }
@@ -14,7 +14,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const session = useSession();
     const supabase = useSupabaseClient();
-    const [userProfile, setUserProfile] = useState<Profile | null>(null);
+    const [userProfile, setUserProfile] = useState<Profile | NtsUser | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -26,12 +26,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
 
             const { data, error } = await supabase
-                .from('profiles')
-                .select(`
-                    id, email, role, first_name, last_name, company_name, profile_picture, address, phone_number, team_role,
-                    company_id, company_size, inserted_at, profile_complete, email_notifications,
-                    assigned_sales_user
-                `)
+                .from('nts_users')
+                .select('*')
                 .eq('id', session.user.id)
                 .single();
 
@@ -44,14 +40,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setError('Error fetching user profile');
             } else {
                 console.log('Fetched user profile:', data);
-                if (data) {
-                    const userProfile: Profile = {
-                        ...data,
-                        assigned_sales_user: data.assigned_sales_user,
-                        email_notifications: data.email_notifications,
-                    };
-                    setUserProfile(userProfile);
-                }
+                setUserProfile(data);
             }
 
             setLoading(false);
