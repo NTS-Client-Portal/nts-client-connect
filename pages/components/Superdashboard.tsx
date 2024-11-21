@@ -103,7 +103,8 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
     };
 
     const checkUserExists = async (email: string) => {
-        const { data, error } = await supabase.auth.admin.listUsers();
+        const serviceSupabase = createClient(supabaseUrl, serviceRoleKey);
+        const { data, error } = await serviceSupabase.auth.admin.listUsers();
         if (error) {
             throw new Error(error.message);
         }
@@ -113,6 +114,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
 
     const handleAddNtsUser = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('Form submitted');
         if (!newNtsUser.email || !newNtsUser.role) {
             setError('Email and role are required');
             return;
@@ -121,12 +123,14 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         setLoading(true);
 
         try {
+            console.log('Checking if user exists');
             // Check if the user already exists in auth.users
             const userExists = await checkUserExists(newNtsUser.email as string);
-            let userId: string;
-            let newProfileId: string;
+            let userId;
+            let newProfileId;
 
             if (!userExists) {
+                console.log('User does not exist, creating new user');
                 // Step 1: Generate a new profile_id
                 newProfileId = await generateProfileId();
                 if (!newProfileId) {
@@ -147,8 +151,10 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
 
                 userId = authUser.user.id;
             } else {
+                console.log('User exists, fetching user ID');
                 // Fetch the user ID from auth.users
-                const { data: usersData, error: usersError } = await supabase.auth.admin.listUsers();
+                const serviceSupabase = createClient(supabaseUrl, serviceRoleKey);
+                const { data: usersData, error: usersError } = await serviceSupabase.auth.admin.listUsers();
                 if (usersError) {
                     throw new Error(usersError.message);
                 }
@@ -162,6 +168,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                 }
             }
 
+            console.log('Inserting into profiles table');
             // Step 3: Insert into profiles table
             const profileToInsert: Profile = {
                 id: userId,
@@ -169,16 +176,16 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                 first_name: newNtsUser.first_name || null,
                 last_name: newNtsUser.last_name || null,
                 phone_number: newNtsUser.phone_number || null,
-                company_id: newNtsUser.company_id || null,
+                company_id: uuidv4(), // Assign a random company_id
                 profile_picture: null,
                 address: newNtsUser.address || null,
-                inserted_at: new Date().toISOString(),
                 email_notifications: null,
                 team_role: null,
                 assigned_sales_user: null,
                 company_name: null,
                 company_size: null,
                 profile_complete: true,
+                inserted_at: new Date().toISOString(), // Set inserted_at to the current date and time
             };
 
             const { error: profileError } = await supabase.from('profiles').insert([profileToInsert]);
@@ -186,11 +193,12 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                 throw new Error(profileError.message);
             }
 
+            console.log('Inserting into nts_users table');
             // Step 4: Insert into nts_users table
             const ntsUserToInsert: NtsUser = {
                 id: userId,
                 profile_id: newProfileId,
-                company_id: newNtsUser.company_id,
+                company_id: uuidv4(), // Assign a random company_id
                 email: newNtsUser.email as string,
                 role: newNtsUser.role as string,
                 first_name: newNtsUser.first_name || null,
@@ -198,8 +206,8 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                 phone_number: newNtsUser.phone_number || null,
                 profile_picture: null,
                 address: newNtsUser.address || null,
-                inserted_at: new Date().toISOString(),
                 email_notifications: false,
+                inserted_at: new Date().toISOString(), // Set inserted_at to the current date and time
             };
 
             const { error: ntsUserError } = await supabase.from('nts_users').insert([ntsUserToInsert]);
@@ -207,11 +215,13 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                 throw new Error(ntsUserError.message);
             }
 
+            console.log('NTS User added successfully');
             fetchNtsUsers();
             setNewNtsUser({});
             setIsNtsUserModalOpen(false);
             setSuccess('NTS User added successfully');
         } catch (error) {
+            console.error('Error adding NTS User:', error.message);
             setError(error.message);
         } finally {
             setLoading(false);
@@ -262,8 +272,6 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         last_name: '',
         phone_number: '',
         address: '',
-        inserted_at: '',
-        company_id: ''
     };
 
     return (
@@ -324,7 +332,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                                     <form onSubmit={handleAddNtsUser}>
                                         <div className="grid grid-cols-2 gap-4">
                                             {Object.keys(ntsUsers[0] || ntsUserTemplate).map((key) => (
-                                                key !== 'id' && key !== 'profile_picture' && key !== 'email_notifications' && key !== 'profile_id' && (
+                                                key !== 'id' && key !== 'profile_picture' && key !== 'email_notifications' && key !== 'profile_id' && key !== 'company_id' && (
                                                     <div key={key} className="mb-4">
                                                         <label className="block text-gray-700">{key}</label>
                                                         {key === 'role' ? (
@@ -354,23 +362,6 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                                                     </div>
                                                 )
                                             ))}
-                                            <div className="mb-4">
-                                                <label className="block text-gray-700">Assigned Company</label>
-                                                <select
-                                                    value={newNtsUser.company_id || ''}
-                                                    onChange={(e) =>
-                                                        setNewNtsUser({ ...newNtsUser, company_id: e.target.value })
-                                                    }
-                                                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                >
-                                                    <option value="">Select a company</option>
-                                                    {companies.map((company) => (
-                                                        <option key={company.id} value={company.id}>
-                                                            {company.name}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
                                         </div>
                                         <div className="flex justify-end mt-4">
                                             <button
