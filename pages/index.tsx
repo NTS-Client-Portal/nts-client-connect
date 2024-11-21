@@ -13,7 +13,7 @@ const LandingPage = () => {
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
         <h1 className="text-4xl font-bold mb-8">Welcome to NTS Client Portal</h1>
         <div className="flex space-x-4">
-          <Link className="px-4 py-2 bg-zinc-900 text-white rounded-lg hover:bg-blue-600 transition duration-200"  href="/client-login">
+          <Link className="px-4 py-2 bg-zinc-900 text-white rounded-lg hover:bg-blue-600 transition duration-200"  href="user/client-login">
         
               Client Login
           
