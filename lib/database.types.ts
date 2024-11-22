@@ -237,6 +237,7 @@ export type Database = {
           email: string
           id: string
           invited_by: string | null
+          team_role: string | null
           token: string
         }
         Insert: {
@@ -245,6 +246,7 @@ export type Database = {
           email: string
           id: string
           invited_by?: string | null
+          team_role?: string | null
           token: string
         }
         Update: {
@@ -253,6 +255,7 @@ export type Database = {
           email?: string
           id?: string
           invited_by?: string | null
+          team_role?: string | null
           token?: string
         }
         Relationships: [
