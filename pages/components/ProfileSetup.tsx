@@ -20,33 +20,49 @@ const ProfileSetup = () => {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [email, setEmail] = useState(session?.user?.email || ''); // Add email state
 
     useEffect(() => {
         const fetchProfile = async () => {
             if (session?.user?.id) {
-                const { data, error } = await supabase
+                const { data: profileData, error: profileError } = await supabase
                     .from('profiles')
                     .select('*')
                     .eq('id', session.user.id)
                     .single();
 
-                if (error) {
-                    if (error.code === 'PGRST116') {
+                if (profileError) {
+                    if (profileError.code === 'PGRST116') {
                         console.error('No profile found for user');
                     } else {
-                        console.error('Error fetching profile:', error.message);
+                        console.error('Error fetching profile:', profileError.message);
                     }
-                } else if (data) {
-                    setFirstName(data.first_name || '');
-                    setLastName(data.last_name || '');
-                    setCompanyName(data.company_name || '');
-                    setPhoneNumber(data.phone_number || ''); // Set phone number
+                } else if (profileData) {
+                    setFirstName(profileData.first_name || '');
+                    setLastName(profileData.last_name || '');
+                    setCompanyName(profileData.company_name || '');
+                    setPhoneNumber(profileData.phone_number || ''); // Set phone number
+                }
+
+                // Fetch email from auth.users if not available in session
+                if (!email) {
+                    const { data: userData, error: userError } = await supabase
+                        .from('auth.users')
+                        .select('email')
+                        .eq('id', session.user.id)
+                        .single();
+
+                    if (userError) {
+                        console.error('Error fetching user email:', userError.message);
+                    } else if (userData) {
+                        setEmail(userData.email);
+                    }
                 }
             }
         };
 
         fetchProfile();
-    }, [session, supabase]);
+    }, [session, supabase, email]);
 
     const handleCompleteProfile = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -95,7 +111,7 @@ const ProfileSetup = () => {
                 .from('profiles')
                 .upsert({
                     id: session?.user?.id,
-                    email: session?.user?.email,
+                    email: email, // Use the email fetched from auth.users
                     first_name: firstName,
                     last_name: lastName,
                     company_name: companyName || `${firstName} ${lastName}`,
