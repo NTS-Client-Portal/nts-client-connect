@@ -13,7 +13,6 @@ const ProfileSetup = () => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [companyName, setCompanyName] = useState('');
-    const [companySize, setCompanySize] = useState('');
     const [phoneNumber, setPhoneNumber] = useState(''); // Add phone number state
     const [inviteEmails, setInviteEmails] = useState<{ email: string, role: 'manager' | 'member' }[]>([]);
     const [inviteEmail, setInviteEmail] = useState('');
@@ -41,7 +40,6 @@ const ProfileSetup = () => {
                     setFirstName(data.first_name || '');
                     setLastName(data.last_name || '');
                     setCompanyName(data.company_name || '');
-                    setCompanySize(data.company_size || '');
                     setPhoneNumber(data.phone_number || ''); // Set phone number
                 }
             }
@@ -76,7 +74,6 @@ const ProfileSetup = () => {
                         .from('companies')
                         .insert({
                             name: companyName,
-                            size: companySize,
                         })
                         .select()
                         .single();
@@ -102,7 +99,6 @@ const ProfileSetup = () => {
                     first_name: firstName,
                     last_name: lastName,
                     company_name: companyName || `${firstName} ${lastName}`,
-                    company_size: companySize,
                     phone_number: phoneNumber, // Include phone number
                     company_id: companyId,
                     profile_complete: true, // Set profile_complete to true
@@ -112,17 +108,6 @@ const ProfileSetup = () => {
                 throw new Error(error.message);
             }
 
-            // Add the user to the companies table
-            await supabase
-                .from('companies')
-                .upsert({
-                    id: companyId,
-                    name: companyName || `${firstName} ${lastName}`,
-                    size: companySize,
-                    assigned_sales_user: null,
-                    assigned_at: new Date().toISOString(),
-                });
-
             // Store invitations with roles and add invited users to the companies table
             for (const invite of inviteEmails) {
                 await supabase
@@ -131,17 +116,6 @@ const ProfileSetup = () => {
                         email: invite.email,
                         team_role: invite.role,
                         company_id: companyId,
-                    });
-
-                // Add invited users to the companies table
-                await supabase
-                    .from('companies')
-                    .upsert({
-                        id: companyId,
-                        name: companyName || `${firstName} ${lastName}`,
-                        size: companySize,
-                        assigned_sales_user: null,
-                        assigned_at: new Date().toISOString(),
                     });
             }
 
@@ -219,22 +193,6 @@ const ProfileSetup = () => {
                                             className="w-full p-2 mt-2 border rounded"
                                             disabled={loading}
                                         />
-                                        <label htmlFor="companySize" className="mt-4">Company Size</label>
-                                        <select
-                                            id="companySize"
-                                            value={companySize}
-                                            onChange={(e) => setCompanySize(e.target.value)}
-                                            className="w-full p-2 mt-2 border rounded"
-                                            disabled={loading}
-                                        >
-                                            <option value="">Select Company Size</option>
-                                            <option value="1-10">1-10</option>
-                                            <option value="11-50">11-50</option>
-                                            <option value="51-200">51-200</option>
-                                            <option value="201-500">201-500</option>
-                                            <option value="501-1000">501-1000</option>
-                                            <option value="1001+">1001+</option>
-                                        </select>
                                         <label htmlFor="phoneNumber" className="mt-4">Phone Number</label>
                                         <input
                                             type="text"

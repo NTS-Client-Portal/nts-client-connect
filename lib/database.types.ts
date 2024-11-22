@@ -85,8 +85,6 @@ export type Database = {
           company_size: string | null
           id: string
           name: string
-          profile_complete: boolean | null
-          size: string | null
         }
         Insert: {
           assigned_at?: string | null
@@ -95,8 +93,6 @@ export type Database = {
           company_size?: string | null
           id: string
           name: string
-          profile_complete?: boolean | null
-          size?: string | null
         }
         Update: {
           assigned_at?: string | null
@@ -105,8 +101,6 @@ export type Database = {
           company_size?: string | null
           id?: string
           name?: string
-          profile_complete?: boolean | null
-          size?: string | null
         }
         Relationships: [
           {
@@ -686,29 +680,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      assign_sales_user: {
-        Args: {
-          company_id: string
-        }
-        Returns: string
-      }
-      check_company: {
-        Args: {
-          name: string
-        }
-        Returns: {
-          id: string
-        }[]
-      }
-      create_company: {
-        Args: {
-          name: string
-          size: string
-        }
-        Returns: {
-          id: string
-        }[]
-      }
       create_profile: {
         Args: {
           email: string
