@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useSupabaseClient, useSession } from '@supabase/auth-helpers-react';
@@ -21,48 +21,6 @@ const ProfileSetup = () => {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [email, setEmail] = useState(session?.user?.email || ''); // Add email state
-
-    useEffect(() => {
-        const fetchProfile = async () => {
-            if (session?.user?.id) {
-                const { data: profileData, error: profileError } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', session.user.id)
-                    .single();
-
-                if (profileError) {
-                    if (profileError.code === 'PGRST116') {
-                        console.error('No profile found for user');
-                    } else {
-                        console.error('Error fetching profile:', profileError.message);
-                    }
-                } else if (profileData) {
-                    setFirstName(profileData.first_name || '');
-                    setLastName(profileData.last_name || '');
-                    setCompanyName(profileData.company_name || '');
-                    setPhoneNumber(profileData.phone_number || ''); // Set phone number
-                }
-
-                // Fetch email from auth.users if not available in session
-                if (!email) {
-                    const { data: userData, error: userError } = await supabase
-                        .from('auth.users')
-                        .select('email')
-                        .eq('id', session.user.id)
-                        .single();
-
-                    if (userError) {
-                        console.error('Error fetching user email:', userError.message);
-                    } else if (userData) {
-                        setEmail(userData.email);
-                    }
-                }
-            }
-        };
-
-        fetchProfile();
-    }, [session, supabase, email]);
 
     const handleCompleteProfile = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -107,9 +65,9 @@ const ProfileSetup = () => {
                 companyId = uuidv4();
             }
 
-            const { data, error } = await supabase
+            const { error } = await supabase
                 .from('profiles')
-                .upsert({
+                .insert({
                     id: session?.user?.id,
                     email: email, // Use the email fetched from auth.users
                     first_name: firstName,
@@ -118,6 +76,7 @@ const ProfileSetup = () => {
                     phone_number: phoneNumber, // Include phone number
                     company_id: companyId,
                     profile_complete: true, // Set profile_complete to true
+                    team_role: 'manager', // Set team_role to manager
                 });
 
             if (error) {
@@ -126,13 +85,17 @@ const ProfileSetup = () => {
 
             // Store invitations with roles and add invited users to the companies table
             for (const invite of inviteEmails) {
-                await supabase
+                const { error: inviteError } = await supabase
                     .from('invitations')
                     .insert({
                         email: invite.email,
                         team_role: invite.role,
                         company_id: companyId,
                     });
+
+                if (inviteError) {
+                    throw new Error(inviteError.message);
+                }
             }
 
             setSuccess(true);

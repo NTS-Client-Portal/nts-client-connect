@@ -14,7 +14,6 @@ export default function SignUpPage() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
-    const [role, setRole] = useState<'user' | 'admin'>('user');
 
     useEffect(() => {
         const inviteToken = router.query.inviteToken;
@@ -28,7 +27,6 @@ export default function SignUpPage() {
                 .then(({ data, error }) => {
                     if (data) {
                         setEmail(data.email);
-                        setRole(data.role);
                     }
                 });
         }
@@ -66,24 +64,6 @@ export default function SignUpPage() {
 
             if (error) {
                 throw new Error(error.message);
-            }
-
-            const userId = data.user?.id;
-            if (!userId) {
-                throw new Error('User ID not found in response');
-            }
-
-            // Insert the user's profile into the nts_users table
-            const { error: ntsUserError } = await supabase
-                .from('nts_users')
-                .insert({
-                    id: userId,
-                    email: email,
-                    role: role,
-                });
-
-            if (ntsUserError) {
-                throw new Error(ntsUserError.message);
             }
 
             setSuccess(true);

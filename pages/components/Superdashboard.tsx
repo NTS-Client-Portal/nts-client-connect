@@ -8,17 +8,13 @@ interface SuperadminDashboardProps {
     session: Session | null;
 }
 
-type Profile = Database['public']['Tables']['profiles']['Row'];
 type NtsUser = Database['public']['Tables']['nts_users']['Row'];
-type Company = Database['public']['Tables']['companies']['Row'];
 
 const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
     const supabase = useSupabaseClient<Database>();
     const session = useSession();
     const router = useRouter();
-    const [profiles, setProfiles] = useState<Profile[]>([]);
     const [ntsUsers, setNtsUsers] = useState<NtsUser[]>([]);
-    const [companies, setCompanies] = useState<Company[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
@@ -35,19 +31,6 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         checkSession();
     }, [checkSession]);
 
-    const fetchProfiles = useCallback(async () => {
-        if (!session) return;
-
-        setLoading(true);
-        const { data, error } = await supabase.from('profiles').select('*');
-        if (error) {
-            setError(error.message);
-        } else {
-            setProfiles(data);
-        }
-        setLoading(false);
-    }, [session, supabase]);
-
     const fetchNtsUsers = useCallback(async () => {
         if (!session) return;
 
@@ -61,28 +44,12 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         setLoading(false);
     }, [session, supabase]);
 
-    const fetchCompanies = useCallback(async () => {
-        if (!session) return;
-
-        setLoading(true);
-        const { data, error } = await supabase.from('companies').select('*');
-        if (error) {
-            setError(error.message);
-        } else {
-            setCompanies(data);
-        }
-        setLoading(false);
-    }, [session, supabase]);
-
     useEffect(() => {
-        fetchProfiles();
         fetchNtsUsers();
-        fetchCompanies();
-    }, [fetchProfiles, fetchNtsUsers, fetchCompanies]);
+    }, [fetchNtsUsers]);
 
     const handleAddNtsUser = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Form submitted');
         if (!newNtsUser.email || !newNtsUser.role) {
             setError('Email and role are required');
             return;
@@ -91,7 +58,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         setLoading(true);
 
         try {
-            const response = await fetch('/.netlify/functions/addNtsUser', {
+            const response = await fetch('/api/addNtsUser', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -99,17 +66,15 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                 body: JSON.stringify(newNtsUser),
             });
 
-            const result = await response.json();
-
-            if (response.ok) {
-                console.log('NTS User added successfully');
-                fetchNtsUsers();
-                setNewNtsUser({});
-                setIsNtsUserModalOpen(false);
-                setSuccess('NTS User added successfully');
-            } else {
-                throw new Error(result.error);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error);
             }
+
+            fetchNtsUsers();
+            setNewNtsUser({});
+            setIsNtsUserModalOpen(false);
+            setSuccess('NTS User added successfully');
         } catch (error) {
             console.error('Error adding NTS User:', error.message);
             setError(error.message);
@@ -118,24 +83,13 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         }
     };
 
-    const handleDeleteProfile = async (id: string) => {
+    const handleDeleteNtsUser = async (id: string) => {
         setLoading(true);
-        const { error } = await supabase.from('profiles').delete().eq('id', id);
+        const { error } = await supabase.from('nts_users').delete().eq('id', id);
         if (error) {
             setError(error.message);
         } else {
-            fetchProfiles();
-        }
-        setLoading(false);
-    };
-
-    const handleEditProfile = async (id: string, updatedProfile: Partial<Profile>) => {
-        setLoading(true);
-        const { error } = await supabase.from('profiles').update(updatedProfile).eq('id', id);
-        if (error) {
-            setError(error.message);
-        } else {
-            fetchProfiles();
+            fetchNtsUsers();
         }
         setLoading(false);
     };
@@ -171,32 +125,32 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
             {success && <div className="text-green-500 mb-4">{success}</div>}
             <AdminAnalytics />
             <div className="mb-6">
-                <h2 className="text-2xl font-semibold mb-4">Profiles</h2>
+                <h2 className="text-2xl font-semibold mb-4">NTS Users</h2>
                 <table className="min-w-full bg-white rounded-lg shadow-md overflow-hidden">
                     <thead className="bg-gray-200">
                         <tr>
-                            {profiles.length > 0 &&
-                                Object.keys(profiles[0]).map((key) => (
+                            {ntsUsers.length > 0 &&
+                                Object.keys(ntsUsers[0]).map((key) => (
                                     <th key={key} className="py-2 px-4 text-left">{key}</th>
                                 ))}
                             <th className="py-2 px-4 text-left">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {profiles.map((profile) => (
-                            <tr key={profile.id} className="border-t">
-                                {Object.entries(profile).map(([key, value]) => (
+                        {ntsUsers.map((user) => (
+                            <tr key={user.id} className="border-t">
+                                {Object.entries(user).map(([key, value]) => (
                                     <td key={key} className="py-2 px-4">{String(value)}</td>
                                 ))}
                                 <td className="py-2 px-4">
                                     <button
-                                        onClick={() => handleDeleteProfile(profile.id)}
+                                        onClick={() => handleDeleteNtsUser(user.id)}
                                         className="bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600 transition duration-200 mr-2"
                                     >
                                         Delete
                                     </button>
                                     <button
-                                        onClick={() => handleEditProfile(profile.id, profile)}
+                                        onClick={() => handleEditNtsUser(user.id, user)}
                                         className="bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600 transition duration-200"
                                     >
                                         Edit

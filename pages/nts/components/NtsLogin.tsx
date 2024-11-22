@@ -37,10 +37,13 @@ const NtsLogin = () => {
                     setError('Error fetching user profile');
                 } else {
                     const role = profile.role;
-                    if (role === 'admin') {
-                        router.push('/nts/admin/admin-dashboard');
-                    } else if (role === 'manager') {
-                        router.push('/nts/admin/admin-dashboard');
+                    if (role === 'superadmin') {
+                        router.push('/nts/sales');
+                    } else if (role === 'admin') {
+                        router.push('/nts/sales');
+                    }
+                    else if (role === 'manager') {
+                        router.push('/nts/sales');
                     } else if (role === 'sales') {
                         router.push('/nts/sales');
                     } else {

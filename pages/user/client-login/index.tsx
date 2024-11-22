@@ -9,11 +9,11 @@ import { MoveHorizontal } from 'lucide-react';
 import { UserProvider, useUser } from '@/context/UserContext';
 import withProfileCheck from '@/components/hoc/withProfileCheck';
 import DashboardTabs from '@/components/DashboardTabs';
+import UserLayout from '@/pages/components/UserLayout';
 
 interface UserProfile {
     id: string;
     email: string;
-    role: string;
     team_role: string;
     inserted_at: string;
     first_name?: string | null;
@@ -58,7 +58,7 @@ const LoginPage = () => {
             if (session && session.user.email_confirmed_at) {
                 const { data: userProfile, error } = await supabase
                     .from('profiles')
-                    .select('id, email, role, inserted_at')
+                    .select('id, email, team_role, inserted_at')
                     .eq('id', session.user.id)
                     .single();
 
@@ -69,11 +69,7 @@ const LoginPage = () => {
 
                 if (userProfile) {
                     setUserProfile(userProfile as UserProfile);
-                    if (userProfile.role === 'manager') {
-                        router.push('/user');
-                    } else {
-                        router.push('/user');
-                    }
+                    router.push('/user');
                 } else {
                     // Create a new profile if it doesn't exist
                     const { data, error } = await supabase
@@ -227,7 +223,9 @@ const LoginPage = () => {
 
     return (
         <UserProvider>
-    <HomePageContent />
+            <UserLayout currentView="freight-rfq" setCurrentView={() => { }}>
+                <HomePageContent />
+            </UserLayout>
         </UserProvider>
     );
 };

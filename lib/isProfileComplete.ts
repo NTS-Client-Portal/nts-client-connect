@@ -1,20 +1,29 @@
-import { supabase } from './initSupabase'; // Adjust the import path as needed
-import { Profile } from '@/lib/schema';
+import { createClient } from '@supabase/supabase-js';
+import { Database } from '@/lib/database.types';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
+const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
 export const isProfileComplete = async (userId: string): Promise<boolean> => {
-    console.log('Checking profile completeness for user:', userId);
-    const { data, error } = await supabase
-        .from('profiles')
-        .select('profile_complete')
-        .eq('id', userId)
-        .single();
+    try {
+        const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userId)
+            .single();
 
-    if (error || !data) {
-        console.error('Error fetching profile:', error?.message);
+        if (error) {
+            if (error.code === 'PGRST116') {
+                // No profile found
+                return false;
+            }
+            throw error;
+        }
+
+        return profile?.profile_complete ?? false;
+    } catch (error) {
+        console.error('Error checking profile completeness:', error);
         return false;
     }
-
-    const { profile_complete } = data;
-    console.log('Profile completeness:', profile_complete);
-    return profile_complete;
 };
