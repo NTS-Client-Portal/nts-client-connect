@@ -27,24 +27,25 @@ const NtsLogin = () => {
         } else {
             const user = data.user;
             if (user) {
+                console.log('User ID from auth:', user.id); // Log the user ID for debugging
+
                 const { data: profile, error: profileError } = await supabase
                     .from('nts_users')
-                    .select('role')
+                    .select('id, role')
                     .eq('id', user.id)
                     .single();
 
                 if (profileError) {
-                    setError('Error fetching user profile');
-                } else {
-                    const role = profile.role;
-                    if (role === 'superadmin') {
-                        router.push('/nts/sales');
-                    } else if (role === 'admin') {
-                        router.push('/nts/sales');
+                    console.error('Error fetching user profile:', profileError); // Log the error for debugging
+                    if (profileError.code === 'PGRST116') {
+                        setError('No profile found for this user');
+                    } else {
+                        setError('Error fetching user profile');
                     }
-                    else if (role === 'manager') {
-                        router.push('/nts/sales');
-                    } else if (role === 'sales') {
+                } else if (profile) {
+                    console.log('Profile data:', profile); // Log the profile data for debugging
+                    const role = profile.role;
+                    if (role === 'superadmin' || role === 'admin' || role === 'manager' || role === 'sales') {
                         router.push('/nts/sales');
                     } else {
                         setError('Unauthorized access');
