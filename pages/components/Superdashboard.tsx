@@ -50,6 +50,9 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
 
     const handleAddNtsUser = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(null);
+        setSuccess(null);
+
         if (!newNtsUser.email || !newNtsUser.role) {
             setError('Email and role are required');
             return;
@@ -85,22 +88,30 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
 
     const handleDeleteNtsUser = async (id: string) => {
         setLoading(true);
+        setError(null);
+        setSuccess(null);
+
         const { error } = await supabase.from('nts_users').delete().eq('id', id);
         if (error) {
             setError(error.message);
         } else {
             fetchNtsUsers();
+            setSuccess('NTS User deleted successfully');
         }
         setLoading(false);
     };
 
     const handleEditNtsUser = async (id: string, updatedUser: Partial<NtsUser>) => {
         setLoading(true);
+        setError(null);
+        setSuccess(null);
+
         const { error } = await supabase.from('nts_users').update(updatedUser).eq('id', id);
         if (error) {
             setError(error.message);
         } else {
             fetchNtsUsers();
+            setSuccess('NTS User updated successfully');
         }
         setLoading(false);
     };
