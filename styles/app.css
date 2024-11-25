@@ -910,6 +910,10 @@ body:is(.dark *) {
   margin-top: auto;
 }
 
+.mt-16 {
+  margin-top: 4rem;
+}
+
 .block {
   display: block;
 }
@@ -3540,6 +3544,10 @@ main:is(.dark *) {
 
   .md\:mt-4 {
     margin-top: 1rem;
+  }
+
+  .md\:mt-20 {
+    margin-top: 5rem;
   }
 
   .md\:block {

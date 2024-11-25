@@ -9,17 +9,21 @@ interface SuperadminDashboardProps {
 }
 
 type NtsUser = Database['public']['Tables']['nts_users']['Row'];
+type Company = Database['public']['Tables']['companies']['Row'];
 
 const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
     const supabase = useSupabaseClient<Database>();
     const session = useSession();
     const router = useRouter();
     const [ntsUsers, setNtsUsers] = useState<NtsUser[]>([]);
+    const [companies, setCompanies] = useState<Company[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [newNtsUser, setNewNtsUser] = useState<Partial<NtsUser>>({});
     const [isNtsUserModalOpen, setIsNtsUserModalOpen] = useState(false);
+    const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
+    const [selectedSalesUserId, setSelectedSalesUserId] = useState<string | null>(null);
 
     const checkSession = useCallback(() => {
         if (!session) {
@@ -44,9 +48,23 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         setLoading(false);
     }, [session, supabase]);
 
+    const fetchCompanies = useCallback(async () => {
+        if (!session) return;
+
+        setLoading(true);
+        const { data, error } = await supabase.from('companies').select('*');
+        if (error) {
+            setError(error.message);
+        } else {
+            setCompanies(data);
+        }
+        setLoading(false);
+    }, [session, supabase]);
+
     useEffect(() => {
         fetchNtsUsers();
-    }, [fetchNtsUsers]);
+        fetchCompanies();
+    }, [fetchNtsUsers, fetchCompanies]);
 
     const handleAddNtsUser = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -112,6 +130,29 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         } else {
             fetchNtsUsers();
             setSuccess('NTS User updated successfully');
+        }
+        setLoading(false);
+    };
+
+    const handleAssignSalesUser = async () => {
+        if (!selectedCompanyId || !selectedSalesUserId) {
+            setError('Please select a company and a sales user');
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+        setSuccess(null);
+
+        const { error } = await supabase
+            .from('company_sales_users')
+            .insert({ company_id: selectedCompanyId, sales_user_id: selectedSalesUserId });
+
+        if (error) {
+            setError(error.message);
+        } else {
+            fetchCompanies();
+            setSuccess('Sales user assigned successfully');
         }
         setLoading(false);
     };
@@ -237,6 +278,47 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                                 </div>
                             </div>
                         )}
+                    </div>
+                    <div>
+                        <h3 className="text-xl font-semibold mb-4">Assign Sales User to Company</h3>
+                        <div className="mb-4">
+                            <label className="block text-gray-700">Select Company</label>
+                            <select
+                                value={selectedCompanyId || ''}
+                                onChange={(e) => setSelectedCompanyId(e.target.value)}
+                                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="">Select a company</option>
+                                {companies.map((company) => (
+                                    <option key={company.id} value={company.id}>
+                                        {company.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-gray-700">Select Sales User</label>
+                            <select
+                                value={selectedSalesUserId || ''}
+                                onChange={(e) => setSelectedSalesUserId(e.target.value)}
+                                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="">Select a sales user</option>
+                                {ntsUsers
+                                    .filter((user) => user.role === 'sales')
+                                    .map((user) => (
+                                        <option key={user.id} value={user.id}>
+                                            {user.first_name} {user.last_name}
+                                        </option>
+                                    ))}
+                            </select>
+                        </div>
+                        <button
+                            onClick={handleAssignSalesUser}
+                            className="body-btn text-white transition duration-200"
+                        >
+                            Assign Sales User
+                        </button>
                     </div>
                 </div>
             </div>

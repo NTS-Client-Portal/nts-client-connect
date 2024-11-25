@@ -102,12 +102,37 @@ export type Database = {
           id?: string
           name?: string
         }
+        Relationships: []
+      }
+      company_sales_users: {
+        Row: {
+          company_id: string | null
+          id: string
+          sales_user_id: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          id?: string
+          sales_user_id?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          id?: string
+          sales_user_id?: string | null
+        }
         Relationships: [
           {
-            foreignKeyName: "companies_assigned_sales_user_fkey"
-            columns: ["assigned_sales_user"]
+            foreignKeyName: "company_sales_users_company_id_fkey"
+            columns: ["company_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_sales_users_sales_user_id_fkey"
+            columns: ["sales_user_id"]
+            isOneToOne: false
+            referencedRelation: "nts_users"
             referencedColumns: ["id"]
           },
         ]

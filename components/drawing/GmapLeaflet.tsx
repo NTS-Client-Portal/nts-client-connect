@@ -1,4 +1,3 @@
-// for future use
 // import React, { useEffect, useRef, useState } from 'react';
 // import L from 'leaflet';
 // import 'leaflet/dist/leaflet.css';
@@ -21,7 +20,7 @@
 //       mapRef.current = map;
 
 //       // Add a tile layer with Google Maps tiles
-//       L.gridLayer.googleMutant({
+//       (L as any).gridLayer.googleMutant({
 //         type: 'satellite', // Can be 'roadmap', 'satellite', 'terrain', or 'hybrid'
 //         maxZoom: 20
 //       }).addTo(map);
@@ -46,7 +45,7 @@
 
 //       // Initialize the geosearch control
 //       const provider = new OpenStreetMapProvider();
-//       const searchControl = new GeoSearchControl({
+//       const searchControl = GeoSearchControl({
 //         provider: provider,
 //         style: 'bar',
 //         autoComplete: true,

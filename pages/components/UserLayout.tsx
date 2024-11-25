@@ -46,7 +46,7 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children, currentView, setCurre
             <div className="w-full fixed top-0 left-0">
                 <UserTopNav />
             </div>
-            <main className="ml-0 xl:ml-52 md:p-4 mt-12 z-0 md:mt-12 relative">
+            <main className="ml-0 xl:ml-52 md:p-4 mt-16 z-0 md:mt-20 relative">
                 {children}
             </main>
         </div>

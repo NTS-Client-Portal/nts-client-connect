@@ -17,6 +17,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
     const session = useSession();
     const [darkMode, setDarkMode] = useState(false);
     const [profilePictureUrl, setProfilePictureUrl] = useState<string>('https://www.gravatar.com/avatar?d=mp&s=100');
+    const [assignedSalesUsers, setAssignedSalesUsers] = useState<{ first_name: string; last_name: string; email: string }[]>([]);
 
     useEffect(() => {
         const savedDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -33,6 +34,25 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
             const profilePicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL}${userProfile.profile_picture}`;
             setProfilePictureUrl(profilePicUrl);
         }
+    }, [userProfile]);
+
+    useEffect(() => {
+        const fetchAssignedSalesUsers = async () => {
+            if (userProfile?.company_id) {
+                const { data, error } = await supabase
+                    .from('company_sales_users')
+                    .select('sales_user_id, nts_users(first_name, last_name, email)')
+                    .eq('company_id', userProfile.company_id);
+
+                if (error) {
+                    console.error('Error fetching assigned sales users:', error.message);
+                } else if (data) {
+                    setAssignedSalesUsers(data.map((item: any) => item.nts_users));
+                }
+            }
+        };
+
+        fetchAssignedSalesUsers();
     }, [userProfile]);
 
     const handleLogout = async () => {
@@ -97,19 +117,21 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                 </ul>
                 <ul className='w-full flex gap-2 md:gap-4 items-baseline z-20 justify-end mr-12'>
                     <li>
-                        <NotificationBell session={session} />
-                    </li>
-                    {/* <li>
-                        {userProfile?.assigned_sales_user && (
-                            <div className="flex flex-col items-end">
+                        {assignedSalesUsers.length > 0 && (
+                            <div className="flex flex-col items-start">
                                 <span className="text-sm">Assigned Sales User:</span>
-                                <span className="font-bold">
-                                    {userProfile.assigned_sales_user.first_name} {userProfile.assigned_sales_user.last_name}
-                                </span>
-                                <span className="text-xs">{userProfile.assigned_sales_user.email}</span>
+                                {assignedSalesUsers.map((user, index) => (
+                                    <div key={index} className="font-bold">
+                                        {user.first_name} {user.last_name} - ({user.email})
+                                    </div>
+                                ))}
                             </div>
                         )}
-                    </li> */}
+                    </li>
+                    <li>
+                        <NotificationBell session={session} />
+                    </li>
+
                     <li>
                         <Image
                             src={profilePictureUrl}
