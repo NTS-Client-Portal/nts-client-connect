@@ -67,35 +67,40 @@ export type Database = {
           width?: string | null
           year?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "chrome_quotes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       companies: {
         Row: {
           assigned_at: string | null
           assigned_sales_user: string | null
-          company_id: string | null
+          company_name: string | null
+          company_size: string | null
           id: string
-          inserted_at: string
           name: string
-          size: string | null
         }
         Insert: {
           assigned_at?: string | null
           assigned_sales_user?: string | null
-          company_id?: string | null
-          id?: string
-          inserted_at?: string
+          company_name?: string | null
+          company_size?: string | null
+          id: string
           name: string
-          size?: string | null
         }
         Update: {
           assigned_at?: string | null
           assigned_sales_user?: string | null
-          company_id?: string | null
+          company_name?: string | null
+          company_size?: string | null
           id?: string
-          inserted_at?: string
           name?: string
-          size?: string | null
         }
         Relationships: [
           {
@@ -109,7 +114,7 @@ export type Database = {
       }
       documents: {
         Row: {
-          created_at: string
+          created_at: string | null
           description: string | null
           file_name: string | null
           file_type: string | null
@@ -120,7 +125,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           file_name?: string | null
           file_type?: string | null
@@ -131,7 +136,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           file_name?: string | null
           file_type?: string | null
@@ -149,13 +154,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "fk_documents_user_id"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       freight: {
@@ -165,7 +163,7 @@ export type Database = {
           height: string | null
           height_unit: string | null
           id: number
-          inserted_at: string
+          inserted_at: string | null
           inventory_number: string | null
           length: string | null
           length_unit: string | null
@@ -186,7 +184,7 @@ export type Database = {
           height?: string | null
           height_unit?: string | null
           id?: number
-          inserted_at?: string
+          inserted_at?: string | null
           inventory_number?: string | null
           length?: string | null
           length_unit?: string | null
@@ -207,7 +205,7 @@ export type Database = {
           height?: string | null
           height_unit?: string | null
           id?: number
-          inserted_at?: string
+          inserted_at?: string | null
           inventory_number?: string | null
           length?: string | null
           length_unit?: string | null
@@ -235,26 +233,29 @@ export type Database = {
       invitations: {
         Row: {
           company_id: string | null
-          created_at: string
+          created_at: string | null
           email: string
           id: string
           invited_by: string | null
+          team_role: string | null
           token: string
         }
         Insert: {
           company_id?: string | null
-          created_at?: string
+          created_at?: string | null
           email: string
-          id?: string
+          id: string
           invited_by?: string | null
+          team_role?: string | null
           token: string
         }
         Update: {
           company_id?: string | null
-          created_at?: string
+          created_at?: string | null
           email?: string
           id?: string
           invited_by?: string | null
+          team_role?: string | null
           token?: string
         }
         Relationships: [
@@ -276,34 +277,27 @@ export type Database = {
       }
       notifications: {
         Row: {
-          created_at: string
+          created_at: string | null
           id: number
           is_read: boolean | null
           message: string | null
           user_id: string | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           id?: number
           is_read?: boolean | null
           message?: string | null
           user_id?: string | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           id?: number
           is_read?: boolean | null
           message?: string | null
           user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "fk_notifications_user_id"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "notifications_user_id_fkey"
             columns: ["user_id"]
@@ -316,8 +310,7 @@ export type Database = {
       nts_users: {
         Row: {
           address: string | null
-          assigned_sales_user: string | null
-          company_name: string | null
+          company_id: string | null
           email: string
           email_notifications: boolean | null
           first_name: string | null
@@ -325,14 +318,13 @@ export type Database = {
           inserted_at: string | null
           last_name: string | null
           phone_number: string | null
-          profile_complete: boolean | null
+          profile_id: string | null
           profile_picture: string | null
           role: string
         }
         Insert: {
           address?: string | null
-          assigned_sales_user?: string | null
-          company_name?: string | null
+          company_id?: string | null
           email: string
           email_notifications?: boolean | null
           first_name?: string | null
@@ -340,14 +332,13 @@ export type Database = {
           inserted_at?: string | null
           last_name?: string | null
           phone_number?: string | null
-          profile_complete?: boolean | null
+          profile_id?: string | null
           profile_picture?: string | null
           role: string
         }
         Update: {
           address?: string | null
-          assigned_sales_user?: string | null
-          company_name?: string | null
+          company_id?: string | null
           email?: string
           email_notifications?: boolean | null
           first_name?: string | null
@@ -355,14 +346,21 @@ export type Database = {
           inserted_at?: string | null
           last_name?: string | null
           phone_number?: string | null
-          profile_complete?: boolean | null
+          profile_id?: string | null
           profile_picture?: string | null
           role?: string
         }
         Relationships: [
           {
-            foreignKeyName: "nts_users_assigned_sales_user_fkey"
-            columns: ["assigned_sales_user"]
+            foreignKeyName: "nts_users_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nts_users_profile_id_fkey"
+            columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -371,39 +369,32 @@ export type Database = {
       }
       orders: {
         Row: {
-          created_at: string
+          created_at: string | null
           id: number
           quote_id: number | null
           status: string | null
-          updated_at: string
+          updated_at: string | null
           user_id: string | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           id?: number
           quote_id?: number | null
           status?: string | null
-          updated_at?: string
+          updated_at?: string | null
           user_id?: string | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           id?: number
           quote_id?: number | null
           status?: string | null
-          updated_at?: string
+          updated_at?: string | null
           user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "fk_orders_user_id"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "orders_quote_id_fkey"
+            foreignKeyName: "fk_orders_shippingquotes"
             columns: ["quote_id"]
             isOneToOne: false
             referencedRelation: "shippingquotes"
@@ -425,16 +416,15 @@ export type Database = {
           company_id: string | null
           company_name: string | null
           company_size: string | null
-          email: string | null
-          email_notifications: string | null
+          email: string
+          email_notifications: boolean | null
           first_name: string | null
           id: string
-          inserted_at: string
+          inserted_at: string | null
           last_name: string | null
           phone_number: string | null
           profile_complete: boolean | null
           profile_picture: string | null
-          role: string | null
           team_role: string | null
         }
         Insert: {
@@ -443,16 +433,15 @@ export type Database = {
           company_id?: string | null
           company_name?: string | null
           company_size?: string | null
-          email?: string | null
-          email_notifications?: string | null
+          email: string
+          email_notifications?: boolean | null
           first_name?: string | null
           id: string
-          inserted_at?: string
+          inserted_at?: string | null
           last_name?: string | null
           phone_number?: string | null
           profile_complete?: boolean | null
           profile_picture?: string | null
-          role?: string | null
           team_role?: string | null
         }
         Update: {
@@ -461,26 +450,18 @@ export type Database = {
           company_id?: string | null
           company_name?: string | null
           company_size?: string | null
-          email?: string | null
-          email_notifications?: string | null
+          email?: string
+          email_notifications?: boolean | null
           first_name?: string | null
           id?: string
-          inserted_at?: string
+          inserted_at?: string | null
           last_name?: string | null
           phone_number?: string | null
           profile_complete?: boolean | null
           profile_picture?: string | null
-          role?: string | null
           team_role?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "profiles_assigned_sales_user_fkey"
-            columns: ["assigned_sales_user"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "profiles_company_id_fkey"
             columns: ["company_id"]
@@ -526,11 +507,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "purchase_order_vendornumber_fkey"
+            foreignKeyName: "fk_vendornumber"
             columns: ["vendornumber"]
             isOneToOne: false
             referencedRelation: "vendors"
             referencedColumns: ["vendornumber"]
+          },
+          {
+            foreignKeyName: "purchase_order_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -546,7 +534,7 @@ export type Database = {
           first_name: string | null
           height: string | null
           id: number
-          inserted_at: string
+          inserted_at: string | null
           is_archived: boolean | null
           is_complete: boolean | null
           last_name: string | null
@@ -575,7 +563,7 @@ export type Database = {
           first_name?: string | null
           height?: string | null
           id?: number
-          inserted_at?: string
+          inserted_at?: string | null
           is_archived?: boolean | null
           is_complete?: boolean | null
           last_name?: string | null
@@ -604,7 +592,7 @@ export type Database = {
           first_name?: string | null
           height?: string | null
           id?: number
-          inserted_at?: string
+          inserted_at?: string | null
           is_archived?: boolean | null
           is_complete?: boolean | null
           last_name?: string | null
@@ -623,13 +611,6 @@ export type Database = {
           year?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "fk_shippingquotes_user_id"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "shippingquotes_user_id_fkey"
             columns: ["user_id"]
@@ -661,7 +642,15 @@ export type Database = {
           login_count?: number
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "usage_stats_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vendors: {
         Row: {
@@ -701,29 +690,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      assign_sales_user: {
-        Args: {
-          company_id: string
-        }
-        Returns: string
-      }
-      check_company: {
-        Args: {
-          name: string
-        }
-        Returns: {
-          id: string
-        }[]
-      }
-      create_company: {
-        Args: {
-          name: string
-          size: string
-        }
-        Returns: {
-          id: string
-        }[]
-      }
       create_profile: {
         Args: {
           email: string
@@ -736,10 +702,6 @@ export type Database = {
           role: string
         }
         Returns: undefined
-      }
-      get_tables: {
-        Args: Record<PropertyKey, never>
-        Returns: unknown[]
       }
     }
     Enums: {

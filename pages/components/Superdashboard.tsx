@@ -165,7 +165,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                         <h3 className="text-xl font-semibold mb-4">Add New NTS User</h3>
                         <button
                             onClick={() => setIsNtsUserModalOpen(true)}
-                            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-200"
+                            className="body-btn text-white transition duration-200"
                         >
                             Add NTS User
                         </button>
@@ -210,7 +210,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                                         <div className="flex justify-end mt-4">
                                             <button
                                                 type="submit"
-                                                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-200"
+                                                className="body-btn text-white transition duration-200"
                                             >
                                                 Add NTS User
                                             </button>

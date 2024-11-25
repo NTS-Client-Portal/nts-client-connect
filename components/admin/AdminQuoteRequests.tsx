@@ -218,7 +218,6 @@ const AdminQuoteRequests = () => {
                         fetchQuotes={() => { }} // No need to fetch quotes again
                         archiveQuote={archiveQuote}
                         markAsComplete={markAsComplete} // Pass the function as a prop
-                        isAdmin={true} // Pass the isAdmin prop
                     />
                 )}
                 {activeTab === 'history' && (

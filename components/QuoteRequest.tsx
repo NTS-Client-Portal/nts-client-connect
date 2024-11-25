@@ -217,7 +217,6 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
                         fetchQuotes={fetchQuotes}
                         archiveQuote={archiveQuote}
                         markAsComplete={handleMarkAsComplete} // Add this line
-                        isAdmin={false}
                     />
                 )}
                 {activeTab === 'history' && (

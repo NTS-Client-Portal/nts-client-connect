@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Session } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import { ShippingQuote } from '@/lib/schema';
@@ -20,6 +20,25 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedQuoteId, setSelectedQuoteId] = useState<number | null>(null);
     const [quote, setQuote] = useState<ShippingQuote[]>([]);
+    const [isNtsUser, setIsNtsUser] = useState(false);
+
+    useEffect(() => {
+        const checkNtsUser = async () => {
+            if (session?.user?.id) {
+                const { data, error } = await supabase
+                    .from('nts_users')
+                    .select('id')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (data) {
+                    setIsNtsUser(true);
+                }
+            }
+        };
+
+        checkNtsUser();
+    }, [session, supabase]);
 
     const handleCreateOrderClick = (quoteId: number) => {
         setSelectedQuoteId(quoteId);
@@ -28,26 +47,23 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
 
     const handleModalSubmit = async (data: any) => {
         if (selectedQuoteId !== null && session?.user?.id) {
-            // Post data to the orders table
             const { error } = await supabase
                 .from('orders')
                 .insert({
                     quote_id: selectedQuoteId,
-                    user_id: session.user.id, // Ensure user_id is included
+                    user_id: session.user.id,
                     origin_street: data.originStreet,
                     destination_street: data.destinationStreet,
                     earliest_pickup_date: data.earliestPickupDate,
                     latest_pickup_date: data.latestPickupDate,
                     notes: data.notes,
-                    status: 'pending', // Set initial status
+                    status: 'pending',
                 });
 
             if (error) {
                 console.error('Error creating order:', error.message);
             } else {
-                // Transfer data to OrderList.tsx
                 transferToOrderList(selectedQuoteId, data);
-                // Remove the quote from the state
                 setQuote(quotes.filter(quote => quote.id !== selectedQuoteId));
             }
         }
@@ -57,7 +73,6 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
     const handleRespond = async (quoteId: number) => {
         handleSelectQuote(quoteId);
 
-        // Fetch the quote details
         const { data: quote, error: fetchError } = await supabase
             .from('shippingquotes')
             .select('*')
@@ -69,9 +84,6 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
             return;
         }
 
-        console.log('Fetched quote details:', quote); // Debugging log
-
-        // Add notification entry to the database
         const { error } = await supabase
             .from('notifications')
             .insert([{ user_id: quote.user_id, message: `You have a new response to your quote request for quote #${quote.id}` }]);
@@ -79,9 +91,6 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
         if (error) {
             console.error('Error adding notification:', error.message);
         } else {
-            console.log('Notification added successfully'); // Debugging log
-
-            // Fetch user email settings
             const { data: userSettings, error: settingsError } = await supabase
                 .from('profiles')
                 .select('email, email_notifications')
@@ -119,9 +128,8 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
 
     const notifyAdmins = async () => {
         try {
-            // Fetch all admin users
             const { data: admins, error: fetchError } = await supabase
-                .from('profiles')
+                .from('nts_users')
                 .select('id, email')
                 .eq('role', 'admin');
 
@@ -130,7 +138,6 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                 return;
             }
 
-            // Create notifications for each admin user
             const notifications = admins.map(admin => ({
                 user_id: admin.id,
                 message: 'Urgent action required on a quote.',
@@ -145,7 +152,6 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                 return;
             }
 
-            // Optionally, send email notifications to each admin user
             for (const admin of admins) {
                 await sendEmailNotification(admin.email, 'Urgent Notification', 'Urgent action required on a quote.');
             }

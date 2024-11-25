@@ -78,7 +78,6 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
         }
     };
 
-
     const uploadFileToSupabase = async (file: File, userId: string) => {
         const fileExt = file.name.split('.').pop();
         const fileName = `${userId}/${Date.now()}.${fileExt}`;
@@ -164,40 +163,9 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
         document.body.removeChild(a);
     };
 
-    const renderDocuments = (docs: Database['public']['Tables']['documents']['Row'][]) => (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {docs.map((document) => (
-                <div key={document.id} className="p-4 bg-white shadow rounded flex flex-col justify-between">
-                    <div>
-                        <h3 className="text-lg font-bold">{document.title}</h3>
-                        <p className="text-zinc-600">{document.description}</p>
-                    </div>
-                    <span className='flex justify-between items-end mt-auto'>
-                        <span className='flex gap-2 items-center'>
-                            <button
-                                className="btn-blue mt-2"
-                                onClick={() => handleDownload(document.file_url, document.file_name)}
-                            >
-                                View
-                            </button>
-                            <button
-                                className="btn-blue mt-2 ml-2"
-                                onClick={() => handleFavoriteToggle(document.id, !document.is_favorite)}
-                            >
-                                <Star className={`h-5 w-5 ${document.is_favorite ? 'text-yellow-500 fill-current' : 'text-zinc-500'}`} />
-                            </button>
-                        </span>
-                        <button
-                            className="bg-red-600 text-white mt-2 ml-2 px-4 py-2 rounded"
-                            onClick={() => openDeleteModal(document.id)}
-                        >
-                            Delete
-                        </button>
-                    </span>
-                </div>
-            ))}
-        </div>
-    );
+    function renderDocuments(importantDocuments: { created_at: string | null; description: string | null; file_name: string | null; file_type: string | null; file_url: string | null; id: number; is_favorite: boolean | null; title: string | null; user_id: string | null; }[]): React.ReactNode {
+        throw new Error('Function not implemented.');
+    }
 
     return (
         <div className="flex h-screen">

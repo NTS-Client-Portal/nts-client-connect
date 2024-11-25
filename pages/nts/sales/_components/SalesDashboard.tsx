@@ -253,7 +253,6 @@ const SalesDashboard = ({ session }: SalesDashboardProps) => {
                         fetchQuotes={fetchQuotes}
                         archiveQuote={canEdit ? archiveQuote : undefined}
                         markAsComplete={canEdit ? handleMarkAsComplete : undefined}
-                        isAdmin={canEdit}
                     />
                 )}
                 {activeTab === 'history' && (

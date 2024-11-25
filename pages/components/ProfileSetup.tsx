@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useSupabaseClient, useSession } from '@supabase/auth-helpers-react';
@@ -22,6 +22,26 @@ const ProfileSetup = () => {
     const [success, setSuccess] = useState(false);
     const [email, setEmail] = useState(session?.user?.email || ''); // Add email state
 
+    useEffect(() => {
+        const fetchUserEmail = async () => {
+            if (session?.user?.id) {
+                const { data, error } = await supabase
+                    .from('auth.users')
+                    .select('email')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (error) {
+                    setError(error.message);
+                } else {
+                    setEmail(data.email);
+                }
+            }
+        };
+
+        fetchUserEmail();
+    }, [session, supabase]);
+
     const handleCompleteProfile = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -29,7 +49,7 @@ const ProfileSetup = () => {
 
         try {
             // Ensure the company exists or create a new one
-            let companyId;
+            let companyId: string;
             if (companyName) {
                 const { data: existingCompany, error: companyError } = await supabase
                     .from('companies')
@@ -44,9 +64,11 @@ const ProfileSetup = () => {
                 if (existingCompany) {
                     companyId = existingCompany.id;
                 } else {
+                    companyId = uuidv4(); // Generate a unique ID for the new company
                     const { data: newCompany, error: newCompanyError } = await supabase
                         .from('companies')
                         .insert({
+                            id: companyId,
                             name: companyName,
                         })
                         .select()
@@ -55,8 +77,6 @@ const ProfileSetup = () => {
                     if (newCompanyError) {
                         throw new Error(newCompanyError.message);
                     }
-
-                    companyId = newCompany.id;
 
                     // Assign a sales user to the new company
                     await assignSalesUser(companyId);

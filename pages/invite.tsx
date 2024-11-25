@@ -76,7 +76,7 @@ const InvitePage = () => {
                 .eq('token', token);
 
             setSuccess(true);
-            router.push('/user/freight-rfq');
+            router.push('/user');
         } catch (error) {
             setError(error.message);
         } finally {

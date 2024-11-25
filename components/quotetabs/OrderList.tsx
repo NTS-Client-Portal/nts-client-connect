@@ -10,7 +10,6 @@ interface OrderListProps {
     fetchQuotes: () => void;
     archiveQuote: (id: number) => Promise<void>;
     markAsComplete: (orderId: number) => Promise<void>;
-    isAdmin: boolean; // Add this prop
 }
 
 type Order = {
@@ -22,7 +21,7 @@ type Order = {
     shippingquotes: ShippingQuote;
 };
 
-const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, archiveQuote, markAsComplete, isAdmin }) => {
+const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, archiveQuote, markAsComplete }) => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [errorText, setErrorText] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -30,6 +29,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, archiveQuot
     const [cancellationReason, setCancellationReason] = useState<string>('');
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const [editData, setEditData] = useState<Partial<Order>>({});
+    const [isNtsUser, setIsNtsUser] = useState(false);
 
     const fetchOrders = useCallback(async () => {
         let query = supabase
@@ -40,7 +40,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, archiveQuot
         `)
             .neq('status', 'delivered'); // Exclude delivered orders
 
-        if (!isAdmin && session?.user?.id) {
+        if (!isNtsUser && session?.user?.id) {
             query = query.eq('user_id', session.user.id);
         }
 
@@ -52,9 +52,24 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, archiveQuot
             console.log('Fetched Orders:', data);
             setOrders(data as any); // Ensure the data is cast to the correct type
         }
-    }, [session, isAdmin]);
+    }, [session, isNtsUser]);
 
     useEffect(() => {
+        const checkNtsUser = async () => {
+            if (session?.user?.id) {
+                const { data, error } = await supabase
+                    .from('nts_users')
+                    .select('id')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (data) {
+                    setIsNtsUser(true);
+                }
+            }
+        };
+
+        checkNtsUser();
         fetchOrders();
     }, [session, fetchOrders]);
 
@@ -159,7 +174,6 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, archiveQuot
                 setSelectedOrderId(null);
                 setEditData({});
 
-                // Send email notification
                 await sendEmailNotification(
                     'noah@ntslogistics.com', // Replace with your email
                     'Order Edited',
@@ -208,7 +222,6 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, archiveQuot
                 setSelectedOrderId(null);
                 setCancellationReason('');
 
-                // Send email notification
                 await sendEmailNotification(
                     'noah@ntslogistics.com', // Replace with your email
                     'Order Cancelled',
@@ -266,7 +279,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, archiveQuot
                                     <button onClick={() => { setSelectedOrderId(order.id); setIsModalOpen(true); }} className="text-red-500 ml-2">
                                         Cancel Order
                                     </button>
-                                    {isAdmin && (
+                                    {isNtsUser && (
                                         <>
                                             <button onClick={() => handleMarkAsComplete(order.id)} className="text-green-600 ml-2">
                                                 Order Completed
@@ -318,7 +331,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, archiveQuot
                                 <button onClick={() => { setSelectedOrderId(order.id); setIsModalOpen(true); }} className="text-red-500 ml-2">
                                     Cancel Order
                                 </button>
-                                {isAdmin && (
+                                {isNtsUser && (
                                     <>
                                         <button onClick={() => handleMarkAsComplete(order.id)} className="text-green-600 ml-2">
                                             Order Completed

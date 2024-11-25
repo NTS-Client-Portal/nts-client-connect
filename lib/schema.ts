@@ -32,7 +32,9 @@ export type NtsUser = Database['public']['Tables']['nts_users']['Row']; // Add N
 
 export type ShippingQuote = Database['public']['Tables']['shippingquotes']['Row'];
 
-export type Order = Database['public']['Tables']['orders']['Row'];
+export type Order = Database['public']['Tables']['orders']['Row'] & {
+  quote: ShippingQuote | null; // Add relationship to ShippingQuote
+};
 
 export type Notification = Database['public']['Tables']['notifications']['Row'];
 
