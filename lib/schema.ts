@@ -38,7 +38,9 @@ export type Order = Database['public']['Tables']['orders']['Row'] & {
 
 export type Notification = Database['public']['Tables']['notifications']['Row'];
 
-export type Document = Database['public']['Tables']['documents']['Row'];
+export type Document = Database['public']['Tables']['documents']['Row'] & {
+  nts_user_id: string | null; // Add nts_user_id field
+};
 
 export type Invitation = Database['public']['Tables']['invitations']['Row'];
 

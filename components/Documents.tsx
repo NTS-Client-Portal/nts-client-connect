@@ -21,6 +21,7 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false); // State to control sidebar visibility
     const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
     const [documentToDelete, setDocumentToDelete] = useState<number | null>(null); // State to store the document to be deleted
+    const [isNtsUser, setIsNtsUser] = useState(false);
 
     const fetchDocuments = useCallback(async () => {
         if (!session) return;
@@ -29,7 +30,7 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
         const { data, error } = await supabase
             .from('documents')
             .select('*')
-            .eq('user_id', session.user.id); // Filtering documents by the authenticated user's ID
+            .or(`user_id.eq.${session.user.id},nts_user_id.eq.${session.user.id}`); // Filtering documents by the authenticated user's ID or nts_user_id
 
         if (error) {
             setError(error.message);
@@ -41,8 +42,23 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
     }, [session, supabase]);
 
     useEffect(() => {
+        const checkNtsUser = async () => {
+            if (session?.user?.id) {
+                const { data, error } = await supabase
+                    .from('nts_users')
+                    .select('id')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (data) {
+                    setIsNtsUser(true);
+                }
+            }
+        };
+
+        checkNtsUser();
         fetchDocuments();
-    }, [fetchDocuments]);
+    }, [session, fetchDocuments]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -61,7 +77,6 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
             setFile(null);
             fetchDocuments();
 
-            // Create a notification for the user
             const { error: notificationError } = await supabase
                 .from('notifications')
                 .insert({
@@ -96,7 +111,8 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
         const { data, error } = await supabase
             .from('documents')
             .insert({
-                user_id: userId,
+                user_id: isNtsUser ? null : userId,
+                nts_user_id: isNtsUser ? userId : null,
                 title,
                 description,
                 file_name: fileName,
@@ -163,9 +179,31 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
         document.body.removeChild(a);
     };
 
-    function renderDocuments(importantDocuments: { created_at: string | null; description: string | null; file_name: string | null; file_type: string | null; file_url: string | null; id: number; is_favorite: boolean | null; title: string | null; user_id: string | null; }[]): React.ReactNode {
-        throw new Error('Function not implemented.');
-    }
+    const renderDocuments = (docs: Database['public']['Tables']['documents']['Row'][]) => {
+        return (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {docs.map((doc) => (
+                    <div key={doc.id} className="bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md p-4 border border-zinc-400">
+                        <div className="flex justify-between items-center mb-2">
+                            <div className="text-sm font-extrabold text-zinc-500 dark:text-white">{doc.title}</div>
+                            <div className="flex items-center">
+                                <button onClick={() => handleFavoriteToggle(doc.id, !doc.is_favorite)}>
+                                    {doc.is_favorite ? <Star className="text-yellow-500" /> : <Star />}
+                                </button>
+                                <button onClick={() => openDeleteModal(doc.id)} className="ml-2">
+                                    <Trash2 className="text-red-500" />
+                                </button>
+                            </div>
+                        </div>
+                        <div className="text-sm text-zinc-900 dark:text-white mb-2">{doc.description}</div>
+                        <button onClick={() => handleDownload(doc.file_url, doc.file_name)} className="btn-blue">
+                            Download
+                        </button>
+                    </div>
+                ))}
+            </div>
+        );
+    };
 
     return (
         <div className="flex h-screen">
