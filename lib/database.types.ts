@@ -121,6 +121,7 @@ export type Database = {
           file_url: string | null
           id: number
           is_favorite: boolean | null
+          nts_user_id: string | null
           title: string | null
           user_id: string | null
         }
@@ -132,6 +133,7 @@ export type Database = {
           file_url?: string | null
           id?: number
           is_favorite?: boolean | null
+          nts_user_id?: string | null
           title?: string | null
           user_id?: string | null
         }
@@ -143,6 +145,7 @@ export type Database = {
           file_url?: string | null
           id?: number
           is_favorite?: boolean | null
+          nts_user_id?: string | null
           title?: string | null
           user_id?: string | null
         }
@@ -152,6 +155,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_documents_nts_user_id"
+            columns: ["nts_user_id"]
+            isOneToOne: false
+            referencedRelation: "nts_users"
             referencedColumns: ["id"]
           },
         ]
