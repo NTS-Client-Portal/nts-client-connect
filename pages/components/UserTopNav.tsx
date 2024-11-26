@@ -12,12 +12,19 @@ interface UserTopNavProps {
     className?: string;
 }
 
+interface AssignedSalesUser {
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone_number: string;
+}
+
 const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
     const { userProfile } = useUser();
     const session = useSession();
     const [darkMode, setDarkMode] = useState(false);
     const [profilePictureUrl, setProfilePictureUrl] = useState<string>('https://www.gravatar.com/avatar?d=mp&s=100');
-    const [assignedSalesUsers, setAssignedSalesUsers] = useState<{ first_name: string; last_name: string; email: string }[]>([]);
+    const [assignedSalesUsers, setAssignedSalesUsers] = useState<AssignedSalesUser[]>([]);
 
     useEffect(() => {
         const savedDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -41,7 +48,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
             if (userProfile?.company_id) {
                 const { data, error } = await supabase
                     .from('company_sales_users')
-                    .select('sales_user_id, nts_users(first_name, last_name, email)')
+                    .select('sales_user_id, nts_users(first_name, last_name, email, phone_number)')
                     .eq('company_id', userProfile.company_id);
 
                 if (error) {
@@ -101,9 +108,21 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                         </li>
                     </ul>
                 </div>
-                <div className='flex justify-between'>
+                <div className='flex justify-between gap-2'>
                     <FeedBack />
                     {/* <DarkModeToggle /> */}
+                    <span>
+                        {assignedSalesUsers.length > 0 && (
+                            <div className="flex flex-col items-start">
+                                <span className="text-sm">Assigned Representative:</span>
+                                {assignedSalesUsers.map((user, index) => (
+                                    <div key={index} className="font-bold text-xs">
+                                        {user.first_name} {user.last_name} - {user.phone_number}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </span>
                 </div>
             </nav>
             <nav className={`hidden w-full bg-white z-20 md:flex flex-col md:flex-row gap-1 justify-between px-4 py-2 drop-shadow ${className}`}>
@@ -122,7 +141,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                                 <span className="text-sm">Assigned Sales User:</span>
                                 {assignedSalesUsers.map((user, index) => (
                                     <div key={index} className="font-bold">
-                                        {user.first_name} {user.last_name} - ({user.email})
+                                        {user.first_name} {user.last_name} - ({user.phone_number})
                                     </div>
                                 ))}
                             </div>
@@ -131,7 +150,6 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                     <li>
                         <NotificationBell session={session} />
                     </li>
-
                     <li>
                         <Image
                             src={profilePictureUrl}

@@ -46,11 +46,19 @@ const AdminSideNav: React.FC<AdminSideNavProps> = ({ isSidebarOpen, toggleSideba
                         className="fixed z-50 top-1 left-0 p-2 drop-shadow-lg rounded-full"
                         onClick={toggleSidebar}
                     >
-                        {isSidebarOpen ? <PanelRightClose size={24} className='text-white z-50 drop-shadow-lg' /> : <PanelLeftOpen size={28} className='z-50 text-zinc-900 dark:text-zinc-100 drop-shadow-lg ' />}
+                        {isSidebarOpen ? <PanelRightClose size={24} className='text-white z-50 drop-shadow-lg' /> : <PanelLeftOpen size={28} className='z-50 text-zinc-900 drop-shadow-lg ' />}
                     </button>
                 </div>
                 <nav className={`side-navbar pr-2 z-50 flex flex-col h-screen py-6 drop-shadow absolute top-0 left-0 transform ${isSidebarOpen ? 'translate-x-0 z-50' : '-translate-x-full'} transition-transform duration-300 h-screen ease-in-out z-50 ${className}`}>
-                    <span className='flex mt-5 lg:mt-2 2xl:mt-0 mb-3 items-center justify-center font-bold  flex-nowrap'> <h1 className='text-lg md:mt-0  self-center font-extrabold tracking-tighter flex gap-0.5'>SHIPPER<MoveHorizontal className='size-6 text-orange-500' />CONNECT</h1></span>
+                    <div className='flex mt-5 lg:mt-2 2xl:mt-0 mb-3 items-center justify-center font-bold flex-nowrap'>
+                        <Image
+                            src="/nts-logo.png"
+                            alt="NTS Logo"
+                            width={150}
+                            height={50}
+                            className="object-contain"
+                        />
+                    </div>
                     <div className="w-full flex flex-col items-center gap-1 justify-center mb-6 border-b border-stone-100/40 pb-4">
                         <h3>Welcome {userProfile?.first_name || 'User'}</h3>
                     </div>

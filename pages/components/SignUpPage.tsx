@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { MoveHorizontal } from 'lucide-react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 
 export default function SignUpPage() {
     const supabase = useSupabaseClient();
@@ -78,7 +79,7 @@ export default function SignUpPage() {
     return (
         <>
             <Head>
-                <title>SHIPPER-CONNECT - Sign Up</title>
+                <title>NTS-SHIPPER-CONNECT - Sign Up</title>
                 <meta name="description" content="Sign up for an account" />
             </Head>
             <div className="w-full h-full bg-200">
@@ -86,7 +87,15 @@ export default function SignUpPage() {
 
                     <div style={{ backgroundImage: "url('/images/d8t-dozer-dark.jpg')", backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }} className="hidden md:grid h-1/3 w-full md:h-full col-span-1">
                         <div className='absolute top-5 left-5'>
-                            <span className='flex mt-5 lg:mt-2 2xl:mt-0 mb-3 items-center justify-center font-bold  flex-nowrap'> <h1 className='text-lg md:mt-0 text-white self-center font-extrabold tracking-tighter flex gap-0.5'>SHIPPER<MoveHorizontal className='size-6 text-orange-500' />CONNECT</h1></span>
+                            <div className='flex mt-5 lg:mt-2 2xl:mt-0 mb-3 items-center justify-center font-bold flex-nowrap'>
+                                <Image
+                                    src="/nts-logo.png"
+                                    alt="NTS Logo"
+                                    width={150}
+                                    height={50}
+                                    className="object-contain"
+                                />
+                            </div>
                         </div>
                         <div className='hidden h-full pb-12 w-full md:flex items-end justify-center'>
                             <h1 className='text-stone-100 font-medium text-xl italic'>Your trusted partner in Logistics.</h1>
