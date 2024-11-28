@@ -3,8 +3,8 @@ import { supabase } from '@/lib/initSupabase';
 import { useUser } from '@/context/UserContext';
 import Image from 'next/image';
 import NotificationBell from '@/components/NotificationBell';
-import FeedBack from '@/components/FeedBack';
-import DarkModeToggle from '@/components/DarkModeToggle';
+import FeedBack from '@/components/ui/FeedBack';
+import DarkModeToggle from '@/components/ui/DarkModeToggle';
 import Link from 'next/link';
 import { useSession } from '@supabase/auth-helpers-react';
 

@@ -4,8 +4,8 @@ import { useUser } from '@/context/UserContext';
 import Image from 'next/image';
 import NotificationBell from '@/components/NotificationBell';
 import { useSession, Session } from '@supabase/auth-helpers-react';
-import FeedBack from '@/components/FeedBack';
-import DarkModeToggle from '@/components/DarkModeToggle';
+import FeedBack from '@/components/ui/FeedBack';
+import DarkModeToggle from '@/components/ui/DarkModeToggle';
 
 interface SalesTopNavProps {
     session: Session | null;

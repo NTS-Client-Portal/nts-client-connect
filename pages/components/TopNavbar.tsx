@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
-import DarkModeToggle from '@/components/DarkModeToggle';
+import DarkModeToggle from '@/components/ui/DarkModeToggle';
 import Link from 'next/link';
 import { MoveHorizontal } from 'lucide-react';
 import ContactUs from './ContactUs';

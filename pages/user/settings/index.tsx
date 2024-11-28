@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
 import UserLayout from '@/pages/components/UserLayout';
 import { UserProvider } from '@/context/UserContext';
-import UserSettings from '@/components/UserSettings';
+import UserSettings from '@/components/user/UserSettings';
 import ManagerPanel from '@/components/user/ManagerPanel';
 import withManagerRole from '@/components/hoc/withManagerRole';
 import withProfileCheck from '@/components/hoc/withProfileCheck';

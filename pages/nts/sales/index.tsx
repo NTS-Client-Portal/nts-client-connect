@@ -5,7 +5,7 @@ import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { UserProvider } from '@/context/UserContext';
 import Documents from '@/components/Documents';
 import DimensionSearch from '@/components/DimensionSearch';
-import Settings from '@/components/UserSettings';
+import Settings from '@/components/user/UserSettings';
 import SalesSideNav from './_components/layout/SalesSideNav';
 
 const SalesDashboardPage = () => {

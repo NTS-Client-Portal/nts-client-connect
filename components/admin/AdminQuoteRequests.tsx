@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/initSupabase'; // Adjust the import path as needed
 import { Database } from '@/lib/database.types';// Adjust the import path as needed
-import QuoteList from '../quotetabs/QuoteList';
-import OrderList from '../quotetabs/OrderList';
-import HistoryList from '../quotetabs/HistoryList';
+import QuoteList from '../user/quotetabs/QuoteList';
+import OrderList from '../user/quotetabs/OrderList';
+import HistoryList from '../user/quotetabs/HistoryList';
 
 type ShippingQuote = Database['public']['Tables']['shippingquotes']['Row'];
 

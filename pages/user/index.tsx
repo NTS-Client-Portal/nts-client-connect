@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import UserLayout from '@/pages/components/UserLayout';
 import { UserProvider } from '@/context/UserContext';
-import QuoteRequest from '@/components/QuoteRequest';
+import QuoteRequest from '@/components/user/QuoteRequest';
 import Documents from '@/components/Documents';
 import DimensionSearch from "@/components/DimensionSearch";
 import FreightInventory from '@/components/FreightInventory';

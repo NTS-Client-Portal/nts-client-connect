@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
-import QuoteForm from '@/components/QuoteForm';
-import QuoteList from '@/components/quotetabs/QuoteList';
-import HistoryList from '@/components/quotetabs/HistoryList';
-import OrderList from '@/components/quotetabs/OrderList';
+import QuoteForm from '@/components/user/QuoteForm';
+import QuoteList from '@/components/user/quotetabs/QuoteList';
+import HistoryList from '@/components/user/quotetabs/HistoryList';
+import OrderList from '@/components/user/quotetabs/OrderList';
 
 interface SalesDashboardProps {
     session: Session | null;

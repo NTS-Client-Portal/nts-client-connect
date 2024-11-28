@@ -183,12 +183,12 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                     <thead className="bg-ntsLightBlue text-zinc-50 dark:bg-zinc-900 sticky top-0">
                         <tr className='text-zinc-50 font-semibold border-b border-zinc-900 dark:border-zinc-100'>
                             <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">ID</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibolddark:text-white uppercase tracking-wider border-r border-zinc-300">Origin/Destination</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibolddark:text-white uppercase tracking-wider border-r border-zinc-300">Freight</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibolddark:text-white uppercase tracking-wider border-r border-zinc-300">Dimensions</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibolddark:text-white uppercase tracking-wider border-r border-zinc-300">Shipping Date</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibolddark:text-white uppercase tracking-wider border-r border-zinc-300">Price</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibolddark:text-white uppercase tracking-wider">Actions</th>
+                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">Origin/Destination</th>
+                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">Freight</th>
+                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">Dimensions</th>
+                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">Shipping Date</th>
+                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">Price</th>
+                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-zinc-800/90 divide-y divide-zinc-300">
@@ -232,14 +232,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                                         >
                                             Create Order
                                         </button>
-                                    ) : (
-                                        <button
-                                            onClick={notifyAdmins}
-                                            className="ml-2 px-4 py-2 font-semibold bg-zinc-900 text-red-600 rounded"
-                                        >
-                                            Press if Urgent
-                                        </button>
-                                    )}
+                                    ) : null}
                                     {isAdmin && (
                                         <button onClick={() => handleRespond(quote.id)} className="text-blue-500 ml-2">
                                             Respond

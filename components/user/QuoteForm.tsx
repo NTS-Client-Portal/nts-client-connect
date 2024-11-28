@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Database } from '@/lib/database.types';
-import Modal from './Modal';
+import Modal from '../ui/Modal';
+import { supabase } from '@/lib/initSupabase';
 
 interface QuoteFormProps {
     freightList: Database['public']['Tables']['freight']['Row'][];
@@ -31,6 +32,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
     const [destinationState, setDestinationState] = useState<string>('');
     const [dueDate, setDueDate] = useState<string | null>(null); // Ensure dueDate is either a valid timestamp or null
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [saveToInventory, setSaveToInventory] = useState<boolean>(false); // Add state for checkbox
 
     const handleFreightChange = (freightId: string) => {
         setSelectedFreight(freightId);
@@ -118,6 +120,38 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
             weight: weight,
         };
         await addQuote(quote);
+
+        if (saveToInventory) {
+            // Logic to save to inventory
+            const freightData = {
+                year: year,
+                make: make,
+                model: model,
+                pallet_count: palletCount,
+                commodity: commodity,
+                length: length,
+                width: width,
+                height: height,
+                weight: weight,
+                freight_type: selectedOption,
+            };
+
+            try {
+                const { data, error } = await supabase
+                    .from('freight')
+                    .insert([freightData])
+                    .select();
+
+                if (error) {
+                    console.error('Error saving to inventory:', error.message);
+                } else {
+                    console.log('Saved to inventory:', data);
+                }
+            } catch (error) {
+                console.error('Error saving to inventory:', error);
+            }
+        }
+
         onClose(); // Close the modal after submitting the form
     };
 
@@ -125,7 +159,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
         <Modal isOpen={isOpen} onClose={onClose}>
             <form onSubmit={handleSubmit} className="flex flex-col z-50  w-full gap-2 p-2 dark:bg-zinc-800 dark:text-zinc-100">
                 <div className='flex flex-col z-50 gap-4 dark:bg-zinc-800 w-full dark:text-zinc-100'>
-                    <label className='text-zinc-900  dark:text-zinc-100 font-medium '>Select Freight (Optional)
+                    <label className='text-zinc-900  dark:text-zinc-100 font-medium '>Select from inventory (Optional)
                         <select
                             className="rounded dark:text-zinc-800  w-full p-2 border  border-zinc-800"
                             value={selectedFreight}
@@ -156,6 +190,19 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
                                     <option value="ltl_ftl">LTL/FTL</option>
                                 </select>
                             </label>
+
+                            {selectedOption && (
+                                <div className='flex gap-1 text-zinc-900 font-semibold'>
+                                    <label />
+                                        <input
+                                            type="checkbox"
+                                            checked={saveToInventory}
+                                            onChange={(e) => setSaveToInventory(e.target.checked)}
+                                        />
+                                        Check Here to Save Inventory
+                                
+                                </div>
+                            )}
 
                             {selectedOption === 'equipment' && (
                                 <div className='flex gap-2 dark:text-zinc-100 w-full'>

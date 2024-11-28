@@ -8,7 +8,7 @@ import CustomSignInForm from '@/components/CustomSignInForm';
 import { MoveHorizontal } from 'lucide-react';
 import { UserProvider, useUser } from '@/context/UserContext';
 import withProfileCheck from '@/components/hoc/withProfileCheck';
-import DashboardTabs from '@/components/DashboardTabs';
+import DashboardTabs from '@/components/nts/DashboardTabs';
 import UserLayout from '@/pages/components/UserLayout';
 import Image from 'next/image';
 

@@ -5,6 +5,8 @@ import QuoteForm from './QuoteForm';
 import QuoteList from './quotetabs/QuoteList';
 import HistoryList from './quotetabs/HistoryList';
 import OrderList from './quotetabs/OrderList';
+import Archived from './quotetabs/Archived';
+import Rejected from './quotetabs/Rejected';
 
 interface QuoteRequestProps {
     session: Session | null;
@@ -179,25 +181,38 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
                     setErrorText={setErrorText}
                 />
             </div>
-            <div className="flex border-b border-gray-300">
+            <div className="flex gap-1 border-b border-gray-300">
                 <button
-                    className={`px-4 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'requests' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                    className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'requests' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
                     onClick={() => setActiveTab('requests')}
                 >
                     Shipping Requests
                 </button>
                 <button
-                    className={`px-4 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'orders' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                    className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'orders' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
                     onClick={() => setActiveTab('orders')}
                 >
                     Shipping Orders
                 </button>
                 <button
-                    className={`px-4 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'history' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                    className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'history' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
                     onClick={() => setActiveTab('history')}
                 >
                     Completed Orders
                 </button>
+                <button
+                    className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'archived' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                    onClick={() => setActiveTab('archived')}
+                >
+                    Archived
+                </button>
+                <button
+                    className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'rejected' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                    onClick={() => setActiveTab('rejected')}
+                >
+                    Rejected RFQ&apos;s
+                </button>
+                
             </div>
             <div className="p-4 bg-white border border-gray-300 rounded-b-md">
                 {activeTab === 'requests' && (
@@ -221,6 +236,16 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
                 )}
                 {activeTab === 'history' && (
                     <HistoryList
+                        session={session}
+                    />
+                )}
+                {activeTab === 'archived' && (
+                    <Archived
+                        session={session}
+                    />
+                )}
+                {activeTab === 'rejected' && (
+                    <Rejected
                         session={session}
                     />
                 )}

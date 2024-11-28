@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
 import FreightInventory from '@/components/FreightInventory';
-import QuoteRequest from '@/components/QuoteRequest';
+import QuoteRequest from '@/components/user/QuoteRequest';
 
 const DashboardTabs = () => {
     const session = useSession();

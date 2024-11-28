@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Session } from '@supabase/auth-helpers-react';
 import { ShippingQuote } from '@/lib/schema';
 import { supabase } from '@/lib/initSupabase';
-import Modal from '@/components/Modal';
+import Modal from '@/components/ui/Modal';
 import jsPDF from 'jspdf';
 
 interface OrderListProps {
