@@ -12,9 +12,7 @@ interface SalesDashboardProps {
 
 type ShippingQuote = Database['public']['Tables']['shippingquotes']['Row'];
 type Order = Database['public']['Tables']['orders']['Row'];
-type Company = Database['public']['Tables']['companies']['Row'];
 type Freight = Database['public']['Tables']['freight']['Row'];
-type NtsUser = Database['public']['Tables']['nts_users']['Row'];
 
 const SalesDashboard = ({ session }: SalesDashboardProps) => {
     const supabase = useSupabaseClient<Database>();

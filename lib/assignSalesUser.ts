@@ -23,24 +23,23 @@ export const assignSalesUser = async (companyId: string) => {
 
         // Fetch the list of companies to determine the next user in round-robin order
         const { data: companies, error: companiesError } = await supabase
-            .from('companies')
-            .select('assigned_sales_user');
+            .from('company_sales_users')
+            .select('sales_user_id');
 
         if (companiesError) {
             throw new Error(`Error fetching companies: ${companiesError.message}`);
         }
 
         // Determine the next user in round-robin order
-        const lastAssignedUser = companies?.[companies.length - 1]?.assigned_sales_user;
+        const lastAssignedUser = companies?.[companies.length - 1]?.sales_user_id;
         const lastAssignedIndex = users.findIndex(user => user.id === lastAssignedUser);
         const nextAssignedIndex = (lastAssignedIndex + 1) % users.length;
         const nextUser = users[nextAssignedIndex];
 
         // Assign the determined user to the new company
         const { error: assignError } = await supabase
-            .from('companies')
-            .update({ assigned_sales_user: nextUser.id })
-            .eq('id', companyId);
+            .from('company_sales_users')
+            .insert({ company_id: companyId, sales_user_id: nextUser.id });
 
         if (assignError) {
             throw new Error(`Error assigning user: ${assignError.message}`);

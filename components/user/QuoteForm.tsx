@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Database } from '@/lib/database.types';
 import Modal from '../ui/Modal';
 import { supabase } from '@/lib/initSupabase';
@@ -33,6 +33,46 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
     const [dueDate, setDueDate] = useState<string | null>(null); // Ensure dueDate is either a valid timestamp or null
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [saveToInventory, setSaveToInventory] = useState<boolean>(false); // Add state for checkbox
+    const [companyId, setCompanyId] = useState<string | null>(null);
+    const [assignedSalesUser, setAssignedSalesUser] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data: profile, error } = await supabase
+                    .from('profiles')
+                    .select('company_id')
+                    .eq('id', user.id)
+                    .single();
+
+                if (error) {
+                    console.error('Error fetching user profile:', error.message);
+                } else if (profile) {
+                    setCompanyId(profile.company_id);
+                }
+            }
+        };
+
+        const fetchAssignedSalesUser = async () => {
+            if (companyId) {
+                const { data, error } = await supabase
+                    .from('company_sales_users')
+                    .select('sales_user_id')
+                    .eq('company_id', companyId)
+                    .single();
+
+                if (error) {
+                    console.error('Error fetching assigned sales user:', error.message);
+                } else if (data) {
+                    setAssignedSalesUser(data.sales_user_id);
+                }
+            }
+        };
+
+        fetchUserProfile();
+        fetchAssignedSalesUser();
+    }, [companyId]);
 
     const handleFreightChange = (freightId: string) => {
         setSelectedFreight(freightId);
@@ -118,6 +158,8 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
             width: width,
             height: height,
             weight: weight,
+            company_id: companyId,
+            assigned_sales_user: assignedSalesUser,
         };
         await addQuote(quote);
 
@@ -194,13 +236,13 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
                             {selectedOption && (
                                 <div className='flex gap-1 text-zinc-900 font-semibold'>
                                     <label />
-                                        <input
-                                            type="checkbox"
-                                            checked={saveToInventory}
-                                            onChange={(e) => setSaveToInventory(e.target.checked)}
-                                        />
-                                        Check Here to Save Inventory
-                                
+                                    <input
+                                        type="checkbox"
+                                        checked={saveToInventory}
+                                        onChange={(e) => setSaveToInventory(e.target.checked)}
+                                    />
+                                    Check Here to Save Inventory
+
                                 </div>
                             )}
 
@@ -450,6 +492,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
                                 readOnly
                             />
                         </label>
+
 
                     </div>
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Shipping Date

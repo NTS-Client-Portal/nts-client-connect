@@ -4,6 +4,7 @@ import { Database } from '@/lib/database.types';
 import { ShippingQuote } from '@/lib/schema';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import OrderFormModal from './OrderFormModal';
+import EditQuoteModal from './EditQuoteModal';
 
 interface QuoteListProps {
     session: Session | null;
@@ -21,6 +22,8 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
     const [selectedQuoteId, setSelectedQuoteId] = useState<number | null>(null);
     const [quote, setQuote] = useState<ShippingQuote[]>([]);
     const [isNtsUser, setIsNtsUser] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Add state for edit modal
+    const [quoteToEdit, setQuoteToEdit] = useState<ShippingQuote | null>(null); // Add state for the quote to edit
 
     useEffect(() => {
         const checkNtsUser = async () => {
@@ -126,40 +129,25 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
         }
     };
 
-    const notifyAdmins = async () => {
-        try {
-            const { data: admins, error: fetchError } = await supabase
-                .from('nts_users')
-                .select('id, email')
-                .eq('role', 'admin');
+    const handleEditClick = (quote: ShippingQuote) => {
+        setQuoteToEdit(quote);
+        setIsEditModalOpen(true);
+    };
 
-            if (fetchError) {
-                console.error('Error fetching admin users:', fetchError.message);
-                return;
+    const handleEditModalSubmit = async (updatedQuote: ShippingQuote) => {
+        if (quoteToEdit && session?.user?.id) {
+            const { error } = await supabase
+                .from('shippingquotes')
+                .update(updatedQuote)
+                .eq('id', quoteToEdit.id);
+
+            if (error) {
+                console.error('Error updating quote:', error.message);
+            } else {
+                fetchQuotes();
             }
-
-            const notifications = admins.map(admin => ({
-                user_id: admin.id,
-                message: 'Urgent action required on a quote.',
-            }));
-
-            const { error: insertError } = await supabase
-                .from('notifications')
-                .insert(notifications);
-
-            if (insertError) {
-                console.error('Error creating notifications:', insertError.message);
-                return;
-            }
-
-            for (const admin of admins) {
-                await sendEmailNotification(admin.email, 'Urgent Notification', 'Urgent action required on a quote.');
-            }
-
-            console.log('Notifications sent to all admin users.');
-        } catch (error) {
-            console.error('Error notifying admin users:', error);
         }
+        setIsEditModalOpen(false);
     };
 
     const formatDate = (dateString: string | null) => {
@@ -177,6 +165,12 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleModalSubmit}
+            />
+            <EditQuoteModal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                onSubmit={handleEditModalSubmit}
+                quote={quoteToEdit}
             />
             <div className="hidden 2xl:block overflow-x-auto">
                 <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
@@ -224,6 +218,12 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                                 <td className="px-6 py-3 whitespace-nowrap flex items-end justify-between">
                                     <button onClick={() => archiveQuote(quote.id)} className="text-red-500 ml-2">
                                         Archive
+                                    </button>
+                                    <button
+                                        onClick={() => handleEditClick(quote)}
+                                        className="body-btn"
+                                    >
+                                        Edit
                                     </button>
                                     {quote.price ? (
                                         <button
@@ -280,6 +280,12 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                             <button onClick={() => archiveQuote(quote.id)} className="text-red-500 ml-2">
                                 Archive
                             </button>
+                            <button
+                                onClick={() => handleEditClick(quote)}
+                                className="body-btn"
+                            >
+                                Edit
+                            </button>
                             {quote.price ? (
                                 <button
                                     onClick={() => handleCreateOrderClick(quote.id)}
@@ -289,10 +295,10 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                                 </button>
                             ) : (
                                 <button
-                                    onClick={notifyAdmins}
-                                    className="ml-2 p-1 bg-yellow-500 text-white rounded"
+                                    onClick={() => handleEditClick(quote)}
+                                    className="body-btn"
                                 >
-                                    Contact if Urgent
+                                    Edit
                                 </button>
                             )}
                             {isAdmin && (

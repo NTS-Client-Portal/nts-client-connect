@@ -24,6 +24,7 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
     const [errorText, setErrorText] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [activeTab, setActiveTab] = useState('requests');
+    const [isMobile, setIsMobile] = useState<boolean>(false);
 
     const fetchQuotes = useCallback(async () => {
         if (!session?.user?.id) return;
@@ -64,6 +65,19 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
             fetchFreight();
         }
     }, [session, fetchQuotes, fetchFreight]);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
 
     const addQuote = async (quote: Partial<Database['public']['Tables']['shippingquotes']['Insert']>) => {
         if (!session?.user?.id) return;
@@ -181,39 +195,54 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
                     setErrorText={setErrorText}
                 />
             </div>
-            <div className="flex gap-1 border-b border-gray-300">
-                <button
-                    className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'requests' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
-                    onClick={() => setActiveTab('requests')}
-                >
-                    Shipping Requests
-                </button>
-                <button
-                    className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'orders' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
-                    onClick={() => setActiveTab('orders')}
-                >
-                    Shipping Orders
-                </button>
-                <button
-                    className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'history' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
-                    onClick={() => setActiveTab('history')}
-                >
-                    Completed Orders
-                </button>
-                <button
-                    className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'archived' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
-                    onClick={() => setActiveTab('archived')}
-                >
-                    Archived
-                </button>
-                <button
-                    className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'rejected' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
-                    onClick={() => setActiveTab('rejected')}
-                >
-                    Rejected RFQ&apos;s
-                </button>
-                
-            </div>
+            {isMobile ? (
+                <div className="relative">
+                    <select
+                        className="w-full p-2 border border-gray-300 rounded-md"
+                        value={activeTab}
+                        onChange={(e) => setActiveTab(e.target.value)}
+                    >
+                        <option value="requests">Shipping Requests</option>
+                        <option value="orders">Shipping Orders</option>
+                        <option value="history">Completed Orders</option>
+                        <option value="archived">Archived</option>
+                        <option value="rejected">Rejected RFQ&apos;s</option>
+                    </select>
+                </div>
+            ) : (
+                <div className="flex gap-1 border-b border-gray-300">
+                    <button
+                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'requests' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                        onClick={() => setActiveTab('requests')}
+                    >
+                        Shipping Requests
+                    </button>
+                    <button
+                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'orders' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                        onClick={() => setActiveTab('orders')}
+                    >
+                        Shipping Orders
+                    </button>
+                    <button
+                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'history' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                        onClick={() => setActiveTab('history')}
+                    >
+                        Completed Orders
+                    </button>
+                    <button
+                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'archived' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                        onClick={() => setActiveTab('archived')}
+                    >
+                        Archived
+                    </button>
+                    <button
+                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'rejected' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                        onClick={() => setActiveTab('rejected')}
+                    >
+                        Rejected RFQ&apos;s
+                    </button>
+                </div>
+            )}
             <div className="p-4 bg-white border border-gray-300 rounded-b-md">
                 {activeTab === 'requests' && (
                     <QuoteList

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
-import FreightInventory from '@/components/FreightInventory';
+import NtsQuoteList from '@/components/nts/NtsQuoteList';
 import QuoteRequest from '@/components/user/QuoteRequest';
 
 const DashboardTabs = () => {
@@ -10,7 +10,7 @@ const DashboardTabs = () => {
     const renderTabContent = () => {
         switch (activeTab) {
             case 'Freight Inventory':
-                return <FreightInventory session={session} />;
+                return <NtsQuoteList session={session} />;
             case 'Logistics RFQ':
                 return <QuoteRequest session={session} />;
             default:

@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      boats: {
+        Row: {
+          beam: string | null
+          cradle: boolean | null
+          height: string | null
+          id: number
+          length: string | null
+          trailer: boolean | null
+          type: string | null
+          weight: string | null
+        }
+        Insert: {
+          beam?: string | null
+          cradle?: boolean | null
+          height?: string | null
+          id?: never
+          length?: string | null
+          trailer?: boolean | null
+          type?: string | null
+          weight?: string | null
+        }
+        Update: {
+          beam?: string | null
+          cradle?: boolean | null
+          height?: string | null
+          id?: never
+          length?: string | null
+          trailer?: boolean | null
+          type?: string | null
+          weight?: string | null
+        }
+        Relationships: []
+      }
       chrome_quotes: {
         Row: {
           created_at: string | null
@@ -136,6 +169,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      containers: {
+        Row: {
+          container_length: number | null
+          container_type: string | null
+          contents_description: string | null
+          destination_surface_type: string | null
+          destination_type: boolean | null
+          goods_value: string | null
+          id: number
+          is_loaded: boolean | null
+          loading_by: boolean | null
+          origin_surface_type: string | null
+          origin_type: boolean | null
+          unloading_by: boolean | null
+        }
+        Insert: {
+          container_length?: number | null
+          container_type?: string | null
+          contents_description?: string | null
+          destination_surface_type?: string | null
+          destination_type?: boolean | null
+          goods_value?: string | null
+          id?: number
+          is_loaded?: boolean | null
+          loading_by?: boolean | null
+          origin_surface_type?: string | null
+          origin_type?: boolean | null
+          unloading_by?: boolean | null
+        }
+        Update: {
+          container_length?: number | null
+          container_type?: string | null
+          contents_description?: string | null
+          destination_surface_type?: string | null
+          destination_type?: boolean | null
+          goods_value?: string | null
+          id?: number
+          is_loaded?: boolean | null
+          loading_by?: boolean | null
+          origin_surface_type?: string | null
+          origin_type?: boolean | null
+          unloading_by?: boolean | null
+        }
+        Relationships: []
       }
       documents: {
         Row: {
@@ -557,9 +635,83 @@ export type Database = {
           },
         ]
       }
+      rv_trailers: {
+        Row: {
+          class_type: string | null
+          id: number
+          make: string | null
+          model: string | null
+          motorized_or_trailer: string | null
+          roadworthy: boolean | null
+          vin: string | null
+          year: number | null
+        }
+        Insert: {
+          class_type?: string | null
+          id?: number
+          make?: string | null
+          model?: string | null
+          motorized_or_trailer?: string | null
+          roadworthy?: boolean | null
+          vin?: string | null
+          year?: number | null
+        }
+        Update: {
+          class_type?: string | null
+          id?: number
+          make?: string | null
+          model?: string | null
+          motorized_or_trailer?: string | null
+          roadworthy?: boolean | null
+          vin?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
+      semi_trucks: {
+        Row: {
+          driveaway_or_towaway: boolean | null
+          height: string | null
+          id: number
+          length: string | null
+          make: string | null
+          model: string | null
+          vin: string | null
+          weight: string | null
+          width: string | null
+          year: number | null
+        }
+        Insert: {
+          driveaway_or_towaway?: boolean | null
+          height?: string | null
+          id?: number
+          length?: string | null
+          make?: string | null
+          model?: string | null
+          vin?: string | null
+          weight?: string | null
+          width?: string | null
+          year?: number | null
+        }
+        Update: {
+          driveaway_or_towaway?: boolean | null
+          height?: string | null
+          id?: number
+          length?: string | null
+          make?: string | null
+          model?: string | null
+          vin?: string | null
+          weight?: string | null
+          width?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
       shippingquotes: {
         Row: {
+          assigned_sales_user: string | null
           commodity: string | null
+          company_id: string | null
           destination_city: string | null
           destination_state: string | null
           destination_street: string | null
@@ -576,6 +728,7 @@ export type Database = {
           length: string | null
           make: string | null
           model: string | null
+          notes: string | null
           origin_address: string | null
           origin_city: string | null
           origin_state: string | null
@@ -588,7 +741,9 @@ export type Database = {
           year: string | null
         }
         Insert: {
+          assigned_sales_user?: string | null
           commodity?: string | null
+          company_id?: string | null
           destination_city?: string | null
           destination_state?: string | null
           destination_street?: string | null
@@ -605,6 +760,7 @@ export type Database = {
           length?: string | null
           make?: string | null
           model?: string | null
+          notes?: string | null
           origin_address?: string | null
           origin_city?: string | null
           origin_state?: string | null
@@ -617,7 +773,9 @@ export type Database = {
           year?: string | null
         }
         Update: {
+          assigned_sales_user?: string | null
           commodity?: string | null
+          company_id?: string | null
           destination_city?: string | null
           destination_state?: string | null
           destination_street?: string | null
@@ -634,6 +792,7 @@ export type Database = {
           length?: string | null
           make?: string | null
           model?: string | null
+          notes?: string | null
           origin_address?: string | null
           origin_city?: string | null
           origin_state?: string | null
