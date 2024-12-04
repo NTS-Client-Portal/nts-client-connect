@@ -207,7 +207,6 @@ const SalesDashboard = ({ session }: SalesDashboardProps) => {
                 <QuoteForm
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
-                    freightList={freightList}
                     addQuote={addQuote}
                     errorText={errorText}
                     setErrorText={setErrorText}
