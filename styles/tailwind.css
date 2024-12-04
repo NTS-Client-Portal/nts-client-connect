@@ -41,6 +41,10 @@
   @apply m-0 px-4 py-2 text-nowrap border border-zinc-800 rounded-sm bg-ntsLightBlue text-zinc-50 font-medium hover:bg-ntsLightBlue/80 hover:border dark:border-zinc-900 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-900/90 dark:hover:text-zinc-100 dark:hover:border-ntsLightBlue/90;
 }
 
+.cancel-btn {
+  @apply m-0 px-4 py-2 text-nowrap border border-zinc-800 rounded-sm bg-zinc-800 text-stone-100 font-medium hover:bg-zinc-800/80 hover:border dark:border-zinc-900 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-900/90 dark:hover:text-zinc-100 dark:hover:border-ntsLightBlue/90;
+}
+
 .upload-button {
     @apply text-base text-nowrap underline underline-offset-4 text-white dark:text-blue-400 dark:font-bold dark:text-base font-medium;
 }

@@ -1,388 +1,184 @@
-import React, { useState, useEffect } from 'react';
-import { Database } from '@/lib/database.types';
-import Modal from '../ui/Modal';
-import { supabase } from '@/lib/initSupabase';
+import React, { useState } from 'react';
+import SelectOption from './SelectOption';
 
-interface QuoteFormProps {
-    freightList: Database['public']['Tables']['freight']['Row'][];
-    addQuote: (quote: Partial<Database['public']['Tables']['shippingquotes']['Insert']>) => Promise<void>;
-    errorText: string;
-    setErrorText: React.Dispatch<React.SetStateAction<string>>;
-    isOpen: boolean;
-    onClose: () => void;
-}
+const QuoteForm: React.FC<{ isOpen: boolean; onClose: () => void; addQuote: (quote: any) => void; errorText: string; setErrorText: (value: string) => void; }> = ({ isOpen, onClose, addQuote, errorText, setErrorText }) => {
+    const [selectedOption, setSelectedOption] = useState('');
+    const [year, setYear] = useState('');
+    const [make, setMake] = useState('');
+    const [model, setModel] = useState('');
+    const [palletCount, setPalletCount] = useState('');
+    const [commodity, setCommodity] = useState('');
+    const [saveToInventory, setSaveToInventory] = useState(false);
 
-const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText, setErrorText, isOpen, onClose }) => {
-    const [selectedFreight, setSelectedFreight] = useState<string>('');
-    const [selectedOption, setSelectedOption] = useState<string>('');
-    const [year, setYear] = useState<string>('');
-    const [make, setMake] = useState<string>('');
-    const [model, setModel] = useState<string>('');
-    const [palletCount, setPalletCount] = useState<string>('');
-    const [commodity, setCommodity] = useState<string>('');
-    const [length, setLength] = useState<string>('');
-    const [width, setWidth] = useState<string>('');
-    const [height, setHeight] = useState<string>('');
-    const [weight, setWeight] = useState<string>('');
-    const [originZip, setOriginZip] = useState<string>('');
-    const [destinationZip, setDestinationZip] = useState<string>('');
-    const [originCity, setOriginCity] = useState<string>('');
-    const [originState, setOriginState] = useState<string>('');
-    const [destinationCity, setDestinationCity] = useState<string>('');
-    const [destinationState, setDestinationState] = useState<string>('');
-    const [dueDate, setDueDate] = useState<string | null>(null); // Ensure dueDate is either a valid timestamp or null
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [saveToInventory, setSaveToInventory] = useState<boolean>(false); // Add state for checkbox
-    const [companyId, setCompanyId] = useState<string | null>(null);
-    const [assignedSalesUser, setAssignedSalesUser] = useState<string | null>(null);
+    // Container form state
+    const [containerLength, setContainerLength] = useState<number | null>(null);
+    const [containerType, setContainerType] = useState<string | null>(null);
+    const [contentsDescription, setContentsDescription] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchUserProfile = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                const { data: profile, error } = await supabase
-                    .from('profiles')
-                    .select('company_id')
-                    .eq('id', user.id)
-                    .single();
+    // RV Trailer form state
+    const [classType, setClassType] = useState<string | null>(null);
+    const [motorizedOrTrailer, setMotorizedOrTrailer] = useState<string | null>(null);
+    const [roadworthy, setRoadworthy] = useState<boolean | null>(null);
+    const [vin, setVin] = useState<string | null>(null);
+    const [yearRv, setYearRv] = useState<number | null>(null);
 
-                if (error) {
-                    console.error('Error fetching user profile:', error.message);
-                } else if (profile) {
-                    setCompanyId(profile.company_id);
-                }
-            }
-        };
+    // Semi Truck form state
+    const [driveawayOrTowaway, setDriveawayOrTowaway] = useState<boolean | null>(null);
+    const [height, setHeight] = useState<string | null>(null);
+    const [length, setLength] = useState<string | null>(null);
+    const [vinSemi, setVinSemi] = useState<string | null>(null);
+    const [weight, setWeight] = useState<string | null>(null);
+    const [width, setWidth] = useState<string | null>(null);
+    const [yearSemi, setYearSemi] = useState<number | null>(null);
 
-        const fetchAssignedSalesUser = async () => {
-            if (companyId) {
-                const { data, error } = await supabase
-                    .from('company_sales_users')
-                    .select('sales_user_id')
-                    .eq('company_id', companyId)
-                    .single();
+    // Boat form state
+    const [beam, setBeam] = useState('');
+    const [cradle, setCradle] = useState(false);
+    const [heightBoat, setHeightBoat] = useState('');
+    const [lengthBoat, setLengthBoat] = useState('');
+    const [trailer, setTrailer] = useState(false);
+    const [type, setType] = useState('');
+    const [weightBoat, setWeightBoat] = useState('');
 
-                if (error) {
-                    console.error('Error fetching assigned sales user:', error.message);
-                } else if (data) {
-                    setAssignedSalesUser(data.sales_user_id);
-                }
-            }
-        };
-
-        fetchUserProfile();
-        fetchAssignedSalesUser();
-    }, [companyId]);
-
-    const handleFreightChange = (freightId: string) => {
-        setSelectedFreight(freightId);
-        const selected = freightList.find(freight => freight.id === parseInt(freightId));
-        if (selected) {
-            setYear(selected.year || '');
-            setMake(selected.make || '');
-            setModel(selected.model || '');
-            setPalletCount(selected.pallet_count || '');
-            setCommodity(selected.commodity || '');
-            setLength(selected.length || '');
-            setWidth(selected.width || '');
-            setHeight(selected.height || '');
-            setWeight(selected.weight || '');
-            setSelectedOption(selected.freight_type || '');
-        } else {
-            setYear('');
-            setMake('');
-            setModel('');
-            setPalletCount('');
-            setCommodity('');
-            setLength('');
-            setWidth('');
-            setHeight('');
-            setWeight('');
-            setSelectedOption('');
-        }
-    };
-
-    const lookupZipCode = async (type: 'origin' | 'destination') => {
-        const zipCode = type === 'origin' ? originZip : destinationZip;
-        const url = `https://api.zippopotam.us/us/${zipCode}`;
-
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            const data = await response.json();
-            const city = data.places[0]['place name'];
-            const state = data.places[0]['state'];
-            if (type === 'origin') {
-                setOriginCity(city);
-                setOriginState(state);
-            } else {
-                setDestinationCity(city);
-                setDestinationState(state);
-            }
-        } catch (error) {
-            console.error(`Error fetching ${type} zip code data:`, error);
-        }
-    };
+    // Additional fields
+    const [originZip, setOriginZip] = useState('');
+    const [originCity, setOriginCity] = useState('');
+    const [originState, setOriginState] = useState('');
+    const [destinationZip, setDestinationZip] = useState('');
+    const [destinationCity, setDestinationCity] = useState('');
+    const [destinationState, setDestinationState] = useState('');
+    const [dueDate, setDueDate] = useState<string | null>(null);
 
     const handleZipCodeBlur = (type: 'origin' | 'destination') => {
-        lookupZipCode(type);
+        // Logic to fetch city and state based on zip code
     };
 
-    const handleZipCodeKeyDown = (e: React.KeyboardEvent, type: 'origin' | 'destination') => {
-        if (e.key === 'Enter' || e.key === 'Tab') {
-            lookupZipCode(type);
+    const handleZipCodeKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, type: 'origin' | 'destination') => {
+        if (e.key === 'Enter') {
+            handleZipCodeBlur(type);
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const quote = {
-            first_name: '',
-            last_name: '',
-            email: '',
-            due_date: dueDate || null, // Ensure due_date is either a valid timestamp or null
-            origin_city: originCity,
-            origin_state: originState,
-            origin_zip: originZip,
-            destination_city: destinationCity,
-            destination_state: destinationState,
-            destination_zip: destinationZip,
-            year: year,
-            make: make,
-            model: model,
-            pallet_count: selectedOption === 'equipment' ? '' : palletCount,
-            commodity: selectedOption === 'equipment' ? '' : commodity,
-            length: length,
-            width: width,
-            height: height,
-            weight: weight,
-            company_id: companyId,
-            assigned_sales_user: assignedSalesUser,
+            selectedOption,
+            year,
+            make,
+            model,
+            palletCount,
+            commodity,
+            containerLength,
+            containerType,
+            contentsDescription,
+            classType,
+            motorizedOrTrailer,
+            roadworthy,
+            vin,
+            yearRv,
+            driveawayOrTowaway,
+            height,
+            length,
+            vinSemi,
+            weight,
+            width,
+            yearSemi,
+            beam,
+            cradle,
+            heightBoat,
+            lengthBoat,
+            trailer,
+            type,
+            weightBoat,
+            originZip,
+            originCity,
+            originState,
+            destinationZip,
+            destinationCity,
+            destinationState,
+            dueDate,
+            saveToInventory
         };
-        await addQuote(quote);
-
-        if (saveToInventory) {
-            // Logic to save to inventory
-            const freightData = {
-                year: year,
-                make: make,
-                model: model,
-                pallet_count: palletCount,
-                commodity: commodity,
-                length: length,
-                width: width,
-                height: height,
-                weight: weight,
-                freight_type: selectedOption,
-            };
-
-            try {
-                const { data, error } = await supabase
-                    .from('freight')
-                    .insert([freightData])
-                    .select();
-
-                if (error) {
-                    console.error('Error saving to inventory:', error.message);
-                } else {
-                    console.log('Saved to inventory:', data);
-                }
-            } catch (error) {
-                console.error('Error saving to inventory:', error);
-            }
-        }
-
-        onClose(); // Close the modal after submitting the form
+        addQuote(quote);
     };
 
+    if (!isOpen) return null;
+
     return (
-        <Modal isOpen={isOpen} onClose={onClose}>
-            <form onSubmit={handleSubmit} className="flex flex-col z-50  w-full gap-2 p-2 dark:bg-zinc-800 dark:text-zinc-100">
-                <div className='flex flex-col z-50 gap-4 dark:bg-zinc-800 w-full dark:text-zinc-100'>
-                    <label className='text-zinc-900  dark:text-zinc-100 font-medium '>Select from inventory (Optional)
-                        <select
-                            className="rounded dark:text-zinc-800  w-full p-2 border  border-zinc-800"
-                            value={selectedFreight}
-                            onChange={(e) => handleFreightChange(e.target.value)}
-                        >
-                            <option value="">Select...</option>
-                            {freightList.map((freight) => (
-                                <option key={freight.id} value={freight.id.toString()}>
-                                    {freight.freight_type === 'ltl_ftl' ? freight.commodity : `${freight.make} ${freight.model} (${freight.year})`}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-
-                    {!selectedFreight && (
-                        <>
-                            <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Select Option
-                                <select
-                                    className="rounded w-full dark:text-zinc-800 p-2 border border-zinc-900"
-                                    value={selectedOption}
-                                    onChange={(e) => {
-                                        setErrorText('');
-                                        setSelectedOption(e.target.value);
-                                    }}
-                                >
-                                    <option value="">Select...</option>
-                                    <option value="equipment">Equipment/Machinery</option>
-                                    <option value="ltl_ftl">LTL/FTL</option>
-                                </select>
-                            </label>
-
-                            {selectedOption && (
-                                <div className='flex gap-1 text-zinc-900 font-semibold'>
-                                    <label />
-                                    <input
-                                        type="checkbox"
-                                        checked={saveToInventory}
-                                        onChange={(e) => setSaveToInventory(e.target.checked)}
-                                    />
-                                    Check Here to Save Inventory
-
-                                </div>
-                            )}
-
-                            {selectedOption === 'equipment' && (
-                                <div className='flex gap-2 dark:text-zinc-100 w-full'>
-                                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Year/Amount
-                                        <input
-                                            className="rounded dark:text-zinc-800 w-full  p-2 border border-zinc-900"
-                                            type="text"
-                                            value={year}
-                                            onChange={(e) => {
-                                                setErrorText('');
-                                                setYear(e.target.value);
-                                            }}
-                                        />
-                                    </label>
-                                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Make
-                                        <input
-                                            className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
-                                            type="text"
-                                            value={make}
-                                            onChange={(e) => {
-                                                setErrorText('');
-                                                setMake(e.target.value);
-                                            }}
-                                        />
-                                    </label>
-                                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Model
-                                        <input
-                                            className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
-                                            type="text"
-                                            value={model}
-                                            onChange={(e) => {
-                                                setErrorText('');
-                                                setModel(e.target.value);
-                                            }}
-                                        />
-                                    </label>
-                                </div>
-                            )}
-
-                            {selectedOption === 'ltl_ftl' && (
-                                <div className='flex items-center justify-center gap-2 w-full'>
-                                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Pallet/Crate Count
-                                        <input
-                                            className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
-                                            type="text"
-                                            value={palletCount}
-                                            onChange={(e) => {
-                                                setErrorText('');
-                                                setPalletCount(e.target.value);
-                                            }}
-                                        />
-                                    </label>
-                                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Commodity
-                                        <input
-                                            className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
-                                            type="text"
-                                            value={commodity}
-                                            onChange={(e) => {
-                                                setErrorText('');
-                                                setCommodity(e.target.value);
-                                            }}
-                                        />
-                                    </label>
-                                </div>
-                            )}
-                        </>
+        <div className="fixed inset-0 bg-zinc-600 bg-opacity-50 flex justify-center items-center">
+            <div className="bg-white p-8 rounded shadow-md w-1/2">
+                <h2 className="text-xl mb-4">Request a Shipping Estimate</h2>
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                    <SelectOption
+                        selectedOption={selectedOption}
+                        setSelectedOption={setSelectedOption}
+                        setErrorText={setErrorText}
+                        year={year}
+                        setYear={setYear}
+                        make={make}
+                        setMake={setMake}
+                        model={model}
+                        setModel={setModel}
+                        palletCount={palletCount}
+                        setPalletCount={setPalletCount}
+                        commodity={commodity}
+                        setCommodity={setCommodity}
+                        containerLength={containerLength}
+                        setContainerLength={setContainerLength}
+                        containerType={containerType}
+                        setContainerType={setContainerType}
+                        contentsDescription={contentsDescription}
+                        setContentsDescription={setContentsDescription}
+                        classType={classType}
+                        setClassType={setClassType}
+                        motorizedOrTrailer={motorizedOrTrailer}
+                        setMotorizedOrTrailer={setMotorizedOrTrailer}
+                        roadworthy={roadworthy}
+                        setRoadworthy={setRoadworthy}
+                        vin={vin}
+                        setVin={setVin}
+                        yearRv={yearRv}
+                        setYearRv={setYearRv}
+                        driveawayOrTowaway={driveawayOrTowaway}
+                        setDriveawayOrTowaway={setDriveawayOrTowaway}
+                        height={height}
+                        setHeight={setHeight}
+                        length={length}
+                        setLength={setLength}
+                        vinSemi={vinSemi}
+                        setVinSemi={setVinSemi}
+                        weight={weight}
+                        setWeight={setWeight}
+                        width={width}
+                        setWidth={setWidth}
+                        yearSemi={yearSemi}
+                        setYearSemi={setYearSemi}
+                        beam={beam}
+                        setBeam={setBeam}
+                        cradle={cradle}
+                        setCradle={setCradle}
+                        heightBoat={heightBoat}
+                        setHeightBoat={setHeightBoat}
+                        lengthBoat={lengthBoat}
+                        setLengthBoat={setLengthBoat}
+                        trailer={trailer}
+                        setTrailer={setTrailer}
+                        type={type}
+                        setType={setType}
+                        weightBoat={weightBoat}
+                        setWeightBoat={setWeightBoat}
+                    />
+                    {selectedOption && (
+                        <div className='flex gap-1 text-zinc-900 font-semibold'>
+                            <input
+                                type="checkbox"
+                                checked={saveToInventory}
+                                onChange={(e) => setSaveToInventory(e.target.checked)}
+                            />
+                            Check Here to Save Inventory
+                        </div>
                     )}
-
                     <div className='flex gap-2'>
-                        {year && (
-                            <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Year/Amount
-                                <input
-                                    className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
-                                    type="text"
-                                    value={year}
-                                    onChange={(e) => {
-                                        setErrorText('');
-                                        setYear(e.target.value);
-                                    }}
-                                />
-                            </label>
-                        )}
-                        {make && (
-                            <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Make
-                                <input
-                                    className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
-                                    type="text"
-                                    value={make}
-                                    onChange={(e) => {
-                                        setErrorText('');
-                                        setMake(e.target.value);
-                                    }}
-                                />
-                            </label>
-                        )}
-                        {model && (
-                            <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Model
-                                <input
-                                    className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
-                                    type="text"
-                                    value={model}
-                                    onChange={(e) => {
-                                        setErrorText('');
-                                        setModel(e.target.value);
-                                    }}
-                                />
-                            </label>
-                        )}
-                    </div>
-                    <div className='flex w-full justify-evenly items-center self-center'>
-                        {palletCount && (
-                            <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Pallet/Crate Count
-                                <input
-                                    className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
-                                    type="text"
-                                    value={palletCount}
-                                    onChange={(e) => {
-                                        setErrorText('');
-                                        setPalletCount(e.target.value);
-                                    }}
-                                />
-                            </label>
-                        )}
-                        {commodity && (
-                            <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Commodity
-                                <input
-                                    className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
-                                    type="text"
-                                    value={commodity}
-                                    onChange={(e) => {
-                                        setErrorText('');
-                                        setCommodity(e.target.value);
-                                    }}
-                                />
-                            </label>
-                        )}
-                    </div>
-                    {length && (
                         <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Length
                             <input
                                 className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
@@ -394,8 +190,6 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
                                 }}
                             />
                         </label>
-                    )}
-                    {width && (
                         <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Width
                             <input
                                 className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
@@ -407,8 +201,6 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
                                 }}
                             />
                         </label>
-                    )}
-                    {height && (
                         <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Height
                             <input
                                 className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
@@ -420,8 +212,6 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
                                 }}
                             />
                         </label>
-                    )}
-                    {weight && (
                         <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Weight
                             <input
                                 className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
@@ -433,8 +223,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
                                 }}
                             />
                         </label>
-                    )}
-
+                    </div>
                     <div className='flex gap-2'>
                         <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Origin Zip
                             <input
@@ -462,9 +251,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
                                 readOnly
                             />
                         </label>
-
                     </div>
-
                     <div className='flex gap-2'>
                         <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Destination Zip
                             <input
@@ -492,8 +279,6 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
                                 readOnly
                             />
                         </label>
-
-
                     </div>
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Shipping Date
                         <input
@@ -506,18 +291,15 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ freightList, addQuote, errorText,
                             }}
                         />
                     </label>
-                </div>
-                <div className='flex flex-col gap-2 my-2'>
-                    <button className="body-btn" type="submit">
-                        Request Quote
+                    <button type="submit" className="body-btn w-2/3 place-self-center">
+                        Submit
                     </button>
-                    <button type="button" className="bg-stone-300  text-zinc-800 py-2 px-4 font-semibold mt-2 hover:bg-stone-300/50 hover:text-zinc-700" onClick={onClose}>
+                    <button onClick={onClose} className="cancel-btn mt-4 w-2/3 place-self-center">
                         Close
                     </button>
-                </div>
-                {errorText && <p className="text-red-500">{errorText}</p>}
-            </form>
-        </Modal>
+                </form>
+            </div>
+        </div>
     );
 };
 

@@ -10,9 +10,24 @@ interface OrderFormModalProps {
         latestPickupDate: string;
         notes: string;
     }) => void;
+    quote: {
+        origin_city: string;
+        origin_state: string;
+        origin_zip: string;
+        destination_city: string;
+        destination_state: string;
+        destination_zip: string;
+        make: string;
+        model: string;
+        year: string;
+        length: string;
+        width: string;
+        height: string;
+        weight: string;
+    };
 }
 
-const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubmit }) => {
+const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubmit, quote }) => {
     const [originStreet, setOriginStreet] = useState('');
     const [destinationStreet, setDestinationStreet] = useState('');
     const [earliestPickupDate, setEarliestPickupDate] = useState('');
@@ -80,11 +95,19 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
                             className="rounded w-full p-2 border border-zinc-900"
                         />
                     </div>
-                    <button type="submit" className="btn-slate">
+                    <div>
+                        <h3 className="text-lg mb-2">Shipping Quote Information</h3>
+                        <p><strong>Origin:</strong> {quote.origin_city}, {quote.origin_state} {quote.origin_zip}</p>
+                        <p><strong>Destination:</strong> {quote.destination_city}, {quote.destination_state} {quote.destination_zip}</p>
+                        <p><strong>Freight:</strong> {quote.year} {quote.make} {quote.model}</p>
+                        <p><strong>Dimensions:</strong> {quote.length}' x {quote.width}' x {quote.height}'</p>
+                        <p><strong>Weight:</strong> {quote.weight} lbs</p>
+                    </div>
+                    <button type="submit" className="body-btn place-self-center">
                         Submit
                     </button>
                 </form>
-                <button onClick={onClose} className="btn-slate mt-4">
+                <button onClick={onClose} className="cancel-btn mt-4">
                     Close
                 </button>
             </div>

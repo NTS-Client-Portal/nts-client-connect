@@ -483,7 +483,15 @@ export type Database = {
       orders: {
         Row: {
           created_at: string | null
+          destination_city: string | null
+          destination_state: string | null
+          destination_street: string | null
+          destination_zip: string | null
+          earliest_pickup_date: string | null
           id: number
+          latest_pickup_date: string | null
+          notes: string | null
+          origin_street: string | null
           quote_id: number | null
           status: string | null
           updated_at: string | null
@@ -491,7 +499,15 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          destination_city?: string | null
+          destination_state?: string | null
+          destination_street?: string | null
+          destination_zip?: string | null
+          earliest_pickup_date?: string | null
           id?: number
+          latest_pickup_date?: string | null
+          notes?: string | null
+          origin_street?: string | null
           quote_id?: number | null
           status?: string | null
           updated_at?: string | null
@@ -499,7 +515,15 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          destination_city?: string | null
+          destination_state?: string | null
+          destination_street?: string | null
+          destination_zip?: string | null
+          earliest_pickup_date?: string | null
           id?: number
+          latest_pickup_date?: string | null
+          notes?: string | null
+          origin_street?: string | null
           quote_id?: number | null
           status?: string | null
           updated_at?: string | null

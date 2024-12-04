@@ -272,13 +272,15 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, archiveQuot
                                 <td className="px-2 py-4 whitespace-nowrap border-r border-zinc-900/20 dark:border-zinc-100 ">
                                     {order.shippingquotes.price ? `$${order.shippingquotes.price}` : 'coming soon'}
                                 </td>
-                                <td className="px-2 py-4 whitespace-nowrap flex justify-evenly">
-                                    <button onClick={() => handleEditOrder(order)} className="text-blue-600 dark:text-blue-400 ml-2">
-                                        Edit Order
-                                    </button>
-                                    <button onClick={() => { setSelectedOrderId(order.id); setIsModalOpen(true); }} className="text-red-500 ml-2">
-                                        Cancel Order
-                                    </button>
+                                <td className="px-2 py-4 whitespace-nowrap border-r border-zinc-900/20 dark:border-zinc-100">
+                                    <div className='flex flex-col gap-2 items-center'>
+                                        <button onClick={() => handleEditOrder(order)} className="body-btn w-1/2">
+                                            Edit Order
+                                        </button>
+                                        <button onClick={() => { setSelectedOrderId(order.id); setIsModalOpen(true); }} className="cancel-btn">
+                                            Cancel Order
+                                        </button>
+                                    </div>
                                     {isNtsUser && (
                                         <>
                                             <button onClick={() => handleMarkAsComplete(order.id)} className="text-green-600 ml-2">
@@ -324,7 +326,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, archiveQuot
                                 <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Price</div>
                                 <div className="text-sm text-zinc-900 dark:text-white">{order.shippingquotes.price ? `$${order.shippingquotes.price}` : 'coming soon'}</div>
                             </div>
-                            <div className="flex justify-between items-center">
+                            <div className="h-full flex justify-between items-center">
                                 <button onClick={() => handleEditOrder(order)} className="text-blue-600 dark:text-blue-400 ml-2">
                                     Edit Order
                                 </button>

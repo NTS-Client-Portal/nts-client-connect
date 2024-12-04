@@ -25,6 +25,12 @@ type Order = Database['public']['Tables']['orders']['Row'] & {
         email: string | null;
         price: number | null;
     } | null;
+    documents: {
+        id: number;
+        title: string;
+        description: string;
+        file_url: string;
+    }[];
 };
 
 const HistoryList: React.FC<HistoryListProps> = ({ session }) => {
@@ -35,25 +41,31 @@ const HistoryList: React.FC<HistoryListProps> = ({ session }) => {
         const query = supabase
             .from('orders')
             .select(`
-        *,
-        shippingquotes:shippingquotes (
-          id,
-          origin_city,
-          origin_state,
-          origin_zip,
-          destination_city,
-          destination_state,
-          destination_zip,
-          year,
-          make,
-          model,
-          due_date,
-          first_name,
-          last_name,
-          email,
-          price
-        )
-      `)
+                *,
+                shippingquotes:shippingquotes (
+                    id,
+                    origin_city,
+                    origin_state,
+                    origin_zip,
+                    destination_city,
+                    destination_state,
+                    destination_zip,
+                    year,
+                    make,
+                    model,
+                    due_date,
+                    first_name,
+                    last_name,
+                    email,
+                    price
+                ),
+                documents:documents (
+                    id,
+                    title,
+                    description,
+                    file_url
+                )
+            `)
             .eq('status', 'completed'); // Ensure fetching orders with status 'completed'
 
         if (session?.user?.id) {
@@ -87,6 +99,7 @@ const HistoryList: React.FC<HistoryListProps> = ({ session }) => {
                             <th className="px-2 pt-4 pb-1 text-left text-xs dark:text-zinc-50 uppercase tracking-wider border-r border-zinc-900/20 dark:border-zinc-100">Shipping Date</th>
                             <th className="px-2 pt-4 pb-1 text-left text-xs dark:text-zinc-50 uppercase tracking-wider border-r border-zinc-900/20 dark:border-zinc-100">Contact</th>
                             <th className="px-2 pt-4 pb-1 text-left text-xs dark:text-zinc-50 uppercase tracking-wider border-r border-zinc-900/20 dark:border-zinc-100">Price</th>
+                            <th className="px-2 pt-4 pb-1 text-left text-xs dark:text-zinc-50 uppercase tracking-wider border-r border-zinc-900/20 dark:border-zinc-100">Documents</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-zinc-900/90 divide-y divide-zinc-200">
@@ -112,6 +125,13 @@ const HistoryList: React.FC<HistoryListProps> = ({ session }) => {
                                 </td>
                                 <td className="px-2 py-4 whitespace-nowrap border-r border-zinc-900/20 dark:border-zinc-100">
                                     {order.shippingquotes?.price ? `$${order.shippingquotes.price}` : 'Not priced yet'}
+                                </td>
+                                <td className="px-2 py-4 whitespace-nowrap border-r border-zinc-900/20 dark:border-zinc-100">
+                                    {order.documents?.map(doc => (
+                                        <div key={doc.id}>
+                                            <a href={doc.file_url} target="_blank" rel="noopener noreferrer">{doc.title}</a>
+                                        </div>
+                                    ))}
                                 </td>
                             </tr>
                         ))}
@@ -151,6 +171,16 @@ const HistoryList: React.FC<HistoryListProps> = ({ session }) => {
                         <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
                             <div className="text-sm font-extrabold text-zinc-500">Price</div>
                             <div className="text-sm text-zinc-900">{order.shippingquotes?.price ? `$${order.shippingquotes.price}` : 'Not priced yet'}</div>
+                        </div>
+                        <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
+                            <div className="text-sm font-extrabold text-zinc-500">Documents</div>
+                            <div className="text-sm text-zinc-900">
+                                {order.documents?.map(doc => (
+                                    <div key={doc.id}>
+                                        <a href={doc.file_url} target="_blank" rel="noopener noreferrer">{doc.title}</a>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 ))}

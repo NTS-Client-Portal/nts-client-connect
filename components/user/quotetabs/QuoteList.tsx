@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Session } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import { ShippingQuote } from '@/lib/schema';
@@ -20,28 +20,9 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
     const supabase = useSupabaseClient<Database>();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedQuoteId, setSelectedQuoteId] = useState<number | null>(null);
-    const [quote, setQuote] = useState<ShippingQuote[]>([]);
-    const [isNtsUser, setIsNtsUser] = useState(false);
+    const [quote, setQuote] = useState<ShippingQuote | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Add state for edit modal
     const [quoteToEdit, setQuoteToEdit] = useState<ShippingQuote | null>(null); // Add state for the quote to edit
-
-    useEffect(() => {
-        const checkNtsUser = async () => {
-            if (session?.user?.id) {
-                const { data, error } = await supabase
-                    .from('nts_users')
-                    .select('id')
-                    .eq('id', session.user.id)
-                    .single();
-
-                if (data) {
-                    setIsNtsUser(true);
-                }
-            }
-        };
-
-        checkNtsUser();
-    }, [session, supabase]);
 
     const handleCreateOrderClick = (quoteId: number) => {
         setSelectedQuoteId(quoteId);
@@ -67,7 +48,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                 console.error('Error creating order:', error.message);
             } else {
                 transferToOrderList(selectedQuoteId, data);
-                setQuote(quotes.filter(quote => quote.id !== selectedQuoteId));
+                setQuote(null);
             }
         }
         setIsModalOpen(false);
@@ -165,6 +146,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleModalSubmit}
+                quote={quote}
             />
             <EditQuoteModal
                 isOpen={isEditModalOpen}
@@ -174,7 +156,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
             />
             <div className="hidden 2xl:block overflow-x-auto">
                 <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
-                    <thead className="bg-ntsLightBlue text-zinc-50 dark:bg-zinc-900 sticky top-0">
+                    <thead className="bg-ntsLightBlue text-zinc-50 dark:bg-zinc-900 static top-0">
                         <tr className='text-zinc-50 font-semibold border-b border-zinc-900 dark:border-zinc-100'>
                             <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">ID</th>
                             <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">Origin/Destination</th>
@@ -221,14 +203,14 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                                     </button>
                                     <button
                                         onClick={() => handleEditClick(quote)}
-                                        className="body-btn"
+                                        className="cancel-btn"
                                     >
                                         Edit
                                     </button>
                                     {quote.price ? (
                                         <button
                                             onClick={() => handleCreateOrderClick(quote.id)}
-                                            className="body-btn"
+                                            className="ml-2 p-1  body-btn text-white rounded"
                                         >
                                             Create Order
                                         </button>
@@ -289,14 +271,14 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                             {quote.price ? (
                                 <button
                                     onClick={() => handleCreateOrderClick(quote.id)}
-                                    className="ml-2 p-1 bg-blue-500 text-white rounded"
+                                    className="ml-2 p-1 body-btn text-white rounded"
                                 >
                                     Create Order
                                 </button>
                             ) : (
                                 <button
                                     onClick={() => handleEditClick(quote)}
-                                    className="body-btn"
+                                    className="upload-btn"
                                 >
                                     Edit
                                 </button>

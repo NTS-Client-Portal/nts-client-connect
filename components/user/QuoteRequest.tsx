@@ -189,7 +189,6 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
                 <QuoteForm
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
-                    freightList={freightList}
                     addQuote={addQuote}
                     errorText={errorText}
                     setErrorText={setErrorText}
