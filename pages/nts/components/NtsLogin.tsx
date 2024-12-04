@@ -46,7 +46,7 @@ const NtsLogin = () => {
                     console.log('Profile data:', profile); // Log the profile data for debugging
                     const role = profile.role;
                     if (role === 'superadmin' || role === 'admin' || role === 'manager' || role === 'sales') {
-                        router.push('/nts/sales/index');
+                        router.push('/nts/sales/');
                     } else {
                         setError('Unauthorized access');
                     }

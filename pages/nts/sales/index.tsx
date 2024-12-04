@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import SalesLayout from './_components/layout/SalesLayout';
-import SalesDashboard from './_components/SalesDashboard';
+import DashboardTabs from '@components/nts/DashboardTabs';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { UserProvider } from '@/context/UserContext';
 import Documents from '@/components/Documents';
@@ -24,7 +24,7 @@ const SalesDashboardPage = () => {
     const renderView = () => {
         switch (currentView) {
             case 'salesdash':
-                return <SalesDashboard session={session} />;
+                return <DashboardTabs />;
             case 'documents':
                 return <Documents session={session}/>;
             case 'equipment-directory':
@@ -32,7 +32,7 @@ const SalesDashboardPage = () => {
             case 'settings':
                 return <Settings />;
             default:
-                return <SalesDashboard session={session} />;
+                return <DashboardTabs/>;
         }
     };
 
