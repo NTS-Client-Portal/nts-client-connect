@@ -7,6 +7,7 @@ import Documents from '@/components/Documents';
 import DimensionSearch from '@/components/DimensionSearch';
 import Settings from '@/components/user/UserSettings';
 import SalesSideNav from './_components/layout/SalesSideNav';
+import Crm from '../components/Crm';
 
 const SalesDashboardPage = () => {
     const session = useSession();
@@ -23,6 +24,8 @@ const SalesDashboardPage = () => {
 
     const renderView = () => {
         switch (currentView) {
+            case 'crm':
+                return <Crm />;
             case 'salesdash':
                 return <DashboardTabs />;
             case 'documents':
@@ -32,7 +35,7 @@ const SalesDashboardPage = () => {
             case 'settings':
                 return <Settings />;
             default:
-                return <DashboardTabs/>;
+                return <Crm />;
         }
     };
 
