@@ -70,7 +70,7 @@ const RecoverPassword: React.FC = () => {
         </form>
         {buttonDisabled && (
           <div className="mt-4 text-center">
-            <p>Didn't receive the email?</p>
+            <p>Didn&apos;t receive the email?</p>
             <button
               onClick={handleResend}
               className="text-blue-500 hover:underline"
