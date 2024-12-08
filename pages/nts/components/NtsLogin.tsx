@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
-import { NtsUsersProvider, useNtsUsers } from '@/context/NtsUsersContext';
+import { NtsUsersProvider } from '@/context/NtsUsersContext';
+import Link from 'next/link';
 
 const NtsLogin = () => {
     const supabase = useSupabaseClient();
@@ -28,8 +29,6 @@ const NtsLogin = () => {
         } else {
             const user = data.user;
             if (user) {
-                console.log('User ID from auth:', user.id); // Log the user ID for debugging
-
                 const { data: profile, error: profileError } = await supabase
                     .from('nts_users')
                     .select('id, role')
@@ -37,14 +36,8 @@ const NtsLogin = () => {
                     .single();
 
                 if (profileError) {
-                    console.error('Error fetching user profile:', profileError); // Log the error for debugging
-                    if (profileError.code === 'PGRST116') {
-                        setError('No profile found for this user');
-                    } else {
-                        setError('Error fetching user profile');
-                    }
+                    setError('Error fetching user profile');
                 } else if (profile) {
-                    console.log('Profile data:', profile); // Log the profile data for debugging
                     const role = profile.role;
                     if (role === 'superadmin' || role === 'admin' || role === 'manager' || role === 'sales') {
                         router.push('/nts/sales/');
@@ -94,6 +87,12 @@ const NtsLogin = () => {
                         {loading ? 'Logging in...' : 'Login'}
                     </button>
                 </form>
+                <div className="mt-4 text-center">
+                    <p>Forgot your password?</p>
+                    <Link href="/recover-password?userType=nts_users" legacyBehavior>
+                        <a className="text-blue-500 hover:underline">Reset Password</a>
+                    </Link>
+                </div>
             </div>
         </div>
     );

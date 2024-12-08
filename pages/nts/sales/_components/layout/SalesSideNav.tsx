@@ -25,7 +25,7 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                 console.error('Error logging out:', error.message);
                 alert('Failed to log out. Please try again.');
             } else {
-                router.push('/'); // Redirect to login page
+                router.push('/nts/login'); // Redirect to login page
             }
         } catch (err) {
             console.error('Unexpected error during logout:', err);

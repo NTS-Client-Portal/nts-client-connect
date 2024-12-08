@@ -149,7 +149,7 @@ const LoginPage = () => {
                 </div>
                 <div className="mt-4 text-center">
                   <p>Forgot your password?</p>
-                  <Link href="/recover-password" legacyBehavior>
+                  <Link href="/recover-password?userType=profiles" legacyBehavior>
                     <a className="text-zinc-900 font-semibold hover:underline">Reset Password</a>
                   </Link>
                 </div>
