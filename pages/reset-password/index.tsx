@@ -82,8 +82,8 @@ const ResetPassword: React.FC = () => {
           </button>
         </form>
         <div className="mt-4 text-center">
-          <Link href="/login" legacyBehavior>
-            <a className="text-blue-500 hover:underline">Back to Login</a>
+          <Link href={userType === 'nts_users' ? '/nts/login' : '/'} className="text-blue-500 hover:underline">
+            Back to Login
           </Link>
         </div>
       </div>
