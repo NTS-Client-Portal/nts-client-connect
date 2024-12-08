@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { NtsUsersProvider, useNtsUsers } from '@/context/NtsUsersContext';
 
 const NtsLogin = () => {
     const supabase = useSupabaseClient();
@@ -98,4 +99,12 @@ const NtsLogin = () => {
     );
 };
 
-export default NtsLogin;
+const NtsLoginPage = () => {
+    return (
+        <NtsUsersProvider>
+            <NtsLogin />
+        </NtsUsersProvider>
+    );
+};
+
+export default NtsLoginPage;

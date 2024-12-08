@@ -1,10 +1,10 @@
 import React from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
-import UserTopNav from '@/pages/components/UserTopNav';
+import FreightInventory from '@/components/FreightInventory';
+import UserLayout from '@/pages/components/UserLayout';
 import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
-import ProfileSetup from '@/pages/components/ProfileSetup';
 
-const ProfileSetupPage: React.FC = () => {
+const InventoryPage: React.FC = () => {
     const session = useSession();
 
     if (!session) {
@@ -13,10 +13,11 @@ const ProfileSetupPage: React.FC = () => {
 
     return (
         <ProfilesUserProvider>
-            <UserTopNav />
-                <ProfileSetup />
+            <UserLayout>
+                <FreightInventory session={session} />
+            </UserLayout>
         </ProfilesUserProvider>
     );
 };
 
-export default ProfileSetupPage; 
+export default InventoryPage;

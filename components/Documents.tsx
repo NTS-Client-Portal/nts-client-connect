@@ -58,7 +58,7 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
 
         checkNtsUser();
         fetchDocuments();
-    }, [session, fetchDocuments]);
+    }, [session, fetchDocuments, supabase]); // Include 'supabase' in the dependency array
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {

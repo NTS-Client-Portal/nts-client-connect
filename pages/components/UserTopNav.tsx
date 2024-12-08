@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/initSupabase';
-import { useUser } from '@/context/UserContext';
+import { useProfilesUser } from '@/context/ProfilesUserContext';
 import Image from 'next/image';
 import NotificationBell from '@/components/NotificationBell';
 import FeedBack from '@/components/ui/FeedBack';
@@ -20,7 +20,7 @@ interface AssignedSalesUser {
 }
 
 const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
-    const { userProfile } = useUser();
+    const { userProfile } = useProfilesUser();
     const session = useSession();
     const [darkMode, setDarkMode] = useState(false);
     const [profilePictureUrl, setProfilePictureUrl] = useState<string>('https://www.gravatar.com/avatar?d=mp&s=100');

@@ -4,11 +4,9 @@ import UserTopNav from './UserTopNav';
 
 interface UserLayoutProps {
     children: ReactNode;
-    currentView: string;
-    setCurrentView: (view: string) => void;
 }
 
-const UserLayout: React.FC<UserLayoutProps> = ({ children, currentView, setCurrentView }) => {
+const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     useEffect(() => {
@@ -40,8 +38,6 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children, currentView, setCurre
             <UserSideNav
                 isSidebarOpen={isSidebarOpen}
                 toggleSidebar={toggleSidebar}
-                currentView={currentView}
-                setCurrentView={setCurrentView}
             />
             <div className="w-full fixed top-0 left-0">
                 <UserTopNav />

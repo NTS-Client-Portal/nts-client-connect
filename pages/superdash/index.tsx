@@ -2,7 +2,7 @@ import React, { useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "@supabase/auth-helpers-react";
 import SuperadminDashboard from "../components/Superdashboard";
-import { UserProvider } from "../../context/UserContext";
+import { NtsUsersProvider } from '@/context/NtsUsersContext';
 
 const SuperadminDash = () => {
     const session = useSession();
@@ -23,9 +23,9 @@ const SuperadminDash = () => {
     }
 
     return (
-        <UserProvider>
+        <NtsUsersProvider>
             <SuperadminDashboard session={session}/>
-        </UserProvider>
+        </NtsUsersProvider>
     );
 };
 
