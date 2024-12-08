@@ -1,10 +1,10 @@
 import React from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
-import SalesLayout from '../_components/layout/SalesLayout';
+import SalesLayout from '@/pages/nts/sales/_components/layout/SalesLayout';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
-import DashboardTabs from '@/components/nts/DashboardTabs';
+import Crm from '../../components/Crm';
 
-const ShipperConnect: React.FC = () => {
+const SalesDashboardPage: React.FC = () => {
     const session = useSession();
 
     if (!session) {
@@ -14,10 +14,10 @@ const ShipperConnect: React.FC = () => {
     return (
         <NtsUsersProvider>
             <SalesLayout>
-                <DashboardTabs />
+                <Crm />
             </SalesLayout>
         </NtsUsersProvider>
     );
 };
 
-export default ShipperConnect;
+export default SalesDashboardPage;
