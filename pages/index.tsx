@@ -75,6 +75,20 @@ const LoginPage = () => {
     checkUserRole();
   }, [session, router, supabase]);
 
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        router.push(`/reset-password?access_token=${session?.access_token}`);
+      } else if (event === 'SIGNED_IN') {
+        router.push('/profile-setup');
+      }
+    });
+
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
+  }, [router, supabase]);
+
   const handleResendConfirmation = async () => {
     setResendLoading(true);
     setResendSuccess(false);
