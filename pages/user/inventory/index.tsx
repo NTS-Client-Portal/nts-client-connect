@@ -1,10 +1,10 @@
 import React from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
+import UserLayout from '../../components/UserLayout';
 import FreightInventory from '@/components/FreightInventory';
-import UserLayout from '@/pages/components/UserLayout';
 import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
 
-const InventoryPage: React.FC = () => {
+const FreightInventoryPage: React.FC = () => {
     const session = useSession();
 
     if (!session) {
@@ -20,4 +20,4 @@ const InventoryPage: React.FC = () => {
     );
 };
 
-export default InventoryPage;
+export default FreightInventoryPage;
