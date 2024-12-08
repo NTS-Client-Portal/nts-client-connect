@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '@/lib/database'; // Adjust the import path as needed
 
-const Recover: React.FC = () => {
+const RecoverPassword: React.FC = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -11,7 +11,9 @@ const Recover: React.FC = () => {
     setMessage('');
     setError('');
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/reset-password`
+    });
 
     if (error) {
       setError('Error sending recovery email: ' + error.message);
@@ -42,4 +44,4 @@ const Recover: React.FC = () => {
   );
 };
 
-export default Recover;
+export default RecoverPassword;

@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import Head from 'next/head';
-import Link from 'next/link';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
-import Layout from './components/Layout';
+import Head from 'next/head';
+import Link from 'next/link';
 import CustomSignInForm from '@/components/CustomSignInForm';
 import { MoveHorizontal } from 'lucide-react';
-import { ProfilesUserProvider, useProfilesUser } from '@/context/ProfilesUserContext';
+import Layout from './components/Layout';
+import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
 import withProfileCheck from '@/components/hoc/withProfileCheck';
-import DashboardTabs from '@/components/nts/DashboardTabs';
 import UserLayout from '@/pages/components/UserLayout';
 import Image from 'next/image';
 
@@ -24,26 +23,6 @@ interface UserProfile {
   address?: string | null;
   phone_number?: string | null;
 }
-
-const HomePageContent = () => {
-  const { userProfile } = useProfilesUser();
-
-  return (
-    <>
-      <Head>
-        <title>NTS Client Portal</title>
-        <meta name="description" content="Welcome to SSTA Reminders & Tasks" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/hc-28.png" />
-      </Head>
-      <div className="w-full flex justify-center items-center p-4">
-        <div className="w-full sm:w-2/3 lg:w-3/4">
-          {userProfile && <DashboardTabs />}
-        </div>
-      </div>
-    </>
-  );
-};
 
 const LoginPage = () => {
   const session = useSession();
@@ -170,7 +149,7 @@ const LoginPage = () => {
                 </div>
                 <div className="mt-4 text-center">
                   <p>Forgot your password?</p>
-                  <Link href="/forgot-password" legacyBehavior>
+                  <Link href="/recover-password" legacyBehavior>
                     <a className="text-zinc-900 font-semibold hover:underline">Reset Password</a>
                   </Link>
                 </div>
@@ -226,7 +205,11 @@ const LoginPage = () => {
   return (
     <ProfilesUserProvider>
       <UserLayout>
-        <HomePageContent />
+        <div className="w-full flex justify-center items-center p-4">
+          <div className="w-full sm:w-2/3 lg:w-3/4">
+            <p>Redirecting to user dashboard...</p>
+          </div>
+        </div>
       </UserLayout>
     </ProfilesUserProvider>
   );
