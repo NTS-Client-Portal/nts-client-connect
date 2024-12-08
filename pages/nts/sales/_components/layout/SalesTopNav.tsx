@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/initSupabase';
-import { useUser } from '@/context/UserContext';
+import { useNtsUsers } from '@/context/NtsUsersContext';
 import Image from 'next/image';
 import NotificationBell from '@/components/NotificationBell';
-import { useSession, Session } from '@supabase/auth-helpers-react';
+import { Session } from '@supabase/auth-helpers-react';
 import FeedBack from '@/components/ui/FeedBack';
 import DarkModeToggle from '@/components/ui/DarkModeToggle';
 
@@ -13,7 +13,7 @@ interface SalesTopNavProps {
 }
 
 const SalesTopNav: React.FC<SalesTopNavProps> = ({ session, className = '' }) => {
-    const { userProfile } = useUser();
+    const { userProfile } = useNtsUsers();
     const [darkMode, setDarkMode] = useState(false);
     const [profilePictureUrl, setProfilePictureUrl] = useState<string>('https://www.gravatar.com/avatar?d=mp&s=100');
 
@@ -63,12 +63,10 @@ const SalesTopNav: React.FC<SalesTopNavProps> = ({ session, className = '' }) =>
     return (
         <>
             <nav className={`md:hidden w-full  max-h-max bg-stone-50 dark:bg-zinc-700 flex flex-col md:flex-row gap-1 justify-end px-4 z-50 py-1 drop-shadow ${className}`}>
-
                 <ul className='flex gap-2 md:gap-4 items-center z-50 justify-end mr-4'>
                     <li>
                         <NotificationBell session={session} />
                     </li>
-
                     <li>
                         <DarkModeToggle />
                     </li>
@@ -88,7 +86,6 @@ const SalesTopNav: React.FC<SalesTopNavProps> = ({ session, className = '' }) =>
             </nav>
 
             <nav className={`hidden w-full bg-stone-50 dark:bg-zinc-900 md:flex flex-col md:flex-row gap-1 justify-between px-4 z-50 py-2 drop-shadow ${className}`}>
-
                 <ul className='w-full flex gap-2 md:gap-4 items-center z-50 justify-start pl-64'>
                     <li>
                         <FeedBack />
@@ -98,8 +95,6 @@ const SalesTopNav: React.FC<SalesTopNavProps> = ({ session, className = '' }) =>
                     </li>
                 </ul>
                 <ul className='w-full flex gap-2 md:gap-4 items-center z-50 justify-end mr-12'>
-
-
                     <li>
                         <NotificationBell session={session} />
                     </li>

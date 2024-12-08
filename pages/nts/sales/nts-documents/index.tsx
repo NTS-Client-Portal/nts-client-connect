@@ -1,10 +1,10 @@
 import React from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
-import SalesLayout from '@/pages/nts/sales/_components/layout/SalesLayout';
+import SalesLayout from '../_components/layout/SalesLayout';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
-import Crm from '../components/Crm';
+import Documents from '@/components/Documents';
 
-const SalesDashboardPage: React.FC = () => {
+const DocumentsPage: React.FC = () => {
     const session = useSession();
 
     if (!session) {
@@ -14,10 +14,10 @@ const SalesDashboardPage: React.FC = () => {
     return (
         <NtsUsersProvider>
             <SalesLayout>
-                <Crm />
+                <Documents session={session} />
             </SalesLayout>
         </NtsUsersProvider>
     );
 };
 
-export default SalesDashboardPage;
+export default DocumentsPage;

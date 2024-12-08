@@ -1,17 +1,15 @@
 import React, { ReactNode, useState, useEffect } from 'react';
+import SalesSideNav from './SalesSideNav';
+import SalesTopNav from './SalesTopNav';
 import { useSession } from '@supabase/auth-helpers-react';
-import SalesSideNav from './SalesSideNav'; // Adjust the import path if necessary
-import SalesTopNav from './SalesTopNav'; // Adjust the import path if necessary
 
 interface SalesLayoutProps {
     children: ReactNode;
-    currentView: string;
-    setCurrentView: (view: string) => void;
 }
 
-const SalesLayout: React.FC<SalesLayoutProps> = ({ children, currentView, setCurrentView }) => {
-    const session = useSession();
+const SalesLayout: React.FC<SalesLayoutProps> = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const session = useSession();
 
     useEffect(() => {
         // Check if the screen size is large enough to display the sidebar by default
@@ -42,13 +40,11 @@ const SalesLayout: React.FC<SalesLayoutProps> = ({ children, currentView, setCur
             <SalesSideNav
                 isSidebarOpen={isSidebarOpen}
                 toggleSidebar={toggleSidebar}
-                currentView={currentView}
-                setCurrentView={setCurrentView}
             />
             <div className="w-full fixed top-0 left-0">
                 <SalesTopNav session={session} />
             </div>
-            <main className="ml-0 xl:ml-52 md:p-4 mt-12 z-0 md:mt-12 relative">
+            <main className="ml-0 mt-32 md:mt-20 xl:ml-52 p-4 z-0 relative">
                 {children}
             </main>
         </div>

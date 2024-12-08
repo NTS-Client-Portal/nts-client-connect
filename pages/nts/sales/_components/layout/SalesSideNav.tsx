@@ -1,22 +1,21 @@
 import React from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
-import { useUser } from '@/context/UserContext';
+import { useNtsUsers } from '@/context/NtsUsersContext';
 import Image from 'next/image';
-import { PanelLeftOpen, PanelRightClose, Workflow, Folders, NotebookTabs, Settings, MoveHorizontal, ChartArea, Signature, Hammer } from 'lucide-react';
+import { PanelLeftOpen, PanelRightClose, Workflow, Folders, NotebookTabs, Settings, MoveHorizontal, ChartArea } from 'lucide-react';
 
 interface SalesSideNavProps {
     isSidebarOpen: boolean;
     toggleSidebar: () => void;
     className?: string;
-    currentView: string;
-    setCurrentView: (view: string) => void;
 }
 
-const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSidebar, className = '', currentView, setCurrentView }) => {
+const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSidebar, className = '' }) => {
     const supabase = useSupabaseClient<Database>();
-    const { userProfile } = useUser();
+    const { userProfile } = useNtsUsers();
     const router = useRouter();
 
     const handleLogout = async () => {
@@ -56,32 +55,42 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                         <h3>Welcome {userProfile?.first_name || 'User'}</h3>
                     </div>
                     <ul className='flex gap-3 flex-col flex-grow space-y-1 overflow-y-hidden'>
-                        <li className={`w-full flex justify-normal m-0 ${currentView === 'crm' ? "active" : ""}`}>
-                            <button onClick={() => setCurrentView('crm')} className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${currentView === 'crm' ? "active" : ""}`}>
-                                <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><ChartArea size={'20px'} /> <span className='text-xs md:text-sm'>Shipper&apos;s</span></span>
-                            </button>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/nts/sales/crm' ? "active" : ""}`}>
+                            <Link href="/nts/sales/crm" legacyBehavior>
+                                <a className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales/crm' ? "active" : ""}`}>
+                                    <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><ChartArea size={'20px'} /> <span className='text-xs md:text-sm'>Shipper&apos;s</span></span>
+                                </a>
+                            </Link>
                         </li>
-                        <li className={`w-full flex justify-normal m-0 ${currentView === 'salesdash' ? "active" : ""}`}>
-                            <button onClick={() => setCurrentView('salesdash')} className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${currentView === 'salesdash' ? "active" : ""}`}>
-                                <span className='flex items-center flex-nowrap justify-normal gap-2'><Workflow size={'20px'} /> <span className='text-xs md:text-sm'>Future Shipper&apos;s Static Page</span></span>
-                            </button>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/nts/sales/salesdash' ? "active" : ""}`}>
+                            <Link href="/nts/sales/salesdash" legacyBehavior>
+                                <a className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales/salesdash' ? "active" : ""}`}>
+                                    <span className='flex items-center flex-nowrap justify-normal gap-2'><Workflow size={'20px'} /> <span className='text-xs md:text-sm'>Future Shipper&apos;s Static Page</span></span>
+                                </a>
+                            </Link>
                         </li>
-                        <li className={`w-full flex justify-normal m-0 ${currentView === 'documents' ? "active" : ""}`}>
-                            <button onClick={() => setCurrentView('documents')} className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${currentView === 'documents' ? "active" : ""}`}>
-                                <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><Folders size={'20px'} /> <span className='text-xs md:text-sm'>Documents/Photos</span></span>
-                            </button>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/nts/sales/documents' ? "active" : ""}`}>
+                            <Link href="/nts/sales/documents" legacyBehavior>
+                                <a className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales/documents' ? "active" : ""}`}>
+                                    <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><Folders size={'20px'} /> <span className='text-xs md:text-sm'>Documents/Photos</span></span>
+                                </a>
+                            </Link>
                         </li>
-                        <li className={`w-full flex justify-normal m-0 ${currentView === 'equipment-directory' ? "active" : ""}`}>
-                            <button onClick={() => setCurrentView('equipment-directory')} className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${currentView === 'equipment-directory' ? "active" : ""}`}>
-                                <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><NotebookTabs size={'20px'} /> <span className='text-xs md:text-sm'>Equipment Directory </span></span>
-                            </button>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/nts/sales/equipment-directory' ? "active" : ""}`}>
+                            <Link href="/nts/sales/equipment-directory" legacyBehavior>
+                                <a className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales/equipment-directory' ? "active" : ""}`}>
+                                    <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><NotebookTabs size={'20px'} /> <span className='text-xs md:text-sm'>Equipment Directory </span></span>
+                                </a>
+                            </Link>
                         </li>
                     </ul>
                     <ul className='flex flex-col gap-4 justify-end items-center'>
-                        <li className={`w-full text-nowrap flex justify-normal m-0 ${currentView === 'settings' ? "active" : ""}`}>
-                            <button onClick={() => setCurrentView('settings')} className={`logout mt-4 md:mt-0 dark:bg-zinc-300 dark:text-zinc-700 flex items-center justify-center gap-2 font-semibold py-1 w-full ${currentView === 'settings' ? "active" : ""}`}>
-                                <Settings />   Settings
-                            </button>
+                        <li className={`w-full text-nowrap flex justify-normal m-0 ${router.pathname === '/nts/sales/settings' ? "active" : ""}`}>
+                            <Link href="/nts/sales/settings" legacyBehavior>
+                                <a className={`logout mt-4 md:mt-0 dark:bg-zinc-300 dark:text-zinc-700 flex items-center justify-center gap-2 font-semibold py-1 w-full ${router.pathname === '/nts/sales/settings' ? "active" : ""}`}>
+                                    <Settings />   Settings
+                                </a>
+                            </Link>
                         </li>
                         <li className="w-full flex items-center justify-center m-0">
                             <button className="logout dark:bg-zinc-300 dark:text-zinc-700 font-semibold py-1 w-full" onClick={handleLogout}>
