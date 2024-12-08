@@ -63,39 +63,39 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                         <h3 className='font-semibold'>Welcome {userProfile?.first_name || 'User'}</h3>
                     </span>
                     <ul className='flex flex-col flex-grow overflow-y-auto'>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/freight-rfq' || router.pathname === '/' ? "active" : ""}`}>
-                            <Link href="/freight-rfq" legacyBehavior>
-                                <a className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/freight-rfq' || router.pathname === '/' ? "active" : ""}`}>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user' || router.pathname === '/' ? "active" : ""}`}>
+                            <Link href="/user" legacyBehavior>
+                                <a className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user' || router.pathname === '/' ? "active" : ""}`}>
                                     <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><Workflow size={'20px'} /> <span className='text-xs md:text-sm '>Logistics RFQ </span></span>
                                 </a>
                             </Link>
                         </li>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/inventory' ? "active" : ""}`}>
-                            <Link href="/inventory" legacyBehavior>
-                                <a className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/inventory' ? "active" : ""}`}>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/inventory' ? "active" : ""}`}>
+                            <Link href="/user/inventory" legacyBehavior>
+                                <a className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/inventory' ? "active" : ""}`}>
                                     <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><NotebookTabs size={'20px'} /> <span className='text-xs md:text-sm'>Inventory </span></span>
                                 </a>
                             </Link>
                         </li>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/documents' ? "active" : ""}`}>
-                            <Link href="/documents" legacyBehavior>
-                                <a className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/documents' ? "active" : ""}`}>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/documents' ? "active" : ""}`}>
+                            <Link href="/user/documents" legacyBehavior>
+                                <a className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/documents' ? "active" : ""}`}>
                                     <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><Folders size={'20px'} /> <span className='text-xs md:text-sm '>Documents/Pictures</span></span>
                                 </a>
                             </Link>
                         </li>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/equipment-directory' ? "active" : ""}`}>
-                            <Link href="/equipment-directory" legacyBehavior>
-                                <a className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/equipment-directory' ? "active" : ""}`}>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/equipment-directory' ? "active" : ""}`}>
+                            <Link href="/user/equipment-directory" legacyBehavior>
+                                <a className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/equipment-directory' ? "active" : ""}`}>
                                     <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><NotebookTabs size={'20px'} /> <span className='text-xs md:text-sm'>Equipment Directory </span></span>
                                 </a>
                             </Link>
                         </li>
                     </ul>
                     <ul className='flex flex-col gap-4 justify-end items-center'>
-                        <li className={`w-full text-nowrap flex justify-normal m-0 ${router.pathname === '/settings' ? "active" : ""}`}>
-                            <Link href="/settings" legacyBehavior>
-                                <a className={`logout mt-4 md:mt-0 dark:bg-zinc-300 dark:text-zinc-700 flex items-center justify-center gap-2 font-semibold py-1 w-full ${router.pathname === '/settings' ? "active" : ""}`}>
+                        <li className={`w-full text-nowrap flex justify-normal m-0 ${router.pathname === '/user/settings' ? "active" : ""}`}>
+                            <Link href="/user/settings" legacyBehavior>
+                                <a className={`logout mt-4 md:mt-0 dark:bg-zinc-300 dark:text-zinc-700 flex items-center justify-center gap-2 font-semibold py-1 w-full ${router.pathname === '/user/settings' ? "active" : ""}`}>
                                     <Settings />   Settings
                                 </a>
                             </Link>
