@@ -54,4 +54,4 @@ const UserProfilePage: React.FC = () => {
 };
 
 // Compose the HOCs
-export default withProfileCheck(withManagerRole(UserProfilePage));
+export default UserProfilePage;

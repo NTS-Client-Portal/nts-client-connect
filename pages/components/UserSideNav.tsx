@@ -95,9 +95,9 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                     <ul className='flex flex-col gap-4 justify-end items-center'>
                         <li className={`w-full text-nowrap flex justify-normal m-0 ${router.pathname === '/user/settings' ? "active" : ""}`}>
                             <Link href="/user/settings" legacyBehavior>
-                                <a className={`logout mt-4 md:mt-0 dark:bg-zinc-300 dark:text-zinc-700 flex items-center justify-center gap-2 font-semibold py-1 w-full ${router.pathname === '/user/settings' ? "active" : ""}`}>
+                                <span className={`logout mt-4 md:mt-0 dark:bg-zinc-300 dark:text-zinc-700 flex items-center justify-center gap-2 font-semibold py-1 w-full ${router.pathname === '/user/settings' ? "active" : ""}`}>
                                     <Settings />   Settings
-                                </a>
+                                </span>
                             </Link>
                         </li>
                         <li className="w-full flex items-center justify-center m-0">

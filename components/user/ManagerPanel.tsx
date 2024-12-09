@@ -1,8 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { Database } from '@/lib/database.types';
 
-const ManagerPanel = ({ profile }) => {
-  const supabase = useSupabaseClient();
+interface ManagerPanelProps {
+  profile: {
+    id: string;
+    team_role: string;
+  };
+}
+
+const ManagerPanel: React.FC<ManagerPanelProps> = ({ profile }) => {
+  const supabase = useSupabaseClient<Database>();
   const [teamRole, setTeamRole] = useState(profile.team_role || 'member');
   const [users, setUsers] = useState([]);
   const [newUserEmail, setNewUserEmail] = useState('');
@@ -37,7 +45,7 @@ const ManagerPanel = ({ profile }) => {
     }
   };
 
-  const handleDeleteUser = async (userId) => {
+  const handleDeleteUser = async (userId: string) => {
     const { error } = await supabase
       .from('profiles')
       .delete()
@@ -50,7 +58,7 @@ const ManagerPanel = ({ profile }) => {
     }
   };
 
-  const handleGrantPermissions = async (userId, role) => {
+  const handleGrantPermissions = async (userId: string, role: string) => {
     const { error } = await supabase
       .from('profiles')
       .update({ team_role: role })

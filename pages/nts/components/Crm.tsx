@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useNtsUsers } from '@/context/NtsUsersContext';
 
 interface Profile {
   address: string | null;
@@ -29,23 +30,31 @@ interface Company {
 }
 
 const Crm: React.FC = () => {
+  const supabase = useSupabaseClient();
+  const { userProfile } = useNtsUsers();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const companiesResponse = await axios.get('/api/companies');
-        const profilesResponse = await axios.get('/api/profiles');
-        setCompanies(companiesResponse.data);
-        setProfiles(profilesResponse.data);
-      } catch (error) {
-        console.error('Error fetching data', error);
+    const fetchAssignedCustomers = async () => {
+      if (userProfile?.id) {
+        const { data, error } = await supabase
+          .from('company_sales_users')
+          .select('company_id, profiles(*)')
+          .eq('sales_user_id', userProfile.id);
+
+        if (error) {
+          console.error('Error fetching assigned customers:', error.message);
+        } else if (data) {
+          const assignedCompanies = data.map((item: any) => item.profiles.company_id);
+          setCompanies(assignedCompanies);
+          setProfiles(data.map((item: any) => item.profiles));
+        }
       }
     };
 
-    fetchData();
-  }, []);
+    fetchAssignedCustomers();
+  }, [userProfile, supabase]);
 
   const getProfilesForCompany = (companyId: string) => {
     return profiles.filter(profile => profile.company_id === companyId);
@@ -53,7 +62,7 @@ const Crm: React.FC = () => {
 
   return (
     <div>
-      <h1>Companies and Profiles</h1>
+      <h1>Assigned Customers</h1>
       <table>
         <thead>
           <tr>

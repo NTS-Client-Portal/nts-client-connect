@@ -117,7 +117,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                                 <span className="text-sm">Assigned Representative:</span>
                                 {assignedSalesUsers.map((user, index) => (
                                     <div key={index} className="font-bold text-xs">
-                                        {user.first_name} {user.last_name} - {user.phone_number}
+                                        {user.first_name} {user.last_name} - {user.phone_number} - {user.email}
                                     </div>
                                 ))}
                             </div>
@@ -141,7 +141,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                                 <span className="text-sm">Assigned Sales User:</span>
                                 {assignedSalesUsers.map((user, index) => (
                                     <div key={index} className="font-bold">
-                                        {user.first_name} {user.last_name} - ({user.phone_number})
+                                        {user.first_name} {user.last_name} - ({user.phone_number}) - {user.email}
                                     </div>
                                 ))}
                             </div>
