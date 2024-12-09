@@ -38,7 +38,7 @@ const HomePageContent = () => {
             </Head>
             <div className="w-full flex justify-center items-center p-4">
                 <div className="w-full sm:w-2/3 lg:w-3/4">
-                    {userProfile && <DashboardTabs />}
+                    {userProfile && <DashboardTabs companyId={userProfile.company_name || ''} />}
                 </div>
             </div>
         </>
