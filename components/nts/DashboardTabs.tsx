@@ -6,7 +6,11 @@ import NtsOrderList from './NtsOrderList';
 import DeliveredTab from './DeliveredTab';
 import ArchivedTab from './ArchivedTab';
 
-const DashboardTabs = () => {
+interface DashboardTabsProps {
+    companyId: string;
+}
+
+const DashboardTabs: React.FC<DashboardTabsProps> = ({ companyId }) => {
     const session = useSession();
     const supabase = useSupabaseClient<Database>();
     const [quotes, setQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);

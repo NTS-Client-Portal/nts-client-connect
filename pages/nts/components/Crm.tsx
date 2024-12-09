@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useNtsUsers } from '@/context/NtsUsersContext';
 import { Database } from '@/lib/database.types';
@@ -84,7 +85,7 @@ const Crm: React.FC = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Assigned Customers</h1>
-      <div className="overflow-x-auto ">
+      <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-300">
           <thead>
             <tr className='divide-x-2'>
@@ -96,7 +97,11 @@ const Crm: React.FC = () => {
           <tbody>
             {companies.map(company => (
               <tr key={company.id} className="hover:bg-gray-100 divide-x-2">
-                <td className="px-4 py-2 border-b">{company.company_name}</td>
+                <td className="px-4 py-2 border-b">
+                  <Link href={`/companies/${company.id}`} legacyBehavior>
+                    <a className="text-blue-500 hover:underline">{company.company_name}</a>
+                  </Link>
+                </td>
                 <td className="px-4 py-2 border-b">{company.company_size}</td>
                 <td className="px-4 py-2 border-b">
                   <ul className="list-disc list-inside">
