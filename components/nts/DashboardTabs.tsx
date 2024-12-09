@@ -5,6 +5,7 @@ import NtsQuoteList from '@/components/nts/NtsQuoteList';
 import NtsOrderList from './NtsOrderList';
 import DeliveredTab from './DeliveredTab';
 import ArchivedTab from './ArchivedTab';
+import { MoveHorizontal } from 'lucide-react';
 
 interface DashboardTabsProps {
     companyId: string;
@@ -158,7 +159,7 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({ companyId }) => {
         <div className="w-full h-full overflow-auto">
             <div className="w-full">
                 <div className='flex flex-col justify-center items-center gap-2 mb-4'>
-                    <h1 className="xs:text-md mb-2 text-xl md:text-2xl font-medium text-center underline underline-offset-8">Assigned Quotes</h1>
+                    <span className='flex mt-5 lg:mt-2 2xl:mt-0 items-center justify-center font-bold  flex-nowrap'> <h2 className='text-lg md:mt-0  self-center font-extrabold tracking-tighter text-white flex gap-0.5'>SHIPPER<MoveHorizontal className='size-6 text-orange-500' />CONNECT</h2></span>
                 </div>
             </div>
             {isMobile ? (
