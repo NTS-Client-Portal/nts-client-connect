@@ -49,23 +49,23 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                         {isSidebarOpen ? <PanelRightClose size={24} className='text-white z-50 drop-shadow-lg' /> : <PanelLeftOpen size={28} className='z-50 text-zinc-900 dark:text-zinc-100 drop-shadow-lg ' />}
                     </button>
                 </div>
-                <nav className={`side-navbar pr-2 z-50 flex flex-col h-screen py-6 drop-shadow absolute top-0 left-0 transform ${isSidebarOpen ? 'translate-x-0 z-50' : '-translate-x-full'} transition-transform duration-300 h-screen ease-in-out z-50 ${className}`}>
+                <nav className={`side-navbar z-50 flex flex-col h-screen py-6 drop-shadow absolute top-0 left-0 transform ${isSidebarOpen ? 'translate-x-0 z-50' : '-translate-x-full'} transition-transform duration-300 h-screen ease-in-out z-50 ${className}`}>
                     <span className='flex mt-5 lg:mt-2 2xl:mt-0 mb-3 items-center justify-center font-bold  flex-nowrap'> <h1 className='text-lg md:mt-0  self-center font-extrabold tracking-tighter flex gap-0.5'>SHIPPER<MoveHorizontal className='size-6 text-orange-500' />CONNECT</h1></span>
                     <div className="w-full flex flex-col items-center gap-1 justify-center mb-6 border-b border-stone-100/40 pb-4">
                         <h3>Welcome {userProfile?.first_name || 'User'}</h3>
                     </div>
                     <ul className='flex gap-3 flex-col flex-grow space-y-1 overflow-y-hidden'>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/nts/sales' ? "active" : ""}`}>
-                            <Link href="/nts/sales" legacyBehavior>
-                                <a className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales' ? "active" : ""}`}>
-                                    <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><ChartArea size={'20px'} /> <span className='text-xs md:text-sm'>Shipper Connect</span></span>
-                                </a>
-                            </Link>
-                        </li>
                         <li className={`w-full flex justify-normal m-0 ${router.pathname === '/nts/sales/shipper-management' ? "active" : ""}`}>
                             <Link href="/nts/sales/shipper-management" legacyBehavior>
                                 <a className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales/shipper-management' ? "active" : ""}`}>
                                     <span className='flex items-center flex-nowrap justify-normal gap-2'><Workflow size={'20px'} /> <span className='text-xs md:text-sm'>Shipper Management</span></span>
+                                </a>
+                            </Link>
+                        </li>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/nts/sales' ? "active" : ""}`}>
+                            <Link href="/nts/sales" legacyBehavior>
+                                <a className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales' ? "active" : ""}`}>
+                                    <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><ChartArea size={'20px'} /> <span className='text-xs md:text-sm'>Shipper Connect</span></span>
                                 </a>
                             </Link>
                         </li>

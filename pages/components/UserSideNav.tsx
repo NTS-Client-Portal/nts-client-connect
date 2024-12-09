@@ -60,7 +60,7 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                         />
                     </div>
                     <span className="w-full flex flex-col items-center gap-1 justify-center mb-6 border-b border-stone-100/40 pb-4">
-                        <h3 className='font-semibold'>Welcome {userProfile?.first_name || 'User'}</h3>
+                        <h3 className='font-normal'>Welcome {userProfile?.first_name || 'User'}</h3>
                     </span>
                     <ul className='flex flex-col flex-grow overflow-y-auto'>
                         <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user' || router.pathname === '/' ? "active" : ""}`}>

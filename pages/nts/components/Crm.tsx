@@ -82,34 +82,36 @@ const Crm: React.FC = () => {
   };
 
   return (
-    <div>
-      <h1>Assigned Customers</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Company Name</th>
-            <th>Company Size</th>
-            <th>Profiles</th>
-          </tr>
-        </thead>
-        <tbody>
-          {companies.map(company => (
-            <tr key={company.id}>
-              <td>{company.company_name}</td>
-              <td>{company.company_size}</td>
-              <td>
-                <ul>
-                  {getProfilesForCompany(company.id).map(profile => (
-                    <li key={profile.id}>
-                      {profile.first_name} {profile.last_name} - {profile.email}
-                    </li>
-                  ))}
-                </ul>
-              </td>
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Assigned Customers</h1>
+      <div className="overflow-x-auto ">
+        <table className="min-w-full bg-white border border-gray-300">
+          <thead>
+            <tr className='divide-x-2'>
+              <th className="text-start px-4 py-2 border-b">Company Name</th>
+              <th className="text-start px-4 py-2 border-b">Company Size</th>
+              <th className="text-start px-4 py-2 border-b">Company Users</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {companies.map(company => (
+              <tr key={company.id} className="hover:bg-gray-100 divide-x-2">
+                <td className="px-4 py-2 border-b">{company.company_name}</td>
+                <td className="px-4 py-2 border-b">{company.company_size}</td>
+                <td className="px-4 py-2 border-b">
+                  <ul className="list-disc list-inside">
+                    {getProfilesForCompany(company.id).map(profile => (
+                      <li key={profile.id}>
+                        {profile.first_name} {profile.last_name} - {profile.email}
+                      </li>
+                    ))}
+                  </ul>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

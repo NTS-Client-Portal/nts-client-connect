@@ -99,7 +99,7 @@ body,
 }
 
 .side-nav-btn {
-  @apply text-gray-400 font-normal w-full box-border;
+  @apply text-gray-400 font-normal w-full box-border pl-2;
   border: none;
   cursor: pointer;
   transition: background-color 0.3s;
@@ -112,7 +112,7 @@ body,
 
 .side-nav-btn.active {
   @apply text-white font-semibold;
-  border-bottom: 2px solid #f5f4f3;
+  border-bottom: 2px solid #f97316;
   width: 100%;
 }
 
