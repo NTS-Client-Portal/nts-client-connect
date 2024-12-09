@@ -19,9 +19,12 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({ companyId }) => {
     const [errorText, setErrorText] = useState<string>('');
     const [activeTab, setActiveTab] = useState('requests');
     const [isMobile, setIsMobile] = useState<boolean>(false);
+    const [companyName, setCompanyName] = useState<string>('');
 
     const fetchQuotes = useCallback(async () => {
         if (!session?.user?.id) return;
+
+        
 
         // Fetch the companies assigned to the sales user
         const { data: companies, error: companiesError } = await supabase
@@ -34,6 +37,8 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({ companyId }) => {
             setErrorText('Error fetching companies');
             return;
         }
+
+        
 
         if (companies && companies.length > 0) {
             const companyIds = companies.map(company => company.company_id);
@@ -57,6 +62,24 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({ companyId }) => {
             setQuotes([]);
         }
     }, [session, supabase]);
+
+    useEffect(() => {
+    const fetchCompanyName = async () => {
+        const { data: company, error } = await supabase
+            .from('companies')
+            .select('company_name')
+            .eq('id', companyId)
+            .single();
+
+        if (error) {
+            console.error('Error fetching company name:', error.message);
+        } else {
+            setCompanyName(company.company_name);
+        }
+    };
+
+    fetchCompanyName();
+}, [companyId, supabase]);
 
     const fetchOrders = useCallback(async () => {
         if (!session?.user?.id) return;
@@ -158,8 +181,9 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({ companyId }) => {
     return (
         <div className="w-full h-full overflow-auto">
             <div className="w-full">
-                <div className='flex flex-col justify-center items-center gap-2 mb-4'>
-                    <span className='flex mt-5 lg:mt-2 2xl:mt-0 items-center justify-center font-bold  flex-nowrap'> <h2 className='text-lg md:mt-0  self-center font-extrabold tracking-tighter text-white flex gap-0.5'>SHIPPER<MoveHorizontal className='size-6 text-orange-500' />CONNECT</h2></span>
+                <div className='flex flex-col justify-start items-center gap-2 mb-4'>
+                    <span className='flex mt-5 lg:mt-2 2xl:mt-0 items-center justify-center font-bold  flex-nowrap'> <h2 className='text-lg md:mt-0  self-center font-extrabold tracking-tighter text-zinc-900 flex gap-0.5'>SHIPPER<MoveHorizontal className='size-6 text-orange-500' />CONNECT</h2></span>
+                    
                 </div>
             </div>
             {isMobile ? (

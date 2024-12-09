@@ -23,7 +23,7 @@ const CompanyPage: React.FC<CompanyPageProps> = ({ company }) => {
         <NtsUsersProvider>
             <SalesLayout>
                 <div>
-                    <h1>{company.company_name}</h1>
+                    <h1 className='font-bold text-lg'>{company.company_name}</h1>
                     <DashboardTabs companyId={company.id} />
                 </div>
             </SalesLayout>
