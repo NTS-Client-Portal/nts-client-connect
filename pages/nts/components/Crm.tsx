@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useNtsUsers } from '@/context/NtsUsersContext';
+import { Database } from '@/lib/database.types';
 
 interface Profile {
   address: string | null;
@@ -30,7 +31,7 @@ interface Company {
 }
 
 const Crm: React.FC = () => {
-  const supabase = useSupabaseClient();
+  const supabase = useSupabaseClient<Database>();
   const { userProfile } = useNtsUsers();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -38,17 +39,37 @@ const Crm: React.FC = () => {
   useEffect(() => {
     const fetchAssignedCustomers = async () => {
       if (userProfile?.id) {
-        const { data, error } = await supabase
+        // Fetch company IDs assigned to the current nts_user
+        const { data: companyIdsData, error: companyIdsError } = await supabase
           .from('company_sales_users')
-          .select('company_id, profiles(*)')
+          .select('company_id')
           .eq('sales_user_id', userProfile.id);
 
-        if (error) {
-          console.error('Error fetching assigned customers:', error.message);
-        } else if (data) {
-          const assignedCompanies = data.map((item: any) => item.profiles.company_id);
-          setCompanies(assignedCompanies);
-          setProfiles(data.map((item: any) => item.profiles));
+        if (companyIdsError) {
+          console.error('Error fetching company IDs:', companyIdsError.message);
+          return;
+        }
+
+        const companyIds = companyIdsData.map((item: any) => item.company_id);
+
+        if (companyIds.length === 0) {
+          setCompanies([]);
+          setProfiles([]);
+          return;
+        }
+
+        // Fetch companies and their related profiles
+        const { data: companiesData, error: companiesError } = await supabase
+          .from('companies')
+          .select('*, profiles(*)')
+          .in('id', companyIds);
+
+        if (companiesError) {
+          console.error('Error fetching assigned companies:', companiesError.message);
+        } else if (companiesData) {
+          setCompanies(companiesData);
+          const allProfiles = companiesData.flatMap((company: any) => company.profiles);
+          setProfiles(allProfiles);
         }
       }
     };
@@ -74,7 +95,7 @@ const Crm: React.FC = () => {
         <tbody>
           {companies.map(company => (
             <tr key={company.id}>
-              <td>{company.name}</td>
+              <td>{company.company_name}</td>
               <td>{company.company_size}</td>
               <td>
                 <ul>
