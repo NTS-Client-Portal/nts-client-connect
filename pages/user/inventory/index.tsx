@@ -3,6 +3,7 @@ import { useSession } from '@supabase/auth-helpers-react';
 import UserLayout from '../../components/UserLayout';
 import FreightInventory from '@/components/FreightInventory';
 import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
+import withProfileCheck from '@/components/hoc/withProfileCheck';
 
 const FreightInventoryPage: React.FC = () => {
     const session = useSession();
@@ -20,4 +21,4 @@ const FreightInventoryPage: React.FC = () => {
     );
 };
 
-export default FreightInventoryPage;
+export default withProfileCheck(FreightInventoryPage);
