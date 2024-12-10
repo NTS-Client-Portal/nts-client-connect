@@ -1,46 +1,19 @@
 import React, { useState } from 'react';
+import { Session } from '@supabase/auth-helpers-react';
 import SelectOption from './SelectOption';
 
-const QuoteForm: React.FC<{ isOpen: boolean; onClose: () => void; addQuote: (quote: any) => void; errorText: string; setErrorText: (value: string) => void; }> = ({ isOpen, onClose, addQuote, errorText, setErrorText }) => {
+interface QuoteFormProps {
+    isOpen: boolean;
+    onClose: () => void;
+    addQuote: (quote: any) => void;
+    errorText: string;
+    setErrorText: (value: string) => void;
+    session: Session;
+}
+
+const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorText, setErrorText, session }) => {
     const [selectedOption, setSelectedOption] = useState('');
-    const [year, setYear] = useState('');
-    const [make, setMake] = useState('');
-    const [model, setModel] = useState('');
-    const [palletCount, setPalletCount] = useState('');
-    const [commodity, setCommodity] = useState('');
     const [saveToInventory, setSaveToInventory] = useState(false);
-
-    // Container form state
-    const [containerLength, setContainerLength] = useState<number | null>(null);
-    const [containerType, setContainerType] = useState<string | null>(null);
-    const [contentsDescription, setContentsDescription] = useState<string | null>(null);
-
-    // RV Trailer form state
-    const [classType, setClassType] = useState<string | null>(null);
-    const [motorizedOrTrailer, setMotorizedOrTrailer] = useState<string | null>(null);
-    const [roadworthy, setRoadworthy] = useState<boolean | null>(null);
-    const [vin, setVin] = useState<string | null>(null);
-    const [yearRv, setYearRv] = useState<number | null>(null);
-
-    // Semi Truck form state
-    const [driveawayOrTowaway, setDriveawayOrTowaway] = useState<boolean | null>(null);
-    const [height, setHeight] = useState<string | null>(null);
-    const [length, setLength] = useState<string | null>(null);
-    const [vinSemi, setVinSemi] = useState<string | null>(null);
-    const [weight, setWeight] = useState<string | null>(null);
-    const [width, setWidth] = useState<string | null>(null);
-    const [yearSemi, setYearSemi] = useState<number | null>(null);
-
-    // Boat form state
-    const [beam, setBeam] = useState('');
-    const [cradle, setCradle] = useState(false);
-    const [heightBoat, setHeightBoat] = useState('');
-    const [lengthBoat, setLengthBoat] = useState('');
-    const [trailer, setTrailer] = useState(false);
-    const [type, setType] = useState('');
-    const [weightBoat, setWeightBoat] = useState('');
-
-    // Additional fields
     const [originZip, setOriginZip] = useState('');
     const [originCity, setOriginCity] = useState('');
     const [originState, setOriginState] = useState('');
@@ -49,8 +22,42 @@ const QuoteForm: React.FC<{ isOpen: boolean; onClose: () => void; addQuote: (quo
     const [destinationState, setDestinationState] = useState('');
     const [dueDate, setDueDate] = useState<string | null>(null);
 
-    const handleZipCodeBlur = (type: 'origin' | 'destination') => {
-        // Logic to fetch city and state based on zip code
+    const handleZipCodeBlur = async (type: 'origin' | 'destination') => {
+        const zipCode = type === 'origin' ? originZip : destinationZip;
+        if (zipCode.length === 5) {
+            try {
+                const response = await fetch(`https://api.zippopotam.us/us/${zipCode}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const city = data.places[0]['place name'];
+                    const state = data.places[0]['state abbreviation'];
+                    if (type === 'origin') {
+                        setOriginCity(city);
+                        setOriginState(state);
+                    } else {
+                        setDestinationCity(city);
+                        setDestinationState(state);
+                    }
+                } else {
+                    if (type === 'origin') {
+                        setOriginCity('');
+                        setOriginState('');
+                    } else {
+                        setDestinationCity('');
+                        setDestinationState('');
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching city and state:', error);
+                if (type === 'origin') {
+                    setOriginCity('');
+                    setOriginState('');
+                } else {
+                    setDestinationCity('');
+                    setDestinationState('');
+                }
+            }
+        }
     };
 
     const handleZipCodeKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, type: 'origin' | 'destination') => {
@@ -61,45 +68,7 @@ const QuoteForm: React.FC<{ isOpen: boolean; onClose: () => void; addQuote: (quo
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const quote = {
-            selectedOption,
-            year,
-            make,
-            model,
-            palletCount,
-            commodity,
-            containerLength,
-            containerType,
-            contentsDescription,
-            classType,
-            motorizedOrTrailer,
-            roadworthy,
-            vin,
-            yearRv,
-            driveawayOrTowaway,
-            height,
-            length,
-            vinSemi,
-            weight,
-            width,
-            yearSemi,
-            beam,
-            cradle,
-            heightBoat,
-            lengthBoat,
-            trailer,
-            type,
-            weightBoat,
-            originZip,
-            originCity,
-            originState,
-            destinationZip,
-            destinationCity,
-            destinationState,
-            dueDate,
-            saveToInventory
-        };
-        addQuote(quote);
+        // Handle form submission if needed
     };
 
     if (!isOpen) return null;
@@ -113,60 +82,9 @@ const QuoteForm: React.FC<{ isOpen: boolean; onClose: () => void; addQuote: (quo
                         selectedOption={selectedOption}
                         setSelectedOption={setSelectedOption}
                         setErrorText={setErrorText}
-                        year={year}
-                        setYear={setYear}
-                        make={make}
-                        setMake={setMake}
-                        model={model}
-                        setModel={setModel}
-                        palletCount={palletCount}
-                        setPalletCount={setPalletCount}
-                        commodity={commodity}
-                        setCommodity={setCommodity}
-                        containerLength={containerLength}
-                        setContainerLength={setContainerLength}
-                        containerType={containerType}
-                        setContainerType={setContainerType}
-                        contentsDescription={contentsDescription}
-                        setContentsDescription={setContentsDescription}
-                        classType={classType}
-                        setClassType={setClassType}
-                        motorizedOrTrailer={motorizedOrTrailer}
-                        setMotorizedOrTrailer={setMotorizedOrTrailer}
-                        roadworthy={roadworthy}
-                        setRoadworthy={setRoadworthy}
-                        vin={vin}
-                        setVin={setVin}
-                        yearRv={yearRv}
-                        setYearRv={setYearRv}
-                        driveawayOrTowaway={driveawayOrTowaway}
-                        setDriveawayOrTowaway={setDriveawayOrTowaway}
-                        height={height}
-                        setHeight={setHeight}
-                        length={length}
-                        setLength={setLength}
-                        vinSemi={vinSemi}
-                        setVinSemi={setVinSemi}
-                        weight={weight}
-                        setWeight={setWeight}
-                        width={width}
-                        setWidth={setWidth}
-                        yearSemi={yearSemi}
-                        setYearSemi={setYearSemi}
-                        beam={beam}
-                        setBeam={setBeam}
-                        cradle={cradle}
-                        setCradle={setCradle}
-                        heightBoat={heightBoat}
-                        setHeightBoat={setHeightBoat}
-                        lengthBoat={lengthBoat}
-                        setLengthBoat={setLengthBoat}
-                        trailer={trailer}
-                        setTrailer={setTrailer}
-                        type={type}
-                        setType={setType}
-                        weightBoat={weightBoat}
-                        setWeightBoat={setWeightBoat}
+                        session={session}
+                        addQuote={addQuote}
+                        closeModal={onClose}
                     />
                     {selectedOption && (
                         <div className='flex gap-1 text-zinc-900 font-semibold'>
@@ -178,52 +96,6 @@ const QuoteForm: React.FC<{ isOpen: boolean; onClose: () => void; addQuote: (quo
                             Check Here to Save Inventory
                         </div>
                     )}
-                    <div className='flex gap-2'>
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Length
-                            <input
-                                className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
-                                type="text"
-                                value={length}
-                                onChange={(e) => {
-                                    setErrorText('');
-                                    setLength(e.target.value);
-                                }}
-                            />
-                        </label>
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Width
-                            <input
-                                className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
-                                type="text"
-                                value={width}
-                                onChange={(e) => {
-                                    setErrorText('');
-                                    setWidth(e.target.value);
-                                }}
-                            />
-                        </label>
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Height
-                            <input
-                                className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
-                                type="text"
-                                value={height}
-                                onChange={(e) => {
-                                    setErrorText('');
-                                    setHeight(e.target.value);
-                                }}
-                            />
-                        </label>
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Weight
-                            <input
-                                className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
-                                type="text"
-                                value={weight}
-                                onChange={(e) => {
-                                    setErrorText('');
-                                    setWeight(e.target.value);
-                                }}
-                            />
-                        </label>
-                    </div>
                     <div className='flex gap-2'>
                         <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Origin Zip
                             <input
@@ -240,7 +112,7 @@ const QuoteForm: React.FC<{ isOpen: boolean; onClose: () => void; addQuote: (quo
                                 className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
                                 type="text"
                                 value={originCity}
-                                readOnly
+                                onChange={(e) => setOriginCity(e.target.value)}
                             />
                         </label>
                         <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Origin State
@@ -248,7 +120,7 @@ const QuoteForm: React.FC<{ isOpen: boolean; onClose: () => void; addQuote: (quo
                                 className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
                                 type="text"
                                 value={originState}
-                                readOnly
+                                onChange={(e) => setOriginState(e.target.value)}
                             />
                         </label>
                     </div>
@@ -268,7 +140,7 @@ const QuoteForm: React.FC<{ isOpen: boolean; onClose: () => void; addQuote: (quo
                                 className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
                                 type="text"
                                 value={destinationCity}
-                                readOnly
+                                onChange={(e) => setDestinationCity(e.target.value)}
                             />
                         </label>
                         <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Destination State
@@ -276,7 +148,7 @@ const QuoteForm: React.FC<{ isOpen: boolean; onClose: () => void; addQuote: (quo
                                 className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
                                 type="text"
                                 value={destinationState}
-                                readOnly
+                                onChange={(e) => setDestinationState(e.target.value)}
                             />
                         </label>
                     </div>

@@ -1,32 +1,92 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
+import { Database } from '@/lib/database.types';
 
 interface SemiTruckFormProps {
-    driveawayOrTowaway: boolean | null;
-    setDriveawayOrTowaway: (value: boolean | null) => void;
-    height: string | null;
-    setHeight: (value: string | null) => void;
-    length: string | null;
-    setLength: (value: string | null) => void;
-    make: string | null;
-    setMake: (value: string | null) => void;
-    model: string | null;
-    setModel: (value: string | null) => void;
-    vin: string | null;
-    setVin: (value: string | null) => void;
-    weight: string | null;
-    setWeight: (value: string | null) => void;
-    width: string | null;
-    setWidth: (value: string | null) => void;
-    year: number | null;
-    setYear: (value: number | null) => void;
+    session: Session;
+    addQuote: (quote: any) => void;
     setErrorText: (value: string) => void;
+    closeModal: () => void;
 }
 
 const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
-    driveawayOrTowaway, setDriveawayOrTowaway, height, setHeight, length, setLength, make, setMake, model, setModel, vin, setVin, weight, setWeight, width, setWidth, year, setYear, setErrorText
+    session,
+    addQuote,
+    setErrorText,
+    closeModal,
 }) => {
+    const supabase = useSupabaseClient<Database>();
+    const [driveawayOrTowaway, setDriveawayOrTowaway] = useState<boolean | null>(null);
+    const [height, setHeight] = useState<string | null>(null);
+    const [length, setLength] = useState<string | null>(null);
+    const [make, setMake] = useState<string | null>(null);
+    const [model, setModel] = useState<string | null>(null);
+    const [vin, setVin] = useState<string | null>(null);
+    const [weight, setWeight] = useState<string | null>(null);
+    const [width, setWidth] = useState<string | null>(null);
+    const [year, setYear] = useState<number | null>(null);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const quote = {
+            user_id: session.user.id,
+            driveaway_or_towaway: driveawayOrTowaway,
+            height,
+            length,
+            make,
+            model,
+            vin,
+            weight,
+            width,
+            year: year?.toString() || '',
+            inserted_at: new Date().toISOString(),
+        };
+
+        const { data: shippingQuoteData, error: shippingQuoteError } = await supabase
+            .from('shippingquotes')
+            .insert([quote])
+            .select();
+
+        if (shippingQuoteError) {
+            console.error('Error adding quote:', shippingQuoteError.message);
+            setErrorText('Error adding quote');
+            return;
+        }
+
+        console.log('Quote added successfully:', shippingQuoteData);
+
+        const { data: semiTruckData, error: semiTruckError } = await supabase
+            .from('semi_trucks')
+            .insert([{
+                shipping_quote_id: shippingQuoteData[0].id,
+                driveaway_or_towaway: driveawayOrTowaway,
+                height,
+                length,
+                make,
+                model,
+                vin,
+                weight,
+                width,
+                year,
+            }])
+            .select();
+
+        if (semiTruckError) {
+            console.error('Error adding semi truck:', semiTruckError.message);
+            setErrorText('Error adding semi truck');
+            return;
+        }
+
+        console.log('Semi truck added successfully:', semiTruckData);
+
+        addQuote(shippingQuoteData[0]);
+        setErrorText('');
+        closeModal(); // Close the modal after adding the quote
+    };
+
     return (
-        <>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className='flex gap-2'>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Driveaway or Towaway
                     <input
@@ -132,7 +192,7 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
                     />
                 </label>
             </div>
-        </>
+        </form>
     );
 };
 

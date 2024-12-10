@@ -79,10 +79,10 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
         };
     }, []);
 
-    const addQuote = async (quote: Partial<Database['public']['Tables']['shippingquotes']['Insert']>) => {
+    const addQuote = async (quote: Partial<Database['public']['Tables']['shippingquotes']['Insert'] & { containerLength?: number | null; containerType?: string | null; contentsDescription?: string | null; selectedOption?: string | null; }>) => {
         if (!session?.user?.id) return;
 
-        const { data, error } = await supabase
+        const { data: shippingQuoteData, error: shippingQuoteError } = await supabase
             .from('shippingquotes')
             .insert([{
                 ...quote,
@@ -96,15 +96,37 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
             }])
             .select();
 
-        if (error) {
-            console.error('Error adding quote:', error.message);
+        if (shippingQuoteError) {
+            console.error('Error adding quote:', shippingQuoteError.message);
             setErrorText('Error adding quote');
-        } else {
-            console.log('Quote added successfully:', data);
-            setQuotes([...quotes, ...(data || [])]);
-            setErrorText('');
-            setIsModalOpen(false); // Close the modal after adding the quote
+            return;
         }
+
+        console.log('Quote added successfully:', shippingQuoteData);
+        setQuotes([...quotes, ...(shippingQuoteData || [])]);
+
+        if (quote.selectedOption === 'containers') {
+            const { data: containerData, error: containerError } = await supabase
+                .from('containers')
+                .insert([{
+                    shipping_quote_id: shippingQuoteData[0].id,
+                    container_length: quote.containerLength,
+                    container_type: quote.containerType,
+                    contents_description: quote.contentsDescription,
+                }])
+                .select();
+
+            if (containerError) {
+                console.error('Error adding container:', containerError.message);
+                setErrorText('Error adding container');
+                return;
+            }
+
+            console.log('Container added successfully:', containerData);
+        }
+
+        setErrorText('');
+        setIsModalOpen(false); // Close the modal after adding the quote
     };
 
     const archiveQuote = async (id: number) => {
@@ -187,6 +209,7 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
                     </button>
                 </div>
                 <QuoteForm
+                    session={session}
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
                     addQuote={addQuote}

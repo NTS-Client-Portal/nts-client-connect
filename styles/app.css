@@ -1187,6 +1187,16 @@ body:is(.dark *) {
   width: 100%;
 }
 
+.w-fit {
+  width: -moz-fit-content;
+  width: fit-content;
+}
+
+.w-min {
+  width: -moz-min-content;
+  width: min-content;
+}
+
 .min-w-\[8rem\] {
   min-width: 8rem;
 }

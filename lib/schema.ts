@@ -51,3 +51,37 @@ export type Vendor = Database['public']['Tables']['vendors']['Row'];
 export type UsageStats = Database['public']['Tables']['usage_stats']['Row'];
 
 export type PurchaseOrder = Database['public']['Tables']['purchase_order']['Row'];
+
+export type Equipment = {
+  id: number;
+  year: number | null;
+  make: string | null;
+  model: string | null;
+  operational_condition: boolean | null;
+  length: string | null;
+  width: string | null;
+  height: string | null;
+  weight: string | null;
+  loading_unloading_requirements: string | null;
+  tarping: boolean | null;
+  auction: string | null;
+  buyer_number: string | null;
+  lot_number: string | null;
+  user_id: string | null;
+  company_id: string | null;
+};
+
+export type LtlFtl = {
+  id: number;
+  load_description: string | null;
+  length: string | null;
+  height: string | null;
+  weight: string | null;
+  freight_class: string | null;
+  loading_assistance: string | null;
+  packaging_type: string | null;
+  weight_per_pallet_unit: string | null;
+  dock_no_dock: boolean | null;
+  user_id: string | null;
+  company_id: string | null;
+};

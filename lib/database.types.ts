@@ -269,6 +269,81 @@ export type Database = {
           },
         ]
       }
+      equipment: {
+        Row: {
+          auction: string | null
+          buyer_number: string | null
+          company_id: string | null
+          height: string | null
+          id: number
+          inserted_at: string | null
+          length: string | null
+          loading_unloading_requirements: string | null
+          lot_number: string | null
+          make: string | null
+          model: string | null
+          operational_condition: boolean | null
+          profile_id: string | null
+          tarping: boolean | null
+          weight: string | null
+          width: string | null
+          year: number | null
+        }
+        Insert: {
+          auction?: string | null
+          buyer_number?: string | null
+          company_id?: string | null
+          height?: string | null
+          id?: number
+          inserted_at?: string | null
+          length?: string | null
+          loading_unloading_requirements?: string | null
+          lot_number?: string | null
+          make?: string | null
+          model?: string | null
+          operational_condition?: boolean | null
+          profile_id?: string | null
+          tarping?: boolean | null
+          weight?: string | null
+          width?: string | null
+          year?: number | null
+        }
+        Update: {
+          auction?: string | null
+          buyer_number?: string | null
+          company_id?: string | null
+          height?: string | null
+          id?: number
+          inserted_at?: string | null
+          length?: string | null
+          loading_unloading_requirements?: string | null
+          lot_number?: string | null
+          make?: string | null
+          model?: string | null
+          operational_condition?: boolean | null
+          profile_id?: string | null
+          tarping?: boolean | null
+          weight?: string | null
+          width?: string | null
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       freight: {
         Row: {
           commodity: string | null
@@ -382,6 +457,66 @@ export type Database = {
           {
             foreignKeyName: "invitations_invited_by_fkey"
             columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ltl_ftl: {
+        Row: {
+          company_id: string | null
+          dock_no_dock: boolean | null
+          freight_class: string | null
+          height: string | null
+          id: number
+          length: string | null
+          load_description: string | null
+          loading_assistance: string | null
+          packaging_type: string | null
+          user_id: string | null
+          weight: string | null
+          weight_per_pallet_unit: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          dock_no_dock?: boolean | null
+          freight_class?: string | null
+          height?: string | null
+          id?: number
+          length?: string | null
+          load_description?: string | null
+          loading_assistance?: string | null
+          packaging_type?: string | null
+          user_id?: string | null
+          weight?: string | null
+          weight_per_pallet_unit?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          dock_no_dock?: boolean | null
+          freight_class?: string | null
+          height?: string | null
+          id?: number
+          length?: string | null
+          load_description?: string | null
+          loading_assistance?: string | null
+          packaging_type?: string | null
+          user_id?: string | null
+          weight?: string | null
+          weight_per_pallet_unit?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ltl_ftl_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ltl_ftl_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -759,6 +894,7 @@ export type Database = {
           origin_zip: string | null
           pallet_count: string | null
           price: number | null
+          type: string | null
           user_id: string | null
           weight: string | null
           width: string | null
@@ -791,6 +927,7 @@ export type Database = {
           origin_zip?: string | null
           pallet_count?: string | null
           price?: number | null
+          type?: string | null
           user_id?: string | null
           weight?: string | null
           width?: string | null
@@ -823,6 +960,7 @@ export type Database = {
           origin_zip?: string | null
           pallet_count?: string | null
           price?: number | null
+          type?: string | null
           user_id?: string | null
           weight?: string | null
           width?: string | null

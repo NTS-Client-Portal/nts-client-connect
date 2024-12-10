@@ -13,7 +13,7 @@ interface QuoteListProps {
     archiveQuote: (id: number) => Promise<void>;
     transferToOrderList: (quoteId: number, data: any) => Promise<void>;
     handleSelectQuote: (id: number) => void;
-    isAdmin: boolean; // Add this prop
+    isAdmin: boolean;
 }
 
 const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, archiveQuote, transferToOrderList, handleSelectQuote, isAdmin }) => {
@@ -21,8 +21,8 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedQuoteId, setSelectedQuoteId] = useState<number | null>(null);
     const [quote, setQuote] = useState<ShippingQuote | null>(null);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Add state for edit modal
-    const [quoteToEdit, setQuoteToEdit] = useState<ShippingQuote | null>(null); // Add state for the quote to edit
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [quoteToEdit, setQuoteToEdit] = useState<ShippingQuote | null>(null);
 
     const handleCreateOrderClick = (quoteId: number) => {
         setSelectedQuoteId(quoteId);

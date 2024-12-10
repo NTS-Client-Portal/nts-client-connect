@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      boats: {
+        Row: {
+          beam: string | null
+          cradle: boolean | null
+          height: string | null
+          id: number
+          length: string | null
+          trailer: boolean | null
+          type: string | null
+          weight: string | null
+        }
+        Insert: {
+          beam?: string | null
+          cradle?: boolean | null
+          height?: string | null
+          id?: never
+          length?: string | null
+          trailer?: boolean | null
+          type?: string | null
+          weight?: string | null
+        }
+        Update: {
+          beam?: string | null
+          cradle?: boolean | null
+          height?: string | null
+          id?: never
+          length?: string | null
+          trailer?: boolean | null
+          type?: string | null
+          weight?: string | null
+        }
+        Relationships: []
+      }
       chrome_quotes: {
         Row: {
           created_at: string | null
@@ -102,15 +135,85 @@ export type Database = {
           id?: string
           name?: string
         }
+        Relationships: []
+      }
+      company_sales_users: {
+        Row: {
+          company_id: string | null
+          id: string
+          sales_user_id: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          id?: string
+          sales_user_id?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          id?: string
+          sales_user_id?: string | null
+        }
         Relationships: [
           {
-            foreignKeyName: "companies_assigned_sales_user_fkey"
-            columns: ["assigned_sales_user"]
+            foreignKeyName: "company_sales_users_company_id_fkey"
+            columns: ["company_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_sales_users_sales_user_id_fkey"
+            columns: ["sales_user_id"]
+            isOneToOne: false
+            referencedRelation: "nts_users"
             referencedColumns: ["id"]
           },
         ]
+      }
+      containers: {
+        Row: {
+          container_length: number | null
+          container_type: string | null
+          contents_description: string | null
+          destination_surface_type: string | null
+          destination_type: boolean | null
+          goods_value: string | null
+          id: number
+          is_loaded: boolean | null
+          loading_by: boolean | null
+          origin_surface_type: string | null
+          origin_type: boolean | null
+          unloading_by: boolean | null
+        }
+        Insert: {
+          container_length?: number | null
+          container_type?: string | null
+          contents_description?: string | null
+          destination_surface_type?: string | null
+          destination_type?: boolean | null
+          goods_value?: string | null
+          id?: number
+          is_loaded?: boolean | null
+          loading_by?: boolean | null
+          origin_surface_type?: string | null
+          origin_type?: boolean | null
+          unloading_by?: boolean | null
+        }
+        Update: {
+          container_length?: number | null
+          container_type?: string | null
+          contents_description?: string | null
+          destination_surface_type?: string | null
+          destination_type?: boolean | null
+          goods_value?: string | null
+          id?: number
+          is_loaded?: boolean | null
+          loading_by?: boolean | null
+          origin_surface_type?: string | null
+          origin_type?: boolean | null
+          unloading_by?: boolean | null
+        }
+        Relationships: []
       }
       documents: {
         Row: {
@@ -121,6 +224,7 @@ export type Database = {
           file_url: string | null
           id: number
           is_favorite: boolean | null
+          nts_user_id: string | null
           title: string | null
           user_id: string | null
         }
@@ -132,6 +236,7 @@ export type Database = {
           file_url?: string | null
           id?: number
           is_favorite?: boolean | null
+          nts_user_id?: string | null
           title?: string | null
           user_id?: string | null
         }
@@ -143,6 +248,7 @@ export type Database = {
           file_url?: string | null
           id?: number
           is_favorite?: boolean | null
+          nts_user_id?: string | null
           title?: string | null
           user_id?: string | null
         }
@@ -150,6 +256,88 @@ export type Database = {
           {
             foreignKeyName: "documents_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_documents_nts_user_id"
+            columns: ["nts_user_id"]
+            isOneToOne: false
+            referencedRelation: "nts_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipment: {
+        Row: {
+          auction: string | null
+          buyer_number: string | null
+          company_id: string | null
+          height: string | null
+          id: number
+          inserted_at: string | null
+          length: string | null
+          loading_unloading_requirements: string | null
+          lot_number: string | null
+          make: string | null
+          model: string | null
+          operational_condition: boolean | null
+          profile_id: string | null
+          tarping: boolean | null
+          weight: string | null
+          width: string | null
+          year: number | null
+        }
+        Insert: {
+          auction?: string | null
+          buyer_number?: string | null
+          company_id?: string | null
+          height?: string | null
+          id?: number
+          inserted_at?: string | null
+          length?: string | null
+          loading_unloading_requirements?: string | null
+          lot_number?: string | null
+          make?: string | null
+          model?: string | null
+          operational_condition?: boolean | null
+          profile_id?: string | null
+          tarping?: boolean | null
+          weight?: string | null
+          width?: string | null
+          year?: number | null
+        }
+        Update: {
+          auction?: string | null
+          buyer_number?: string | null
+          company_id?: string | null
+          height?: string | null
+          id?: number
+          inserted_at?: string | null
+          length?: string | null
+          loading_unloading_requirements?: string | null
+          lot_number?: string | null
+          make?: string | null
+          model?: string | null
+          operational_condition?: boolean | null
+          profile_id?: string | null
+          tarping?: boolean | null
+          weight?: string | null
+          width?: string | null
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_profile_id_fkey"
+            columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -275,6 +463,66 @@ export type Database = {
           },
         ]
       }
+      ltl_ftl: {
+        Row: {
+          company_id: string | null
+          dock_no_dock: boolean | null
+          freight_class: string | null
+          height: string | null
+          id: number
+          length: string | null
+          load_description: string | null
+          loading_assistance: string | null
+          packaging_type: string | null
+          user_id: string | null
+          weight: string | null
+          weight_per_pallet_unit: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          dock_no_dock?: boolean | null
+          freight_class?: string | null
+          height?: string | null
+          id?: number
+          length?: string | null
+          load_description?: string | null
+          loading_assistance?: string | null
+          packaging_type?: string | null
+          user_id?: string | null
+          weight?: string | null
+          weight_per_pallet_unit?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          dock_no_dock?: boolean | null
+          freight_class?: string | null
+          height?: string | null
+          id?: number
+          length?: string | null
+          load_description?: string | null
+          loading_assistance?: string | null
+          packaging_type?: string | null
+          user_id?: string | null
+          weight?: string | null
+          weight_per_pallet_unit?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ltl_ftl_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ltl_ftl_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string | null
@@ -370,7 +618,15 @@ export type Database = {
       orders: {
         Row: {
           created_at: string | null
+          destination_city: string | null
+          destination_state: string | null
+          destination_street: string | null
+          destination_zip: string | null
+          earliest_pickup_date: string | null
           id: number
+          latest_pickup_date: string | null
+          notes: string | null
+          origin_street: string | null
           quote_id: number | null
           status: string | null
           updated_at: string | null
@@ -378,7 +634,15 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          destination_city?: string | null
+          destination_state?: string | null
+          destination_street?: string | null
+          destination_zip?: string | null
+          earliest_pickup_date?: string | null
           id?: number
+          latest_pickup_date?: string | null
+          notes?: string | null
+          origin_street?: string | null
           quote_id?: number | null
           status?: string | null
           updated_at?: string | null
@@ -386,7 +650,15 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          destination_city?: string | null
+          destination_state?: string | null
+          destination_street?: string | null
+          destination_zip?: string | null
+          earliest_pickup_date?: string | null
           id?: number
+          latest_pickup_date?: string | null
+          notes?: string | null
+          origin_street?: string | null
           quote_id?: number | null
           status?: string | null
           updated_at?: string | null
@@ -522,9 +794,83 @@ export type Database = {
           },
         ]
       }
+      rv_trailers: {
+        Row: {
+          class_type: string | null
+          id: number
+          make: string | null
+          model: string | null
+          motorized_or_trailer: string | null
+          roadworthy: boolean | null
+          vin: string | null
+          year: number | null
+        }
+        Insert: {
+          class_type?: string | null
+          id?: number
+          make?: string | null
+          model?: string | null
+          motorized_or_trailer?: string | null
+          roadworthy?: boolean | null
+          vin?: string | null
+          year?: number | null
+        }
+        Update: {
+          class_type?: string | null
+          id?: number
+          make?: string | null
+          model?: string | null
+          motorized_or_trailer?: string | null
+          roadworthy?: boolean | null
+          vin?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
+      semi_trucks: {
+        Row: {
+          driveaway_or_towaway: boolean | null
+          height: string | null
+          id: number
+          length: string | null
+          make: string | null
+          model: string | null
+          vin: string | null
+          weight: string | null
+          width: string | null
+          year: number | null
+        }
+        Insert: {
+          driveaway_or_towaway?: boolean | null
+          height?: string | null
+          id?: number
+          length?: string | null
+          make?: string | null
+          model?: string | null
+          vin?: string | null
+          weight?: string | null
+          width?: string | null
+          year?: number | null
+        }
+        Update: {
+          driveaway_or_towaway?: boolean | null
+          height?: string | null
+          id?: number
+          length?: string | null
+          make?: string | null
+          model?: string | null
+          vin?: string | null
+          weight?: string | null
+          width?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
       shippingquotes: {
         Row: {
+          assigned_sales_user: string | null
           commodity: string | null
+          company_id: string | null
           destination_city: string | null
           destination_state: string | null
           destination_street: string | null
@@ -541,6 +887,7 @@ export type Database = {
           length: string | null
           make: string | null
           model: string | null
+          notes: string | null
           origin_address: string | null
           origin_city: string | null
           origin_state: string | null
@@ -553,7 +900,9 @@ export type Database = {
           year: string | null
         }
         Insert: {
+          assigned_sales_user?: string | null
           commodity?: string | null
+          company_id?: string | null
           destination_city?: string | null
           destination_state?: string | null
           destination_street?: string | null
@@ -570,6 +919,7 @@ export type Database = {
           length?: string | null
           make?: string | null
           model?: string | null
+          notes?: string | null
           origin_address?: string | null
           origin_city?: string | null
           origin_state?: string | null
@@ -582,7 +932,9 @@ export type Database = {
           year?: string | null
         }
         Update: {
+          assigned_sales_user?: string | null
           commodity?: string | null
+          company_id?: string | null
           destination_city?: string | null
           destination_state?: string | null
           destination_street?: string | null
@@ -599,6 +951,7 @@ export type Database = {
           length?: string | null
           make?: string | null
           model?: string | null
+          notes?: string | null
           origin_address?: string | null
           origin_city?: string | null
           origin_state?: string | null

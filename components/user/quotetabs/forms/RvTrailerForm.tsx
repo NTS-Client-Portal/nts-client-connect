@@ -1,28 +1,87 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
+import { Database } from '@/lib/database.types';
 
 interface RvTrailerFormProps {
-    classType: string | null;
-    setClassType: (value: string | null) => void;
-    make: string | null;
-    setMake: (value: string | null) => void;
-    model: string | null;
-    setModel: (value: string | null) => void;
-    motorizedOrTrailer: string | null;
-    setMotorizedOrTrailer: (value: string | null) => void;
-    roadworthy: boolean | null;
-    setRoadworthy: (value: boolean | null) => void;
-    vin: string | null;
-    setVin: (value: string | null) => void;
-    year: number | null;
-    setYear: (value: number | null) => void;
+    session: Session;
+    addQuote: (quote: any) => void;
     setErrorText: (value: string) => void;
+    closeModal: () => void;
 }
 
 const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
-    classType, setClassType, make, setMake, model, setModel, motorizedOrTrailer, setMotorizedOrTrailer, roadworthy, setRoadworthy, vin, setVin, year, setYear, setErrorText
+    session,
+    addQuote,
+    setErrorText,
+    closeModal,
 }) => {
+    const supabase = useSupabaseClient<Database>();
+    const [classType, setClassType] = useState<string | null>(null);
+    const [make, setMake] = useState<string | null>(null);
+    const [model, setModel] = useState<string | null>(null);
+    const [motorizedOrTrailer, setMotorizedOrTrailer] = useState<string | null>(null);
+    const [roadworthy, setRoadworthy] = useState<boolean | null>(null);
+    const [vin, setVin] = useState<string | null>(null);
+    const [year, setYear] = useState<number | null>(null);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const quote = {
+            user_id: session.user.id,
+            type: 'rv_trailers', // Add the type field
+            class_type: classType,
+            make,
+            model,
+            motorized_or_trailer: motorizedOrTrailer,
+            roadworthy,
+            vin,
+            year: year?.toString(), // Convert year to string
+            inserted_at: new Date().toISOString(),
+        };
+
+        const { data: shippingQuoteData, error: shippingQuoteError } = await supabase
+            .from('shippingquotes')
+            .insert([quote])
+            .select();
+
+        if (shippingQuoteError) {
+            console.error('Error adding quote:', shippingQuoteError.message);
+            setErrorText('Error adding quote');
+            return;
+        }
+
+        console.log('Quote added successfully:', shippingQuoteData);
+
+        const { data: rvTrailerData, error: rvTrailerError } = await supabase
+            .from('rv_trailers')
+            .insert([{
+                shipping_quote_id: shippingQuoteData[0].id,
+                class_type: classType,
+                make,
+                model,
+                motorized_or_trailer: motorizedOrTrailer,
+                roadworthy,
+                vin,
+                year,
+            }])
+            .select();
+
+        if (rvTrailerError) {
+            console.error('Error adding RV trailer:', rvTrailerError.message);
+            setErrorText('Error adding RV trailer');
+            return;
+        }
+
+        console.log('RV trailer added successfully:', rvTrailerData);
+
+        addQuote(shippingQuoteData[0]);
+        setErrorText('');
+        closeModal(); // Close the modal after adding the quote
+    };
+
     return (
-        <>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className='flex gap-2'>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Class Type
                     <input
@@ -104,7 +163,7 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
                     />
                 </label>
             </div>
-        </>
+        </form>
     );
 };
 
