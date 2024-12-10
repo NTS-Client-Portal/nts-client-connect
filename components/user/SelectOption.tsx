@@ -26,7 +26,7 @@ const SelectOption: React.FC<SelectOptionProps> = ({
 }) => {
     return (
         <>
-            <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Select Option
+            <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Select a Freight Type
                 <select
                     className="rounded w-full dark:text-zinc-800 p-2 border border-zinc-900"
                     value={selectedOption}
@@ -35,7 +35,7 @@ const SelectOption: React.FC<SelectOptionProps> = ({
                         setSelectedOption(e.target.value);
                     }}
                 >
-                    <option value="">Select...</option>
+                    <option value="">select...</option>
                     <option value="equipment">Equipment/Machinery</option>
                     <option value="ltl_ftl">LTL/FTL</option>
                     <option value="containers">Containers</option>

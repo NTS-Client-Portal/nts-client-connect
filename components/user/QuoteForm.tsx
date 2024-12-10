@@ -75,9 +75,9 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
 
     return (
         <div className="fixed inset-0 bg-zinc-600 bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-8 rounded shadow-md w-1/2">
+            <div className="bg-white p-6 rounded shadow-md w-full max-w-3xl">
                 <h2 className="text-xl mb-4">Request a Shipping Estimate</h2>
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                     <SelectOption
                         selectedOption={selectedOption}
                         setSelectedOption={setSelectedOption}
@@ -87,19 +87,19 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                         closeModal={onClose}
                     />
                     {selectedOption && (
-                        <div className='flex gap-1 text-zinc-900 font-semibold'>
+                        <div className='flex gap-1 text-zinc-600 text-sm font-semibold'>
                             <input
                                 type="checkbox"
                                 checked={saveToInventory}
                                 onChange={(e) => setSaveToInventory(e.target.checked)}
                             />
-                            Check Here to Save Inventory
+                            Check Here to Save Freight to Inventory
                         </div>
                     )}
                     <div className='flex gap-2'>
                         <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Origin Zip
                             <input
-                                className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                                 type="text"
                                 value={originZip}
                                 onChange={(e) => setOriginZip(e.target.value)}
@@ -109,7 +109,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                         </label>
                         <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Origin City
                             <input
-                                className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                                 type="text"
                                 value={originCity}
                                 onChange={(e) => setOriginCity(e.target.value)}
@@ -117,7 +117,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                         </label>
                         <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Origin State
                             <input
-                                className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                                 type="text"
                                 value={originState}
                                 onChange={(e) => setOriginState(e.target.value)}
@@ -127,7 +127,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                     <div className='flex gap-2'>
                         <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Destination Zip
                             <input
-                                className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                                 type="text"
                                 value={destinationZip}
                                 onChange={(e) => setDestinationZip(e.target.value)}
@@ -137,7 +137,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                         </label>
                         <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Destination City
                             <input
-                                className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                                 type="text"
                                 value={destinationCity}
                                 onChange={(e) => setDestinationCity(e.target.value)}
@@ -145,7 +145,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                         </label>
                         <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Destination State
                             <input
-                                className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                                 type="text"
                                 value={destinationState}
                                 onChange={(e) => setDestinationState(e.target.value)}
@@ -154,7 +154,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                     </div>
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Shipping Date
                         <input
-                            className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                             type="date"
                             value={dueDate || ''} // Ensure dueDate is either a valid timestamp or an empty string
                             onChange={(e) => {
@@ -163,12 +163,16 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                             }}
                         />
                     </label>
-                    <button type="submit" className="body-btn w-2/3 place-self-center">
-                        Submit
-                    </button>
-                    <button onClick={onClose} className="cancel-btn mt-4 w-2/3 place-self-center">
-                        Close
-                    </button>
+                    <div className='flex justify-center'>
+                        <div className='flex gap-2 w-full justify-around'>
+                            <button type="submit" className="body-btn w-2/3 place-self-center">
+                                Submit
+                            </button>
+                            <button onClick={onClose} className="cancel-btn mt-4 w-1/4 place-self-center">
+                                Close
+                            </button>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>

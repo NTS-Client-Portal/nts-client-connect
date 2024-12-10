@@ -81,11 +81,11 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
     };
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <div className='flex gap-2'>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Class Type
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                         type="text"
                         value={classType || ''}
                         onChange={(e) => {
@@ -96,7 +96,7 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Make
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                         type="text"
                         value={make || ''}
                         onChange={(e) => {
@@ -107,7 +107,7 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Model
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                         type="text"
                         value={model || ''}
                         onChange={(e) => {
@@ -120,7 +120,7 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
             <div className='flex gap-2'>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Motorized or Trailer
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                         type="text"
                         value={motorizedOrTrailer || ''}
                         onChange={(e) => {
@@ -131,7 +131,7 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Roadworthy
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                         type="checkbox"
                         checked={roadworthy || false}
                         onChange={(e) => {
@@ -142,7 +142,7 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>VIN
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                         type="text"
                         value={vin || ''}
                         onChange={(e) => {
@@ -153,7 +153,7 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Year
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                         type="number"
                         value={year || ''}
                         onChange={(e) => {

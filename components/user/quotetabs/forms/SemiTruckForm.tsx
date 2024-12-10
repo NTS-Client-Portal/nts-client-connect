@@ -86,11 +86,11 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
     };
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <div className='flex gap-2'>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Driveaway or Towaway
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                         type="checkbox"
                         checked={driveawayOrTowaway || false}
                         onChange={(e) => {
@@ -101,7 +101,7 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Height
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                         type="text"
                         value={height || ''}
                         onChange={(e) => {
@@ -112,7 +112,7 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Length
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                         type="text"
                         value={length || ''}
                         onChange={(e) => {
@@ -125,7 +125,7 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
             <div className='flex gap-2'>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Make
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                         type="text"
                         value={make || ''}
                         onChange={(e) => {
@@ -136,7 +136,7 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Model
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                         type="text"
                         value={model || ''}
                         onChange={(e) => {
@@ -147,7 +147,7 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>VIN
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                         type="text"
                         value={vin || ''}
                         onChange={(e) => {
@@ -160,7 +160,7 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
             <div className='flex gap-2'>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Weight
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                         type="text"
                         value={weight || ''}
                         onChange={(e) => {
@@ -171,7 +171,7 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Width
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                         type="text"
                         value={width || ''}
                         onChange={(e) => {
@@ -182,7 +182,7 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Year
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-2 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                         type="number"
                         value={year || ''}
                         onChange={(e) => {
