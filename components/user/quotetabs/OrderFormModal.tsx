@@ -24,7 +24,7 @@ interface OrderFormModalProps {
         width: string;
         height: string;
         weight: string;
-    };
+    } | null; // Allow quote to be null
 }
 
 const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubmit, quote }) => {
@@ -95,14 +95,16 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
                             className="rounded w-full p-2 border border-zinc-900"
                         />
                     </div>
-                    <div>
-                        <h3 className="text-lg mb-2">Shipping Quote Information</h3>
-                        <p><strong>Origin:</strong> {quote.origin_city}, {quote.origin_state} {quote.origin_zip}</p>
-                        <p><strong>Destination:</strong> {quote.destination_city}, {quote.destination_state} {quote.destination_zip}</p>
-                        <p><strong>Freight:</strong> {quote.year} {quote.make} {quote.model}</p>
-                        <p><strong>Dimensions:</strong> {quote.length}&apos; x {quote.width}&apos; x {quote.height}&apos;</p>
-                        <p><strong>Weight:</strong> {quote.weight} lbs</p>
-                    </div>
+                    {quote && (
+                        <div>
+                            <h3 className="text-lg mb-2">Shipping Quote Information</h3>
+                            <p><strong>Origin:</strong> {quote.origin_city}, {quote.origin_state} {quote.origin_zip}</p>
+                            <p><strong>Destination:</strong> {quote.destination_city}, {quote.destination_state} {quote.destination_zip}</p>
+                            <p><strong>Freight:</strong> {quote.year} {quote.make} {quote.model}</p>
+                            <p><strong>Dimensions:</strong> {quote.length}&apos; x {quote.width}&apos; x {quote.height}&apos;</p>
+                            <p><strong>Weight:</strong> {quote.weight} lbs</p>
+                        </div>
+                    )}
                     <button type="submit" className="body-btn place-self-center">
                         Submit
                     </button>

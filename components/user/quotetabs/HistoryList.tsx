@@ -91,7 +91,7 @@ const HistoryList: React.FC<HistoryListProps> = ({ session }) => {
             {!!errorText && <div className="text-red-500">{errorText}</div>}
             <div className="hidden 2xl:block overflow-x-auto">
                 <table className="min-w-full divide-y divide-zinc-200">
-                    <thead className="bg-ntsLightBlue font-semibold text-zinc-50 dark:bg-zinc-900/90 sticky top-0 z-10">
+                    <thead className="bg-ntsLightBlue font-semibold text-zinc-50 dark:bg-zinc-900/90">
                         <tr className='border-b border-zinc-900/20 dark:border-zinc-100'>
                             <th className="px-2 pt-4 pb-1 text-left text-xs dark:text-zinc-50 uppercase tracking-wider border-r border-zinc-900/20 dark:border-zinc-100">ID</th>
                             <th className="px-2 pt-4 pb-1 text-left text-xs dark:text-zinc-50 uppercase tracking-wider border-r border-zinc-900/20 dark:border-zinc-100">Origin/Destination</th>
