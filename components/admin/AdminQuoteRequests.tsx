@@ -204,7 +204,6 @@ const AdminQuoteRequests = () => {
                 {activeTab === 'requests' && (
                     <QuoteList
                         session={null}
-                        quotes={quotes}
                         fetchQuotes={() => { }} // No need to fetch quotes again
                         archiveQuote={archiveQuote}
                         transferToOrderList={transferToOrderList}
