@@ -274,9 +274,6 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, archiveQuot
                                 </td>
                                 <td className="px-2 py-4 whitespace-nowrap border-r border-zinc-900/20 dark:border-zinc-100">
                                     <div className='flex flex-col gap-2 items-center'>
-                                        <button onClick={() => handleEditOrder(order)} className="body-btn w-1/2">
-                                            Edit Order
-                                        </button>
                                         <button onClick={() => { setSelectedOrderId(order.id); setIsModalOpen(true); }} className="cancel-btn">
                                             Cancel Order
                                         </button>
@@ -327,9 +324,6 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, archiveQuot
                                 <div className="text-sm text-zinc-900 dark:text-white">{order.shippingquotes.price ? `$${order.shippingquotes.price}` : 'coming soon'}</div>
                             </div>
                             <div className="h-full flex justify-between items-center">
-                                <button onClick={() => handleEditOrder(order)} className="text-blue-600 dark:text-blue-400 ml-2">
-                                    Edit Order
-                                </button>
                                 <button onClick={() => { setSelectedOrderId(order.id); setIsModalOpen(true); }} className="text-red-500 ml-2">
                                     Cancel Order
                                 </button>

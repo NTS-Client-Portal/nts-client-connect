@@ -9,9 +9,10 @@ interface QuoteFormProps {
     errorText: string;
     setErrorText: (value: string) => void;
     session: Session;
+    fetchQuotes: () => void; // Add fetchQuotes prop
 }
 
-const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorText, setErrorText, session }) => {
+const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorText, setErrorText, session, fetchQuotes }) => {
     const [selectedOption, setSelectedOption] = useState('');
     const [saveToInventory, setSaveToInventory] = useState(false);
     const [originZip, setOriginZip] = useState('');
@@ -66,9 +67,12 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Handle form submission if needed
+        // Add your form submission logic here
+        // After successful form submission, call fetchQuotes to refresh the list
+        fetchQuotes();
+        onClose();
     };
 
     if (!isOpen) return null;
@@ -77,7 +81,6 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
         <div className="fixed inset-0 bg-zinc-600 bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded shadow-md w-full max-w-3xl">
                 <h2 className="text-xl mb-4">Request a Shipping Estimate</h2>
-                <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                     <SelectOption
                         selectedOption={selectedOption}
                         setSelectedOption={setSelectedOption}
@@ -165,7 +168,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                     </label>
                     <div className='flex justify-center'>
                         <div className='flex gap-2 w-full justify-around'>
-                            <button type="submit" className="body-btn w-2/3 place-self-center">
+                            <button type="button" className="body-btn w-2/3 place-self-center" onClick={onClose}>
                                 Submit
                             </button>
                             <button onClick={onClose} className="cancel-btn mt-4 w-1/4 place-self-center">
@@ -173,7 +176,6 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                             </button>
                         </div>
                     </div>
-                </form>
             </div>
         </div>
     );

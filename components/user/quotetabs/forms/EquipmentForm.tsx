@@ -50,6 +50,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
             buyer_number: buyerNumber,
             lot_number: lotNumber,
             inserted_at: new Date().toISOString(),
+            freightType: 'Equipment/Machinery', // Set the freight type
         };
 
         const { data: shippingQuoteData, error: shippingQuoteError } = await supabase
@@ -138,7 +139,6 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                 </label>
             </div>
             <div className='flex gap-2'>
-
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Length
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
@@ -161,7 +161,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                         }}
                     />
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Height 
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Height
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                         type="text"
@@ -212,7 +212,6 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                     />
                 </label>
             </div>
-
             <div className='flex justify-start'>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Is the equipment coming from an auction/dealer?
                     <select

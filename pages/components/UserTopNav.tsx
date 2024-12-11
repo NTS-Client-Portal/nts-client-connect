@@ -182,7 +182,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                     <li>
                         <NotificationBell session={session} />
                     </li>
-                    <li className='relative'>
+                    <li className='relative z-50'>
                         <Image
                             src={profilePictureUrl}
                             alt='profile-img'

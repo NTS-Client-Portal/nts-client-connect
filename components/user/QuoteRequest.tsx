@@ -127,6 +127,7 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
 
         setErrorText('');
         setIsModalOpen(false); // Close the modal after adding the quote
+        fetchQuotes(); // Fetch quotes after adding a new one
     };
 
     const archiveQuote = async (id: number) => {
@@ -215,6 +216,7 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
                     addQuote={addQuote}
                     errorText={errorText}
                     setErrorText={setErrorText}
+                    fetchQuotes={fetchQuotes} // Pass fetchQuotes to QuoteForm
                 />
             </div>
             {isMobile ? (
