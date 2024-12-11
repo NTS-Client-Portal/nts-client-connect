@@ -12,8 +12,7 @@ interface SelectOptionProps {
     setSelectedOption: (value: string) => void;
     setErrorText: (value: string) => void;
     session: Session;
-    addQuote: (quote: any) => void;
-    closeModal: () => void;
+    setFormData: (data: any) => void;
 }
 
 const SelectOption: React.FC<SelectOptionProps> = ({
@@ -21,8 +20,7 @@ const SelectOption: React.FC<SelectOptionProps> = ({
     setSelectedOption,
     setErrorText,
     session,
-    addQuote,
-    closeModal,
+    setFormData,
 }) => {
     return (
         <>
@@ -47,55 +45,43 @@ const SelectOption: React.FC<SelectOptionProps> = ({
 
             {selectedOption === 'equipment' && (
                 <EquipmentForm
-                    session={session}
-                    addQuote={addQuote}
+                    setFormData={setFormData}
                     setErrorText={setErrorText}
-                    closeModal={closeModal}
                 />
             )}
 
             {selectedOption === 'ltl_ftl' && (
                 <FreightForm
-                    session={session}
-                    addQuote={addQuote}
+                    setFormData={setFormData}
                     setErrorText={setErrorText}
-                    closeModal={closeModal}
                 />
             )}
 
             {selectedOption === 'containers' && (
                 <ContainerForm
-                    session={session}
-                    addQuote={addQuote}
+                    setFormData={setFormData}
                     setErrorText={setErrorText}
-                    closeModal={closeModal}
                 />
             )}
 
             {selectedOption === 'rv_trailers' && (
                 <RvTrailerForm
-                    session={session}
-                    addQuote={addQuote}
+                    setFormData={setFormData}
                     setErrorText={setErrorText}
-                    closeModal={closeModal}
                 />
             )}
 
             {selectedOption === 'semi_trucks' && (
                 <SemiTruckForm
-                    session={session}
-                    addQuote={addQuote}
+                    setFormData={setFormData}
                     setErrorText={setErrorText}
-                    closeModal={closeModal}
                 />
             )}
 
             {selectedOption === 'boats' && (
                 <BoatForm
-                    session={session}
-                    addQuote={addQuote}
+                    setFormData={setFormData}
                     setErrorText={setErrorText}
-                    closeModal={closeModal}
                 />
             )}
         </>

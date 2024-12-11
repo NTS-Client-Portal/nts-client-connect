@@ -14,12 +14,10 @@ interface QuoteRequestProps {
 
 type ShippingQuote = Database['public']['Tables']['shippingquotes']['Row'];
 type Order = Database['public']['Tables']['orders']['Row'];
-type Freight = Database['public']['Tables']['freight']['Row'];
 
 const QuoteRequest = ({ session }: QuoteRequestProps) => {
     const supabase = useSupabaseClient<Database>();
     const [quotes, setQuotes] = useState<ShippingQuote[]>([]);
-    const [freightList, setFreightList] = useState<Freight[]>([]);
     const [orders, setOrders] = useState<Order[]>([]);
     const [errorText, setErrorText] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -43,28 +41,11 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
         }
     }, [session, supabase]);
 
-    const fetchFreight = useCallback(async () => {
-        if (!session?.user?.id) return;
-
-        const { data, error } = await supabase
-            .from('freight')
-            .select('*')
-            .eq('user_id', session.user.id);
-
-        if (error) {
-            setErrorText(error.message);
-        } else {
-            console.log('Fetched Freight:', data);
-            setFreightList(data);
-        }
-    }, [session, supabase]);
-
     useEffect(() => {
         if (session?.user?.id) {
             fetchQuotes();
-            fetchFreight();
         }
-    }, [session, fetchQuotes, fetchFreight]);
+    }, [session, fetchQuotes]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -82,6 +63,8 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
     const addQuote = async (quote: Partial<Database['public']['Tables']['shippingquotes']['Insert'] & { containerLength?: number | null; containerType?: string | null; contentsDescription?: string | null; selectedOption?: string | null; }>) => {
         if (!session?.user?.id) return;
 
+        console.log('Adding quote:', quote);
+
         const { data: shippingQuoteData, error: shippingQuoteError } = await supabase
             .from('shippingquotes')
             .insert([{
@@ -93,6 +76,13 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
                 inserted_at: quote.inserted_at || new Date().toISOString(),
                 is_complete: quote.is_complete || false,
                 is_archived: quote.is_archived || false,
+                year: quote.year?.toString() || null, // Ensure year is a string
+                make: quote.make || null,
+                model: quote.model || null,
+                length: quote.length?.toString() || null, // Ensure length is a string
+                width: quote.width?.toString() || null, // Ensure width is a string
+                height: quote.height?.toString() || null, // Ensure height is a string
+                weight: quote.weight?.toString() || null, // Ensure weight is a string
             }])
             .select();
 
@@ -104,26 +94,6 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
 
         console.log('Quote added successfully:', shippingQuoteData);
         setQuotes([...quotes, ...(shippingQuoteData || [])]);
-
-        if (quote.selectedOption === 'containers') {
-            const { data: containerData, error: containerError } = await supabase
-                .from('containers')
-                .insert([{
-                    shipping_quote_id: shippingQuoteData[0].id,
-                    container_length: quote.containerLength,
-                    container_type: quote.containerType,
-                    contents_description: quote.contentsDescription,
-                }])
-                .select();
-
-            if (containerError) {
-                console.error('Error adding container:', containerError.message);
-                setErrorText('Error adding container');
-                return;
-            }
-
-            console.log('Container added successfully:', containerData);
-        }
 
         setErrorText('');
         setIsModalOpen(false); // Close the modal after adding the quote
@@ -271,7 +241,6 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
                 {activeTab === 'requests' && (
                     <QuoteList
                         session={session}
-                        quotes={quotes}
                         fetchQuotes={fetchQuotes}
                         archiveQuote={archiveQuote}
                         transferToOrderList={transferToOrderList}

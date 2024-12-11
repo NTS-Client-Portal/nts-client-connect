@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Session } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
-import { ShippingQuote } from '@/lib/schema';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import OrderFormModal from './OrderFormModal';
 import EditQuoteModal from './EditQuoteModal';
 
 interface QuoteListProps {
     session: Session | null;
-    quotes: Database['public']['Tables']['shippingquotes']['Row'][];
     fetchQuotes: () => void;
     archiveQuote: (id: number) => Promise<void>;
     transferToOrderList: (quoteId: number, data: any) => Promise<void>;
@@ -16,13 +14,36 @@ interface QuoteListProps {
     isAdmin: boolean;
 }
 
-const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, archiveQuote, transferToOrderList, handleSelectQuote, isAdmin }) => {
+const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuote, transferToOrderList, handleSelectQuote, isAdmin }) => {
     const supabase = useSupabaseClient<Database>();
+    const [quotes, setQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedQuoteId, setSelectedQuoteId] = useState<number | null>(null);
-    const [quote, setQuote] = useState<ShippingQuote | null>(null);
+    const [quote, setQuote] = useState<Database['public']['Tables']['shippingquotes']['Row'] | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [quoteToEdit, setQuoteToEdit] = useState<ShippingQuote | null>(null);
+    const [quoteToEdit, setQuoteToEdit] = useState<Database['public']['Tables']['shippingquotes']['Row'] | null>(null);
+
+    useEffect(() => {
+        const fetchInitialQuotes = async () => {
+            const { data, error } = await supabase
+                .from('shippingquotes')
+                .select('*')
+                .eq('user_id', session?.user?.id);
+
+            if (error) {
+                console.error('Error fetching quotes:', error.message);
+            } else {
+                console.log('Fetched initial quotes:', data);
+                setQuotes(data);
+            }
+        };
+
+        fetchInitialQuotes();
+    }, [session, supabase]);
+
+    useEffect(() => {
+        fetchQuotes();
+    }, [fetchQuotes]);
 
     const handleCreateOrderClick = (quoteId: number) => {
         setSelectedQuoteId(quoteId);
@@ -110,12 +131,12 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
         }
     };
 
-    const handleEditClick = (quote: ShippingQuote) => {
+    const handleEditClick = (quote: Database['public']['Tables']['shippingquotes']['Row']) => {
         setQuoteToEdit(quote);
         setIsEditModalOpen(true);
     };
 
-    const handleEditModalSubmit = async (updatedQuote: ShippingQuote) => {
+    const handleEditModalSubmit = async (updatedQuote: Database['public']['Tables']['shippingquotes']['Row']) => {
         if (quoteToEdit && session?.user?.id) {
             const { error } = await supabase
                 .from('shippingquotes')
@@ -180,7 +201,8 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                                     </div>
                                 </td>
                                 <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
-                                    {quote.year} {quote.make} {quote.model}
+                                    {quote.year} {quote.make} {quote.model} <br />
+                                    Freight Type: {quote.freight_type}
                                 </td>
                                 <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
                                     <div className=" flex flex-col gap-1 text-sm font-medium text-zinc-900 w-full max-w-max">
@@ -244,7 +266,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                         </div>
                         <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
                             <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Freight</div>
-                            <div className="text-sm font-medium text-zinc-900">{quote.year} {quote.make} {quote.model}</div>
+                            <div className="text-sm font-medium text-zinc-900">{quote.year} {quote.make} {quote.model} <br />Freight Type: {quote.freight_type}</div>
                         </div>
                         <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
                             <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Dimensions</div>

@@ -1,21 +1,14 @@
-import React, { useState } from 'react';
-import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
-import { Database } from '@/lib/database.types';
+import React, { useState, useEffect } from 'react';
 
 interface SemiTruckFormProps {
-    session: Session;
-    addQuote: (quote: any) => void;
+    setFormData: (data: any) => void;
     setErrorText: (value: string) => void;
-    closeModal: () => void;
 }
 
 const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
-    session,
-    addQuote,
+    setFormData,
     setErrorText,
-    closeModal,
 }) => {
-    const supabase = useSupabaseClient<Database>();
     const [driveawayOrTowaway, setDriveawayOrTowaway] = useState<boolean | null>(null);
     const [height, setHeight] = useState<string | null>(null);
     const [length, setLength] = useState<string | null>(null);
@@ -26,11 +19,8 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
     const [width, setWidth] = useState<string | null>(null);
     const [year, setYear] = useState<number | null>(null);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        const quote = {
-            user_id: session.user.id,
+    useEffect(() => {
+        const formData = {
             driveaway_or_towaway: driveawayOrTowaway,
             height,
             length,
@@ -40,53 +30,13 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
             weight,
             width,
             year: year?.toString() || '',
-            inserted_at: new Date().toISOString(),
         };
 
-        const { data: shippingQuoteData, error: shippingQuoteError } = await supabase
-            .from('shippingquotes')
-            .insert([quote])
-            .select();
-
-        if (shippingQuoteError) {
-            console.error('Error adding quote:', shippingQuoteError.message);
-            setErrorText('Error adding quote');
-            return;
-        }
-
-        console.log('Quote added successfully:', shippingQuoteData);
-
-        const { data: semiTruckData, error: semiTruckError } = await supabase
-            .from('semi_trucks')
-            .insert([{
-                shipping_quote_id: shippingQuoteData[0].id,
-                driveaway_or_towaway: driveawayOrTowaway,
-                height,
-                length,
-                make,
-                model,
-                vin,
-                weight,
-                width,
-                year,
-            }])
-            .select();
-
-        if (semiTruckError) {
-            console.error('Error adding semi truck:', semiTruckError.message);
-            setErrorText('Error adding semi truck');
-            return;
-        }
-
-        console.log('Semi truck added successfully:', semiTruckData);
-
-        addQuote(shippingQuoteData[0]);
-        setErrorText('');
-        closeModal(); // Close the modal after adding the quote
-    };
+        setFormData(formData);
+    }, [driveawayOrTowaway, height, length, make, model, vin, weight, width, year, setFormData]);
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3">
             <div className='flex gap-2'>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Driveaway or Towaway
                     <input
@@ -192,7 +142,7 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
                     />
                 </label>
             </div>
-        </form>
+        </div>
     );
 };
 

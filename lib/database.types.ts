@@ -16,6 +16,7 @@ export type Database = {
           height: string | null
           id: number
           length: string | null
+          shipping_quote_id: number | null
           trailer: boolean | null
           type: string | null
           weight: string | null
@@ -26,6 +27,7 @@ export type Database = {
           height?: string | null
           id?: never
           length?: string | null
+          shipping_quote_id?: number | null
           trailer?: boolean | null
           type?: string | null
           weight?: string | null
@@ -36,11 +38,20 @@ export type Database = {
           height?: string | null
           id?: never
           length?: string | null
+          shipping_quote_id?: number | null
           trailer?: boolean | null
           type?: string | null
           weight?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "boats_shipping_quote_id_fkey"
+            columns: ["shipping_quote_id"]
+            isOneToOne: false
+            referencedRelation: "shippingquotes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       chrome_quotes: {
         Row: {
@@ -183,6 +194,7 @@ export type Database = {
           loading_by: boolean | null
           origin_surface_type: string | null
           origin_type: boolean | null
+          shipping_quote_id: number | null
           unloading_by: boolean | null
         }
         Insert: {
@@ -197,6 +209,7 @@ export type Database = {
           loading_by?: boolean | null
           origin_surface_type?: string | null
           origin_type?: boolean | null
+          shipping_quote_id?: number | null
           unloading_by?: boolean | null
         }
         Update: {
@@ -211,9 +224,18 @@ export type Database = {
           loading_by?: boolean | null
           origin_surface_type?: string | null
           origin_type?: boolean | null
+          shipping_quote_id?: number | null
           unloading_by?: boolean | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "containers_shipping_quote_id_fkey"
+            columns: ["shipping_quote_id"]
+            isOneToOne: false
+            referencedRelation: "shippingquotes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       documents: {
         Row: {
@@ -284,6 +306,7 @@ export type Database = {
           model: string | null
           operational_condition: boolean | null
           profile_id: string | null
+          shipping_quote_id: number | null
           tarping: boolean | null
           weight: string | null
           width: string | null
@@ -303,6 +326,7 @@ export type Database = {
           model?: string | null
           operational_condition?: boolean | null
           profile_id?: string | null
+          shipping_quote_id?: number | null
           tarping?: boolean | null
           weight?: string | null
           width?: string | null
@@ -322,6 +346,7 @@ export type Database = {
           model?: string | null
           operational_condition?: boolean | null
           profile_id?: string | null
+          shipping_quote_id?: number | null
           tarping?: boolean | null
           weight?: string | null
           width?: string | null
@@ -340,6 +365,13 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_shipping_quote_id_fkey"
+            columns: ["shipping_quote_id"]
+            isOneToOne: false
+            referencedRelation: "shippingquotes"
             referencedColumns: ["id"]
           },
         ]
@@ -474,6 +506,7 @@ export type Database = {
           load_description: string | null
           loading_assistance: string | null
           packaging_type: string | null
+          shipping_quote_id: number | null
           user_id: string | null
           weight: string | null
           weight_per_pallet_unit: string | null
@@ -488,6 +521,7 @@ export type Database = {
           load_description?: string | null
           loading_assistance?: string | null
           packaging_type?: string | null
+          shipping_quote_id?: number | null
           user_id?: string | null
           weight?: string | null
           weight_per_pallet_unit?: string | null
@@ -502,6 +536,7 @@ export type Database = {
           load_description?: string | null
           loading_assistance?: string | null
           packaging_type?: string | null
+          shipping_quote_id?: number | null
           user_id?: string | null
           weight?: string | null
           weight_per_pallet_unit?: string | null
@@ -512,6 +547,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ltl_ftl_shipping_quote_id_fkey"
+            columns: ["shipping_quote_id"]
+            isOneToOne: false
+            referencedRelation: "shippingquotes"
             referencedColumns: ["id"]
           },
           {
@@ -802,6 +844,7 @@ export type Database = {
           model: string | null
           motorized_or_trailer: string | null
           roadworthy: boolean | null
+          shipping_quote_id: number | null
           vin: string | null
           year: number | null
         }
@@ -812,6 +855,7 @@ export type Database = {
           model?: string | null
           motorized_or_trailer?: string | null
           roadworthy?: boolean | null
+          shipping_quote_id?: number | null
           vin?: string | null
           year?: number | null
         }
@@ -822,10 +866,19 @@ export type Database = {
           model?: string | null
           motorized_or_trailer?: string | null
           roadworthy?: boolean | null
+          shipping_quote_id?: number | null
           vin?: string | null
           year?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "rv_trailers_shipping_quote_id_fkey"
+            columns: ["shipping_quote_id"]
+            isOneToOne: false
+            referencedRelation: "shippingquotes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       semi_trucks: {
         Row: {
@@ -835,6 +888,7 @@ export type Database = {
           length: string | null
           make: string | null
           model: string | null
+          shipping_quote_id: number | null
           vin: string | null
           weight: string | null
           width: string | null
@@ -847,6 +901,7 @@ export type Database = {
           length?: string | null
           make?: string | null
           model?: string | null
+          shipping_quote_id?: number | null
           vin?: string | null
           weight?: string | null
           width?: string | null
@@ -859,110 +914,218 @@ export type Database = {
           length?: string | null
           make?: string | null
           model?: string | null
+          shipping_quote_id?: number | null
           vin?: string | null
           weight?: string | null
           width?: string | null
           year?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "semi_trucks_shipping_quote_id_fkey"
+            columns: ["shipping_quote_id"]
+            isOneToOne: false
+            referencedRelation: "shippingquotes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       shippingquotes: {
         Row: {
           assigned_sales_user: string | null
+          auction: string | null
+          beam: string | null
+          buyer_number: string | null
+          class_type: string | null
           commodity: string | null
           company_id: string | null
+          container_length: number | null
+          container_type: string | null
+          contents_description: string | null
+          cradle: boolean | null
           destination_city: string | null
           destination_state: string | null
           destination_street: string | null
+          destination_surface_type: string | null
+          destination_type: boolean | null
           destination_zip: string | null
+          dock_no_dock: boolean | null
+          driveaway_or_towaway: boolean | null
           due_date: string | null
           email: string | null
           first_name: string | null
+          freight_class: string | null
+          freight_type: string | null
+          goods_value: string | null
           height: string | null
           id: number
           inserted_at: string | null
           is_archived: boolean | null
           is_complete: boolean | null
+          is_loaded: boolean | null
           last_name: string | null
           length: string | null
+          load_description: string | null
+          loading_assistance: string | null
+          loading_by: boolean | null
+          loading_unloading_requirements: string | null
+          lot_number: string | null
           make: string | null
           model: string | null
+          motorized_or_trailer: string | null
           notes: string | null
+          operational_condition: boolean | null
           origin_address: string | null
           origin_city: string | null
           origin_state: string | null
+          origin_surface_type: string | null
+          origin_type: boolean | null
           origin_zip: string | null
+          packaging_type: string | null
           pallet_count: string | null
           price: number | null
+          roadworthy: boolean | null
+          save_to_inventory: boolean | null
+          tarping: boolean | null
+          trailer: boolean | null
           type: string | null
+          unloading_by: boolean | null
           user_id: string | null
+          vin: string | null
           weight: string | null
+          weight_per_pallet_unit: string | null
           width: string | null
           year: string | null
         }
         Insert: {
           assigned_sales_user?: string | null
+          auction?: string | null
+          beam?: string | null
+          buyer_number?: string | null
+          class_type?: string | null
           commodity?: string | null
           company_id?: string | null
+          container_length?: number | null
+          container_type?: string | null
+          contents_description?: string | null
+          cradle?: boolean | null
           destination_city?: string | null
           destination_state?: string | null
           destination_street?: string | null
+          destination_surface_type?: string | null
+          destination_type?: boolean | null
           destination_zip?: string | null
+          dock_no_dock?: boolean | null
+          driveaway_or_towaway?: boolean | null
           due_date?: string | null
           email?: string | null
           first_name?: string | null
+          freight_class?: string | null
+          freight_type?: string | null
+          goods_value?: string | null
           height?: string | null
           id?: number
           inserted_at?: string | null
           is_archived?: boolean | null
           is_complete?: boolean | null
+          is_loaded?: boolean | null
           last_name?: string | null
           length?: string | null
+          load_description?: string | null
+          loading_assistance?: string | null
+          loading_by?: boolean | null
+          loading_unloading_requirements?: string | null
+          lot_number?: string | null
           make?: string | null
           model?: string | null
+          motorized_or_trailer?: string | null
           notes?: string | null
+          operational_condition?: boolean | null
           origin_address?: string | null
           origin_city?: string | null
           origin_state?: string | null
+          origin_surface_type?: string | null
+          origin_type?: boolean | null
           origin_zip?: string | null
+          packaging_type?: string | null
           pallet_count?: string | null
           price?: number | null
+          roadworthy?: boolean | null
+          save_to_inventory?: boolean | null
+          tarping?: boolean | null
+          trailer?: boolean | null
           type?: string | null
+          unloading_by?: boolean | null
           user_id?: string | null
+          vin?: string | null
           weight?: string | null
+          weight_per_pallet_unit?: string | null
           width?: string | null
           year?: string | null
         }
         Update: {
           assigned_sales_user?: string | null
+          auction?: string | null
+          beam?: string | null
+          buyer_number?: string | null
+          class_type?: string | null
           commodity?: string | null
           company_id?: string | null
+          container_length?: number | null
+          container_type?: string | null
+          contents_description?: string | null
+          cradle?: boolean | null
           destination_city?: string | null
           destination_state?: string | null
           destination_street?: string | null
+          destination_surface_type?: string | null
+          destination_type?: boolean | null
           destination_zip?: string | null
+          dock_no_dock?: boolean | null
+          driveaway_or_towaway?: boolean | null
           due_date?: string | null
           email?: string | null
           first_name?: string | null
+          freight_class?: string | null
+          freight_type?: string | null
+          goods_value?: string | null
           height?: string | null
           id?: number
           inserted_at?: string | null
           is_archived?: boolean | null
           is_complete?: boolean | null
+          is_loaded?: boolean | null
           last_name?: string | null
           length?: string | null
+          load_description?: string | null
+          loading_assistance?: string | null
+          loading_by?: boolean | null
+          loading_unloading_requirements?: string | null
+          lot_number?: string | null
           make?: string | null
           model?: string | null
+          motorized_or_trailer?: string | null
           notes?: string | null
+          operational_condition?: boolean | null
           origin_address?: string | null
           origin_city?: string | null
           origin_state?: string | null
+          origin_surface_type?: string | null
+          origin_type?: boolean | null
           origin_zip?: string | null
+          packaging_type?: string | null
           pallet_count?: string | null
           price?: number | null
+          roadworthy?: boolean | null
+          save_to_inventory?: boolean | null
+          tarping?: boolean | null
+          trailer?: boolean | null
           type?: string | null
+          unloading_by?: boolean | null
           user_id?: string | null
+          vin?: string | null
           weight?: string | null
+          weight_per_pallet_unit?: string | null
           width?: string | null
           year?: string | null
         }

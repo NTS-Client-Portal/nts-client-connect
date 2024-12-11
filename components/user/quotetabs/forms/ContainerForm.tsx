@@ -1,21 +1,14 @@
-import React, { useState } from 'react';
-import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
-import { Database } from '@/lib/database.types';
+import React, { useState, useEffect } from 'react';
 
 interface ContainerFormProps {
-    session: Session;
-    addQuote: (quote: any) => void;
+    setFormData: (data: any) => void;
     setErrorText: (value: string) => void;
-    closeModal: () => void;
 }
 
 const ContainerForm: React.FC<ContainerFormProps> = ({
-    session,
-    addQuote,
+    setFormData,
     setErrorText,
-    closeModal,
 }) => {
-    const supabase = useSupabaseClient<Database>();
     const [containerLength, setContainerLength] = useState<number | null>(null);
     const [containerType, setContainerType] = useState<string | null>(null);
     const [contentsDescription, setContentsDescription] = useState<string | null>(null);
@@ -29,64 +22,27 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
     const [originType, setOriginType] = useState<string | null>(null);
     const [originTypeDescription, setOriginTypeDescription] = useState<string | null>(null);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        const quote = {
-            user_id: session.user.id,
-            containerLength,
-            containerType,
-            contentsDescription,
-            inserted_at: new Date().toISOString(),
+    useEffect(() => {
+        const formData = {
+            container_length: containerLength,
+            container_type: containerType,
+            contents_description: contentsDescription,
+            destination_surface_type: destinationSurfaceType,
+            destination_type: destinationType === 'Business' || destinationType === 'Residential',
+            destination_type_description: destinationType === 'Other' ? destinationTypeDescription : null,
+            goods_value: goodsValue,
+            is_loaded: isLoaded,
+            loading_by: loadingBy,
+            origin_surface_type: originSurfaceType,
+            origin_type: originType === 'Business' || originType === 'Residential',
+            origin_type_description: originType === 'Other' ? originTypeDescription : null,
         };
 
-        const { data: shippingQuoteData, error: shippingQuoteError } = await supabase
-            .from('shippingquotes')
-            .insert([quote])
-            .select();
-
-        if (shippingQuoteError) {
-            console.error('Error adding quote:', shippingQuoteError.message);
-            setErrorText('Error adding quote');
-            return;
-        }
-
-        console.log('Quote added successfully:', shippingQuoteData);
-
-        const { data: containerData, error: containerError } = await supabase
-            .from('containers')
-            .insert([{
-                shipping_quote_id: shippingQuoteData[0].id,
-                container_length: containerLength,
-                container_type: containerType,
-                contents_description: contentsDescription,
-                destination_surface_type: destinationSurfaceType,
-                destination_type: destinationType === 'Business' || destinationType === 'Residential',
-                destination_type_description: destinationType === 'Other' ? destinationTypeDescription : null,
-                goods_value: goodsValue,
-                is_loaded: isLoaded,
-                loading_by: loadingBy,
-                origin_surface_type: originSurfaceType,
-                origin_type: originType === 'Business' || originType === 'Residential',
-                origin_type_description: originType === 'Other' ? originTypeDescription : null,
-            }])
-            .select();
-
-        if (containerError) {
-            console.error('Error adding container:', containerError.message);
-            setErrorText('Error adding container');
-            return;
-        }
-
-        console.log('Container added successfully:', containerData);
-
-        addQuote(shippingQuoteData[0]);
-        setErrorText('');
-        closeModal(); // Close the modal after adding the quote
-    };
+        setFormData(formData);
+    }, [containerLength, containerType, contentsDescription, destinationSurfaceType, destinationType, destinationTypeDescription, goodsValue, isLoaded, loadingBy, originSurfaceType, originType, originTypeDescription, setFormData]);
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3">
             <div className='flex gap-2'>
                 <div className='flex flex-col w-1/2'>
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Container Length
@@ -293,7 +249,7 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
                     </label>
                 </div>
             )}
-        </form>
+        </div>
     );
 };
 

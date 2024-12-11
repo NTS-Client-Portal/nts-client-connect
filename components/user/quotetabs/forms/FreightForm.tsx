@@ -1,21 +1,14 @@
-import React, { useState } from 'react';
-import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
-import { Database } from '@/lib/database.types';
+import React, { useState, useEffect } from 'react';
 
 interface FreightFormProps {
-    session: Session;
-    addQuote: (quote: any) => void;
+    setFormData: (data: any) => void;
     setErrorText: (value: string) => void;
-    closeModal: () => void;
 }
 
 const FreightForm: React.FC<FreightFormProps> = ({
-    session,
-    addQuote,
+    setFormData,
     setErrorText,
-    closeModal,
 }) => {
-    const supabase = useSupabaseClient<Database>();
     const [loadDescription, setLoadDescription] = useState('');
     const [length, setLength] = useState('');
     const [height, setHeight] = useState('');
@@ -26,11 +19,8 @@ const FreightForm: React.FC<FreightFormProps> = ({
     const [weightPerPalletUnit, setWeightPerPalletUnit] = useState('');
     const [dockNoDock, setDockNoDock] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        const quote = {
-            user_id: session.user.id,
+    useEffect(() => {
+        const formData = {
             load_description: loadDescription,
             length,
             height,
@@ -40,53 +30,13 @@ const FreightForm: React.FC<FreightFormProps> = ({
             packaging_type: packagingType,
             weight_per_pallet_unit: weightPerPalletUnit,
             dock_no_dock: dockNoDock,
-            inserted_at: new Date().toISOString(),
         };
 
-        const { data: shippingQuoteData, error: shippingQuoteError } = await supabase
-            .from('shippingquotes')
-            .insert([quote])
-            .select();
-
-        if (shippingQuoteError) {
-            console.error('Error adding quote:', shippingQuoteError.message);
-            setErrorText('Error adding quote');
-            return;
-        }
-
-        console.log('Quote added successfully:', shippingQuoteData);
-
-        const { data: ltlFtlData, error: ltlFtlError } = await supabase
-            .from('ltl_ftl')
-            .insert([{
-                shipping_quote_id: shippingQuoteData[0].id,
-                load_description: loadDescription,
-                length,
-                height,
-                weight,
-                freight_class: freightClass,
-                loading_assistance: loadingAssistance,
-                packaging_type: packagingType,
-                weight_per_pallet_unit: weightPerPalletUnit,
-                dock_no_dock: dockNoDock,
-            }])
-            .select();
-
-        if (ltlFtlError) {
-            console.error('Error adding LTL/FTL:', ltlFtlError.message);
-            setErrorText('Error adding LTL/FTL');
-            return;
-        }
-
-        console.log('LTL/FTL added successfully:', ltlFtlData);
-
-        addQuote(shippingQuoteData[0]);
-        setErrorText('');
-        closeModal(); // Close the modal after adding the quote
-    };
+        setFormData(formData);
+    }, [loadDescription, length, height, weight, freightClass, loadingAssistance, packagingType, weightPerPalletUnit, dockNoDock, setFormData]);
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3">
             <div className='flex gap-2'>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Load Description
                     <input
@@ -192,7 +142,7 @@ const FreightForm: React.FC<FreightFormProps> = ({
                     />
                 </label>
             </div>
-        </form>
+        </div>
     );
 };
 
