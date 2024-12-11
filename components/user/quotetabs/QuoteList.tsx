@@ -219,7 +219,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
                                 <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
                                     {quote.price ? `$${quote.price}` : 'Quote Pending'}
                                 </td>
-                                <td className="px-6 py-3 whitespace-nowrap flex items-end justify-between">
+                                <td className="px-6 py-3 whitespace-nowrap flex flex-col gap-1 items-normal justify-between">
                                     <button onClick={() => archiveQuote(quote.id)} className="text-red-500 ml-2">
                                         Archive
                                     </button>
