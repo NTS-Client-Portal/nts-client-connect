@@ -68,6 +68,7 @@ const Crm: React.FC = () => {
         if (companiesError) {
           console.error('Error fetching assigned companies:', companiesError.message);
         } else if (companiesData) {
+          console.log('Fetched companies:', companiesData);
           setCompanies(companiesData);
           const allProfiles = companiesData.flatMap((company: any) => company.profiles);
           setProfiles(allProfiles);
@@ -77,7 +78,7 @@ const Crm: React.FC = () => {
 
     fetchAssignedCustomers();
   }, [userProfile, supabase]);
-
+  
   const getProfilesForCompany = (companyId: string) => {
     return profiles.filter(profile => profile.company_id === companyId);
   };

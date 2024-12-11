@@ -78,6 +78,8 @@ const ProfileSetup = () => {
                         throw new Error(newCompanyError.message);
                     }
 
+                    console.log('New company created:', newCompany);
+
                     // Assign a sales user to the new company
                     await assignSalesUser(companyId);
                 }
@@ -102,6 +104,8 @@ const ProfileSetup = () => {
             if (error) {
                 throw new Error(error.message);
             }
+
+            console.log('Profile created successfully');
 
             // Store invitations with roles and add invited users to the companies table
             for (const invite of inviteEmails) {

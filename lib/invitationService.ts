@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const sendInvitations = async (inviteEmails: { email: string, role: string }[], userId: string, companyId: string) => {
     try {
-        const response = await axios.post('/api/send-invitation', {
+        const response = await axios.post('/.netlify/functions/send-invitation', {
             inviteEmails,
             userId,
             companyId,
