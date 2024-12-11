@@ -22,6 +22,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
     const [quote, setQuote] = useState<Database['public']['Tables']['shippingquotes']['Row'] | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [quoteToEdit, setQuoteToEdit] = useState<Database['public']['Tables']['shippingquotes']['Row'] | null>(null);
+    const [expandedRow, setExpandedRow] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchInitialQuotes = async () => {
@@ -161,6 +162,95 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
         return `${day}/${month}/${year}`;
     };
 
+    const handleRowClick = (id: number) => {
+        setExpandedRow(expandedRow === id ? null : id);
+    };
+
+    const renderAdditionalDetails = (quote: Database['public']['Tables']['shippingquotes']['Row']) => {
+        switch (quote.freight_type) {
+            case 'equipment':
+                return (
+                    <>
+                        <div><strong>Year:</strong> {quote.year}</div>
+                        <div><strong>Make:</strong> {quote.make}</div>
+                        <div><strong>Model:</strong> {quote.model}</div>
+                        <div><strong>Operational Condition:</strong> {quote.operational_condition ? 'Operable' : 'Inoperable'}</div>
+                        <div><strong>Loading/Unloading Requirements:</strong> {quote.loading_unloading_requirements}</div>
+                        <div><strong>Tarping:</strong> {quote.tarping ? 'Yes' : 'No'}</div>
+                        <div><strong>Auction:</strong> {quote.auction}</div>
+                        <div><strong>Buyer Number:</strong> {quote.buyer_number}</div>
+                        <div><strong>Lot Number:</strong> {quote.lot_number}</div>
+                    </>
+                );
+            case 'containers':
+                return (
+                    <>
+                        <div><strong>Container Length:</strong> {quote.container_length}</div>
+                        <div><strong>Container Type:</strong> {quote.container_type}</div>
+                        <div><strong>Contents Description:</strong> {quote.contents_description}</div>
+                        <div><strong>Destination Surface Type:</strong> {quote.destination_surface_type}</div>
+                        <div><strong>Destination Type:</strong> {quote.destination_type ? 'Business' : 'Residential'}</div>
+                        <div><strong>Goods Value:</strong> {quote.goods_value}</div>
+                        <div><strong>Is Loaded:</strong> {quote.is_loaded ? 'Yes' : 'No'}</div>
+                        <div><strong>Loading By:</strong> {quote.loading_by ? 'Yes' : 'No'}</div>
+                        <div><strong>Origin Surface Type:</strong> {quote.origin_surface_type}</div>
+                        <div><strong>Origin Type:</strong> {quote.origin_type ? 'Business' : 'Residential'}</div>
+                    </>
+                );
+            case 'rv_trailers':
+                return (
+                    <>
+                        <div><strong>Class Type:</strong> {quote.class_type}</div>
+                        <div><strong>Make:</strong> {quote.make}</div>
+                        <div><strong>Model:</strong> {quote.model}</div>
+                        <div><strong>Motorized or Trailer:</strong> {quote.motorized_or_trailer}</div>
+                        <div><strong>Roadworthy:</strong> {quote.roadworthy ? 'Yes' : 'No'}</div>
+                        <div><strong>VIN:</strong> {quote.vin}</div>
+                        <div><strong>Year:</strong> {quote.year}</div>
+                    </>
+                );
+            case 'semi_trucks':
+                return (
+                    <>
+                        <div><strong>Driveaway or Towaway:</strong> {quote.driveaway_or_towaway ? 'Driveaway' : 'Towaway'}</div>
+                        <div><strong>Height:</strong> {quote.height}</div>
+                        <div><strong>Length:</strong> {quote.length}</div>
+                        <div><strong>Make:</strong> {quote.make}</div>
+                        <div><strong>Model:</strong> {quote.model}</div>
+                        <div><strong>VIN:</strong> {quote.vin}</div>
+                        <div><strong>Weight:</strong> {quote.weight}</div>
+                        <div><strong>Width:</strong> {quote.width}</div>
+                        <div><strong>Year:</strong> {quote.year}</div>
+                    </>
+                );
+            case 'boats':
+                return (
+                    <>
+                        <div><strong>Beam:</strong> {quote.beam}</div>
+                        <div><strong>Cradle:</strong> {quote.cradle ? 'Yes' : 'No'}</div>
+                        <div><strong>Height:</strong> {quote.height}</div>
+                        <div><strong>Length:</strong> {quote.length}</div>
+                        <div><strong>Trailer:</strong> {quote.trailer ? 'Yes' : 'No'}</div>
+                        <div><strong>Type:</strong> {quote.type}</div>
+                        <div><strong>Weight:</strong> {quote.weight}</div>
+                    </>
+                );
+            case 'ltl_ftl':
+                return (
+                    <>
+                        <div><strong>Load Description:</strong> {quote.load_description}</div>
+                        <div><strong>Freight Class:</strong> {quote.freight_class}</div>
+                        <div><strong>Loading Assistance:</strong> {quote.loading_assistance}</div>
+                        <div><strong>Packaging Type:</strong> {quote.packaging_type}</div>
+                        <div><strong>Weight per Pallet/Unit:</strong> {quote.weight_per_pallet_unit}</div>
+                        <div><strong>Dock / No Dock:</strong> {quote.dock_no_dock ? 'Dock' : 'No Dock'}</div>
+                    </>
+                );
+            default:
+                return null;
+        }
+    };
+
     return (
         <div className="w-full bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md border border-zinc-400 max-h-max flex-grow">
             <OrderFormModal
@@ -188,62 +278,49 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
                             <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="bg-white dark:bg-zinc-800/90 divide-y divide-zinc-300">
+                    <tbody className="bg-white divide-y divide-gray-200">
                         {quotes.map((quote) => (
-                            <tr key={quote.id}>
-                                <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
-                                    {quote.id}
-                                </td>
-                                <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
-                                    <div className="flex flex-col justify-start">
-                                        <span><strong>Origin:</strong> {quote.origin_city}, {quote.origin_state} {quote.origin_zip}</span>
-                                        <span><strong>Destination:</strong> {quote.destination_city}, {quote.destination_state} {quote.destination_zip}</span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
-                                    {quote.year} {quote.make} {quote.model} <br />
-                                    Freight Type: {quote.freight_type}
-                                </td>
-                                <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
-                                    <div className=" flex flex-col gap-1 text-sm font-medium text-zinc-900 w-full max-w-max">
-                                        <span className='font-semibold flex gap-1'>
-                                            Length:<p className='font-normal'>{quote.length}&apos;</p>
-                                            Width:<p className='font-normal'>{quote.width}&apos;</p>
-                                            Height<p className='font-normal'>{quote.height}&apos;</p></span>
-                                        <span className='font-semibold flex gap-1'>Weight:<p className='font-normal'>{quote.weight} lbs</p></span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
-                                    {formatDate(quote.due_date) || 'No due date'}
-                                </td>
-                                <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
-                                    {quote.price ? `$${quote.price}` : 'Quote Pending'}
-                                </td>
-                                <td className="px-6 py-3 whitespace-nowrap flex flex-col gap-1 items-normal justify-between">
-                                    <button onClick={() => archiveQuote(quote.id)} className="text-red-500 ml-2">
-                                        Archive
-                                    </button>
-                                    <button
-                                        onClick={() => handleEditClick(quote)}
-                                        className="cancel-btn"
-                                    >
-                                        Edit
-                                    </button>
-                                    {quote.price ? (
+                            <React.Fragment key={quote.id}>
+                                <tr onClick={() => handleRowClick(quote.id)} className="cursor-pointer">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{quote.id}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quote.freight_type}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quote.origin_city}, {quote.origin_state}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quote.destination_city}, {quote.destination_state}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quote.due_date}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quote.is_complete ? 'Complete' : 'Incomplete'}</td>
+                                    <td className="px-6 py-3 whitespace-nowrap flex flex-col gap-1 items-normal justify-between z-50">
+                                        <button onClick={() => archiveQuote(quote.id)} className="text-red-500 ml-2">
+                                            Archive
+                                        </button>
                                         <button
-                                            onClick={() => handleCreateOrderClick(quote.id)}
-                                            className="ml-2 p-1  body-btn text-white rounded"
+                                            onClick={() => handleEditClick(quote)}
+                                            className="cancel-btn"
                                         >
-                                            Create Order
+                                            Edit
                                         </button>
-                                    ) : null}
-                                    {isAdmin && (
-                                        <button onClick={() => handleRespond(quote.id)} className="text-blue-500 ml-2">
-                                            Respond
-                                        </button>
-                                    )}
-                                </td>
-                            </tr>
+                                        {quote.price ? (
+                                            <button
+                                                onClick={() => handleCreateOrderClick(quote.id)}
+                                                className="ml-2 p-1  body-btn text-white rounded"
+                                            >
+                                                Create Order
+                                            </button>
+                                        ) : null}
+                                        {isAdmin && (
+                                            <button onClick={() => handleRespond(quote.id)} className="text-blue-500 ml-2">
+                                                Respond
+                                            </button>
+                                        )}
+                                    </td>
+                                </tr>
+                                {expandedRow === quote.id && (
+                                    <tr>
+                                        <td colSpan={7} className="px-6 py-3">
+                                            {renderAdditionalDetails(quote)}
+                                        </td>
+                                    </tr>
+                                )}
+                            </React.Fragment>
                         ))}
                     </tbody>
                 </table>

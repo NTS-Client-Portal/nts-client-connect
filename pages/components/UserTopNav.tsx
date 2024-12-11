@@ -109,13 +109,13 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                             <Image
                                 src={profilePictureUrl}
                                 alt='profile-img'
-                                className='rounded-full shadow-md cursor-pointer'
+                                className='rounded-full shadow-md cursor-pointer '
                                 width={34}
                                 height={34}
                                 onClick={toggleDropdown}
                             />
                             {dropdownOpen && (
-                                <div className="absolute right-0 mt-2 w-fit text-xs bg-white border border-gray-200 rounded shadow-lg">
+                                <div className="absolute right-0 mt-2 z-50 w-fit text-xs bg-white border border-gray-200 rounded shadow-lg">
                                     <div className="p-4">
                                         <p><strong>{userProfile?.first_name} {userProfile?.last_name}</strong></p>
                                         <p>{userProfile?.email}</p>
@@ -186,7 +186,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                         <Image
                             src={profilePictureUrl}
                             alt='profile-img'
-                            className='rounded-full shadow-md cursor-pointer'
+                            className='rounded-full shadow-md cursor-pointer '
                             width={34}
                             height={34}
                             onClick={toggleDropdown}

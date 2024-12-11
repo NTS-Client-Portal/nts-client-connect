@@ -204,7 +204,7 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
                     </select>
                 </div>
             ) : (
-                <div className="flex gap-1 border-b border-gray-300">
+                    <div className="flex gap-1 border-b border-gray-300 z-0 relative">
                     <button
                         className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'requests' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
                         onClick={() => setActiveTab('requests')}
