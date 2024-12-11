@@ -25,16 +25,12 @@ const ProfileSetup = () => {
     useEffect(() => {
         const fetchUserEmail = async () => {
             if (session?.user?.id) {
-                const { data, error } = await supabase
-                    .from('auth.users')
-                    .select('email')
-                    .eq('id', session.user.id)
-                    .single();
+                const { data, error } = await supabase.auth.getUser();
 
                 if (error) {
                     setError(error.message);
                 } else {
-                    setEmail(data.email);
+                    setEmail(data.user.email);
                 }
             }
         };
@@ -87,34 +83,72 @@ const ProfileSetup = () => {
                 companyId = uuidv4();
             }
 
-            const { error } = await supabase
+            // Check if the profile already exists
+            const { data: existingProfile, error: profileError } = await supabase
                 .from('profiles')
-                .insert({
-                    id: session?.user?.id,
-                    email: email, // Use the email fetched from auth.users
-                    first_name: firstName,
-                    last_name: lastName,
-                    company_name: companyName || `${firstName} ${lastName}`,
-                    phone_number: phoneNumber, // Include phone number
-                    company_id: companyId,
-                    profile_complete: true, // Set profile_complete to true
-                    team_role: 'manager', // Set team_role to manager
-                });
+                .select('id')
+                .eq('email', email)
+                .single();
 
-            if (error) {
-                throw new Error(error.message);
+            if (profileError && profileError.code !== 'PGRST116') {
+                throw new Error(profileError.message);
             }
 
-            console.log('Profile created successfully');
+            if (existingProfile) {
+                // Update the existing profile
+                const { error } = await supabase
+                    .from('profiles')
+                    .update({
+                        first_name: firstName,
+                        last_name: lastName,
+                        company_name: companyName || `${firstName} ${lastName}`,
+                        phone_number: phoneNumber, // Include phone number
+                        company_id: companyId,
+                        profile_complete: true, // Set profile_complete to true
+                        team_role: 'manager', // Set team_role to manager
+                    })
+                    .eq('id', existingProfile.id);
+
+                if (error) {
+                    throw new Error(error.message);
+                }
+
+                console.log('Profile updated successfully');
+            } else {
+                // Insert a new profile
+                const { error } = await supabase
+                    .from('profiles')
+                    .insert({
+                        id: session?.user?.id,
+                        email: email, // Use the email fetched from auth.users
+                        first_name: firstName,
+                        last_name: lastName,
+                        company_name: companyName || `${firstName} ${lastName}`,
+                        phone_number: phoneNumber, // Include phone number
+                        company_id: companyId,
+                        profile_complete: true, // Set profile_complete to true
+                        team_role: 'manager', // Set team_role to manager
+                    });
+
+                if (error) {
+                    throw new Error(error.message);
+                }
+
+                console.log('Profile created successfully');
+            }
 
             // Store invitations with roles and add invited users to the companies table
             for (const invite of inviteEmails) {
+                const id = uuidv4(); // Generate a unique ID for the invitation
+                const token = uuidv4(); // Generate a unique token for the invitation
                 const { error: inviteError } = await supabase
                     .from('invitations')
                     .insert({
+                        id, // Set the id field
                         email: invite.email,
                         team_role: invite.role,
                         company_id: companyId,
+                        token, // Set the token field
                     });
 
                 if (inviteError) {
@@ -140,7 +174,20 @@ const ProfileSetup = () => {
 
     const handleSendInvitations = async () => {
         if (session?.user?.id && companyName) {
-            await sendInvitations(inviteEmails, session.user.id, companyName);
+            const { data: existingCompany, error: companyError } = await supabase
+                .from('companies')
+                .select('id')
+                .eq('name', companyName)
+                .single();
+
+            if (companyError) {
+                setError(companyError.message);
+                return;
+            }
+
+            const companyId = existingCompany.id;
+
+            await sendInvitations(inviteEmails, session.user.id, companyId);
             setInviteEmails([]);
         }
     };
