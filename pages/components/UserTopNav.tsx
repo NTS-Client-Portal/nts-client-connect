@@ -7,6 +7,7 @@ import FeedBack from '@/components/ui/FeedBack';
 import DarkModeToggle from '@/components/ui/DarkModeToggle';
 import Link from 'next/link';
 import { useSession } from '@supabase/auth-helpers-react';
+import Router from 'next/router';
 
 interface UserTopNavProps {
     className?: string;
@@ -25,6 +26,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
     const [darkMode, setDarkMode] = useState(false);
     const [profilePictureUrl, setProfilePictureUrl] = useState<string>('https://www.gravatar.com/avatar?d=mp&s=100');
     const [assignedSalesUsers, setAssignedSalesUsers] = useState<AssignedSalesUser[]>([]);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
     useEffect(() => {
         const savedDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -68,12 +70,13 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
             if (error) {
                 console.error('Error logging out:', error.message);
                 alert('Failed to log out. Please try again.');
+            } else {
+                Router.push('/'); // Redirect to login page
             }
-            window.location.href = '/login'; // Redirect to login page
         } catch (err) {
             console.error('Unexpected error during logout:', err);
             alert('An unexpected error occurred. Please try again.');
-            window.location.href = '/login'; // Redirect to login page
+            Router.push('/'); // Redirect to login page
         }
     };
 
@@ -88,23 +91,52 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
         }
     };
 
+    const toggleDropdown = () => {
+        setDropdownOpen(!dropdownOpen);
+    };
+
     return (
         <>
-            <nav className={`md:hidden w-full max-h-max bg-white  flex flex-col md:flex-row gap-1 justify-end px-4 z-20 py-1 drop-shadow ${className}`}>
+            <nav className={`md:hidden w-full max-h-max bg-white flex flex-col md:flex-row gap-1 justify-end px-4 z-20 py-1 drop-shadow ${className}`}>
                 <div className='flex gap-6 items-center z-20 justify-between mr-4'>
                     <ul className='flex gap-2 items-center justify-end w-full'>
                         <li>
                             <NotificationBell session={session} />
                         </li>
                     </ul>
-                    <ul>
+                    <ul className='relative'>
                         <li>
                             <Image
                                 src={profilePictureUrl}
                                 alt='profile-img'
-                                className='rounded-full shadow-md'
+                                className='rounded-full shadow-md cursor-pointer'
                                 width={34}
-                                height={34} />
+                                height={34}
+                                onClick={toggleDropdown}
+                            />
+                            {dropdownOpen && (
+                                <div className="absolute right-0 mt-2 w-fit text-xs bg-white border border-gray-200 rounded shadow-lg">
+                                    <div className="p-4">
+                                        <p><strong>{userProfile?.first_name} {userProfile?.last_name}</strong></p>
+                                        <p>{userProfile?.email}</p>
+                                        <p>{userProfile?.phone_number}</p>
+                                    </div>
+                                    <div className="border-t border-gray-200">
+                                        <Link href="/user/settings" legacyBehavior>
+                                            <a className="block px-4 py-2 text-gray-800 hover:bg-gray-100">User Settings</a>
+                                        </Link>
+                                        <Link href="/user/settings" legacyBehavior>
+                                            <a className="block px-4 py-2 text-gray-800 hover:bg-gray-100">Security Settings</a>
+                                        </Link>
+                                        <button
+                                            onClick={handleLogout}
+                                            className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100"
+                                        >
+                                            Logout
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </li>
                     </ul>
                 </div>
@@ -134,13 +166,13 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                         <DarkModeToggle />
                     </li> */}
                 </ul>
-                <ul className='w-full flex gap-2 md:gap-4 items-baseline z-20 justify-end mr-12'>
+                <ul className='w-full flex gap-2 md:gap-4 items-start z-20 justify-end mr-12'>
                     <li>
                         {assignedSalesUsers.length > 0 && (
                             <div className="flex flex-col items-start">
                                 <span className="text-sm">Assigned Sales User:</span>
                                 {assignedSalesUsers.map((user, index) => (
-                                    <div key={index} className="font-bold">
+                                    <div key={index} className="font-bold text-sm">
                                         {user.first_name} {user.last_name} - ({user.phone_number}) <br /> {user.email}
                                     </div>
                                 ))}
@@ -150,13 +182,38 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                     <li>
                         <NotificationBell session={session} />
                     </li>
-                    <li>
+                    <li className='relative'>
                         <Image
                             src={profilePictureUrl}
                             alt='profile-img'
-                            className='rounded-full shadow-md'
+                            className='rounded-full shadow-md cursor-pointer'
                             width={34}
-                            height={34} />
+                            height={34}
+                            onClick={toggleDropdown}
+                        />
+                        {dropdownOpen && (
+                            <div className="absolute right-0 mt-2 w-fit text-sm bg-white border border-gray-200 rounded shadow-lg">
+                                <div className="p-4">
+                                    <p><strong>{userProfile?.first_name} {userProfile?.last_name}</strong></p>
+                                    <p>{userProfile?.email}</p>
+                                    <p>{userProfile?.phone_number}</p>
+                                </div>
+                                <div className="border-t border-gray-200">
+                                    <Link href="/user/settings" legacyBehavior>
+                                        <a className="block px-4 py-2 text-gray-800 hover:bg-gray-100">User Settings</a>
+                                    </Link>
+                                    <Link href="/user/settings" legacyBehavior>
+                                        <a className="block px-4 py-2 text-gray-800 hover:bg-gray-100">Security Settings</a>
+                                    </Link>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100"
+                                    >
+                                        Logout
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </li>
                 </ul>
             </nav>

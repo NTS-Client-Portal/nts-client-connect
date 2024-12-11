@@ -158,12 +158,12 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, quotes, fetchQuotes, arc
                 <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
                     <thead className="bg-ntsLightBlue text-zinc-50 dark:bg-zinc-900 static top-0">
                         <tr className='text-zinc-50 font-semibold border-b border-zinc-900 dark:border-zinc-100'>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">ID</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">Origin/Destination</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">Freight</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">Dimensions</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">Shipping Date</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">Price</th>
+                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-100">ID</th>
+                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-100">Origin/Destination</th>
+                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-100">Freight</th>
+                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-100">Dimensions</th>
+                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-100">Shipping Date</th>
+                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-100">Price</th>
                             <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
