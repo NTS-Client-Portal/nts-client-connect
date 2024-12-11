@@ -105,7 +105,7 @@ const DimensionSearch: React.FC = () => {
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <div className="relative mb-4 md:w-1/4">
-                            <Search className="absolute left-3 top-1/2 transform -tranzinc-y-1/2 text-stone-950" />
+                            <Search className="absolute left-3 top-2 transform -transition-y-1/2 text-stone-950" />
                             <Input
                                 type="text"
                                 value={inputValue}
@@ -141,7 +141,7 @@ const DimensionSearch: React.FC = () => {
                 </div>
             </div>
             <div className="flex gap-4 mb-4 justify-center">
-                <Button onClick={handleSearch}>Search</Button>
+                <Button className='body-btn hover:bg-ntsLightBlue/90' onClick={handleSearch}>Search</Button>
                 <Button onClick={handleClearSearch} variant="outline">Clear</Button>
             </div>
             <ul className="flex flex-col justify-center items-center gap-4 w-full">

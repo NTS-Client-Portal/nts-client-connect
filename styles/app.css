@@ -1078,6 +1078,14 @@ body:is(.dark *) {
   height: 100vh;
 }
 
+.h-1 {
+  height: 0.25rem;
+}
+
+.h-32 {
+  height: 8rem;
+}
+
 .max-h-60 {
   max-height: 15rem;
 }
@@ -1194,6 +1202,10 @@ body:is(.dark *) {
 
 .w-full {
   width: 100%;
+}
+
+.w-32 {
+  width: 8rem;
 }
 
 .min-w-\[8rem\] {
@@ -3224,6 +3236,19 @@ main:is(.dark *) {
 .hover\:bg-zinc-800:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(39 39 42 / var(--tw-bg-opacity, 1));
+}
+
+.hover\:bg-primary:hover {
+  background-color: hsl(var(--primary));
+}
+
+.hover\:bg-ntsLightBlue:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(51 122 183 / var(--tw-bg-opacity, 1));
+}
+
+.hover\:bg-ntsLightBlue\/90:hover {
+  background-color: rgb(51 122 183 / 0.9);
 }
 
 .hover\:text-accent-foreground:hover {
