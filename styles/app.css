@@ -3699,6 +3699,18 @@ main:is(.dark *) {
     margin-top: 1rem;
   }
 
+  .md\:mt-80 {
+    margin-top: 20rem;
+  }
+
+  .md\:mt-28 {
+    margin-top: 7rem;
+  }
+
+  .md\:mt-24 {
+    margin-top: 6rem;
+  }
+
   .md\:block {
     display: block;
   }
