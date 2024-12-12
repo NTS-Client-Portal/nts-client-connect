@@ -948,6 +948,7 @@ export type Database = {
           destination_street: string | null
           destination_surface_type: string | null
           destination_type: boolean | null
+          destination_type_description: string | null
           destination_zip: string | null
           dock_no_dock: boolean | null
           driveaway_or_towaway: boolean | null
@@ -980,6 +981,7 @@ export type Database = {
           origin_state: string | null
           origin_surface_type: string | null
           origin_type: boolean | null
+          origin_type_description: string | null
           origin_zip: string | null
           packaging_type: string | null
           pallet_count: string | null
@@ -1014,6 +1016,7 @@ export type Database = {
           destination_street?: string | null
           destination_surface_type?: string | null
           destination_type?: boolean | null
+          destination_type_description?: string | null
           destination_zip?: string | null
           dock_no_dock?: boolean | null
           driveaway_or_towaway?: boolean | null
@@ -1046,6 +1049,7 @@ export type Database = {
           origin_state?: string | null
           origin_surface_type?: string | null
           origin_type?: boolean | null
+          origin_type_description?: string | null
           origin_zip?: string | null
           packaging_type?: string | null
           pallet_count?: string | null
@@ -1080,6 +1084,7 @@ export type Database = {
           destination_street?: string | null
           destination_surface_type?: string | null
           destination_type?: boolean | null
+          destination_type_description?: string | null
           destination_zip?: string | null
           dock_no_dock?: boolean | null
           driveaway_or_towaway?: boolean | null
@@ -1112,6 +1117,7 @@ export type Database = {
           origin_state?: string | null
           origin_surface_type?: string | null
           origin_type?: boolean | null
+          origin_type_description?: string | null
           origin_zip?: string | null
           packaging_type?: string | null
           pallet_count?: string | null

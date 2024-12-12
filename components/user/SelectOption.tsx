@@ -1,11 +1,11 @@
 import React from 'react';
-import EquipmentForm from './quotetabs/forms/EquipmentForm';
-import ContainerForm from './quotetabs/forms/ContainerForm';
-import RvTrailerForm from './quotetabs/forms/RvTrailerForm';
-import SemiTruckForm from './quotetabs/forms/SemiTruckForm';
-import BoatForm from './quotetabs/forms/BoatForm';
+import EquipmentForm from './forms/EquipmentForm';
+import ContainerForm from './forms/ContainerForm';
+import RvTrailerForm from './forms/RvTrailerForm';
+import SemiTruckForm from './forms/SemiTruckForm';
+import BoatForm from './forms/BoatForm';
 import { Session } from '@supabase/auth-helpers-react';
-import FreightForm from './quotetabs/forms/FreightForm';
+import FreightForm from './forms/FreightForm';
 
 interface SelectOptionProps {
     selectedOption: string;

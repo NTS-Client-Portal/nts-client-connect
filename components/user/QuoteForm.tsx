@@ -84,7 +84,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
         };
 
         try {
-            await addQuote(quote);
+            addQuote(quote);
             fetchQuotes();
             onClose();
         } catch (error) {
@@ -97,7 +97,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
 
     return (
         <div className="fixed inset-0 bg-zinc-600 bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded shadow-md w-full max-w-3xl">
+            <div className="bg-white p-6 rounded shadow-md w-full max-w-3xl relative  z-50">
                 <h2 className="text-xl mb-4">Request a Shipping Estimate</h2>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                     <SelectOption

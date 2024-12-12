@@ -4,6 +4,7 @@ import { Database } from '@/lib/database.types';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import OrderFormModal from './OrderFormModal';
 import EditQuoteModal from './EditQuoteModal';
+import QuoteDetailsMobile from '../mobile/QuoteDetailsMobile';
 
 interface QuoteListProps {
     session: Session | null;
@@ -13,6 +14,15 @@ interface QuoteListProps {
     handleSelectQuote: (id: number) => void;
     isAdmin: boolean;
 }
+
+const freightTypeMapping: { [key: string]: string } = {
+    equipment: 'Equipment/Machinery',
+    containers: 'Containers',
+    rv_trailers: 'RV/Trailers',
+    semi_trucks: 'Semi Trucks',
+    boats: 'Boats',
+    ltl_ftl: 'LTL/FTL',
+};
 
 const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuote, transferToOrderList, handleSelectQuote, isAdmin }) => {
     const supabase = useSupabaseClient<Database>();
@@ -283,7 +293,11 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
                             <React.Fragment key={quote.id}>
                                 <tr onClick={() => handleRowClick(quote.id)} className="cursor-pointer">
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{quote.id}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quote.freight_type}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm ">
+                                        <span className='text-base text-zinc-900'>{quote.container_length ? `${quote.container_length} ft ` : ''} {quote.container_type} </span> <br />
+                                        <span className='text-base text-zinc-900'>{quote.year ? `${quote.year} ` : ''} {quote.make} {quote.model}</span> <br />
+                                        <span className='font-semibold text-sm text-gray-700'>Freight Type:</span> {freightTypeMapping[quote.freight_type] || quote.freight_type.toUpperCase()}
+                                        </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quote.origin_city}, {quote.origin_state}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quote.destination_city}, {quote.destination_state}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quote.due_date}</td>
@@ -327,68 +341,16 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
             </div>
             <div className="block 2xl:hidden">
                 {quotes.map((quote) => (
-                    <div key={quote.id} className="bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md mb-4 p-4 border border-zinc-400">
-                        <div className="flex justify-between items-center mb-2">
-                            <div className="text-sm font-extrabold text-zinc-500 dark:text-white">ID</div>
-                            <div className="text-sm text-zinc-900">{quote.id}</div>
-                        </div>
-                        <div className='border-b border-zinc-600 mb-4'></div>
-                        <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                            <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Origin</div>
-                            <div className="text-sm font-medium text-zinc-900">{quote.origin_city}, {quote.origin_state} {quote.origin_zip}</div>
-                        </div>
-                        <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                            <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Destination</div>
-                            <div className="text-sm font-medium text-zinc-900">{quote.destination_city}, {quote.destination_state} {quote.destination_zip}</div>
-                        </div>
-                        <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                            <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Freight</div>
-                            <div className="text-sm font-medium text-zinc-900">{quote.year} {quote.make} {quote.model} <br />Freight Type: {quote.freight_type}</div>
-                        </div>
-                        <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                            <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Dimensions</div>
-                            <div className="text-sm font-medium text-zinc-900">{quote.length}&apos; {quote.width}&apos; {quote.height}&apos; <br />{quote.weight} lbs</div>
-                        </div>
-                        <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                            <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Shipping Date</div>
-                            <div className="text-sm font-medium text-zinc-900">{formatDate(quote.due_date)}</div>
-                        </div>
-                        <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                            <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Price</div>
-                            <div className="text-sm font-medium text-zinc-900">{quote.price ? `$${quote.price}` : 'Quote Pending'}</div>
-                        </div>
-                        <div className="flex justify-between items-center">
-                            <button onClick={() => archiveQuote(quote.id)} className="text-red-500 ml-2">
-                                Archive
-                            </button>
-                            <button
-                                onClick={() => handleEditClick(quote)}
-                                className="body-btn"
-                            >
-                                Edit
-                            </button>
-                            {quote.price ? (
-                                <button
-                                    onClick={() => handleCreateOrderClick(quote.id)}
-                                    className="ml-2 p-1 body-btn text-white rounded"
-                                >
-                                    Create Order
-                                </button>
-                            ) : (
-                                <button
-                                    onClick={() => handleEditClick(quote)}
-                                    className="upload-btn"
-                                >
-                                    Edit
-                                </button>
-                            )}
-                            {isAdmin && (
-                                <button onClick={() => handleRespond(quote.id)} className="text-blue-500 ml-2">
-                                    Respond
-                                </button>
-                            )}
-                        </div>
-                    </div>
+                    <QuoteDetailsMobile
+                        key={quote.id}
+                        quote={quote}
+                        formatDate={formatDate}
+                        archiveQuote={archiveQuote}
+                        handleEditClick={handleEditClick}
+                        handleCreateOrderClick={handleCreateOrderClick}
+                        handleRespond={handleRespond}
+                        isAdmin={isAdmin}
+                    />
                 ))}
             </div>
         </div>
