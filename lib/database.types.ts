@@ -291,6 +291,45 @@ export type Database = {
           },
         ]
       }
+      edit_history: {
+        Row: {
+          changes: string | null
+          edited_at: string | null
+          edited_by: string
+          id: number
+          quote_id: number
+        }
+        Insert: {
+          changes?: string | null
+          edited_at?: string | null
+          edited_by: string
+          id?: number
+          quote_id: number
+        }
+        Update: {
+          changes?: string | null
+          edited_at?: string | null
+          edited_by?: string
+          id?: number
+          quote_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "edit_history_edited_by_fkey"
+            columns: ["edited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "edit_history_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "shippingquotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       equipment: {
         Row: {
           auction: string | null

@@ -206,31 +206,31 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
             ) : (
                     <div className="flex gap-1 border-b border-gray-300">
                     <button
-                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'requests' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                            className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'requests' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
                         onClick={() => setActiveTab('requests')}
                     >
                         Shipping Requests
                     </button>
                     <button
-                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'orders' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                            className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'orders' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
                         onClick={() => setActiveTab('orders')}
                     >
                         Shipping Orders
                     </button>
                     <button
-                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'history' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                            className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'history' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
                         onClick={() => setActiveTab('history')}
                     >
                         Completed Orders
                     </button>
                     <button
-                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'archived' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                            className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'archived' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
                         onClick={() => setActiveTab('archived')}
                     >
                         Archived
                     </button>
                     <button
-                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'rejected' ? 'bg-zinc-900 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                            className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'rejected' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
                         onClick={() => setActiveTab('rejected')}
                     >
                         Rejected RFQ&apos;s

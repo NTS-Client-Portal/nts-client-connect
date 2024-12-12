@@ -5,6 +5,8 @@ import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import OrderFormModal from './OrderFormModal';
 import EditQuoteModal from './EditQuoteModal';
 import QuoteDetailsMobile from '../mobile/QuoteDetailsMobile';
+import TableHeaderSort from './TableHeaderSort';
+import EditHistory from './EditHistory'; // Adjust the import path as needed
 
 interface QuoteListProps {
     session: Session | null;
@@ -33,6 +35,38 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [quoteToEdit, setQuoteToEdit] = useState<Database['public']['Tables']['shippingquotes']['Row'] | null>(null);
     const [expandedRow, setExpandedRow] = useState<number | null>(null);
+    const [sortedQuotes, setSortedQuotes] = useState(quotes);
+    const [sortConfig, setSortConfig] = useState<{ column: string; order: string }>({ column: 'id', order: 'desc' });
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchColumn, setSearchColumn] = useState('id');
+    const [activeTab, setActiveTab] = useState('quotes'); // Add this line
+
+    useEffect(() => {
+        const sorted = [...quotes].sort((a, b) => {
+            if (a[sortConfig.column] < b[sortConfig.column]) {
+                return sortConfig.order === 'asc' ? -1 : 1;
+            }
+            if (a[sortConfig.column] > b[sortConfig.column]) {
+                return sortConfig.order === 'asc' ? 1 : -1;
+            }
+            return 0;
+        });
+
+        setSortedQuotes(sorted);
+    }, [quotes, sortConfig]);
+
+    useEffect(() => {
+        const filtered = quotes.filter((quote) => {
+            const value = quote[searchColumn]?.toString().toLowerCase() || '';
+            return value.includes(searchTerm.toLowerCase());
+        });
+
+        setSortedQuotes(filtered);
+    }, [searchTerm, searchColumn, quotes]);
+
+    const handleSort = (column: string, order: string) => {
+        setSortConfig({ column, order });
+    };
 
     useEffect(() => {
         const fetchInitialQuotes = async () => {
@@ -149,15 +183,50 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
 
     const handleEditModalSubmit = async (updatedQuote: Database['public']['Tables']['shippingquotes']['Row']) => {
         if (quoteToEdit && session?.user?.id) {
-            const { error } = await supabase
+            const { data: originalQuote, error: fetchError } = await supabase
+                .from('shippingquotes')
+                .select('*')
+                .eq('id', quoteToEdit.id)
+                .single();
+
+            if (fetchError) {
+                console.error('Error fetching original quote:', fetchError.message);
+                return;
+            }
+
+            const { error: updateError } = await supabase
                 .from('shippingquotes')
                 .update(updatedQuote)
                 .eq('id', quoteToEdit.id);
 
-            if (error) {
-                console.error('Error updating quote:', error.message);
+            if (updateError) {
+                console.error('Error updating quote:', updateError.message);
+                return;
+            }
+
+            const changes = Object.keys(updatedQuote).reduce((acc, key) => {
+                if (updatedQuote[key] !== originalQuote[key]) {
+                    acc[key] = { old: originalQuote[key], new: updatedQuote[key] };
+                }
+                return acc;
+            }, {});
+
+            const { error: historyError } = await supabase
+                .from('edit_history')
+                .insert({
+                    quote_id: quoteToEdit.id,
+                    edited_by: session.user.id,
+                    changes: JSON.stringify(changes),
+                });
+
+            if (historyError) {
+                console.error('Error logging edit history:', historyError.message);
             } else {
-                fetchQuotes();
+                setQuotes((prevQuotes) =>
+                    prevQuotes.map((quote) =>
+                        quote.id === updatedQuote.id ? updatedQuote : quote
+                    )
+                );
             }
         }
         setIsEditModalOpen(false);
@@ -262,7 +331,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
     };
 
     return (
-        <div className="w-full bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md border border-zinc-400 max-h-max flex-grow">
+        <div className="w-full bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md max-h-max flex-grow">
             <OrderFormModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
@@ -275,70 +344,127 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
                 onSubmit={handleEditModalSubmit}
                 quote={quoteToEdit}
             />
-            <div className="hidden 2xl:block overflow-x-auto">
-                <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
-                    <thead className="bg-ntsLightBlue text-zinc-50 dark:bg-zinc-900 static top-0">
-                        <tr className='text-zinc-50 font-semibold border-b border-zinc-900 dark:border-zinc-100'>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-100">ID</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-100">Origin/Destination</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-100">Freight</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-100">Dimensions</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-100">Shipping Date</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-100">Price</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs  font-semibold dark:text-white uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {quotes.map((quote) => (
-                            <React.Fragment key={quote.id}>
-                                <tr onClick={() => handleRowClick(quote.id)} className="cursor-pointer">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{quote.id}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm ">
-                                        <span className='text-base text-zinc-900'>{quote.container_length ? `${quote.container_length} ft ` : ''} {quote.container_type} </span> <br />
-                                        <span className='text-base text-zinc-900'>{quote.year ? `${quote.year} ` : ''} {quote.make} {quote.model}</span> <br />
-                                        <span className='font-semibold text-sm text-gray-700'>Freight Type:</span> {freightTypeMapping[quote.freight_type] || quote.freight_type.toUpperCase()}
+            <div className="flex gap-1 border-b border-gray-300">
+                <button
+                    className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'quotes' ? 'bg-zinc-600 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                    onClick={() => setActiveTab('quotes')}
+                >
+                    Quotes
+                </button>
+                <button
+                    className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'editHistory' ? 'bg-zinc-600 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                    onClick={() => setActiveTab('editHistory')}
+                >
+                    Edit History
+                </button>
+            </div>
+            <div className="flex justify-start gap-4 my-4 ml-4">
+                <div className="flex items-center">
+                    <label className="mr-2">Search by:</label>
+                    <select
+                        value={searchColumn}
+                        onChange={(e) => setSearchColumn(e.target.value)}
+                        className="border border-gray-300 rounded-md shadow-sm"
+                    >
+                        <option value="id">ID</option>
+                        <option value="freight_type">Freight Type</option>
+                        <option value="origin_city">Origin City</option>
+                        <option value="destination_city">Destination City</option>
+                        <option value="due_date">Shipping Date</option>
+                    </select>
+                </div>
+                <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search..."
+                    className="border border-gray-300 pl-2 rounded-md shadow-sm"
+                />
+            </div>
+
+            {activeTab === 'quotes' && (
+                <div className="hidden 2xl:block overflow-x-auto">
+                    <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
+                        <thead className="bg-ntsLightBlue text-zinc-50 dark:bg-zinc-900 static top-0">
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                    <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                    <TableHeaderSort column="Freight Description" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                    <TableHeaderSort column="origin_city" sortOrder={sortConfig.column === 'origin_city' ? sortConfig.order : null} onSort={handleSort} />
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                    <TableHeaderSort column="destination_city" sortOrder={sortConfig.column === 'destination_city' ? sortConfig.order : null} onSort={handleSort} />
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                    <TableHeaderSort column="due_date" sortOrder={sortConfig.column === 'due_date' ? sortConfig.order : null} onSort={handleSort} />
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                    <TableHeaderSort column="price" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {sortedQuotes.map((quote) => (
+                                <React.Fragment key={quote.id}>
+                                    <tr onClick={() => handleRowClick(quote.id)} className="cursor-pointer">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{quote.id}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm ">
+                                            <span className='text-base text-zinc-900'>{quote.container_length ? `${quote.container_length} ft ` : ''} {quote.container_type} </span> <br />
+                                            <span className='text-base text-zinc-900'>{quote.year ? `${quote.year} ` : ''} {quote.make} {quote.model}</span> <br />
+                                            <span className='font-semibold text-sm text-gray-700'>Freight Type:</span> {freightTypeMapping[quote.freight_type] || quote.freight_type.toUpperCase()}
                                         </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quote.origin_city}, {quote.origin_state}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quote.destination_city}, {quote.destination_state}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quote.due_date}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quote.is_complete ? 'Complete' : 'pending'}</td>
-                                    <td className="px-6 py-3 whitespace-nowrap flex flex-col gap-1 items-normal justify-between z-50">
-                                        <button onClick={() => archiveQuote(quote.id)} className="text-red-500 ml-2">
-                                            Archive
-                                        </button>
-                                        <button
-                                            onClick={() => handleEditClick(quote)}
-                                            className="cancel-btn"
-                                        >
-                                            Edit
-                                        </button>
-                                        {quote.price ? (
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quote.origin_city}, {quote.origin_state}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quote.destination_city}, {quote.destination_state}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(quote.due_date)}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quote.is_complete ? 'Complete' : 'pending'}</td>
+                                        <td className="px-6 py-3 whitespace-nowrap flex flex-col gap-1 items-normal justify-between z-50">
+                                            <button onClick={() => archiveQuote(quote.id)} className="text-red-500 ml-2">
+                                                Archive
+                                            </button>
                                             <button
-                                                onClick={() => handleCreateOrderClick(quote.id)}
-                                                className="ml-2 p-1  body-btn text-white rounded"
+                                                onClick={() => handleEditClick(quote)}
+                                                className="cancel-btn"
                                             >
-                                                Create Order
+                                                Edit
                                             </button>
-                                        ) : null}
-                                        {isAdmin && (
-                                            <button onClick={() => handleRespond(quote.id)} className="text-blue-500 ml-2">
-                                                Respond
-                                            </button>
-                                        )}
-                                    </td>
-                                </tr>
-                                {expandedRow === quote.id && (
-                                    <tr>
-                                        <td colSpan={7} className="px-6 py-3">
-                                            {renderAdditionalDetails(quote)}
+                                            {quote.price ? (
+                                                <button
+                                                    onClick={() => handleCreateOrderClick(quote.id)}
+                                                    className="ml-2 p-1  body-btn text-white rounded"
+                                                >
+                                                    Create Order
+                                                </button>
+                                            ) : null}
+                                            {isAdmin && (
+                                                <button onClick={() => handleRespond(quote.id)} className="text-blue-500 ml-2">
+                                                    Respond
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
-                                )}
-                            </React.Fragment>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                                    {expandedRow === quote.id && (
+                                        <tr>
+                                            <td colSpan={7} className="px-6 py-3">
+                                                {renderAdditionalDetails(quote)}
+                                            </td>
+                                        </tr>
+                                    )}
+                                </React.Fragment>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+            {activeTab === 'editHistory' && quoteToEdit && (
+                <div className="p-4 bg-white border border-gray-300 rounded-b-md">
+                    <EditHistory quoteId={quoteToEdit.id} />
+                </div>
+            )}
             <div className="block 2xl:hidden">
                 {quotes.map((quote) => (
                     <QuoteDetailsMobile
