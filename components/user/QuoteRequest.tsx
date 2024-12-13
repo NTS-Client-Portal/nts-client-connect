@@ -7,6 +7,7 @@ import HistoryList from './quotetabs/HistoryList';
 import OrderList from './quotetabs/OrderList';
 import Archived from './quotetabs/Archived';
 import Rejected from './quotetabs/Rejected';
+import EditHistory from './quotetabs/EditHistory'; // Adjust the import path as needed
 
 interface QuoteRequestProps {
     session: Session | null;
@@ -14,15 +15,20 @@ interface QuoteRequestProps {
 
 type ShippingQuote = Database['public']['Tables']['shippingquotes']['Row'];
 type Order = Database['public']['Tables']['orders']['Row'];
+type EditHistoryEntry = Database['public']['Tables']['edit_history']['Row'];
 
 const QuoteRequest = ({ session }: QuoteRequestProps) => {
     const supabase = useSupabaseClient<Database>();
     const [quotes, setQuotes] = useState<ShippingQuote[]>([]);
     const [orders, setOrders] = useState<Order[]>([]);
+    const [editHistory, setEditHistory] = useState<EditHistoryEntry[]>([]);
     const [errorText, setErrorText] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [activeTab, setActiveTab] = useState('requests');
     const [isMobile, setIsMobile] = useState<boolean>(false);
+    const [quoteToEdit, setQuoteToEdit] = useState<ShippingQuote | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchColumn, setSearchColumn] = useState('id');
 
     const fetchQuotes = useCallback(async () => {
         if (!session?.user?.id) return;
@@ -41,11 +47,26 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
         }
     }, [session, supabase]);
 
+    const fetchEditHistory = useCallback(async () => {
+        const { data, error } = await supabase
+            .from('edit_history')
+            .select('*')
+            .order('edited_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching edit history:', error.message);
+        } else {
+            console.log('Fetched Edit History:', data);
+            setEditHistory(data);
+        }
+    }, [supabase]);
+
     useEffect(() => {
         if (session?.user?.id) {
             fetchQuotes();
+            fetchEditHistory();
         }
-    }, [session, fetchQuotes]);
+    }, [session, fetchQuotes, fetchEditHistory]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -201,39 +222,46 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
                         <option value="history">Completed Orders</option>
                         <option value="archived">Archived</option>
                         <option value="rejected">Rejected RFQ&apos;s</option>
+                        <option value="editHistory">Edit History</option>
                     </select>
                 </div>
             ) : (
-                    <div className="flex gap-1 border-b border-gray-300">
+                <div className="flex gap-1 border-b border-gray-300">
                     <button
-                            className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'requests' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'requests' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
                         onClick={() => setActiveTab('requests')}
                     >
                         Shipping Requests
                     </button>
                     <button
-                            className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'orders' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'orders' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
                         onClick={() => setActiveTab('orders')}
                     >
                         Shipping Orders
                     </button>
                     <button
-                            className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'history' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'history' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
                         onClick={() => setActiveTab('history')}
                     >
                         Completed Orders
                     </button>
                     <button
-                            className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'archived' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'archived' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
                         onClick={() => setActiveTab('archived')}
                     >
                         Archived
                     </button>
                     <button
-                            className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'rejected' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'rejected' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
                         onClick={() => setActiveTab('rejected')}
                     >
                         Rejected RFQ&apos;s
+                    </button>
+                    <button
+                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'editHistory' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                        onClick={() => setActiveTab('editHistory')}
+                    >
+                        Edit History
                     </button>
                 </div>
             )}
@@ -270,6 +298,9 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
                     <Rejected
                         session={session}
                     />
+                )}
+                {activeTab === 'editHistory' && (
+                    <EditHistory quoteId={quoteToEdit?.id || 0} searchTerm={searchTerm} searchColumn={searchColumn} />
                 )}
             </div>
         </div>

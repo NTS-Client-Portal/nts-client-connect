@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ShippingQuote } from '@/lib/schema';
 import EditHistory from './EditHistory';
+
 interface EditQuoteModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -323,9 +324,9 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-4 rounded shadow-lg w-full max-w-md">
+            <div className="flex gap-2 bg-white p-4 rounded shadow-lg w-fit">
+                <form className='border border-r px-2 ' onSubmit={handleSubmit}>
                 <h2 className="text-xl font-bold mb-4">Edit Quote</h2>
-                <form onSubmit={handleSubmit}>
                     <div className='flex gap-2'>
                         <div className="mb-4">
                             <label className="block text-sm font-medium text-gray-700">Origin Zipcode</label>
@@ -422,6 +423,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                         </button>
                     </div>
                 </form>
+                <EditHistory quoteId={quote?.id || 0} searchTerm="" searchColumn="id" />
             </div>
         </div>
     );

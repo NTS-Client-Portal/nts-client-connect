@@ -3,6 +3,9 @@
     "github-actions.workflows.pinned.refresh.enabled": true,
     "workbench.editor.wrapTabs": true,
     "tailwindCSS.emmetCompletions": true,
+    "editor.formatOnSave": false,
+    "editor.formatOnType": false,
+    "editor.formatOnPaste": false,
     "eslint.enable": true,
     "eslint.validate": [
       "javascript",
