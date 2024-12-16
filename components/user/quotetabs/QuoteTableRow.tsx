@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Database } from '@/lib/database.types';
+import EditHistory from './EditHistory';
 import { formatDate, renderAdditionalDetails, freightTypeMapping } from './QuoteUtils';
+import { supabase } from '@/lib/initSupabase';
 
 interface QuoteTableRowProps {
     quote: Database['public']['Tables']['shippingquotes']['Row'];
@@ -23,6 +25,29 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
     handleRespond,
     isAdmin,
 }) => {
+    const [activeTab, setActiveTab] = useState('quotedetails');
+    const [editHistory, setEditHistory] = useState<Database['public']['Tables']['edit_history']['Row'][]>([]);
+
+    useEffect(() => {
+        if (expandedRow === quote.id && activeTab === 'editHistory') {
+            const fetchEditHistory = async () => {
+                const { data, error } = await supabase
+                    .from('edit_history')
+                    .select('*')
+                    .eq('quote_id', quote.id)
+                    .order('edited_at', { ascending: false });
+
+                if (error) {
+                    console.error('Error fetching edit history:', error.message);
+                } else {
+                    setEditHistory(data);
+                }
+            };
+
+            fetchEditHistory();
+        }
+    }, [expandedRow, activeTab, quote.id]);
+
     return (
         <>
             <tr onClick={() => handleRowClick(quote.id)} className="cursor-pointer">
@@ -63,8 +88,34 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
             </tr>
             {expandedRow === quote.id && (
                 <tr>
-                    <td colSpan={7} className="px-6 py-3">
-                        {renderAdditionalDetails(quote)}
+                    <td colSpan={7}>
+                        <div className="p-4 bg-white border border-gray-300 rounded-b-md">
+                            <div className="flex gap-4 mb-4">
+                                <button
+                                    className={`px-4 py-2 ${activeTab === 'quotedetails' ? 'bg-gray-200' : 'bg-white'}`}
+                                    onClick={() => setActiveTab('quotedetails')}
+                                >
+                                    Quote Details
+                                </button>
+                                <button
+                                    className={`px-4 py-2 ${activeTab === 'editHistory' ? 'bg-gray-200' : 'bg-white'}`}
+                                    onClick={() => setActiveTab('editHistory')}
+                                >
+                                    Edit History
+                                </button>
+                            </div>
+                            {activeTab === 'quotedetails' && (
+                                <div>
+                                    {/* Render additional details here */}
+                                    {renderAdditionalDetails(quote)}
+                                </div>
+                            )}
+                            {activeTab === 'editHistory' && (
+                                <div className="max-h-96">
+                                    <EditHistory quoteId={quote.id} searchTerm="" searchColumn="id" editHistory={editHistory} />
+                                </div>
+                            )}
+                        </div>
                     </td>
                 </tr>
             )}

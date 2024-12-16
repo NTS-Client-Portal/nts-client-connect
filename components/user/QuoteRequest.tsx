@@ -29,7 +29,7 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
     const [quoteToEdit, setQuoteToEdit] = useState<ShippingQuote | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [searchColumn, setSearchColumn] = useState('id');
-
+    
     const fetchQuotes = useCallback(async () => {
         if (!session?.user?.id) return;
 
@@ -48,9 +48,23 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
     }, [session, supabase]);
 
     const fetchEditHistory = useCallback(async () => {
+        if (!session?.user?.id) return;
+
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('company_id')
+            .eq('id', session.user.id)
+            .single();
+
+        if (profileError) {
+            console.error('Error fetching profile:', profileError.message);
+            return;
+        }
+
         const { data, error } = await supabase
             .from('edit_history')
             .select('*')
+            .eq('company_id', profile.company_id)
             .order('edited_at', { ascending: false });
 
         if (error) {
@@ -59,7 +73,7 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
             console.log('Fetched Edit History:', data);
             setEditHistory(data);
         }
-    }, [supabase]);
+    }, [session, supabase]);
 
     useEffect(() => {
         if (session?.user?.id) {
@@ -163,6 +177,8 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
         }
     };
 
+    
+
     const handleMarkAsComplete = async (orderId: number): Promise<void> => {
         try {
             const { error } = await supabase
@@ -255,7 +271,7 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
                         className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'rejected' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
                         onClick={() => setActiveTab('rejected')}
                     >
-                        Rejected RFQ&apos;s
+                        Rejected RFQ&apos;
                     </button>
                     <button
                         className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'editHistory' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
@@ -268,13 +284,13 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
             <div className="p-4 bg-white border border-gray-300 rounded-b-md">
                 {activeTab === 'requests' && (
                     <QuoteList
-                        session={session}
-                        fetchQuotes={fetchQuotes}
-                        archiveQuote={archiveQuote}
-                        transferToOrderList={transferToOrderList}
-                        handleSelectQuote={string => console.log(string)}
-                        isAdmin={false}
-                    />
+                    session={session}
+                    fetchQuotes={fetchQuotes}
+                    archiveQuote={archiveQuote}
+                    transferToOrderList={transferToOrderList}
+                    handleSelectQuote={string => console.log(string)}
+                    isAdmin={false}
+                />
                 )}
                 {activeTab === 'orders' && (
                     <OrderList
@@ -300,7 +316,12 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
                     />
                 )}
                 {activeTab === 'editHistory' && (
-                    <EditHistory quoteId={quoteToEdit?.id || 0} searchTerm={searchTerm} searchColumn={searchColumn} />
+                    <EditHistory
+                        editHistory={editHistory}
+                        quoteId={0} // Pass a dummy quoteId since it's not used in this context
+                        searchTerm=""
+                        searchColumn="id"
+                    />
                 )}
             </div>
         </div>

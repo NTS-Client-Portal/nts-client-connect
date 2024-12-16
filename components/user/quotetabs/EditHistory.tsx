@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/initSupabase'; // Adjust the import path as needed
+import { Database } from '@/lib/database.types'; // Adjust the import path as needed
 
 interface EditHistoryProps {
     quoteId: number;
     searchTerm: string;
     searchColumn: string;
+    editHistory: Database['public']['Tables']['edit_history']['Row'][];
+
 }
 
 interface EditHistoryEntry {
@@ -13,6 +16,9 @@ interface EditHistoryEntry {
     edited_by: string;
     edited_at: string;
     changes: string;
+    company_id: string | null;
+    first_name: string | null;
+    last_name: string | null;
 }
 
 const EditHistory: React.FC<EditHistoryProps> = ({ quoteId, searchTerm, searchColumn }) => {
@@ -24,7 +30,13 @@ const EditHistory: React.FC<EditHistoryProps> = ({ quoteId, searchTerm, searchCo
             console.log('Fetching edit history for quoteId:', quoteId);
             const { data, error } = await supabase
                 .from('edit_history')
-                .select('*')
+                .select(`
+                    *,
+                    profiles (
+                        first_name,
+                        last_name
+                    )
+                `)
                 .eq('quote_id', quoteId)
                 .order('edited_at', { ascending: false });
 
@@ -32,7 +44,12 @@ const EditHistory: React.FC<EditHistoryProps> = ({ quoteId, searchTerm, searchCo
                 console.error('Error fetching edit history:', error.message);
             } else {
                 console.log('Fetched edit history:', data);
-                setEditHistory(data);
+                const formattedData = data.map((entry: any) => ({
+                    ...entry,
+                    first_name: entry.profiles.first_name,
+                    last_name: entry.profiles.last_name,
+                }));
+                setEditHistory(formattedData);
             }
 
             setLoading(false);
@@ -66,17 +83,17 @@ const EditHistory: React.FC<EditHistoryProps> = ({ quoteId, searchTerm, searchCo
     }
 
     return (
-        <div className='overflow-y-auto'>
-            <h3 className="text-lg font-bold mb-4">Edit History</h3>
+        <div className='overflow-y-auto max-h-96 border border-zinc-600/90 p-8'>
+            <h3 className="text-lg font-bold mb-4">Quote History Log</h3>
             {filteredEditHistory.length === 0 ? (
                 <div>No edit history available.</div>
             ) : (
-                <div className='overflow-y-auto'>
+                <div className=''>
                     <ul>
                         {filteredEditHistory.map((entry) => (
                             <li key={entry.id} className="mb-4">
                                 <div>
-                                    <strong>Edited By:</strong> {entry.edited_by}
+                                    <strong>Edited By:</strong> {entry.first_name} {entry.last_name}
                                 </div>
                                 <div>
                                     <strong>Edited At:</strong> {new Date(entry.edited_at).toLocaleString()}

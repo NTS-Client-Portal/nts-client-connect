@@ -1103,6 +1103,10 @@ body:is(.dark *) {
   max-height: 100vh;
 }
 
+.max-h-96 {
+  max-height: 24rem;
+}
+
 .min-h-\[80px\] {
   min-height: 80px;
 }
@@ -1248,10 +1252,6 @@ body:is(.dark *) {
 
 .max-w-sm {
   max-width: 24rem;
-}
-
-.max-w-lg {
-  max-width: 32rem;
 }
 
 .flex-1 {
@@ -1507,6 +1507,10 @@ body:is(.dark *) {
   overflow: hidden;
 }
 
+.overflow-visible {
+  overflow: visible;
+}
+
 .overflow-x-auto {
   overflow-x: auto;
 }
@@ -1517,6 +1521,10 @@ body:is(.dark *) {
 
 .overflow-y-hidden {
   overflow-y: hidden;
+}
+
+.overflow-y-visible {
+  overflow-y: visible;
 }
 
 .overflow-y-scroll {
@@ -1711,6 +1719,27 @@ body:is(.dark *) {
 
 .border-zinc-900\/50 {
   border-color: rgb(24 24 27 / 0.5);
+}
+
+.border-gray-500 {
+  --tw-border-opacity: 1;
+  border-color: rgb(107 114 128 / var(--tw-border-opacity, 1));
+}
+
+.border-gray-500\/90 {
+  border-color: rgb(107 114 128 / 0.9);
+}
+
+.border-gray-400\/90 {
+  border-color: rgb(156 163 175 / 0.9);
+}
+
+.border-zinc-400\/90 {
+  border-color: rgb(161 161 170 / 0.9);
+}
+
+.border-zinc-600\/90 {
+  border-color: rgb(82 82 91 / 0.9);
 }
 
 .bg-background {

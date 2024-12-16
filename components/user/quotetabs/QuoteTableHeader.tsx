@@ -13,6 +13,9 @@ interface QuoteTableHeaderProps {
     activeTab: string;
     quoteToEdit: Database['public']['Tables']['shippingquotes']['Row'] | null;
     quote: Database['public']['Tables']['shippingquotes']['Row'] | null; // Add quote prop
+    companyId: string; // Add companyId prop
+    editHistory: Database['public']['Tables']['edit_history']['Row'][]; // Add editHistory prop
+    fetchEditHistory: (companyId: string) => void; // Add fetchEditHistory prop
 }
 
 const QuoteTableHeader: React.FC<QuoteTableHeaderProps> = ({
@@ -24,10 +27,12 @@ const QuoteTableHeader: React.FC<QuoteTableHeaderProps> = ({
     activeTab,
     quoteToEdit,
     quote, // Add quote prop
+    companyId, // Add companyId prop
+    editHistory, // Add editHistory prop
+    fetchEditHistory, // Add fetchEditHistory prop
 }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchColumn, setSearchColumn] = useState('id');
-    const [editHistory, setEditHistory] = useState<Database['public']['Tables']['edit_history']['Row'][]>([]);
     const [loading, setLoading] = useState(false);
     const supabase = useSupabaseClient<Database>();
 
@@ -40,29 +45,10 @@ const QuoteTableHeader: React.FC<QuoteTableHeaderProps> = ({
         setSortedQuotes(filtered);
     }, [searchTerm, searchColumn, quotes, setSortedQuotes]);
 
-    const fetchEditHistory = async (quoteId: number) => {
-        setLoading(true);
-        console.log('Fetching edit history for quoteId:', quoteId);
-        const { data, error } = await supabase
-            .from('edit_history')
-            .select('*')
-            .eq('quote_id', quoteId)
-            .order('edited_at', { ascending: false });
-
-        if (error) {
-            console.error('Error fetching edit history:', error.message);
-        } else {
-            console.log('Fetched Edit History:', data);
-            setEditHistory(data);
-        }
-
-        setLoading(false);
-    };
-
     const handleTabClick = (tab: string) => {
         setActiveTab(tab);
-        if (tab === 'editHistory' && quote) {
-            fetchEditHistory(quote.id);
+        if (tab === 'editHistory') {
+            fetchEditHistory(companyId);
         }
     };
 
@@ -104,11 +90,6 @@ const QuoteTableHeader: React.FC<QuoteTableHeaderProps> = ({
                     className="border border-gray-300 pl-2 rounded-md shadow-sm"
                 />
             </div>
-            {activeTab === 'editHistory' && quoteToEdit && (
-                <div className="p-4 bg-white border border-gray-300 rounded-b-md">
-                    <EditHistory quoteId={quoteToEdit.id} searchTerm={searchTerm} searchColumn={searchColumn} />
-                </div>
-            )}
             <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
                 <thead className="bg-ntsLightBlue text-zinc-50 dark:bg-zinc-900 static top-0 w-full">
                     <tr>

@@ -294,6 +294,7 @@ export type Database = {
       edit_history: {
         Row: {
           changes: string | null
+          company_id: string | null
           edited_at: string | null
           edited_by: string
           id: number
@@ -301,6 +302,7 @@ export type Database = {
         }
         Insert: {
           changes?: string | null
+          company_id?: string | null
           edited_at?: string | null
           edited_by: string
           id?: number
@@ -308,6 +310,7 @@ export type Database = {
         }
         Update: {
           changes?: string | null
+          company_id?: string | null
           edited_at?: string | null
           edited_by?: string
           id?: number
@@ -326,6 +329,13 @@ export type Database = {
             columns: ["quote_id"]
             isOneToOne: false
             referencedRelation: "shippingquotes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_company_id"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]

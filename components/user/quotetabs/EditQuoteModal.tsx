@@ -423,7 +423,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                         </button>
                     </div>
                 </form>
-                <EditHistory quoteId={quote?.id || 0} searchTerm="" searchColumn="id" />
+                <EditHistory quoteId={quote?.id || 0} searchTerm="" searchColumn="id" editHistory={[]} />
             </div>
         </div>
     );

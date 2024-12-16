@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Session } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
@@ -7,7 +7,7 @@ import EditQuoteModal from './EditQuoteModal';
 import QuoteDetailsMobile from '../mobile/QuoteDetailsMobile';
 import QuoteTableHeader from './QuoteTableHeader';
 import QuoteTableRow from './QuoteTableRow';
-import EditHistory from './EditHistory'; // Adjust the import path as needed
+import HistoryTab from './HistoryTab'; // Adjust the import path as needed
 import { freightTypeMapping, formatDate, renderAdditionalDetails } from './QuoteUtils';
 
 interface QuoteListProps {
@@ -33,6 +33,22 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
     const [searchTerm, setSearchTerm] = useState('');
     const [searchColumn, setSearchColumn] = useState('id');
     const [activeTab, setActiveTab] = useState('quotes'); // Add this line
+    const [editHistory, setEditHistory] = useState<Database['public']['Tables']['edit_history']['Row'][]>([]);
+
+    const fetchEditHistory = useCallback(async (companyId: string) => {
+        const { data, error } = await supabase
+            .from('edit_history')
+            .select('*')
+            .eq('company_id', companyId)
+            .order('edited_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching edit history:', error.message);
+        } else {
+            console.log('Fetched Edit History:', data);
+            setEditHistory(data);
+        }
+    }, [supabase]);
 
     useEffect(() => {
         const sorted = [...quotes].sort((a, b) => {
@@ -204,12 +220,24 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
                 return acc;
             }, {});
 
+            const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('company_id')
+                .eq('id', session.user.id)
+                .single();
+
+            if (profileError) {
+                console.error('Error fetching profile:', profileError.message);
+                return;
+            }
+
             const { error: historyError } = await supabase
                 .from('edit_history')
                 .insert({
                     quote_id: quoteToEdit.id,
                     edited_by: session.user.id,
                     changes: JSON.stringify(changes),
+                    company_id: profile.company_id, // Ensure company_id is set
                 });
 
             if (historyError) {
@@ -227,6 +255,28 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
 
     const handleRowClick = (id: number) => {
         setExpandedRow(expandedRow === id ? null : id);
+    };
+
+    const handleTabClick = (tab: string) => {
+        setActiveTab(tab);
+        if (tab === 'editHistory') {
+            const fetchCompanyId = async () => {
+                const { data: profile, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('company_id')
+                    .eq('id', session?.user?.id)
+                    .single();
+
+                if (profileError) {
+                    console.error('Error fetching profile:', profileError.message);
+                    return;
+                }
+
+                fetchEditHistory(profile.company_id);
+            };
+
+            fetchCompanyId();
+        }
     };
 
     return (
@@ -247,11 +297,14 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
                 sortConfig={sortConfig}
                 handleSort={handleSort}
                 setSortedQuotes={setSortedQuotes}
-                quotes={quotes}
                 setActiveTab={setActiveTab}
                 activeTab={activeTab}
                 quoteToEdit={quoteToEdit}
+                quotes={quotes}
                 quote={quote}
+                companyId={session?.user?.id || ''}
+                editHistory={editHistory}
+                fetchEditHistory={fetchEditHistory}
             />
             {activeTab === 'quotes' && (
                 <div className="hidden lg:block overflow-x-auto">
@@ -274,9 +327,10 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
                     </table>
                 </div>
             )}
-            {activeTab === 'editHistory' && quoteToEdit && (
+
+            {activeTab === 'editHistory' && (
                 <div className="p-4 bg-white border border-gray-300 rounded-b-md">
-                    <EditHistory quoteId={quoteToEdit.id} searchTerm={searchTerm} searchColumn={searchColumn} />
+                    <HistoryTab editHistory={editHistory} searchTerm="" searchColumn="id" />
                 </div>
             )}
             <div className="block 2xl:hidden">
