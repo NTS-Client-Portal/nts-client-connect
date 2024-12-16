@@ -308,24 +308,25 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
             />
             {activeTab === 'quotes' && (
                 <div className="hidden lg:block overflow-x-auto">
-                    <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {sortedQuotes.map((quote) => (
-                                <QuoteTableRow
-                                    key={quote.id}
-                                    quote={quote}
-                                    expandedRow={expandedRow}
-                                    handleRowClick={handleRowClick}
-                                    archiveQuote={archiveQuote}
-                                    handleEditClick={handleEditClick}
-                                    handleCreateOrderClick={handleCreateOrderClick}
-                                    handleRespond={handleRespond}
-                                    isAdmin={isAdmin}
-                                />
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {sortedQuotes.map((quote, index) => (
+                            <QuoteTableRow
+                                key={quote.id}
+                                quote={quote}
+                                expandedRow={expandedRow}
+                                handleRowClick={handleRowClick}
+                                archiveQuote={archiveQuote}
+                                handleEditClick={handleEditClick}
+                                handleCreateOrderClick={handleCreateOrderClick}
+                                handleRespond={handleRespond}
+                                isAdmin={isAdmin}
+                                rowIndex={index} // Pass row index to QuoteTableRow
+                            />
+                        ))}
+                    </tbody>
+                </table>
+            </div>
             )}
 
             {activeTab === 'editHistory' && (

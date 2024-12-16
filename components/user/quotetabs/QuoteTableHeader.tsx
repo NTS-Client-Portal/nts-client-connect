@@ -54,19 +54,6 @@ const QuoteTableHeader: React.FC<QuoteTableHeaderProps> = ({
 
     return (
         <div className='w-full'>
-            <div className="flex gap-1 border-b border-gray-300 w-full">
-                <button
-                    className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'quotes' ? 'bg-zinc-600 text-white border-zinc-500' : 'bg-zinc-200'}`}
-                    onClick={() => handleTabClick('quotes')}>
-                    Quotes
-                </button>
-                <button
-                    className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'editHistory' ? 'bg-zinc-600 text-white border-zinc-500' : 'bg-zinc-200'}`}
-                    onClick={() => handleTabClick('editHistory')}
-                >
-                    Edit History
-                </button>
-            </div>
             <div className="flex justify-start gap-4 my-4 ml-4">
                 <div className="flex items-center">
                     <label className="mr-2">Search by:</label>
@@ -93,10 +80,10 @@ const QuoteTableHeader: React.FC<QuoteTableHeaderProps> = ({
             <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
                 <thead className="bg-ntsLightBlue text-zinc-50 dark:bg-zinc-900 static top-0 w-full">
                     <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                        <th className="pl-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                             <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                        <th className="pl-12 pr-14 py-3 text-left text-xs font-medium uppercase tracking-wider">
                             <TableHeaderSort column="freight_type" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">

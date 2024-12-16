@@ -13,6 +13,7 @@ interface QuoteTableRowProps {
     handleCreateOrderClick: (quoteId: number) => void;
     handleRespond: (quoteId: number) => void;
     isAdmin: boolean;
+    rowIndex: number; // Add rowIndex prop
 }
 
 const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
@@ -24,6 +25,7 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
     handleCreateOrderClick,
     handleRespond,
     isAdmin,
+    rowIndex, // Add rowIndex prop
 }) => {
     const [activeTab, setActiveTab] = useState('quotedetails');
     const [editHistory, setEditHistory] = useState<Database['public']['Tables']['edit_history']['Row'][]>([]);
@@ -50,31 +52,38 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
 
     return (
         <>
-            <tr onClick={() => handleRowClick(quote.id)} className="cursor-pointer">
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{quote.id}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm ">
-                    <span className='text-base text-zinc-900'>{quote.container_length ? `${quote.container_length} ft ` : ''} {quote.container_type} </span> <br />
-                    <span className='text-base text-zinc-900'>{quote.year ? `${quote.year} ` : ''} {quote.make} {quote.model}</span> <br />
-                    <span className='font-semibold text-sm text-gray-700'>Freight Type:</span> {freightTypeMapping[quote.freight_type] || quote.freight_type.toUpperCase()}
+            <tr
+                onClick={() => handleRowClick(quote.id)}
+                className={`cursor-pointer mb-4 ${rowIndex % 2 === 0 ? 'bg-white' : 'bg-gray-100'}`}
+            >
+                <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{quote.id}</td>
+                <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <span className='flex flex-col p-0'>
+                        {quote.container_length && quote.container_type && (
+                            <span className='text-base text-zinc-900 p-0'>{`${quote.container_length} ft ${quote.container_type}`}</span>
+                        )}
+                        {quote.year && quote.make && quote.model && (
+                            <span className='text-base text-zinc-900'>{`${quote.year} ${quote.make} ${quote.model}`}</span>
+                        )}
+                        <span className='font-semibold text-sm text-gray-700 p-0'>Freight Type:</span> 
+                        <span className=' p-0'>{freightTypeMapping[quote.freight_type] || quote.freight_type.toUpperCase()}</span>
+                    </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quote.origin_city}, {quote.origin_state}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quote.destination_city}, {quote.destination_state}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(quote.due_date)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quote.is_complete ? 'Complete' : 'pending'}</td>
-                <td className="px-6 py-3 whitespace-nowrap flex flex-col gap-1 items-normal justify-between z-50">
-                    <button onClick={() => archiveQuote(quote.id)} className="text-red-500 ml-2">
-                        Archive
-                    </button>
+                <td className="px-6 py-3 text-start whitespace-nowrap text-sm text-gray-500">{quote.origin_city}, {quote.origin_state}</td>
+                <td className="px-6 py-3 text-start whitespace-nowrap text-sm text-gray-500">{quote.destination_city}, {quote.destination_state}</td>
+                <td className="px-6 py-3 text-start whitespace-nowrap text-sm text-gray-500">{formatDate(quote.due_date)}</td>
+                <td className="px-6 py-3 text-start whitespace-nowrap text-sm text-gray-500">{quote.price ? quote.price : 'Pending'}</td>
+                <td className="px-6 py-3 text-start whitespace-nowrap text-sm text-gray-500">
                     <button
                         onClick={() => handleEditClick(quote)}
-                        className="cancel-btn"
+                        className="text-ntsLightBlue font-medium underline"
                     >
-                        Edit
+                        Edit Quote
                     </button>
                     {quote.price ? (
                         <button
                             onClick={() => handleCreateOrderClick(quote.id)}
-                            className="ml-2 p-1  body-btn text-white rounded"
+                            className="ml-2 p-1 body-btn text-white rounded"
                         >
                             Create Order
                         </button>
@@ -87,39 +96,42 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
                 </td>
             </tr>
             {expandedRow === quote.id && (
-                <tr>
+                <tr className='my-4'>
                     <td colSpan={7}>
-                        <div className="p-4 bg-white border border-gray-300 rounded-b-md">
-                            <div className="flex gap-4 mb-4">
+                        <div className="p-4 bg-white border-x border-b border-ntsLightBlue/30 rounded-b-md">
+                            <div className="flex gap-1">
                                 <button
-                                    className={`px-4 py-2 ${activeTab === 'quotedetails' ? 'bg-gray-200' : 'bg-white'}`}
+                                    className={`px-4 py-2 ${activeTab === 'quotedetails' ? 'bg-gray-200 border-t border-ntsLightBlue' : 'bg-gray-200'}`}
                                     onClick={() => setActiveTab('quotedetails')}
                                 >
-                                    Quote Details
-                                </button>
-                                <button
-                                    className={`px-4 py-2 ${activeTab === 'editHistory' ? 'bg-gray-200' : 'bg-white'}`}
-                                    onClick={() => setActiveTab('editHistory')}
-                                >
-                                    Edit History
+                                Quote Details
+                            </button>
+                            <button
+                                className={`px-4 py-2 ${activeTab === 'editHistory' ? 'bg-gray-200 border-t border-ntsLightBlue' : 'bg-gray-200'}`}
+                                onClick={() => setActiveTab('editHistory')}
+                            >
+                                Edit History
+                            </button>
+                        </div>
+                        {activeTab === 'quotedetails' && (
+                            <div className='border border-gray-200 p-6'>
+                                {/* Render additional details here */}
+                                {renderAdditionalDetails(quote)}
+                                <button onClick={() => archiveQuote(quote.id)} className="text-red-500 mt-4 text-sm">
+                                    Archive Quote
                                 </button>
                             </div>
-                            {activeTab === 'quotedetails' && (
-                                <div>
-                                    {/* Render additional details here */}
-                                    {renderAdditionalDetails(quote)}
-                                </div>
-                            )}
-                            {activeTab === 'editHistory' && (
-                                <div className="max-h-96">
-                                    <EditHistory quoteId={quote.id} searchTerm="" searchColumn="id" editHistory={editHistory} />
-                                </div>
-                            )}
-                        </div>
-                    </td>
-                </tr>
-            )}
-        </>
+                        )}
+                        {activeTab === 'editHistory' && (
+                            <div className="max-h-96">
+                                <EditHistory quoteId={quote.id} searchTerm="" searchColumn="id" editHistory={editHistory} />
+                            </div>
+                        )}
+                    </div>
+                </td>
+            </tr>
+        )}
+    </>
     );
 };
 
