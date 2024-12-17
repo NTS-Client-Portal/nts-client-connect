@@ -21,30 +21,73 @@ export const renderAdditionalDetails = (quote: any) => {
         case 'equipment':
             return (
                 <>
-                    <div><strong>Year:</strong> {quote.year}</div>
-                    <div><strong>Make:</strong> {quote.make}</div>
-                    <div><strong>Model:</strong> {quote.model}</div>
-                    <div><strong>Operational Condition:</strong> {quote.operational_condition ? 'Operable' : 'Inoperable'}</div>
-                    <div><strong>Loading/Unloading Requirements:</strong> {quote.loading_unloading_requirements}</div>
-                    <div><strong>Tarping:</strong> {quote.tarping ? 'Yes' : 'No'}</div>
-                    <div><strong>Auction:</strong> {quote.auction}</div>
-                    <div><strong>Buyer Number:</strong> {quote.buyer_number}</div>
-                    <div><strong>Lot Number:</strong> {quote.lot_number}</div>
+                    <div className="grid grid-cols-3">
+                        <div className="flex flex-col justify-around gap-1">
+                            <div className="flex flex-col">
+                            <h3 className="text-zinc-800 font-bold text-lg">Equipment Details:</h3>
+                                <div><strong>Year:</strong> {quote.year}</div>
+                                <div><strong>Make:</strong> {quote.make}</div>
+                                <div><strong>Model:</strong> {quote.model}</div>
+                            </div>
+                            <div className="flex flex-col">
+                                <h3 className="text-zinc-800 font-bold text-lg mt-1">Shipment Details</h3>
+                                <div><span className="font-semibold text-zinc-700">Pick Up:</span> {quote.due_date}</div>
+                                <div className="flex gap-1">
+                                    <div><span className="font-semibold text-zinc-700">Height:</span> {quote.height}&apos; </div>
+                                    <div><span className="font-semibold text-zinc-700">Length:</span> {quote.length}&apos;</div>
+                                    <div><span className="font-semibold text-zinc-700">Width:</span> {quote.width}&apos;</div>
+                                </div>
+                                <div><span className="font-semibold text-zinc-700">Weight:</span> {quote.weight} lbs</div>
+                                <div><span className="font-semibold text-zinc-700">Condition:</span> {quote.operational_condition ? 'Operable' : 'Inoperable'}</div>
+                                <div><span className="font-semibold text-zinc-700">Loading/Unloading Requirements:</span> {quote.loading_unloading_requirements}</div>
+                                <div><span className="font-semibold text-zinc-700">Tarping:</span> {quote.tarping ? 'Yes' : 'No'}</div>
+                            </div>
+                        </div>
+                        <div className="flex flex-col justify-start gap-8"> 
+                        <div className="flex flex-col items-start w-fit text-nowrap">
+                                  <h3 className="text-zinc-800 font-bold text-lg mb-1">Route Details</h3>
+                                        <div><span className="font-semibold text-zinc-700">Origin:</span> {quote.origin_city}, {quote.origin_state} {quote.origin_zip}</div>
+                                        <div><span className="font-semibold text-zinc-700">Destination:</span> {quote.destination_city}, {quote.destination_state} {quote.destination_zip}</div>
+                                </div>
+                            <div className="flex flex-col">
+                                <h3 className="text-zinc-800 font-bold text-lg">Additional Details:</h3>
+                                <div><span className="font-semibold text-zinc-700">Special Instructions:</span> {quote.special_instructions}</div>
+                                <div><span className="font-semibold text-zinc-700">Additional Information:</span> {quote.additional_information}</div>
+                            </div>                     
+
+                        </div>
+                        <div className="flex flex-col justify-start">
+                            <div className="flex flex-col w-fit text-nowrap">                            
+                                    <h3 className="text-zinc-800 font-bold text-lg mb-1">Auction/Dealer Details:</h3>
+                                    <div><span className="font-semibold text-zinc-700">Auction:</span> {quote.auction}</div>
+                                    <div><span className="font-semibold text-zinc-700">Buyer Number:</span> {quote.buyer_number}</div>
+                                    <div><span className="font-semibold text-zinc-700">Lot Number:</span> {quote.lot_number}</div>
+                            </div>  
+                        </div>
+                    </div>
                 </>
             );
         case 'containers':
             return (
                 <>
-                    <div><strong>Container Length:</strong> {quote.container_length}</div>
-                    <div><strong>Container Type:</strong> {quote.container_type}</div>
-                    <div><strong>Contents Description:</strong> {quote.contents_description}</div>
-                    <div><strong>Destination Surface Type:</strong> {quote.destination_surface_type}</div>
-                    <div><strong>Destination Type:</strong> {quote.destination_type ? 'Business' : 'Residential'}</div>
-                    <div><strong>Goods Value:</strong> {quote.goods_value}</div>
-                    <div><strong>Is Loaded:</strong> {quote.is_loaded ? 'Yes' : 'No'}</div>
-                    <div><strong>Loading By:</strong> {quote.loading_by ? 'Yes' : 'No'}</div>
-                    <div><strong>Origin Surface Type:</strong> {quote.origin_surface_type}</div>
-                    <div><strong>Origin Type:</strong> {quote.origin_type ? 'Business' : 'Residential'}</div>
+                    <div className="grid grid-cols-3">
+                        <div className="flex flex-col justify-start">
+                            <h3 className="text-zinc-800 font-bold text-lg">Container Details:</h3>
+                            <div><span  className="font-semibold text-zinc-700">Container Length:</span> {quote.container_length}</div>
+                            <div><span  className="font-semibold text-zinc-700">Container Type:</span> {quote.container_type}</div>
+                            <div><span  className="font-semibold text-zinc-700">Contents Description:</span> {quote.contents_description}</div>
+                            <div><span  className="font-semibold text-zinc-700">Goods Value:</span> {quote.goods_value}</div>
+                        </div>
+                        
+                        <div className="">
+                            <h3 className="text-zinc-800 font-bold text-lg">Shipment Details:</h3>
+                            <div><span  className="font-semibold text-zinc-700">Loading By:</span> {quote.loading_by ? 'Yes' : 'No'}</div>
+                            <div><span  className="font-semibold text-zinc-700">Origin Surface Type:</span> {quote.origin_surface_type}</div>
+                            <div><span  className="font-semibold text-zinc-700">Origin Type:</span> {quote.origin_type ? 'Business' : 'Residential'}</div>
+                            <div><span  className="font-semibold text-zinc-700">Destination Type:</span> {quote.destination_type ? 'Business' : 'Residential'}</div>
+                            <div><span  className="font-semibold text-zinc-700">Destination Surface Type:</span> {quote.destination_surface_type}</div>
+                        </div>
+                    </div>
                 </>
             );
         case 'rv_trailers':

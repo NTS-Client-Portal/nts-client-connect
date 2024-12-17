@@ -58,15 +58,24 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
             >
                 <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{quote.id}</td>
                 <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-                    <span className='flex flex-col p-0'>
+                    <span className='flex flex-col justify-between p-0'>
+                        
                         {quote.container_length && quote.container_type && (
-                            <span className='text-base text-zinc-900 p-0'>{`${quote.container_length} ft ${quote.container_type}`}</span>
+                            <>
+                                <span className='font-semibold text-sm text-gray-700 p-0  mb-1'>Freight Description:</span> 
+                                <span className='text-base text-zinc-900 p-0'>{`${quote.container_length} ft ${quote.container_type}`}</span>
+                            </>
                         )}
                         {quote.year && quote.make && quote.model && (
-                            <span className='text-base text-zinc-900'>{`${quote.year} ${quote.make} ${quote.model}`}</span>
+                            <span className='flex flex-col mb-1'>
+                                <span className='font-semibold text-sm text-gray-700 p-0'>Freight Description:</span> 
+                                <span className='text-base text-zinc-900'>{`${quote.year} ${quote.make} ${quote.model}`}</span>
+                            </span>
                         )}
-                        <span className='font-semibold text-sm text-gray-700 p-0'>Freight Type:</span> 
-                        <span className=' p-0'>{freightTypeMapping[quote.freight_type] || quote.freight_type.toUpperCase()}</span>
+                        <span className='flex flex-col'>
+                            <span className='font-semibold text-sm text-gray-700 p-0'>Freight Type:</span> 
+                            <span className=' p-0'>{freightTypeMapping[quote.freight_type] || quote.freight_type.toUpperCase()}</span>
+                        </span>
                     </span>
                 </td>
                 <td className="px-6 py-3 text-start whitespace-nowrap text-sm text-gray-500">{quote.origin_city}, {quote.origin_state}</td>
@@ -115,6 +124,12 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
                         </div>
                         {activeTab === 'quotedetails' && (
                             <div className='border border-gray-200 p-6'>
+                            <button
+                                onClick={() => handleEditClick(quote)}
+                                className="text-ntsLightBlue font-medium underline mb-4"
+                                >
+                                Edit Quote
+                            </button>
                                 {/* Render additional details here */}
                                 {renderAdditionalDetails(quote)}
                                 <button onClick={() => archiveQuote(quote.id)} className="text-red-500 mt-4 text-sm">
