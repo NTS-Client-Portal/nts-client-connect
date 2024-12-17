@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ShippingQuote } from '@/lib/schema';
-import EditHistory from './EditHistory';
+import EditHistory from '../../EditHistory';
 
 interface EditQuoteModalProps {
     isOpen: boolean;

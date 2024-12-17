@@ -1,24 +1,64 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSupabaseClient, useSession } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
+import QuoteTableRow from '../user/quotetabs/QuoteTableRow'; // Import QuoteTableRow component
+import EditQuoteModal from '../user/quotetabs/EditQuoteModal'; // Import EditQuoteModal component
+import EditHistory from '../EditHistory'; // Import EditHistory component
 
 interface NtsQuoteListProps {
     session: any;
+    fetchQuotes: () => void;
+    archiveQuote: (id: number) => Promise<void>;
+    transferToOrderList: (quoteId: number, data: any) => Promise<void>;
+    handleSelectQuote: (id: number) => void;
+    isAdmin: boolean;
 }
 
-const NtsQuoteList: React.FC<NtsQuoteListProps> = ({ session }) => {
+// Removed duplicate interface definition
+
+const NtsQuoteList: React.FC<NtsQuoteListProps> = ({ session, fetchQuotes, transferToOrderList, handleSelectQuote }) => {
     const supabase = useSupabaseClient<Database>();
-    const [quotes, setQuotes] = useState<any[]>([]);
+    const [quotes, setQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
     const [errorText, setErrorText] = useState<string>('');
-    const [selectedQuote, setSelectedQuote] = useState<any>(null);
+    const [selectedQuote, setSelectedQuote] = useState<Database['public']['Tables']['shippingquotes']['Row'] | null>(null);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [responsePrice, setResponsePrice] = useState<string>('');
     const [responseNotes, setResponseNotes] = useState<string>('');
+    const [expandedRow, setExpandedRow] = useState<number | null>(null);
+    const [editHistory, setEditHistory] = useState<Database['public']['Tables']['edit_history']['Row'][]>([]);
+    const [sortedQuotes, setSortedQuotes] = useState(quotes);
+    const [sortConfig, setSortConfig] = useState<{ column: string; order: string }>({ column: 'id', order: 'desc' });
+    const [isAdmin, setIsAdmin] = useState<boolean>(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+    const [quoteToEdit, setQuoteToEdit] = useState<Database['public']['Tables']['shippingquotes']['Row'] | null>(null);
+    const [popupMessage, setPopupMessage] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const rowsPerPage = 10; 
+
+        const fetchEditHistory = useCallback(async (companyId: string) => {
+        const { data, error } = await supabase
+            .from('edit_history')
+            .select('*')
+            .eq('company_id', companyId)
+            .order('edited_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching edit history:', error.message);
+        } else {
+            console.log('Fetched Edit History:', data);
+            setEditHistory(data);
+        }
+    }, [supabase]);
+
+    const handleEditClick = (quote: Database['public']['Tables']['shippingquotes']['Row']) => {
+        setQuoteToEdit(quote);
+        setIsEditModalOpen(true);
+    };
 
     useEffect(() => {
         const fetchQuotes = async () => {
             if (session?.user?.id) {
-                // Fetch the companies assigned to the sales user
+                // Fetch the companies assigned to the nts user
                 const { data: companies, error: companiesError } = await supabase
                     .from('company_sales_users')
                     .select('company_id')
@@ -34,7 +74,7 @@ const NtsQuoteList: React.FC<NtsQuoteListProps> = ({ session }) => {
                     const companyIds = companies.map(company => company.company_id);
                     console.log('Company IDs:', companyIds); // Log company IDs for debugging
 
-                    // Fetch the quotes for the companies assigned to the sales user
+                    // Fetch the quotes for the companies assigned to the nts user
                     const { data: quotesData, error: quotesError } = await supabase
                         .from('shippingquotes')
                         .select('*')
@@ -48,7 +88,7 @@ const NtsQuoteList: React.FC<NtsQuoteListProps> = ({ session }) => {
                         setQuotes(quotesData);
                     }
                 } else {
-                    console.log('No companies assigned to the sales user');
+                    console.log('No companies assigned to the nts user');
                     setQuotes([]);
                 }
             }
@@ -57,10 +97,51 @@ const NtsQuoteList: React.FC<NtsQuoteListProps> = ({ session }) => {
         fetchQuotes();
     }, [session, supabase]);
 
-    const handleRespond = (quote: any) => {
-        setSelectedQuote(quote);
+    useEffect(() => {
+        const sorted = [...quotes].sort((a, b) => {
+            if (a[sortConfig.column] < b[sortConfig.column]) {
+                return sortConfig.order === 'asc' ? -1 : 1;
+            }
+            if (a[sortConfig.column] > b[sortConfig.column]) {
+                return sortConfig.order === 'asc' ? 1 : -1;
+            }
+            return 0;
+        });
+
+        setSortedQuotes(sorted);
+    }, [quotes, sortConfig]);
+
+    const archiveQuote = async (id: number) => {
+        if (!session?.user?.id) return;
+
+        const { error } = await supabase
+            .from('shippingquotes')
+            .update({ is_archived: true } as Database['public']['Tables']['shippingquotes']['Update']) // Mark the quote as archived
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error archiving quote:', error.message);
+            setErrorText('Error archiving quote');
+        } else {
+            setQuotes(quotes.filter(quote => quote.id !== id));
+        }
+    };
+
+    const handleRespond = (quoteId: number) => {
+        const quote = quotes.find(q => q.id === quoteId);
+        if (quote) {
+            setSelectedQuote(quote);
+            setIsModalOpen(true);
+        }
+    };
+
+    const handleCreateOrderClick = (quoteId: number) => {
+        setSelectedQuoteId(quoteId);
         setIsModalOpen(true);
     };
+
+    const [selectedQuoteId, setSelectedQuoteId] = useState<number | null>(null);
+
 
     const handleModalClose = () => {
         setIsModalOpen(false);
@@ -81,16 +162,85 @@ const NtsQuoteList: React.FC<NtsQuoteListProps> = ({ session }) => {
             console.error('Error responding to quote:', error.message);
             setErrorText('Error responding to quote');
         } else {
-            setQuotes(quotes.map(quote => quote.id === selectedQuote.id ? { ...quote, price: responsePrice, notes: responseNotes } : quote));
+            setQuotes(quotes.map(quote => quote.id === selectedQuote.id ? { ...quote, price: parseFloat(responsePrice), notes: responseNotes } : quote));
             handleModalClose();
         }
     };
 
-    function archiveQuote(id: any): void {
-        throw new Error('Function not implemented.');
-    }
+    const handleRowClick = (id: number) => {
+        setExpandedRow(expandedRow === id ? null : id);
+    };
+
+
+    const duplicateQuote = async (quote: Database['public']['Tables']['shippingquotes']['Row']) => {
+        const { data, error } = await supabase
+            .from('shippingquotes')
+            .insert({
+                ...quote,
+                id: undefined, // Let the database generate a new ID
+                due_date: null, // Require the user to fill out a new shipping date
+            })
+            .select();
+
+        if (error) {
+            console.error('Error duplicating quote:', error.message);
+        } else {
+            if (data && data.length > 0) {
+                setPopupMessage(`Duplicate Quote Request Added - Quote #${data[0].id}`);
+            }
+            fetchQuotes();
+        }
+    };
+
+    const reverseQuote = async (quote: Database['public']['Tables']['shippingquotes']['Row']) => {
+        const { data, error } = await supabase
+            .from('shippingquotes')
+            .insert({
+                ...quote,
+                id: undefined, // Let the database generate a new ID
+                due_date: null, // Require the user to fill out a new shipping date
+                origin_city: quote.destination_city,
+                origin_state: quote.destination_state,
+                origin_zip: quote.destination_zip,
+                destination_city: quote.origin_city,
+                destination_state: quote.origin_state,
+                destination_zip: quote.origin_zip,
+            })
+            .select();
+
+        if (error) {
+            console.error('Error reversing quote:', error.message);
+        } else {
+            if (data && data.length > 0) {
+                setPopupMessage(`Flip Route Duplicate Request Added - Quote #${data[0].id}`);
+            }
+            fetchQuotes();
+        }
+    };
+
+    useEffect(() => {
+        if (popupMessage) {
+            const timer = setTimeout(() => {
+                setPopupMessage(null);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [popupMessage]);
+
+    // Calculate the rows to display based on the current page
+    const indexOfLastRow = currentPage * rowsPerPage;
+    const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+    const currentRows = sortedQuotes.slice(indexOfFirstRow, indexOfLastRow);
+
+    // Calculate total pages
+    const totalPages = Math.ceil(sortedQuotes.length / rowsPerPage);
+
+    const handlePageChange = (pageNumber: number) => {
+        setCurrentPage(pageNumber);
+    };
 
     return (
+
         <div className="w-full bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md border border-zinc-400 max-h-max flex-grow">
             <div className="hidden 2xl:block overflow-x-auto">
                 <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
@@ -106,48 +256,22 @@ const NtsQuoteList: React.FC<NtsQuoteListProps> = ({ session }) => {
                         </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-zinc-800/90 divide-y divide-zinc-300">
-                        {quotes.map((quote) => (
-                            <tr key={quote.id}>
-                                <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
-                                    {quote.id}
-                                </td>
-                                <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
-                                    <div className="flex flex-col justify-start">
-                                        <span><strong>Origin:</strong> {quote.origin_city}, {quote.origin_state} {quote.origin_zip}</span>
-                                        <span><strong>Destination:</strong> {quote.destination_city}, {quote.destination_state} {quote.destination_zip}</span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
-                                    {quote.year} {quote.make} {quote.model}
-                                </td>
-                                <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
-                                    <div className="flex flex-col gap-1 text-sm font-medium text-zinc-900 w-full max-w-max">
-                                        <span className='font-semibold flex gap-1'>
-                                            Length:<p className='font-normal'>{quote.length}&apos;</p>
-                                            Width:<p className='font-normal'>{quote.width}&apos;</p>
-                                            Height:<p className='font-normal'>{quote.height}&apos;</p></span>
-                                        <span className='font-semibold flex gap-1'>Weight:<p className='font-normal'>{quote.weight} lbs</p></span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
-                                    {quote.due_date ? new Date(quote.due_date).toLocaleDateString() : 'No due date'}
-                                </td>
-                                <td className="px-6 py-3 whitespace-nowrap border-r border-zinc-300">
-                                    {quote.price ? `$${quote.price}` : 'Quote Pending'}
-                                </td>
-                                <td className="px-6 py-3 whitespace-nowrap flex items-end justify-between">
-                                    <button onClick={() => archiveQuote(quote.id)} className="text-red-500 ml-2">
-                                        Archive
-                                    </button>
-                                    <button
-                                        onClick={() => handleRespond(quote)}
-                                        className="body-btn"
-                                    >
-                                        Respond
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                    {currentRows.map((quote, index) => (
+                                <QuoteTableRow
+                                    key={quote.id}
+                                    quote={quote}
+                                    expandedRow={expandedRow}
+                                    handleRowClick={handleRowClick}
+                                    handleRespond={(quoteId) => handleRespond(quoteId)}
+                                    handleEditClick={handleEditClick}
+                                    handleCreateOrderClick={handleCreateOrderClick}
+                                    isAdmin={isAdmin}
+                                    rowIndex={index} // Pass row index to QuoteTableRow
+                                    duplicateQuote={duplicateQuote} // Pass duplicateQuote function to QuoteTableRow
+                                    reverseQuote={reverseQuote} // Pass reverseQuote function to QuoteTableRow
+                                    archiveQuote={archiveQuote}
+                                />
+                            ))}
                     </tbody>
                 </table>
             </div>
@@ -184,11 +308,8 @@ const NtsQuoteList: React.FC<NtsQuoteListProps> = ({ session }) => {
                             <div className="text-sm font-medium text-zinc-900">{quote.price ? `$${quote.price}` : 'Quote Pending'}</div>
                         </div>
                         <div className="flex justify-between items-center">
-                            <button onClick={() => archiveQuote(quote.id)} className="text-red-500 ml-2">
-                                Archive
-                            </button>
                             <button
-                                onClick={() => handleRespond(quote)}
+                                onClick={() => handleRespond(quote.id)}
                                 className="ml-2 p-1 bg-blue-500 text-white rounded"
                             >
                                 Respond

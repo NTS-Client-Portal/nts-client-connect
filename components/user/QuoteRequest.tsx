@@ -7,7 +7,7 @@ import HistoryList from './quotetabs/HistoryList';
 import OrderList from './quotetabs/OrderList';
 import Archived from './quotetabs/Archived';
 import Rejected from './quotetabs/Rejected';
-import EditHistory from './quotetabs/EditHistory'; // Adjust the import path as needed
+import EditHistory from '../EditHistory'; // Adjust the import path as needed
 
 interface QuoteRequestProps {
     session: Session | null;

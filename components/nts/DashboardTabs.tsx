@@ -231,6 +231,11 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({ companyId }) => {
                 {activeTab === 'requests' && (
                     <NtsQuoteList
                         session={session}
+                        fetchQuotes={fetchQuotes}
+                        archiveQuote={archiveQuote}
+                        transferToOrderList={transferToOrderList}
+                        handleSelectQuote={() => {}}
+                        isAdmin={false}
                     />
                 )}
                 {activeTab === 'orders' && (

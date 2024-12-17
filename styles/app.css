@@ -772,18 +772,6 @@ body:is(.dark *) {
   top: 1.25rem;
 }
 
-.right-\[50\%\] {
-  right: 50%;
-}
-
-.right-\[40\%\] {
-  right: 40%;
-}
-
-.top-8 {
-  top: 2rem;
-}
-
 .z-0 {
   z-index: 0;
 }
@@ -823,6 +811,11 @@ body:is(.dark *) {
 .-mx-1 {
   margin-left: -0.25rem;
   margin-right: -0.25rem;
+}
+
+.mx-1 {
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
 }
 
 .mx-12 {
@@ -868,11 +861,6 @@ body:is(.dark *) {
 .my-6 {
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
-}
-
-.mx-1 {
-  margin-left: 0.25rem;
-  margin-right: 0.25rem;
 }
 
 .-mb-px {

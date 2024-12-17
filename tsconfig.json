@@ -52,7 +52,7 @@
     "lib/types.ts",
     "lib/utils.ts",
     "lib/updateUserRole.mjs",
-    "scripts/updateRoleScript.mjs"],
+    "scripts/updateRoleScript.mjs", "lib/assignBroker.mjs"],
   "exclude": [
     "node_modules"
   ]

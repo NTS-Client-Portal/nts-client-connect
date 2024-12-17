@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import TableHeaderSort from './TableHeaderSort';
-import EditHistory from './EditHistory'; // Adjust the import path as needed
+import EditHistory from '../../EditHistory'; // Adjust the import path as needed
 import { Database } from '@/lib/database.types';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 

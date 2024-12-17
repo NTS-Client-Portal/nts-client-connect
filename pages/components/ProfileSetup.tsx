@@ -49,7 +49,7 @@ const ProfileSetup = () => {
             if (companyName) {
                 const { data: existingCompany, error: companyError } = await supabase
                     .from('companies')
-                    .select('id')
+                    .select('*')
                     .eq('name', companyName)
                     .single();
 
@@ -59,13 +59,45 @@ const ProfileSetup = () => {
 
                 if (existingCompany) {
                     companyId = existingCompany.id;
+
+                    // Update the existing company with missing fields
+                    const updates = {} as Partial<{
+                        assigned_sales_user: string;
+                        assigned_at: string;
+                        company_name: string;
+                        company_size: string;
+                    }>;
+                    if (!existingCompany.assigned_sales_user) updates.assigned_sales_user = '2b5928cc-4f66-4be4-8d76-4eb91c55db00';
+                    if (!existingCompany.assigned_at) updates.assigned_at = new Date().toISOString();
+                    if (!existingCompany.company_name) updates.company_name = companyName;
+                    if (!existingCompany.company_size) updates.company_size = '1-10'; // Force default company size
+
+                    if (Object.keys(updates).length > 0) {
+                        console.log(`Updating existing company: ${companyName} with ID: ${companyId} with updates:`, updates);
+                        const { error: updateCompanyError } = await supabase
+                            .from('companies')
+                            .update(updates)
+                            .eq('id', companyId);
+
+                        if (updateCompanyError) {
+                            throw new Error(updateCompanyError.message);
+                        }
+
+                        console.log(`Updated existing company: ${companyName} with ID: ${companyId} in companies table`);
+                    }
                 } else {
                     companyId = uuidv4(); // Generate a unique ID for the new company
+                    const assignedSalesUserId = '2b5928cc-4f66-4be4-8d76-4eb91c55db00'; // Default assigned sales user ID
+                    const assignedAt = new Date().toISOString(); // Current timestamp
                     const { data: newCompany, error: newCompanyError } = await supabase
                         .from('companies')
                         .insert({
                             id: companyId,
                             name: companyName,
+                            company_name: companyName, // Ensure company_name is set
+                            company_size: '1-10', // Force default company size
+                            assigned_sales_user: assignedSalesUserId,
+                            assigned_at: assignedAt,
                         })
                         .select()
                         .single();

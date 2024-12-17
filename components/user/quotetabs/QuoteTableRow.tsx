@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Database } from '@/lib/database.types';
-import EditHistory from './EditHistory';
+import EditHistory from '../../EditHistory';
 import { formatDate, renderAdditionalDetails, freightTypeMapping } from './QuoteUtils';
 import { supabase } from '@/lib/initSupabase';
 
