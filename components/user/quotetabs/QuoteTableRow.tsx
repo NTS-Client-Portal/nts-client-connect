@@ -14,6 +14,8 @@ interface QuoteTableRowProps {
     handleRespond: (quoteId: number) => void;
     isAdmin: boolean;
     rowIndex: number; // Add rowIndex prop
+    duplicateQuote: (quote: Database['public']['Tables']['shippingquotes']['Row']) => void; // Add duplicateQuote prop
+    reverseQuote: (quote: Database['public']['Tables']['shippingquotes']['Row']) => void; // Add reverseQuote prop
 }
 
 const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
@@ -26,6 +28,8 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
     handleRespond,
     isAdmin,
     rowIndex, // Add rowIndex prop
+    duplicateQuote, // Add duplicateQuote prop
+    reverseQuote, // Add reverseQuote prop
 }) => {
     const [activeTab, setActiveTab] = useState('quotedetails');
     const [editHistory, setEditHistory] = useState<Database['public']['Tables']['edit_history']['Row'][]>([]);
@@ -84,24 +88,37 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
                 <td className="px-6 py-3 text-start whitespace-nowrap text-sm text-gray-500">{quote.price ? quote.price : 'Pending'}</td>
                 <td className="px-6 py-3 text-start whitespace-nowrap text-sm text-gray-500">
                     <button
-                        onClick={() => handleEditClick(quote)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditClick(quote);
+                        }}
                         className="text-ntsLightBlue font-medium underline"
                     >
                         Edit Quote
                     </button>
                     {quote.price ? (
                         <button
-                            onClick={() => handleCreateOrderClick(quote.id)}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleCreateOrderClick(quote.id);
+                            }}
                             className="ml-2 p-1 body-btn text-white rounded"
                         >
                             Create Order
                         </button>
                     ) : null}
                     {isAdmin && (
-                        <button onClick={() => handleRespond(quote.id)} className="text-blue-500 ml-2">
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleRespond(quote.id);
+                            }}
+                            className="text-blue-500 ml-2"
+                        >
                             Respond
                         </button>
                     )}
+
                 </td>
             </tr>
             {expandedRow === quote.id && (
@@ -113,40 +130,48 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
                                     className={`px-4 py-2 ${activeTab === 'quotedetails' ? 'bg-gray-200 border-t border-ntsLightBlue' : 'bg-gray-200'}`}
                                     onClick={() => setActiveTab('quotedetails')}
                                 >
-                                Quote Details
-                            </button>
-                            <button
-                                className={`px-4 py-2 ${activeTab === 'editHistory' ? 'bg-gray-200 border-t border-ntsLightBlue' : 'bg-gray-200'}`}
-                                onClick={() => setActiveTab('editHistory')}
-                            >
-                                Edit History
-                            </button>
-                        </div>
-                        {activeTab === 'quotedetails' && (
-                            <div className='border border-gray-200 p-6'>
-                            <button
-                                onClick={() => handleEditClick(quote)}
-                                className="text-ntsLightBlue font-medium underline mb-4"
+                                    Quote Details
+                                </button>
+                                <button
+                                    className={`px-4 py-2 ${activeTab === 'editHistory' ? 'bg-gray-200 border-t border-ntsLightBlue' : 'bg-gray-200'}`}
+                                    onClick={() => setActiveTab('editHistory')}
                                 >
-                                Edit Quote
-                            </button>
-                                {/* Render additional details here */}
-                                {renderAdditionalDetails(quote)}
-                                <button onClick={() => archiveQuote(quote.id)} className="text-red-500 mt-4 text-sm">
-                                    Archive Quote
+                                    Edit History
                                 </button>
                             </div>
-                        )}
-                        {activeTab === 'editHistory' && (
-                            <div className="max-h-96">
-                                <EditHistory quoteId={quote.id} searchTerm="" searchColumn="id" editHistory={editHistory} />
-                            </div>
-                        )}
-                    </div>
-                </td>
-            </tr>
-        )}
-    </>
+                            {activeTab === 'quotedetails' && (
+                                <div className='border border-gray-200 p-6 h-full'>
+
+                                    <div className='flex gap-2 items-center h-full'>
+                                        <button onClick={(e) => {e.stopPropagation(); duplicateQuote(quote);}} className="body-btn ml-2">
+                                        Duplicate Quote
+                                        </button>
+                                        <button onClick={(e) => {e.stopPropagation();reverseQuote(quote);}} className="body-btn ml-2">
+                                        Flip Route Duplicate
+                                        </button>
+                                    </div>
+
+                                    <button onClick={() => handleEditClick(quote)} className="text-ntsLightBlue mt-3 font-semibold text-base underline mb-4 h-full">
+                                        Edit Quote
+                                    </button>
+
+                                        {renderAdditionalDetails(quote)}
+
+                                    <button onClick={() => archiveQuote(quote.id)} className="text-red-500 mt-4 text-sm">
+                                            Archive Quote
+                                    </button>
+                                </div>
+                            )}
+                            {activeTab === 'editHistory' && (
+                                <div className="max-h-96">
+                                    <EditHistory quoteId={quote.id} searchTerm="" searchColumn="id" editHistory={editHistory} />
+                                </div>
+                            )}
+                        </div>
+                    </td>
+                </tr>
+            )}
+        </>
     );
 };
 

@@ -35,7 +35,6 @@ const QuoteTableHeader: React.FC<QuoteTableHeaderProps> = ({
     const [searchColumn, setSearchColumn] = useState('id');
     const [loading, setLoading] = useState(false);
     const supabase = useSupabaseClient<Database>();
-
     useEffect(() => {
         const filtered = quotes.filter((quote) => {
             const value = quote[searchColumn]?.toString().toLowerCase() || '';

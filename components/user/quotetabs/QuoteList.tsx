@@ -34,6 +34,9 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
     const [searchColumn, setSearchColumn] = useState('id');
     const [activeTab, setActiveTab] = useState('quotes'); // Add this line
     const [editHistory, setEditHistory] = useState<Database['public']['Tables']['edit_history']['Row'][]>([]);
+    const [popupMessage, setPopupMessage] = useState<string | null>(null); // Add state for popup message
+    const [currentPage, setCurrentPage] = useState(1); // Add state for current page
+    const rowsPerPage = 10; // Define rows per page
 
     const fetchEditHistory = useCallback(async (companyId: string) => {
         const { data, error } = await supabase
@@ -279,8 +282,80 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
         }
     };
 
+    const duplicateQuote = async (quote: Database['public']['Tables']['shippingquotes']['Row']) => {
+        const { data, error } = await supabase
+            .from('shippingquotes')
+            .insert({
+                ...quote,
+                id: undefined, // Let the database generate a new ID
+                due_date: null, // Require the user to fill out a new shipping date
+            })
+            .select();
+
+        if (error) {
+            console.error('Error duplicating quote:', error.message);
+        } else {
+            if (data && data.length > 0) {
+                setPopupMessage(`Duplicate Quote Request Added - Quote #${data[0].id}`);
+            }
+            fetchQuotes();
+        }
+    };
+
+    const reverseQuote = async (quote: Database['public']['Tables']['shippingquotes']['Row']) => {
+        const { data, error } = await supabase
+            .from('shippingquotes')
+            .insert({
+                ...quote,
+                id: undefined, // Let the database generate a new ID
+                due_date: null, // Require the user to fill out a new shipping date
+                origin_city: quote.destination_city,
+                origin_state: quote.destination_state,
+                origin_zip: quote.destination_zip,
+                destination_city: quote.origin_city,
+                destination_state: quote.origin_state,
+                destination_zip: quote.origin_zip,
+            })
+            .select();
+
+        if (error) {
+            console.error('Error reversing quote:', error.message);
+        } else {
+            if (data && data.length > 0) {
+                setPopupMessage(`Flip Route Duplicate Request Added - Quote #${data[0].id}`);
+            }
+            fetchQuotes();
+        }
+    };
+
+    useEffect(() => {
+        if (popupMessage) {
+            const timer = setTimeout(() => {
+                setPopupMessage(null);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [popupMessage]);
+
+    // Calculate the rows to display based on the current page
+    const indexOfLastRow = currentPage * rowsPerPage;
+    const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+    const currentRows = sortedQuotes.slice(indexOfFirstRow, indexOfLastRow);
+
+    // Calculate total pages
+    const totalPages = Math.ceil(sortedQuotes.length / rowsPerPage);
+
+    const handlePageChange = (pageNumber: number) => {
+        setCurrentPage(pageNumber);
+    };
+
     return (
-        <div className="w-full bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md max-h-max flex-grow">
+        <div className="w-full bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md max-h-max flex-grow relative">
+            {popupMessage && (
+                <div className="absolute top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg animate-fade-in-out">
+                    {popupMessage}
+                </div>
+            )}
             <OrderFormModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
@@ -308,25 +383,38 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
             />
             {activeTab === 'quotes' && (
                 <div className="hidden lg:block overflow-x-auto">
-                <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {sortedQuotes.map((quote, index) => (
-                            <QuoteTableRow
-                                key={quote.id}
-                                quote={quote}
-                                expandedRow={expandedRow}
-                                handleRowClick={handleRowClick}
-                                archiveQuote={archiveQuote}
-                                handleEditClick={handleEditClick}
-                                handleCreateOrderClick={handleCreateOrderClick}
-                                handleRespond={handleRespond}
-                                isAdmin={isAdmin}
-                                rowIndex={index} // Pass row index to QuoteTableRow
-                            />
+                    <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {currentRows.map((quote, index) => (
+                                <QuoteTableRow
+                                    key={quote.id}
+                                    quote={quote}
+                                    expandedRow={expandedRow}
+                                    handleRowClick={handleRowClick}
+                                    archiveQuote={archiveQuote}
+                                    handleEditClick={handleEditClick}
+                                    handleCreateOrderClick={handleCreateOrderClick}
+                                    handleRespond={handleRespond}
+                                    isAdmin={isAdmin}
+                                    rowIndex={index} // Pass row index to QuoteTableRow
+                                    duplicateQuote={duplicateQuote} // Pass duplicateQuote function to QuoteTableRow
+                                    reverseQuote={reverseQuote} // Pass reverseQuote function to QuoteTableRow
+                                />
+                            ))}
+                        </tbody>
+                    </table>
+                    <div className="flex justify-center mt-4">
+                        {Array.from({ length: totalPages }, (_, index) => (
+                            <button
+                                key={index}
+                                onClick={() => handlePageChange(index + 1)}
+                                className={`px-4 py-2 mx-1 rounded ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                            >
+                                {index + 1}
+                            </button>
                         ))}
-                    </tbody>
-                </table>
-            </div>
+                    </div>
+                </div>
             )}
 
             {activeTab === 'editHistory' && (

@@ -26,9 +26,6 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [activeTab, setActiveTab] = useState('requests');
     const [isMobile, setIsMobile] = useState<boolean>(false);
-    const [quoteToEdit, setQuoteToEdit] = useState<ShippingQuote | null>(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [searchColumn, setSearchColumn] = useState('id');
     
     const fetchQuotes = useCallback(async () => {
         if (!session?.user?.id) return;
