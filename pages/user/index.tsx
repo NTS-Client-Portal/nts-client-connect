@@ -6,6 +6,9 @@ import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
 
 const FreightRFQPage: React.FC = () => {
     const session = useSession();
+    const company = { id: 'company-id' };
+    const profiles = [];
+    const ntsUsers = [];
 
     if (!session) {
         return <p>Loading...</p>;
@@ -14,12 +17,7 @@ const FreightRFQPage: React.FC = () => {
     return (
         <ProfilesUserProvider>
             <UserLayout>
-                <QuoteRequest 
-                    session={session} 
-                    companyId={null}
-                    profiles={null}
-                    ntsUsers={null}
-                />
+            <QuoteRequest session={session} companyId={company.id} profiles={profiles} ntsUsers={ntsUsers} />
             </UserLayout>
         </ProfilesUserProvider>
     );
