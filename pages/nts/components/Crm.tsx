@@ -59,10 +59,10 @@ const Crm: React.FC = () => {
           return;
         }
 
-        // Fetch companies and their related profiles
+        // Fetch companies
         const { data: companiesData, error: companiesError } = await supabase
           .from('companies')
-          .select('*, profiles(*)')
+          .select('*')
           .in('id', companyIds);
 
         if (companiesError) {
@@ -70,8 +70,19 @@ const Crm: React.FC = () => {
         } else if (companiesData) {
           console.log('Fetched companies:', companiesData);
           setCompanies(companiesData);
-          const allProfiles = companiesData.flatMap((company: any) => company.profiles);
-          setProfiles(allProfiles);
+        }
+
+        // Fetch profiles related to the companies
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('*')
+          .in('company_id', companyIds);
+
+        if (profilesError) {
+          console.error('Error fetching profiles:', profilesError.message);
+        } else if (profilesData) {
+          console.log('Fetched profiles:', profilesData);
+          setProfiles(profilesData);
         }
       }
     };

@@ -11,13 +11,16 @@ import EditHistory from '../EditHistory'; // Adjust the import path as needed
 
 interface QuoteRequestProps {
     session: Session | null;
+    companyId: string;
+    profiles: any[];
+    ntsUsers: any[];
 }
 
 type ShippingQuote = Database['public']['Tables']['shippingquotes']['Row'];
 type Order = Database['public']['Tables']['orders']['Row'];
 type EditHistoryEntry = Database['public']['Tables']['edit_history']['Row'];
 
-const QuoteRequest = ({ session }: QuoteRequestProps) => {
+const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, companyId, profiles, ntsUsers }: QuoteRequestProps) => {
     const supabase = useSupabaseClient<Database>();
     const [quotes, setQuotes] = useState<ShippingQuote[]>([]);
     const [orders, setOrders] = useState<Order[]>([]);
@@ -26,14 +29,14 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [activeTab, setActiveTab] = useState('requests');
     const [isMobile, setIsMobile] = useState<boolean>(false);
-    
+
     const fetchQuotes = useCallback(async () => {
         if (!session?.user?.id) return;
 
         const { data, error } = await supabase
             .from('shippingquotes')
             .select('*')
-            .eq('user_id', session.user.id)
+            .eq('company_id', companyId)
             .eq('is_archived', false); // Fetch only non-archived quotes
 
         if (error) {
@@ -42,26 +45,15 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
             console.log('Fetched Quotes:', data);
             setQuotes(data);
         }
-    }, [session, supabase]);
+    }, [session, supabase, companyId]);
 
     const fetchEditHistory = useCallback(async () => {
         if (!session?.user?.id) return;
 
-        const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('company_id')
-            .eq('id', session.user.id)
-            .single();
-
-        if (profileError) {
-            console.error('Error fetching profile:', profileError.message);
-            return;
-        }
-
         const { data, error } = await supabase
             .from('edit_history')
             .select('*')
-            .eq('company_id', profile.company_id)
+            .eq('company_id', companyId)
             .order('edited_at', { ascending: false });
 
         if (error) {
@@ -70,7 +62,7 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
             console.log('Fetched Edit History:', data);
             setEditHistory(data);
         }
-    }, [session, supabase]);
+    }, [session, supabase, companyId]);
 
     useEffect(() => {
         if (session?.user?.id) {
@@ -102,6 +94,7 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
             .insert([{
                 ...quote,
                 user_id: session.user.id,
+                company_id: companyId,
                 first_name: quote.first_name || null,
                 last_name: quote.last_name || null,
                 email: quote.email || null,
@@ -174,8 +167,6 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
         }
     };
 
-    
-
     const handleMarkAsComplete = async (orderId: number): Promise<void> => {
         try {
             const { error } = await supabase
@@ -221,6 +212,7 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
                     errorText={errorText}
                     setErrorText={setErrorText}
                     fetchQuotes={fetchQuotes} // Pass fetchQuotes to QuoteForm
+                    companyId={companyId} // Pass companyId to QuoteForm
                 />
             </div>
             {isMobile ? (
@@ -281,13 +273,13 @@ const QuoteRequest = ({ session }: QuoteRequestProps) => {
             <div className="p-4 bg-white border border-gray-300 rounded-b-md">
                 {activeTab === 'requests' && (
                     <QuoteList
-                    session={session}
-                    fetchQuotes={fetchQuotes}
-                    archiveQuote={archiveQuote}
-                    transferToOrderList={transferToOrderList}
-                    handleSelectQuote={string => console.log(string)}
-                    isAdmin={false}
-                />
+                        session={session}
+                        fetchQuotes={fetchQuotes}
+                        archiveQuote={archiveQuote}
+                        transferToOrderList={transferToOrderList}
+                        handleSelectQuote={string => console.log(string)}
+                        isAdmin={false}
+                    />
                 )}
                 {activeTab === 'orders' && (
                     <OrderList

@@ -10,9 +10,10 @@ interface QuoteFormProps {
     setErrorText: (value: string) => void;
     session: Session;
     fetchQuotes: () => void; // Add fetchQuotes prop
+    companyId: string; // Add companyId prop
 }
 
-const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorText, setErrorText, session, fetchQuotes }) => {
+const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorText, setErrorText, session, fetchQuotes, companyId }) => {
     const [selectedOption, setSelectedOption] = useState('');
     const [originZip, setOriginZip] = useState('');
     const [originCity, setOriginCity] = useState('');
@@ -72,6 +73,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
 
         const quote = {
             user_id: session.user.id,
+            company_id: companyId, // Ensure company_id is included
             origin_zip: originZip,
             origin_city: originCity,
             origin_state: originState,
@@ -97,7 +99,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
 
     return (
         <div className="fixed inset-0 bg-zinc-600 bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded shadow-md w-full max-w-3xl relative  z-50">
+            <div className="bg-white p-6 rounded shadow-md w-full max-w-3xl relative z-50">
                 <h2 className="text-xl mb-4">Request a Shipping Estimate</h2>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                     <SelectOption

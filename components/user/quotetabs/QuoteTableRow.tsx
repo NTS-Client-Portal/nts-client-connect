@@ -33,6 +33,28 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
 }) => {
     const [activeTab, setActiveTab] = useState('quotedetails');
     const [editHistory, setEditHistory] = useState<Database['public']['Tables']['edit_history']['Row'][]>([]);
+    const [status, setStatus] = useState(quote.status || 'Pending');
+
+    const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const newStatus = e.target.value;
+        setStatus(newStatus);
+
+        // Update the status in the database
+        const { error } = await supabase
+            .from('shippingquotes')
+            .update({ status: newStatus })
+            .eq('id', quote.id);
+
+        if (error) {
+            console.error('Error updating status:', error.message);
+        }
+    };
+
+    const freightTypeMapping: { [key: string]: string } = {
+        'FTL': 'Full Truckload',
+        'LTL': 'Less Than Truckload',
+        // Add other mappings as needed
+    };
 
     useEffect(() => {
         if (expandedRow === quote.id && activeTab === 'editHistory') {
@@ -78,7 +100,7 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
                         )}
                         <span className='flex flex-col'>
                             <span className='font-semibold text-sm text-gray-700 p-0'>Freight Type:</span> 
-                            <span className=' p-0'>{freightTypeMapping[quote.freight_type] || quote.freight_type.toUpperCase()}</span>
+                            <span className=' p-0'>{freightTypeMapping[quote.freight_type] || (quote.freight_type ? quote.freight_type.toUpperCase() : 'N/A')}</span>
                         </span>
                     </span>
                 </td>
@@ -118,8 +140,19 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
                             Respond
                         </button>
                     )}
-
+                    {isAdmin && (
+                        <select value={status} onChange={handleStatusChange} className="bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md">
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Dispatched">Dispatched</option>
+                        <option value="Picked Up">Picked Up</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                )}
                 </td>
+        
             </tr>
             {expandedRow === quote.id && (
                 <tr className='my-4'>

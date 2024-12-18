@@ -82,16 +82,19 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
 
     useEffect(() => {
         const fetchInitialQuotes = async () => {
-            const { data, error } = await supabase
+            if (!session?.user?.id) return;
+
+            // Fetch quotes for both nts_users and profiles
+            const { data: quotesData, error: quotesError } = await supabase
                 .from('shippingquotes')
                 .select('*')
-                .eq('user_id', session?.user?.id);
+                .or(`user_id.eq.${session.user.id},company_id.eq.${session.user.id}`);
 
-            if (error) {
-                console.error('Error fetching quotes:', error.message);
+            if (quotesError) {
+                console.error('Error fetching quotes:', quotesError.message);
             } else {
-                console.log('Fetched initial quotes:', data);
-                setQuotes(data);
+                console.log('Fetched initial quotes:', quotesData);
+                setQuotes(quotesData);
             }
         };
 
@@ -350,7 +353,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
     };
 
     return (
-        <div className="w-full bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md max-h-max flex-grow relative">
+        <div className="w-full bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md max-h-max flex-grow">
             {popupMessage && (
                 <div className="absolute top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg animate-fade-in-out">
                     {popupMessage}

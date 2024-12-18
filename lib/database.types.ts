@@ -1037,6 +1037,7 @@ export type Database = {
           price: number | null
           roadworthy: boolean | null
           save_to_inventory: boolean | null
+          status: string | null
           tarping: boolean | null
           trailer: boolean | null
           type: string | null
@@ -1105,6 +1106,7 @@ export type Database = {
           price?: number | null
           roadworthy?: boolean | null
           save_to_inventory?: boolean | null
+          status?: string | null
           tarping?: boolean | null
           trailer?: boolean | null
           type?: string | null
@@ -1173,6 +1175,7 @@ export type Database = {
           price?: number | null
           roadworthy?: boolean | null
           save_to_inventory?: boolean | null
+          status?: string | null
           tarping?: boolean | null
           trailer?: boolean | null
           type?: string | null

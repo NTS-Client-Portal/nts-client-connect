@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useSupabaseClient, useSession } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
+import QuoteTableHeader from '../user/quotetabs/QuoteTableHeader'; // Import QuoteTableHeader component
 import QuoteTableRow from '../user/quotetabs/QuoteTableRow'; // Import QuoteTableRow component
 import EditQuoteModal from '../user/quotetabs/EditQuoteModal'; // Import EditQuoteModal component
 import EditHistory from '../EditHistory'; // Import EditHistory component
@@ -14,9 +15,7 @@ interface NtsQuoteListProps {
     isAdmin: boolean;
 }
 
-// Removed duplicate interface definition
-
-const NtsQuoteList: React.FC<NtsQuoteListProps> = ({ session, fetchQuotes, transferToOrderList, handleSelectQuote }) => {
+const NtsQuoteList: React.FC<NtsQuoteListProps> = ({ session, fetchQuotes, transferToOrderList, handleSelectQuote, isAdmin }) => {
     const supabase = useSupabaseClient<Database>();
     const [quotes, setQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
     const [errorText, setErrorText] = useState<string>('');
@@ -28,14 +27,13 @@ const NtsQuoteList: React.FC<NtsQuoteListProps> = ({ session, fetchQuotes, trans
     const [editHistory, setEditHistory] = useState<Database['public']['Tables']['edit_history']['Row'][]>([]);
     const [sortedQuotes, setSortedQuotes] = useState(quotes);
     const [sortConfig, setSortConfig] = useState<{ column: string; order: string }>({ column: 'id', order: 'desc' });
-    const [isAdmin, setIsAdmin] = useState<boolean>(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
     const [quoteToEdit, setQuoteToEdit] = useState<Database['public']['Tables']['shippingquotes']['Row'] | null>(null);
     const [popupMessage, setPopupMessage] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const rowsPerPage = 10; 
 
-        const fetchEditHistory = useCallback(async (companyId: string) => {
+    const fetchEditHistory = useCallback(async (companyId: string) => {
         const { data, error } = await supabase
             .from('edit_history')
             .select('*')
@@ -142,7 +140,6 @@ const NtsQuoteList: React.FC<NtsQuoteListProps> = ({ session, fetchQuotes, trans
 
     const [selectedQuoteId, setSelectedQuoteId] = useState<number | null>(null);
 
-
     const handleModalClose = () => {
         setIsModalOpen(false);
         setSelectedQuote(null);
@@ -170,7 +167,6 @@ const NtsQuoteList: React.FC<NtsQuoteListProps> = ({ session, fetchQuotes, trans
     const handleRowClick = (id: number) => {
         setExpandedRow(expandedRow === id ? null : id);
     };
-
 
     const duplicateQuote = async (quote: Database['public']['Tables']['shippingquotes']['Row']) => {
         const { data, error } = await supabase
@@ -239,41 +235,87 @@ const NtsQuoteList: React.FC<NtsQuoteListProps> = ({ session, fetchQuotes, trans
         setCurrentPage(pageNumber);
     };
 
-    return (
+    const handleSort = (column: string) => {
+        let order = 'asc';
+        if (sortConfig.column === column && sortConfig.order === 'asc') {
+            order = 'desc';
+        }
+        setSortConfig({ column, order });
+    };
 
+    const handleEditModalSubmit = async (updatedQuote: Database['public']['Tables']['shippingquotes']['Row']) => {
+        const { error } = await supabase
+            .from('shippingquotes')
+            .update(updatedQuote)
+            .eq('id', updatedQuote.id);
+
+        if (error) {
+            console.error('Error updating quote:', error.message);
+            setErrorText('Error updating quote');
+        } else {
+            setQuotes(quotes.map(quote => quote.id === updatedQuote.id ? updatedQuote : quote));
+            setIsEditModalOpen(false);
+        }
+    };
+
+    return (
         <div className="w-full bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md border border-zinc-400 max-h-max flex-grow">
-            <div className="hidden 2xl:block overflow-x-auto">
+            {popupMessage && (
+                <div className="absolute top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg animate-fade-in-out">
+                    {popupMessage}
+                </div>
+            )}
+            <EditQuoteModal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                onSubmit={handleEditModalSubmit}
+                quote={quoteToEdit}
+            />
+            <QuoteTableHeader
+                sortConfig={sortConfig}
+                handleSort={handleSort}
+                setSortedQuotes={setSortedQuotes}
+                setActiveTab={() => {}}
+                activeTab=""
+                quoteToEdit={quoteToEdit}
+                quotes={quotes}
+                quote={selectedQuote}
+                companyId={session?.user?.id || ''}
+                editHistory={editHistory}
+                fetchEditHistory={fetchEditHistory}
+            />
+            <div className="hidden lg:block overflow-x-auto">
                 <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
-                    <thead className="bg-ntsLightBlue text-zinc-50 dark:bg-zinc-900 sticky top-0">
-                        <tr className='text-zinc-50 font-semibold border-b border-zinc-900 dark:border-zinc-100'>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">ID</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">Origin/Destination</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">Freight</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">Dimensions</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">Shipping Date</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs font-semibold dark:text-white uppercase tracking-wider border-r border-zinc-300">Price</th>
-                            <th className="pt-4 pb-1 pl-2 text-left text-xs font-semibold dark:text-white uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
                     <tbody className="bg-white dark:bg-zinc-800/90 divide-y divide-zinc-300">
-                    {currentRows.map((quote, index) => (
-                                <QuoteTableRow
-                                    key={quote.id}
-                                    quote={quote}
-                                    expandedRow={expandedRow}
-                                    handleRowClick={handleRowClick}
-                                    handleRespond={(quoteId) => handleRespond(quoteId)}
-                                    handleEditClick={handleEditClick}
-                                    handleCreateOrderClick={handleCreateOrderClick}
-                                    isAdmin={isAdmin}
-                                    rowIndex={index} // Pass row index to QuoteTableRow
-                                    duplicateQuote={duplicateQuote} // Pass duplicateQuote function to QuoteTableRow
-                                    reverseQuote={reverseQuote} // Pass reverseQuote function to QuoteTableRow
-                                    archiveQuote={archiveQuote}
-                                />
-                            ))}
+                        {currentRows.map((quote, index) => (
+                            <QuoteTableRow
+                                key={quote.id}
+                                quote={quote}
+                                expandedRow={expandedRow}
+                                handleRowClick={handleRowClick}
+                                handleRespond={(quoteId) => handleRespond(quoteId)}
+                                handleEditClick={handleEditClick}
+                                handleCreateOrderClick={handleCreateOrderClick}
+                                isAdmin={isAdmin}
+                                rowIndex={index} // Pass row index to QuoteTableRow
+                                duplicateQuote={duplicateQuote} // Pass duplicateQuote function to QuoteTableRow
+                                reverseQuote={reverseQuote} // Pass reverseQuote function to QuoteTableRow
+                                archiveQuote={archiveQuote}
+                            />
+                        ))}
                     </tbody>
                 </table>
+                <div className="flex justify-center mt-4">
+                    {Array.from({ length: totalPages }, (_, index) => (
+                        <button
+                            key={index}
+                            onClick={() => handlePageChange(index + 1)}
+                            className={`px-4 py-2 mx-1 rounded ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                        >
+                            {index + 1}
+                        </button>
+                    ))}
+                </div>
             </div>
             <div className="block 2xl:hidden">
                 {quotes.map((quote) => (
