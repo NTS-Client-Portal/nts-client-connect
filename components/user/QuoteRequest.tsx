@@ -29,14 +29,34 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, companyId, profile
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [activeTab, setActiveTab] = useState('requests');
     const [isMobile, setIsMobile] = useState<boolean>(false);
+    const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
     const fetchQuotes = useCallback(async () => {
         if (!session?.user?.id) return;
 
+        // Fetch company IDs assigned to the current nts_user
+        const { data: companyIdsData, error: companyIdsError } = await supabase
+            .from('company_sales_users')
+            .select('company_id')
+            .eq('sales_user_id', session.user.id);
+
+        if (companyIdsError) {
+            console.error('Error fetching company IDs:', companyIdsError.message);
+            return;
+        }
+
+        const companyIds = companyIdsData.map((item: any) => item.company_id);
+
+        if (companyIds.length === 0) {
+            setQuotes([]);
+            return;
+        }
+
+        // Fetch quotes related to the companies
         const { data, error } = await supabase
             .from('shippingquotes')
             .select('*')
-            .eq('company_id', companyId)
+            .in('company_id', companyIds)
             .eq('is_archived', false); // Fetch only non-archived quotes
 
         if (error) {
@@ -45,7 +65,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, companyId, profile
             console.log('Fetched Quotes:', data);
             setQuotes(data);
         }
-    }, [session, supabase, companyId]);
+    }, [session, supabase]);
 
     const fetchEditHistory = useCallback(async () => {
         if (!session?.user?.id) return;
@@ -83,6 +103,26 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, companyId, profile
             window.removeEventListener('resize', handleResize);
         };
     }, []);
+
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            if (!session?.user?.id) return;
+
+            const { data, error } = await supabase
+                .from('nts_users')
+                .select('id')
+                .eq('id', session.user.id)
+                .single();
+
+            if (error) {
+                console.error('Error fetching user role:', error.message);
+            } else {
+                setIsAdmin(!!data);
+            }
+        };
+
+        fetchUserRole();
+    }, [session, supabase]);
 
     const addQuote = async (quote: Partial<Database['public']['Tables']['shippingquotes']['Insert'] & { containerLength?: number | null; containerType?: string | null; contentsDescription?: string | null; selectedOption?: string | null; }>) => {
         if (!session?.user?.id) return;
@@ -278,7 +318,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, companyId, profile
                         archiveQuote={archiveQuote}
                         transferToOrderList={transferToOrderList}
                         handleSelectQuote={string => console.log(string)}
-                        isAdmin={false}
+                        isAdmin={isAdmin} // Pass isAdmin state
                     />
                 )}
                 {activeTab === 'orders' && (

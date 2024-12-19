@@ -1037,6 +1037,7 @@ export type Database = {
           price: number | null
           roadworthy: boolean | null
           save_to_inventory: boolean | null
+          shipment_items: Json | null
           status: string | null
           tarping: boolean | null
           trailer: boolean | null
@@ -1106,6 +1107,7 @@ export type Database = {
           price?: number | null
           roadworthy?: boolean | null
           save_to_inventory?: boolean | null
+          shipment_items?: Json | null
           status?: string | null
           tarping?: boolean | null
           trailer?: boolean | null
@@ -1175,6 +1177,7 @@ export type Database = {
           price?: number | null
           roadworthy?: boolean | null
           save_to_inventory?: boolean | null
+          shipment_items?: Json | null
           status?: string | null
           tarping?: boolean | null
           trailer?: boolean | null
@@ -1188,6 +1191,13 @@ export type Database = {
           year?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "shippingquotes_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "shippingquotes_user_id_fkey"
             columns: ["user_id"]

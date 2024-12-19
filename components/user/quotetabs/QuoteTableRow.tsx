@@ -13,9 +13,9 @@ interface QuoteTableRowProps {
     handleCreateOrderClick: (quoteId: number) => void;
     handleRespond: (quoteId: number) => void;
     isAdmin: boolean;
-    rowIndex: number; // Add rowIndex prop
-    duplicateQuote: (quote: Database['public']['Tables']['shippingquotes']['Row']) => void; // Add duplicateQuote prop
-    reverseQuote: (quote: Database['public']['Tables']['shippingquotes']['Row']) => void; // Add reverseQuote prop
+    rowIndex: number;
+    duplicateQuote: (quote: Database['public']['Tables']['shippingquotes']['Row']) => void;
+    reverseQuote: (quote: Database['public']['Tables']['shippingquotes']['Row']) => void;
 }
 
 const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
@@ -27,9 +27,9 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
     handleCreateOrderClick,
     handleRespond,
     isAdmin,
-    rowIndex, // Add rowIndex prop
-    duplicateQuote, // Add duplicateQuote prop
-    reverseQuote, // Add reverseQuote prop
+    rowIndex,
+    duplicateQuote,
+    reverseQuote,
 }) => {
     const [activeTab, setActiveTab] = useState('quotedetails');
     const [editHistory, setEditHistory] = useState<Database['public']['Tables']['edit_history']['Row'][]>([]);
@@ -50,10 +50,25 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
         }
     };
 
-    const freightTypeMapping: { [key: string]: string } = {
-        'FTL': 'Full Truckload',
-        'LTL': 'Less Than Truckload',
-        // Add other mappings as needed
+    const getStatusClasses = (status: string) => {
+        switch (status) {
+            case 'Pending':
+                return 'bg-yellow-50 text-yellow-700';
+            case 'In Progress':
+                return 'bg-blue-50 text-blue-700';
+            case 'Dispatched':
+                return 'bg-purple-50 text-purple-700';
+            case 'Picked Up':
+                return 'bg-indigo-50 text-indigo-700';
+            case 'Delivered':
+                return 'bg-green-50 text-green-700';
+            case 'Completed':
+                return 'bg-green-50 text-green-700';
+            case 'Cancelled':
+                return 'bg-red-50 text-red-700';
+            default:
+                return 'bg-gray-50 text-gray-700';
+        }
     };
 
     useEffect(() => {
@@ -80,79 +95,106 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
         <>
             <tr
                 onClick={() => handleRowClick(quote.id)}
-                className={`cursor-pointer mb-4 ${rowIndex % 2 === 0 ? 'bg-white' : 'bg-gray-100'}`}
+                className={`cursor-pointer mb-4 ${rowIndex % 2 === 0 ? 'bg-white h-fit' : 'bg-gray-100'}`}
             >
                 <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{quote.id}</td>
-                <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-                    <span className='flex flex-col justify-between p-0'>
-                        
-                        {quote.container_length && quote.container_type && (
-                            <>
-                                <span className='font-semibold text-sm text-gray-700 p-0  mb-1'>Freight Description:</span> 
-                                <span className='text-base text-zinc-900 p-0'>{`${quote.container_length} ft ${quote.container_type}`}</span>
-                            </>
-                        )}
-                        {quote.year && quote.make && quote.model && (
-                            <span className='flex flex-col mb-1'>
-                                <span className='font-semibold text-sm text-gray-700 p-0'>Freight Description:</span> 
-                                <span className='text-base text-zinc-900'>{`${quote.year} ${quote.make} ${quote.model}`}</span>
-                            </span>
-                        )}
-                        <span className='flex flex-col'>
-                            <span className='font-semibold text-sm text-gray-700 p-0'>Freight Type:</span> 
-                            <span className=' p-0'>{freightTypeMapping[quote.freight_type] || (quote.freight_type ? quote.freight_type.toUpperCase() : 'N/A')}</span>
-                        </span>
-                    </span>
+                <td className="py-3 pr-12 flex flex-col gap-2 place-items-center justify-around h-full whitespace-nowrap text-sm font-medium text-gray-900">
+            
+                    
+                            <div className='p-0 m-0 text-start'>
+                                {Array.isArray(quote.shipment_items) ? quote.shipment_items.map((item: any, index) => (
+                                    <>
+                                        {item.container_length && item.container_type && typeof item === 'object' && (
+                                            <span className='flex flex-col gap-0'>
+                                                <span className='font-semibold text-sm text-gray-700 p-0'>Shipment Item {index + 1}:</span>
+                                                <span className='text-base text-zinc-900 p-0'>{`${item.container_length} ft ${item.container_type}`}</span>
+                                            </span>
+                                        )}
+                                        {item.year && item.make && item.model && (
+                                            <span className='flex flex-col gap-0'>
+                                                <span className='font-semibold text-sm text-gray-700 p-0'>Shipment Item {index + 1}:</span>
+                                                <span className='text-base text-zinc-900 p-0'>{`${item.year} ${item.make} ${item.model}`}</span>
+                                            </span>
+                                        )}
+                                    </>
+                                )) : (
+                                    <>
+                                        <div className='text-start'>
+                                            {quote.container_length && quote.container_type && (
+                                                <>
+                                    <span className='font-semibold text-sm text-gray-700 p-0 text-start'>Shipment Item:</span><br />
+                                    <span className='text-normal text-zinc-900  text-start'>{`${quote.container_length} ft ${quote.container_type}`}</span>
+                                                </>
+                                            )}
+                                            {quote.year && quote.make && quote.model && (
+                                                    <>
+                                                        <span className='font-semibold text-sm text-gray-700 p-0 text-start'>Shipment Item:</span><br />
+                                                        <span className='text-normal text-zinc-900 text-start'>{`${quote.year} ${quote.make} ${quote.model}`}</span>
+                                                    </>
+                                            )}
+                                        </div>
+                                    </>
+                                )}
+                        <div className='text-start pt-1'>
+                            <span className='font-semibold text-xs text-gray-700 text-start'>Freight Type:</span>
+                            <span className='text-xs text-zinc-900 text-start pl-1'>{freightTypeMapping[quote.freight_type] || (quote.freight_type ? quote.freight_type.toUpperCase() : 'N/A')}</span>
+                        </div>
+                            </div>
                 </td>
-                <td className="px-6 py-3 text-start whitespace-nowrap text-sm text-gray-500">{quote.origin_city}, {quote.origin_state}</td>
-                <td className="px-6 py-3 text-start whitespace-nowrap text-sm text-gray-500">{quote.destination_city}, {quote.destination_state}</td>
-                <td className="px-6 py-3 text-start whitespace-nowrap text-sm text-gray-500">{formatDate(quote.due_date)}</td>
-                <td className="px-6 py-3 text-start whitespace-nowrap text-sm text-gray-500">{quote.price ? quote.price : 'Pending'}</td>
-                <td className="px-6 py-3 text-start whitespace-nowrap text-sm text-gray-500">
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditClick(quote);
-                        }}
-                        className="text-ntsLightBlue font-medium underline"
-                    >
-                        Edit Quote
-                    </button>
-                    {quote.price ? (
+                <td className="text-start py-3 whitespace-nowrap text-sm text-gray-500">{quote.origin_city}, {quote.origin_state}</td>
+                <td className="pr-12 pl-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.destination_city}, {quote.destination_state}</td>
+                <td className="pr-12 pl-6 py-3 whitespace-nowrap text-sm text-gray-500">{formatDate(quote.due_date)}</td>
+                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.price ? quote.price : 'Pending'}</td>
+                <td className="pr-6 py-3 whitespace-nowrap text-sm text-gray-500">
+                    <div className='flex flex-col gap-2'>
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
-                                handleCreateOrderClick(quote.id);
+                                handleEditClick(quote);
                             }}
-                            className="ml-2 p-1 body-btn text-white rounded"
+                            className="text-ntsLightBlue font-medium underline"
                         >
-                            Create Order
+                            Edit Quote
                         </button>
-                    ) : null}
-                    {isAdmin && (
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                handleRespond(quote.id);
-                            }}
-                            className="text-blue-500 ml-2"
-                        >
-                            Respond
-                        </button>
-                    )}
-                    {isAdmin && (
-                        <select value={status} onChange={handleStatusChange} className="bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md">
-                        <option value="Pending">Pending</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Dispatched">Dispatched</option>
-                        <option value="Picked Up">Picked Up</option>
-                        <option value="Delivered">Delivered</option>
-                        <option value="Completed">Completed</option>
-                        <option value="Cancelled">Cancelled</option>
-                    </select>
-                )}
+                        {quote.price ? (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCreateOrderClick(quote.id);
+                                }}
+                                className="text-ntsLightBlue font-medium underline"
+                            >
+                                Create Order
+                            </button>
+                        ) : null}
+                        {isAdmin && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRespond(quote.id);
+                                }}
+                                className="text-ntsLightBlue font-medium underline"
+                            >
+                                Price Quote Request
+                            </button>
+                        )}
+                        {isAdmin && (
+                            <select
+                                value={status}
+                                onChange={handleStatusChange}
+                                className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(status)}`}
+                            >
+                                <option value="Pending" className={getStatusClasses('Pending')}>Pending</option>
+                                <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
+                                <option value="Dispatched" className={getStatusClasses('Dispatched')}>Dispatched</option>
+                                <option value="Picked Up" className={getStatusClasses('Picked Up')}>Picked Up</option>
+                                <option value="Delivered" className={getStatusClasses('Delivered')}>Delivered</option>
+                                <option value="Completed" className={getStatusClasses('Completed')}>Completed</option>
+                                <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
+                            </select>
+                        )}
+                    </div>
                 </td>
-        
             </tr>
             {expandedRow === quote.id && (
                 <tr className='my-4'>
@@ -174,24 +216,20 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
                             </div>
                             {activeTab === 'quotedetails' && (
                                 <div className='border border-gray-200 p-6 h-full'>
-
                                     <div className='flex gap-2 items-center h-full'>
-                                        <button onClick={(e) => {e.stopPropagation(); duplicateQuote(quote);}} className="body-btn ml-2">
-                                        Duplicate Quote
+                                        <button onClick={(e) => { e.stopPropagation(); duplicateQuote(quote); }} className="body-btn ml-2">
+                                            Duplicate Quote
                                         </button>
-                                        <button onClick={(e) => {e.stopPropagation();reverseQuote(quote);}} className="body-btn ml-2">
-                                        Flip Route Duplicate
+                                        <button onClick={(e) => { e.stopPropagation(); reverseQuote(quote); }} className="body-btn ml-2">
+                                            Flip Route Duplicate
                                         </button>
                                     </div>
-
                                     <button onClick={() => handleEditClick(quote)} className="text-ntsLightBlue mt-3 font-semibold text-base underline mb-4 h-full">
                                         Edit Quote
                                     </button>
-
-                                        {renderAdditionalDetails(quote)}
-
+                                    {renderAdditionalDetails(quote)}
                                     <button onClick={() => archiveQuote(quote.id)} className="text-red-500 mt-4 text-sm">
-                                            Archive Quote
+                                        Archive Quote
                                     </button>
                                 </div>
                             )}

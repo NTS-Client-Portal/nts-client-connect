@@ -12,6 +12,7 @@ const FreightForm: React.FC<FreightFormProps> = ({
     const [loadDescription, setLoadDescription] = useState('');
     const [length, setLength] = useState('');
     const [height, setHeight] = useState('');
+    const [width, setWidth] = useState('');
     const [weight, setWeight] = useState('');
     const [freightClass, setFreightClass] = useState('');
     const [loadingAssistance, setLoadingAssistance] = useState('');
@@ -23,6 +24,7 @@ const FreightForm: React.FC<FreightFormProps> = ({
         const formData = {
             load_description: loadDescription,
             length,
+            width,
             height,
             weight,
             freight_class: freightClass,
@@ -38,17 +40,7 @@ const FreightForm: React.FC<FreightFormProps> = ({
     return (
         <div className="flex flex-col gap-3">
             <div className='flex gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Load Description
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
-                        type="text"
-                        value={loadDescription}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setLoadDescription(e.target.value);
-                        }}
-                    />
-                </label>
+
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Length
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
@@ -57,6 +49,17 @@ const FreightForm: React.FC<FreightFormProps> = ({
                         onChange={(e) => {
                             setErrorText('');
                             setLength(e.target.value);
+                        }}
+                    />
+                </label>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Width
+                    <input
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                        type="text"
+                        value={width}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setWidth(e.target.value);
                         }}
                     />
                 </label>
@@ -84,6 +87,7 @@ const FreightForm: React.FC<FreightFormProps> = ({
                         }}
                     />
                 </label>
+
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Freight Class
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
@@ -130,6 +134,17 @@ const FreightForm: React.FC<FreightFormProps> = ({
                         }}
                     />
                 </label>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Freight Item/Description
+                    <input
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                        type="text"
+                        value={loadDescription}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setLoadDescription(e.target.value);
+                        }}
+                    />
+                </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Dock / No Dock
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
@@ -141,6 +156,7 @@ const FreightForm: React.FC<FreightFormProps> = ({
                         }}
                     />
                 </label>
+
             </div>
         </div>
     );

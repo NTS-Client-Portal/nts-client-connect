@@ -62,7 +62,7 @@ const SalesTopNav: React.FC<SalesTopNavProps> = ({ session, className = '' }) =>
 
     return (
         <>
-            <nav className={`md:hidden w-full  max-h-max bg-stone-50 dark:bg-zinc-700 flex flex-col md:flex-row gap-1 justify-end px-4 z-50 py-1 drop-shadow ${className}`}>
+            <nav className={`md:hidden w-full  max-h-max absolute top-0 bg-white dark:bg-zinc-700 flex flex-col md:flex-row gap-1 justify-end px-4 z-50 py-1 drop-shadow ${className}`}>
                 <ul className='flex gap-2 md:gap-4 items-center z-50 justify-end mr-4'>
                     <li>
                         <NotificationBell session={session} />
@@ -85,13 +85,10 @@ const SalesTopNav: React.FC<SalesTopNavProps> = ({ session, className = '' }) =>
                 <FeedBack />
             </nav>
 
-            <nav className={`hidden w-full bg-stone-50 dark:bg-zinc-900 md:flex flex-col md:flex-row gap-1 justify-between px-4 z-50 py-2 drop-shadow ${className}`}>
+            <nav className={`hidden w-full bg-white absolute top-0 md:flex flex-col md:flex-row gap-1 justify-between px-4 z-50 py-2 drop-shadow ${className}`}>
                 <ul className='w-full flex gap-2 md:gap-4 items-center z-50 justify-start pl-64'>
                     <li>
                         <FeedBack />
-                    </li>
-                    <li>
-                        <DarkModeToggle />
                     </li>
                 </ul>
                 <ul className='w-full flex gap-2 md:gap-4 items-center z-50 justify-end mr-12'>

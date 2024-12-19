@@ -9,6 +9,7 @@ import QuoteTableHeader from './QuoteTableHeader';
 import QuoteTableRow from './QuoteTableRow';
 import HistoryTab from './HistoryTab'; // Adjust the import path as needed
 import { freightTypeMapping, formatDate, renderAdditionalDetails } from './QuoteUtils';
+import QuoteTable from './QuoteTable';
 
 interface QuoteListProps {
     session: Session | null;
@@ -37,6 +38,25 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
     const [popupMessage, setPopupMessage] = useState<string | null>(null); // Add state for popup message
     const [currentPage, setCurrentPage] = useState(1); // Add state for current page
     const rowsPerPage = 10; // Define rows per page
+
+    const fetchShippingQuotes = async (salesUserId: string) => {
+        const { data, error } = await supabase
+            .from('shippingquotes')
+            .select(`
+                *,
+                companies (
+                    *
+                )
+            `)
+            .eq('companies.assigned_sales_user', salesUserId);
+    
+        if (error) {
+            console.error('Error fetching shipping quotes:', error.message);
+            return [];
+        }
+    
+        return data;
+    };
 
     const fetchEditHistory = useCallback(async (companyId: string) => {
         const { data, error } = await supabase
@@ -84,18 +104,9 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
         const fetchInitialQuotes = async () => {
             if (!session?.user?.id) return;
 
-            // Fetch quotes for both nts_users and profiles
-            const { data: quotesData, error: quotesError } = await supabase
-                .from('shippingquotes')
-                .select('*')
-                .or(`user_id.eq.${session.user.id},company_id.eq.${session.user.id}`);
+            const quotesData = await fetchShippingQuotes(session.user.id);
 
-            if (quotesError) {
-                console.error('Error fetching quotes:', quotesError.message);
-            } else {
-                console.log('Fetched initial quotes:', quotesData);
-                setQuotes(quotesData);
-            }
+            setQuotes(quotesData);
         };
 
         fetchInitialQuotes();

@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Session } from '@supabase/auth-helpers-react';
 import SelectOption from './SelectOption';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { Database } from '@/lib/database.types';
 
 interface QuoteFormProps {
     isOpen: boolean;
@@ -14,6 +16,7 @@ interface QuoteFormProps {
 }
 
 const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorText, setErrorText, session, fetchQuotes, companyId }) => {
+    const supabase = useSupabaseClient<Database>();
     const [selectedOption, setSelectedOption] = useState('');
     const [originZip, setOriginZip] = useState('');
     const [originCity, setOriginCity] = useState('');
@@ -23,6 +26,30 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
     const [destinationState, setDestinationState] = useState('');
     const [dueDate, setDueDate] = useState<string | null>(null);
     const [formData, setFormData] = useState<any>({});
+    const [saveToInventory, setSaveToInventory] = useState(false);
+    const [inventoryItems, setInventoryItems] = useState<any[]>([]);
+    const [selectedInventoryItem, setSelectedInventoryItem] = useState('');
+
+    useEffect(() => {
+        if (isOpen && session) {
+            // Fetch inventory items when the form is opened
+            const fetchInventoryItems = async () => {
+                const { data, error } = await supabase
+                    .from('freight')
+                    .select('*')
+                    .eq('user_id', session.user.id);
+
+                if (error) {
+                    console.error('Error fetching inventory items:', error.message);
+                } else {
+                    setInventoryItems(data);
+                }
+            };
+
+            fetchInventoryItems();
+        }
+    }, [isOpen, session, supabase]);
+
 
     const handleZipCodeBlur = async (type: 'origin' | 'destination') => {
         const zipCode = type === 'origin' ? originZip : destinationZip;
@@ -83,11 +110,39 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
             due_date: dueDate,
             freight_type: selectedOption,
             ...formData, // Include form data from selected form
+            save_to_inventory: saveToInventory,
         };
 
         try {
             addQuote(quote);
             fetchQuotes();
+
+            if (saveToInventory) {
+                const freightData = {
+                    user_id: session.user.id,
+                    year: formData.year,
+                    make: formData.make,
+                    model: formData.model,
+                    length: formData.length,
+                    width: formData.width,
+                    height: formData.height,
+                    weight: formData.weight,
+                    freight_type: selectedOption,
+                    commodity: formData.commodity,
+                    pallet_count: formData.pallet_count,
+                    serial_number: formData.vin,
+                };
+
+                const { error } = await supabase
+                    .from('freight')
+                    .insert([freightData]);
+
+                if (error) {
+                    console.error('Error saving to inventory:', error.message);
+                    setErrorText('Error saving to inventory');
+                }
+            }
+
             onClose();
         } catch (error) {
             console.error('Error submitting quote:', error);
@@ -102,12 +157,44 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
             <div className="bg-white p-6 rounded shadow-md w-full max-w-3xl relative z-50">
                 <h2 className="text-xl mb-4">Request a Shipping Estimate</h2>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Select Inventory Item
+                        <select
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                            value={selectedInventoryItem}
+                            onChange={(e) => {
+                                setSelectedInventoryItem(e.target.value);
+                                if (e.target.value) {
+                                    setSelectedOption('');
+                                    setFormData({});
+                                }
+                            }}
+                            disabled={!!selectedOption}
+                        >
+                            <option value="">Select an item</option>
+                            {inventoryItems.map((item) => (
+                                <option key={item.id} value={item.id}>
+                                    {item.year} {item.make} {item.model}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+                    <span className='flex items-center w-1/2'>
+                        <span className='border-b p-0 border-zinc-400 w-full'></span>
+                        <span>Or</span>
+                        <span className='border-b p-0 border-zinc-400 w-full'></span>
+                    </span>
                     <SelectOption
                         selectedOption={selectedOption}
-                        setSelectedOption={setSelectedOption}
+                        setSelectedOption={(option) => {
+                            setSelectedOption(option);
+                            if (option) {
+                                setSelectedInventoryItem('');
+                            }
+                        }}
                         setErrorText={setErrorText}
                         session={session}
                         setFormData={setFormData}
+                        disabled={false}
                     />
                     <div className='flex gap-2'>
                         <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Origin Zip
@@ -175,6 +262,14 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                                 setDueDate(e.target.value || null); // Set dueDate to null if the input is empty
                             }}
                         />
+                    </label>
+                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>
+                        <input
+                            type="checkbox"
+                            checked={saveToInventory}
+                            onChange={(e) => setSaveToInventory(e.target.checked)}
+                        />
+                        Save to Inventory
                     </label>
                     <div className='flex justify-center'>
                         <div className='flex gap-2 w-full justify-around'>

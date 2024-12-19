@@ -31,11 +31,23 @@ interface Company {
   name: string;
 }
 
+interface ShippingQuote {
+  id: number;
+  company_id: string | null;
+  origin_city: string | null;
+  origin_state: string | null;
+  destination_city: string | null;
+  destination_state: string | null;
+  due_date: string | null;
+  status: string | null;
+}
+
 const Crm: React.FC = () => {
   const supabase = useSupabaseClient<Database>();
   const { userProfile } = useNtsUsers();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [shippingQuotes, setShippingQuotes] = useState<ShippingQuote[]>([]);
 
   useEffect(() => {
     const fetchAssignedCustomers = async () => {
@@ -56,6 +68,7 @@ const Crm: React.FC = () => {
         if (companyIds.length === 0) {
           setCompanies([]);
           setProfiles([]);
+          setShippingQuotes([]);
           return;
         }
 
@@ -84,14 +97,31 @@ const Crm: React.FC = () => {
           console.log('Fetched profiles:', profilesData);
           setProfiles(profilesData);
         }
+
+        // Fetch shipping quotes related to the companies
+        const { data: shippingQuotesData, error: shippingQuotesError } = await supabase
+          .from('shippingquotes')
+          .select('*')
+          .in('company_id', companyIds);
+
+        if (shippingQuotesError) {
+          console.error('Error fetching shipping quotes:', shippingQuotesError.message);
+        } else if (shippingQuotesData) {
+          console.log('Fetched shipping quotes:', shippingQuotesData);
+          setShippingQuotes(shippingQuotesData);
+        }
       }
     };
 
     fetchAssignedCustomers();
   }, [userProfile, supabase]);
-  
+
   const getProfilesForCompany = (companyId: string) => {
     return profiles.filter(profile => profile.company_id === companyId);
+  };
+
+  const getShippingQuotesForCompany = (companyId: string) => {
+    return shippingQuotes.filter(quote => quote.company_id === companyId);
   };
 
   return (
@@ -104,6 +134,7 @@ const Crm: React.FC = () => {
               <th className="text-start px-4 py-2 border-b">Company Name</th>
               <th className="text-start px-4 py-2 border-b">Company Size</th>
               <th className="text-start px-4 py-2 border-b">Company Users</th>
+              <th className="text-start px-4 py-2 border-b">Shipping Quotes</th>
             </tr>
           </thead>
           <tbody>
@@ -120,6 +151,15 @@ const Crm: React.FC = () => {
                     {getProfilesForCompany(company.id).map(profile => (
                       <li key={profile.id}>
                         {profile.first_name} {profile.last_name} - {profile.email}
+                      </li>
+                    ))}
+                  </ul>
+                </td>
+                <td className="px-4 py-2 border-b">
+                  <ul className="list-disc list-inside">
+                    {getShippingQuotesForCompany(company.id).map(quote => (
+                      <li key={quote.id}>
+                        {quote.origin_city}, {quote.origin_state} to {quote.destination_city}, {quote.destination_state} - Due: {quote.due_date} - Status: {quote.status}
                       </li>
                     ))}
                   </ul>

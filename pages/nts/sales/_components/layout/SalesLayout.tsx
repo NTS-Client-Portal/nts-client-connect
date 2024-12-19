@@ -41,7 +41,7 @@ const SalesLayout: React.FC<SalesLayoutProps> = ({ children }) => {
                 isSidebarOpen={isSidebarOpen}
                 toggleSidebar={toggleSidebar}
             />
-            <div className="w-full fixed top-0 left-0">
+            <div className="w-full bg-white absolute z-10 top-0 left-0">
                 <SalesTopNav session={session} />
             </div>
             <main className="ml-0 mt-32 md:mt-20 xl:ml-52 p-4 z-0 relative">

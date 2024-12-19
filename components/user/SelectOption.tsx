@@ -6,6 +6,7 @@ import SemiTruckForm from './forms/SemiTruckForm';
 import BoatForm from './forms/BoatForm';
 import { Session } from '@supabase/auth-helpers-react';
 import FreightForm from './forms/FreightForm';
+import AutoForm from './forms/AutoForm';
 
 interface SelectOptionProps {
     selectedOption: string;
@@ -13,6 +14,7 @@ interface SelectOptionProps {
     setErrorText: (value: string) => void;
     session: Session;
     setFormData: (data: any) => void;
+    disabled: boolean;
 }
 
 const SelectOption: React.FC<SelectOptionProps> = ({
@@ -39,6 +41,7 @@ const SelectOption: React.FC<SelectOptionProps> = ({
                     <option value="containers">Containers</option>
                     <option value="rv_trailers">RV Trailers</option>
                     <option value="semi_trucks">Semi Trucks</option>
+                    <option value="auto">Auto</option>
                     <option value="boats">Boats</option>
                 </select>
             </label>
@@ -73,6 +76,12 @@ const SelectOption: React.FC<SelectOptionProps> = ({
 
             {selectedOption === 'semi_trucks' && (
                 <SemiTruckForm
+                    setFormData={setFormData}
+                    setErrorText={setErrorText}
+                />
+            )}
+            {selectedOption === 'auto' && (
+                <AutoForm
                     setFormData={setFormData}
                     setErrorText={setErrorText}
                 />
