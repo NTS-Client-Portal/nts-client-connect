@@ -6,6 +6,10 @@
     "editor.formatOnSave": false,
     "editor.formatOnType": false,
     "editor.formatOnPaste": false,
+    "deno.enable": true,
+    "deno.lint": true,
+    "editor.formatOnSave": true,
+    "[typescript]": { "editor.defaultFormatter": "denoland.vscode-deno" },
     "eslint.enable": true,
     "eslint.validate": [
       "javascript",

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 
 const CustomSignInForm = () => {

@@ -52,7 +52,11 @@ const ResetPassword: React.FC = () => {
       }
     } catch (err) {
       console.error('Error resetting password:', err);
-      setError('Error resetting password: ' + err.message);
+      if (err instanceof Error) {
+        setError('Error resetting password: ' + err.message);
+      } else {
+        setError('Error resetting password.');
+      }
     }
   };
 
