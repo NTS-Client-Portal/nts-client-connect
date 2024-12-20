@@ -24,7 +24,7 @@ const RecoverPassword: React.FC = () => {
     setButtonDisabled(true);
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/reset-password`
+      redirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/reset-password?userType=${userType}`
     });
 
     if (error) {

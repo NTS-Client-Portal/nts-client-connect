@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/database'; // Adjust the import path as needed
 import Link from 'next/link';
+import { Eye, EyeOff } from 'lucide-react';
 
 const ResetPassword: React.FC = () => {
   const router = useRouter();
@@ -10,12 +11,22 @@ const ResetPassword: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
-    if (!access_token) {
+    if (!access_token || Array.isArray(access_token)) {
       setError('Invalid or missing access token.');
     } else {
-      console.log('Access Token:', access_token);
+      // Authenticate the user using the access token
+      supabase.auth.setSession({
+        access_token: access_token as string,
+        refresh_token: '' // Provide an empty string or a valid refresh token if available
+      }).then(({ error }) => {
+        if (error) {
+          setError('Error authenticating user: ' + error.message);
+        }
+      });
     }
   }, [access_token]);
 
@@ -26,11 +37,6 @@ const ResetPassword: React.FC = () => {
 
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
-      return;
-    }
-
-    if (!access_token) {
-      setError('Invalid or missing access token.');
       return;
     }
 
@@ -50,6 +56,14 @@ const ResetPassword: React.FC = () => {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
@@ -57,10 +71,10 @@ const ResetPassword: React.FC = () => {
         {message && <div className="text-green-500 mb-4">{message}</div>}
         {error && <div className="text-red-500 mb-4">{error}</div>}
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
+          <div className="mb-4 relative">
             <label htmlFor="password" className="block text-gray-700">New Password</label>
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -68,11 +82,18 @@ const ResetPassword: React.FC = () => {
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               aria-label="New Password"
             />
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+            >
+              {showPassword ? <EyeOff className="h-5 w-5 text-gray-500" /> : <Eye className="h-5 w-5 text-gray-500" />}
+            </button>
           </div>
-          <div className="mb-4">
+          <div className="mb-4 relative">
             <label htmlFor="confirmPassword" className="block text-gray-700">Confirm New Password</label>
             <input
-              type="password"
+              type={showConfirmPassword ? 'text' : 'password'}
               id="confirmPassword"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -80,6 +101,13 @@ const ResetPassword: React.FC = () => {
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               aria-label="Confirm New Password"
             />
+            <button
+              type="button"
+              onClick={toggleConfirmPasswordVisibility}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+            >
+              {showConfirmPassword ? <EyeOff className="h-5 w-5 text-gray-500" /> : <Eye className="h-5 w-5 text-gray-500" />}
+            </button>
           </div>
           <button
             type="submit"
