@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
 import Link from 'next/link';
+import { Eye, EyeOff } from 'lucide-react';
 
 const NtsLogin = () => {
     const supabase = useSupabaseClient();
@@ -11,6 +12,7 @@ const NtsLogin = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -49,6 +51,10 @@ const NtsLogin = () => {
         }
     };
 
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
             <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
@@ -67,17 +73,24 @@ const NtsLogin = () => {
                             aria-label="Email"
                         />
                     </div>
-                    <div className="mb-6">
+                    <div className="mb-6 relative">
                         <label htmlFor="password" className="block text-gray-700">Password</label>
                         <input
                             id="password"
-                            type="password"
+                            type={showPassword ? 'text' : 'password'}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             aria-label="Password"
                         />
+                        <button
+                            type="button"
+                            onClick={togglePasswordVisibility}
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                        >
+                            {showPassword ? <EyeOff className="h-5 w-5 text-gray-500" /> : <Eye className="h-5 w-5 text-gray-500" />}
+                        </button>
                     </div>
                     <button
                         type="submit"
