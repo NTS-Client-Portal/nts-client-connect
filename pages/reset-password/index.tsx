@@ -14,6 +14,8 @@ const ResetPassword: React.FC = () => {
   useEffect(() => {
     if (!access_token) {
       setError('Invalid or missing access token.');
+    } else {
+      console.log('Access Token:', access_token);
     }
   }, [access_token]);
 
@@ -32,14 +34,19 @@ const ResetPassword: React.FC = () => {
       return;
     }
 
-    const { error } = await supabase.auth.updateUser({
-      password,
-    });
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password,
+      });
 
-    if (error) {
-      setError('Error resetting password: ' + error.message);
-    } else {
-      setMessage('Password reset successfully. You can now log in with your new password.');
+      if (error) {
+        setError('Error resetting password: ' + error.message);
+      } else {
+        setMessage('Password reset successfully. You can now log in with your new password.');
+      }
+    } catch (err) {
+      console.error('Error resetting password:', err);
+      setError('Error resetting password: ' + err.message);
     }
   };
 
