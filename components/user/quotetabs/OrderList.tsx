@@ -8,7 +8,6 @@ import jsPDF from 'jspdf';
 interface OrderListProps {
     session: Session | null;
     fetchQuotes: () => void;
-    archiveQuote: (id: number) => Promise<void>;
     markAsComplete: (orderId: number) => Promise<void>;
 }
 
@@ -21,7 +20,7 @@ type Order = {
     shippingquotes: ShippingQuote;
 };
 
-const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, archiveQuote, markAsComplete }) => {
+const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, markAsComplete }) => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [errorText, setErrorText] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);

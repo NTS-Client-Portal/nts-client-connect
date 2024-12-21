@@ -11,7 +11,6 @@ import EditHistory from '../EditHistory'; // Adjust the import path as needed
 
 interface QuoteRequestProps {
     session: Session | null;
-    companyId: string;
     profiles: any[];
     ntsUsers: any[];
 }
@@ -20,7 +19,7 @@ type ShippingQuote = Database['public']['Tables']['shippingquotes']['Row'];
 type Order = Database['public']['Tables']['orders']['Row'];
 type EditHistoryEntry = Database['public']['Tables']['edit_history']['Row'];
 
-const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, companyId, profiles, ntsUsers }: QuoteRequestProps) => {
+const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles, ntsUsers }: QuoteRequestProps) => {
     const supabase = useSupabaseClient<Database>();
     const [quotes, setQuotes] = useState<ShippingQuote[]>([]);
     const [orders, setOrders] = useState<Order[]>([]);
@@ -30,33 +29,37 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, companyId, profile
     const [activeTab, setActiveTab] = useState('requests');
     const [isMobile, setIsMobile] = useState<boolean>(false);
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
+    const [companyId, setCompanyId] = useState<string | null>(null);
+
+    const fetchUserProfile = useCallback(async () => {
+        if (!session?.user?.id) return;
+
+        const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('company_id')
+            .eq('id', session.user.id)
+            .single();
+
+        if (error) {
+            console.error('Error fetching user profile:', error.message);
+            return;
+        }
+
+        setCompanyId(profile.company_id);
+    }, [session, supabase]);
 
     const fetchQuotes = useCallback(async () => {
         if (!session?.user?.id) return;
 
-        // Fetch company IDs assigned to the current nts_user
-        const { data: companyIdsData, error: companyIdsError } = await supabase
-            .from('company_sales_users')
-            .select('company_id')
-            .eq('sales_user_id', session.user.id);
-
-        if (companyIdsError) {
-            console.error('Error fetching company IDs:', companyIdsError.message);
-            return;
-        }
-
-        const companyIds = companyIdsData.map((item: any) => item.company_id);
-
-        if (companyIds.length === 0) {
-            setQuotes([]);
-            return;
-        }
-
-        // Fetch quotes related to the companies
         const { data, error } = await supabase
             .from('shippingquotes')
-            .select('*')
-            .in('company_id', companyIds)
+            .select(`
+                *,
+                profiles!inner(assigned_sales_user),
+                company_sales_users!inner(sales_user_id)
+            `)
+            .eq('profiles.assigned_sales_user', session.user.id)
+            .eq('company_sales_users.sales_user_id', session.user.id)
             .eq('is_archived', false); // Fetch only non-archived quotes
 
         if (error) {
@@ -68,7 +71,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, companyId, profile
     }, [session, supabase]);
 
     const fetchEditHistory = useCallback(async () => {
-        if (!session?.user?.id) return;
+        if (!companyId) return;
 
         const { data, error } = await supabase
             .from('edit_history')
@@ -82,7 +85,13 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, companyId, profile
             console.log('Fetched Edit History:', data);
             setEditHistory(data);
         }
-    }, [session, supabase, companyId]);
+    }, [companyId, supabase]);
+
+    useEffect(() => {
+        if (session?.user?.id) {
+            fetchUserProfile();
+        }
+    }, [session, fetchUserProfile]);
 
     useEffect(() => {
         if (session?.user?.id) {
@@ -325,7 +334,6 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, companyId, profile
                     <OrderList
                         session={session}
                         fetchQuotes={fetchQuotes}
-                        archiveQuote={archiveQuote}
                         markAsComplete={handleMarkAsComplete} // Add this line
                     />
                 )}

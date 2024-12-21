@@ -5,8 +5,6 @@ import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import OrderFormModal from './OrderFormModal';
 import EditQuoteModal from './EditQuoteModal';
 import QuoteDetailsMobile from '../mobile/QuoteDetailsMobile';
-import QuoteTableHeader from './QuoteTableHeader';
-import QuoteTableRow from './QuoteTableRow';
 import HistoryTab from './HistoryTab'; // Adjust the import path as needed
 import { freightTypeMapping, formatDate, renderAdditionalDetails } from './QuoteUtils';
 import QuoteTable from './QuoteTable';
@@ -36,25 +34,18 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
     const [activeTab, setActiveTab] = useState('quotes'); // Add this line
     const [editHistory, setEditHistory] = useState<Database['public']['Tables']['edit_history']['Row'][]>([]);
     const [popupMessage, setPopupMessage] = useState<string | null>(null); // Add state for popup message
-    const [currentPage, setCurrentPage] = useState(1); // Add state for current page
-    const rowsPerPage = 10; // Define rows per page
 
-    const fetchShippingQuotes = async (salesUserId: string) => {
+    const fetchShippingQuotes = async (profileId: string) => {
         const { data, error } = await supabase
             .from('shippingquotes')
-            .select(`
-                *,
-                companies (
-                    *
-                )
-            `)
-            .eq('companies.assigned_sales_user', salesUserId);
-    
+            .select('*')
+            .eq('user_id', profileId);
+
         if (error) {
             console.error('Error fetching shipping quotes:', error.message);
             return [];
         }
-    
+
         return data;
     };
 
@@ -104,7 +95,19 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
         const fetchInitialQuotes = async () => {
             if (!session?.user?.id) return;
 
-            const quotesData = await fetchShippingQuotes(session.user.id);
+            // Fetch the user's profile
+            const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('id, company_id')
+                .eq('id', session.user.id)
+                .single();
+
+            if (profileError) {
+                console.error('Error fetching profile:', profileError.message);
+                return;
+            }
+
+            const quotesData = await fetchShippingQuotes(profile.id);
 
             setQuotes(quotesData);
         };
@@ -147,58 +150,22 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
     };
 
     const handleRespond = async (quoteId: number) => {
-        handleSelectQuote(quoteId);
-
-        const { data: quote, error: fetchError } = await supabase
-            .from('shippingquotes')
-            .select('*')
-            .eq('id', quoteId)
-            .single();
-
-        if (fetchError) {
-            console.error('Error fetching quote details:', fetchError.message);
-            return;
-        }
+        const price = prompt('Enter the price:');
+        if (price === null) return;
 
         const { error } = await supabase
-            .from('notifications')
-            .insert([{ user_id: quote.user_id, message: `You have a new response to your quote request for quote #${quote.id}` }]);
+            .from('shippingquotes')
+            .update({ price: parseFloat(price) })
+            .eq('id', quoteId);
 
         if (error) {
-            console.error('Error adding notification:', error.message);
+            console.error('Error responding to quote:', error.message);
         } else {
-            const { data: userSettings, error: settingsError } = await supabase
-                .from('profiles')
-                .select('email, email_notifications')
-                .eq('id', quote.user_id as string)
-                .single();
-
-            if (settingsError) {
-                console.error('Error fetching user settings:', settingsError.message);
-                return;
-            }
-
-            if (userSettings.email_notifications) {
-                await sendEmailNotification(userSettings.email, 'New Notification', `You have a new response to your quote request for quote #${quote.id}`);
-            }
-        }
-    };
-
-    const sendEmailNotification = async (to: string, subject: string, text: string) => {
-        try {
-            const response = await fetch('/api/sendEmail', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ to, subject, text }),
-            });
-
-            if (!response.ok) {
-                console.error('Error sending email:', await response.json());
-            }
-        } catch (error) {
-            console.error('Error sending email:', error);
+            setQuotes((prevQuotes) =>
+                prevQuotes.map((quote) =>
+                    quote.id === quoteId ? { ...quote, price: parseFloat(price) } : quote
+                )
+            );
         }
     };
 
@@ -274,28 +241,6 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
         setExpandedRow(expandedRow === id ? null : id);
     };
 
-    const handleTabClick = (tab: string) => {
-        setActiveTab(tab);
-        if (tab === 'editHistory') {
-            const fetchCompanyId = async () => {
-                const { data: profile, error: profileError } = await supabase
-                    .from('profiles')
-                    .select('company_id')
-                    .eq('id', session?.user?.id)
-                    .single();
-
-                if (profileError) {
-                    console.error('Error fetching profile:', profileError.message);
-                    return;
-                }
-
-                fetchEditHistory(profile.company_id);
-            };
-
-            fetchCompanyId();
-        }
-    };
-
     const duplicateQuote = async (quote: Database['public']['Tables']['shippingquotes']['Row']) => {
         const { data, error } = await supabase
             .from('shippingquotes')
@@ -351,18 +296,6 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
         }
     }, [popupMessage]);
 
-    // Calculate the rows to display based on the current page
-    const indexOfLastRow = currentPage * rowsPerPage;
-    const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-    const currentRows = sortedQuotes.slice(indexOfFirstRow, indexOfLastRow);
-
-    // Calculate total pages
-    const totalPages = Math.ceil(sortedQuotes.length / rowsPerPage);
-
-    const handlePageChange = (pageNumber: number) => {
-        setCurrentPage(pageNumber);
-    };
-
     return (
         <div className="w-full bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md max-h-max flex-grow">
             {popupMessage && (
@@ -382,60 +315,30 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
                 onSubmit={handleEditModalSubmit}
                 quote={quoteToEdit}
             />
-            <QuoteTableHeader
-                sortConfig={sortConfig}
-                handleSort={handleSort}
-                setSortedQuotes={setSortedQuotes}
-                setActiveTab={setActiveTab}
-                activeTab={activeTab}
-                quoteToEdit={quoteToEdit}
-                quotes={quotes}
-                quote={quote}
-                companyId={session?.user?.id || ''}
-                editHistory={editHistory}
-                fetchEditHistory={fetchEditHistory}
-            />
-            {activeTab === 'quotes' && (
-                <div className="hidden lg:block overflow-x-auto">
-                    <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {currentRows.map((quote, index) => (
-                                <QuoteTableRow
-                                    key={quote.id}
-                                    quote={quote}
-                                    expandedRow={expandedRow}
-                                    handleRowClick={handleRowClick}
-                                    archiveQuote={archiveQuote}
-                                    handleEditClick={handleEditClick}
-                                    handleCreateOrderClick={handleCreateOrderClick}
-                                    handleRespond={handleRespond}
-                                    isAdmin={isAdmin}
-                                    rowIndex={index} // Pass row index to QuoteTableRow
-                                    duplicateQuote={duplicateQuote} // Pass duplicateQuote function to QuoteTableRow
-                                    reverseQuote={reverseQuote} // Pass reverseQuote function to QuoteTableRow
-                                />
-                            ))}
-                        </tbody>
-                    </table>
-                    <div className="flex justify-center mt-4">
-                        {Array.from({ length: totalPages }, (_, index) => (
-                            <button
-                                key={index}
-                                onClick={() => handlePageChange(index + 1)}
-                                className={`px-4 py-2 mx-1 rounded ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-                            >
-                                {index + 1}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {activeTab === 'editHistory' && (
-                <div className="p-4 bg-white border border-gray-300 rounded-b-md">
-                    <HistoryTab editHistory={editHistory} searchTerm="" searchColumn="id" />
-                </div>
-            )}
+            <div className="hidden lg:block overflow-x-auto">
+                <QuoteTable
+                    sortConfig={sortConfig}
+                    handleSort={handleSort}
+                    setSortedQuotes={setSortedQuotes}
+                    setActiveTab={setActiveTab}
+                    activeTab={activeTab}
+                    quoteToEdit={quoteToEdit}
+                    quotes={sortedQuotes}
+                    quote={quote}
+                    companyId={session?.user?.id || ''}
+                    editHistory={editHistory}
+                    fetchEditHistory={fetchEditHistory}
+                    expandedRow={expandedRow}
+                    handleRowClick={handleRowClick}
+                    archiveQuote={archiveQuote}
+                    handleEditClick={handleEditClick}
+                    handleCreateOrderClick={handleCreateOrderClick}
+                    handleRespond={handleRespond}
+                    isAdmin={isAdmin}
+                    duplicateQuote={duplicateQuote}
+                    reverseQuote={reverseQuote}
+                />
+            </div>
             <div className="block 2xl:hidden">
                 {quotes.map((quote) => (
                     <QuoteDetailsMobile
