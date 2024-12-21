@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Database } from '@/lib/database.types';
 import EditHistory from '../../EditHistory';
 import { formatDate, renderAdditionalDetails, freightTypeMapping } from './QuoteUtils';
@@ -37,6 +37,8 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
     const [profile, setProfile] = useState<Database['public']['Tables']['profiles']['Row'] | null>(null);
     const [priceInput, setPriceInput] = useState<string>('');
     const [showPriceInput, setShowPriceInput] = useState<boolean>(false);
+    const [companyId, setCompanyId] = useState<string | null>(null);
+
 
     const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newStatus = e.target.value;
@@ -113,7 +115,7 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
     }, [quote.user_id]);
 
     const handlePriceSubmit = async (e: React.FormEvent) => {
-        e.stopPropagation();
+        e.preventDefault();
         const price = parseFloat(priceInput);
         if (!isNaN(price)) {
             handleRespond(quote.id, price);
@@ -121,6 +123,34 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
             setShowPriceInput(false);
         }
     };
+
+    console.log('showPriceInput:', showPriceInput); // Add this line to verify state change
+
+    const fetchUserProfile = useCallback(async () => {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError || !session?.user?.id) {
+            console.error('Error fetching session or no session found:', sessionError?.message);
+            return;
+        }
+    
+        const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('company_id')
+            .eq('id', session.user.id)
+            .single();
+    
+        if (error) {
+            console.error('Error fetching user profile:', error.message);
+            return;
+        }
+    
+        if (!profile) {
+            console.error('No profile found for user');
+            return;
+        }
+    
+        setCompanyId(profile.company_id);
+    }, []);
 
     return (
         <>
@@ -183,35 +213,35 @@ const QuoteTableRow: React.FC<QuoteTableRowProps> = ({
                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.destination_city}, {quote.destination_state}</td>
                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{formatDate(quote.due_date)}</td>
                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">
-                    {isAdmin ? (
-                        showPriceInput ? (
-                            <form onSubmit={handlePriceSubmit}>
-                                <input
-                                    type="number"
-                                    value={priceInput}
-                                    onChange={(e) => setPriceInput(e.target.value)}
-                                    placeholder="Enter price"
-                                    className="border border-gray-300 rounded-md p-1"
-                                />
-                                <button type="submit" className="ml-2 text-ntsLightBlue font-medium underline">
-                                    Submit
-                                </button>
-                            </form>
-                        ) : (
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setShowPriceInput(true);
-                                }}
-                                className="text-ntsLightBlue font-medium underline"
-                            >
-                                Price Quote Request
-                            </button>
-                        )
-                    ) : (
-                        quote.price ? quote.price : 'Pending'
-                    )}
-                </td>
+                {isAdmin ? (
+                showPriceInput ? (
+                    <form onSubmit={handlePriceSubmit}>
+                        <input
+                            type="number"
+                            value={priceInput}
+                            onChange={(e) => setPriceInput(e.target.value)}
+                            placeholder="Enter price"
+                            className="border border-gray-300 rounded-md p-1"
+                        />
+                        <button type="submit" className="ml-2 text-ntsLightBlue font-medium underline">
+                            Submit
+                        </button>
+                    </form>
+                ) : (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowPriceInput(true);
+                        }}
+                        className="text-ntsLightBlue font-medium underline"
+                    >
+                        Price Quote Request
+                    </button>
+                )
+            ) : (
+                quote.price ? quote.price : 'Pending'
+            )}
+        </td>
                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">
                     <div className='flex flex-col gap-2'>
                         <button

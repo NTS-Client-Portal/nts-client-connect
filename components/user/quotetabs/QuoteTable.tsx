@@ -69,7 +69,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
             const value = quote[searchColumn]?.toString().toLowerCase() || '';
             return value.includes(searchTerm.toLowerCase());
         });
-
+    
         setSortedQuotes(filtered);
     }, [searchTerm, searchColumn, quotes, setSortedQuotes]);
 

@@ -9,6 +9,7 @@ interface OrderListProps {
     session: Session | null;
     fetchQuotes: () => void;
     markAsComplete: (orderId: number) => Promise<void>;
+    isAdmin: boolean;
 }
 
 type Order = {
@@ -173,11 +174,6 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, markAsCompl
                 setSelectedOrderId(null);
                 setEditData({});
 
-                await sendEmailNotification(
-                    'noah@ntslogistics.com', // Replace with your email
-                    'Order Edited',
-                    `Order ID: ${selectedOrderId} has been edited.\nChanges: ${JSON.stringify(editData, null, 2)}`
-                );
             }
         } catch (error) {
             console.error('Error editing order:', error);
@@ -185,23 +181,6 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, markAsCompl
         }
     };
 
-    const sendEmailNotification = async (to: string, subject: string, text: string) => {
-        try {
-            const response = await fetch('/api/sendEmail', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ to, subject, text }),
-            });
-
-            if (!response.ok) {
-                console.error('Error sending email:', await response.json());
-            }
-        } catch (error) {
-            console.error('Error sending email:', error);
-        }
-    };
 
     const confirmCancelOrder = async () => {
         if (selectedOrderId === null) return;
@@ -221,11 +200,6 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes, markAsCompl
                 setSelectedOrderId(null);
                 setCancellationReason('');
 
-                await sendEmailNotification(
-                    'noah@ntslogistics.com', // Replace with your email
-                    'Order Cancelled',
-                    `Order ID: ${selectedOrderId} has been cancelled.\nReason: ${cancellationReason}`
-                );
             }
         } catch (error) {
             console.error('Error cancelling order:', error);

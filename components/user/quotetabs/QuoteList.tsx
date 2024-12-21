@@ -21,6 +21,7 @@ interface QuoteListProps {
 const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuote, transferToOrderList, handleSelectQuote, isAdmin }) => {
     const supabase = useSupabaseClient<Database>();
     const [quotes, setQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
+    const [profiles, setProfiles] = useState<Database['public']['Tables']['profiles']['Row'][]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedQuoteId, setSelectedQuoteId] = useState<number | null>(null);
     const [quote, setQuote] = useState<Database['public']['Tables']['shippingquotes']['Row'] | null>(null);
@@ -34,20 +35,6 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
     const [activeTab, setActiveTab] = useState('quotes'); // Add this line
     const [editHistory, setEditHistory] = useState<Database['public']['Tables']['edit_history']['Row'][]>([]);
     const [popupMessage, setPopupMessage] = useState<string | null>(null); // Add state for popup message
-
-    const fetchShippingQuotes = async (profileId: string) => {
-        const { data, error } = await supabase
-            .from('shippingquotes')
-            .select('*')
-            .eq('user_id', profileId);
-
-        if (error) {
-            console.error('Error fetching shipping quotes:', error.message);
-            return [];
-        }
-
-        return data;
-    };
 
     const fetchEditHistory = useCallback(async (companyId: string) => {
         const { data, error } = await supabase
@@ -91,29 +78,63 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
         setSortConfig({ column, order });
     };
 
+    const fetchProfiles = useCallback(async (companyId: string) => {
+        const { data: profiles, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('company_id', companyId);
+
+        if (error) {
+            console.error('Error fetching profiles:', error.message);
+            return [];
+        }
+
+        return profiles;
+    }, [supabase]);
+
+    const fetchShippingQuotes = useCallback(async (profileIds: string[]) => {
+        const { data: quotes, error } = await supabase
+            .from('shippingquotes')
+            .select('*')
+            .in('user_id', profileIds);
+
+        if (error) {
+            console.error('Error fetching shipping quotes:', error.message);
+            return [];
+        }
+
+        return quotes;
+    }, [supabase]);
+
     useEffect(() => {
         const fetchInitialQuotes = async () => {
             if (!session?.user?.id) return;
 
             // Fetch the user's profile
-            const { data: profile, error: profileError } = await supabase
-                .from('profiles')
-                .select('id, company_id')
+            const { data: userProfile, error: userProfileError } = await supabase
+                .from('nts_users')
+                .select('company_id')
                 .eq('id', session.user.id)
                 .single();
 
-            if (profileError) {
-                console.error('Error fetching profile:', profileError.message);
+            if (userProfileError) {
+                console.error('Error fetching user profile:', userProfileError.message);
                 return;
             }
 
-            const quotesData = await fetchShippingQuotes(profile.id);
+            const companyId = userProfile.company_id;
+            const profilesData = await fetchProfiles(companyId);
+
+            setProfiles(profilesData);
+
+            const profileIds = profilesData.map(profile => profile.id);
+            const quotesData = await fetchShippingQuotes(profileIds);
 
             setQuotes(quotesData);
         };
 
         fetchInitialQuotes();
-    }, [session, supabase]);
+    }, [session, supabase, fetchProfiles, fetchShippingQuotes]);
 
     useEffect(() => {
         fetchQuotes();
@@ -121,7 +142,6 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
 
     const handleCreateOrderClick = (quoteId: number) => {
         setSelectedQuoteId(quoteId);
-        setIsModalOpen(true);
     };
 
     const handleModalSubmit = async (data: any) => {

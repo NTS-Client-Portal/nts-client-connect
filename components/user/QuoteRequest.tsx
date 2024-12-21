@@ -11,6 +11,7 @@ import EditHistory from '../EditHistory'; // Adjust the import path as needed
 
 interface QuoteRequestProps {
     session: Session | null;
+    companyId: any;
     profiles: any[];
     ntsUsers: any[];
 }
@@ -22,6 +23,7 @@ type EditHistoryEntry = Database['public']['Tables']['edit_history']['Row'];
 const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles, ntsUsers }: QuoteRequestProps) => {
     const supabase = useSupabaseClient<Database>();
     const [quotes, setQuotes] = useState<ShippingQuote[]>([]);
+    const [userProfiles, setUserProfiles] = useState<any[]>([]);
     const [orders, setOrders] = useState<Order[]>([]);
     const [editHistory, setEditHistory] = useState<EditHistoryEntry[]>([]);
     const [errorText, setErrorText] = useState<string>('');
@@ -33,20 +35,41 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles, ntsUsers
 
     const fetchUserProfile = useCallback(async () => {
         if (!session?.user?.id) return;
-
+    
         const { data: profile, error } = await supabase
-            .from('profiles')
+            .from('nts_users')
             .select('company_id')
             .eq('id', session.user.id)
             .single();
-
+    
         if (error) {
             console.error('Error fetching user profile:', error.message);
             return;
         }
-
+    
+        if (!profile) {
+            console.error('No profile found for user');
+            return;
+        }
+    
         setCompanyId(profile.company_id);
     }, [session, supabase]);
+
+    const fetchProfiles = useCallback(async () => {
+        if (!companyId) return;
+    
+        const { data: profiles, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('company_id', companyId);
+    
+        if (error) {
+            console.error('Error fetching profiles:', error.message);
+            return;
+        }
+    
+        setUserProfiles(profiles);
+    }, [companyId, supabase]);
 
     const fetchQuotes = useCallback(async () => {
         if (!session?.user?.id) return;
@@ -92,7 +115,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles, ntsUsers
             fetchUserProfile();
         }
     }, [session, fetchUserProfile]);
-
+    
     useEffect(() => {
         if (session?.user?.id) {
             fetchQuotes();
@@ -260,8 +283,8 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles, ntsUsers
                     addQuote={addQuote}
                     errorText={errorText}
                     setErrorText={setErrorText}
-                    fetchQuotes={fetchQuotes} // Pass fetchQuotes to QuoteForm
-                    companyId={companyId} // Pass companyId to QuoteForm
+                    fetchQuotes={fetchQuotes}
+                    companyId={companyId}
                 />
             </div>
             {isMobile ? (
@@ -334,7 +357,9 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles, ntsUsers
                     <OrderList
                         session={session}
                         fetchQuotes={fetchQuotes}
-                        markAsComplete={handleMarkAsComplete} // Add this line
+                        markAsComplete={handleMarkAsComplete}
+                        isAdmin={isAdmin} // Pass isAdmin state
+                        
                     />
                 )}
                 {activeTab === 'history' && (
