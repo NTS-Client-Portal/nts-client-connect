@@ -7,18 +7,17 @@ const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
 export const assignSalesUser = async (companyId: string) => {
     try {
-        // Fetch the list of sales users from nts_users
+        // Fetch the list of all users from nts_users
         const { data: users, error: fetchError } = await supabase
             .from('nts_users')
-            .select('id')
-            .eq('role', 'sales');
+            .select('id');
 
         if (fetchError) {
             throw new Error(`Error fetching users: ${fetchError.message}`);
         }
 
         if (!users || users.length === 0) {
-            throw new Error('No sales users found');
+            throw new Error('No users found');
         }
 
         // Fetch the list of companies to determine the next user in round-robin order

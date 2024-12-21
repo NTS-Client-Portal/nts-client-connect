@@ -50,7 +50,15 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
             if (userProfile?.company_id) {
                 const { data, error } = await supabase
                     .from('company_sales_users')
-                    .select('sales_user_id, nts_users(first_name, last_name, email, phone_number)')
+                    .select(`
+                        sales_user_id,
+                        nts_users (
+                            first_name,
+                            last_name,
+                            email,
+                            phone_number
+                        )
+                    `)
                     .eq('company_id', userProfile.company_id);
 
                 if (error) {

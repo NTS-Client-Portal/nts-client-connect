@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { assignSalesUser } from '@/lib/assignSalesUser'; // Import the assignSalesUser function
 
 const CustomSignInForm = () => {
     const supabase = useSupabaseClient();
@@ -9,12 +10,51 @@ const CustomSignInForm = () => {
 
     const handleSignIn = async (e: React.FormEvent) => {
         e.preventDefault();
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        setError(null);
 
-        if (error) {
-            setError(error.message);
-        } else {
+        try {
+            // Check if the user exists in the nts_users table
+            const { data: internalUser, error: internalUserError } = await supabase
+                .from('nts_users')
+                .select('id')
+                .eq('email', email)
+                .single();
+
+            if (internalUserError && internalUserError.code !== 'PGRST116') {
+                throw new Error(internalUserError.message);
+            }
+
+            if (internalUser) {
+                setError('Internal users are not allowed to sign in to the client version of the application.');
+                return;
+            }
+
+            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+
+            if (signInError) {
+                setError(signInError.message);
+                return;
+            }
+
+            // Check if the user has an assigned sales user
+            const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('company_id, assigned_sales_user')
+                .eq('email', email)
+                .single();
+
+            if (profileError) {
+                throw new Error(profileError.message);
+            }
+
+            if (profile && !profile.assigned_sales_user) {
+                // Assign a sales user if not already assigned
+                await assignSalesUser(profile.company_id);
+            }
+
             setError(null);
+        } catch (error) {
+            setError(error.message);
         }
     };
 
