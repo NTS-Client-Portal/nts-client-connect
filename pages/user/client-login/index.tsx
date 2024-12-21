@@ -8,7 +8,6 @@ import CustomSignInForm from '@/components/CustomSignInForm';
 import { MoveHorizontal } from 'lucide-react';
 import { ProfilesUserProvider, useProfilesUser } from '@/context/ProfilesUserContext';
 import withProfileCheck from '@/components/hoc/withProfileCheck';
-import DashboardTabs from '@/components/nts/DashboardTabs';
 import UserLayout from '@/pages/components/UserLayout';
 import Image from 'next/image';
 
@@ -38,7 +37,6 @@ const HomePageContent = () => {
             </Head>
             <div className="w-full flex justify-center items-center p-4">
                 <div className="w-full sm:w-2/3 lg:w-3/4">
-                    {userProfile && <DashboardTabs companyId={userProfile.company_name || ''} />}
                 </div>
             </div>
         </>

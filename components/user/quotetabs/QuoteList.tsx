@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Session } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import OrderFormModal from './OrderFormModal';
@@ -8,17 +7,9 @@ import QuoteDetailsMobile from '../mobile/QuoteDetailsMobile';
 import HistoryTab from './HistoryTab'; // Adjust the import path as needed
 import { freightTypeMapping, formatDate, renderAdditionalDetails } from './QuoteUtils';
 import QuoteTable from './QuoteTable';
+import { QuoteListProps } from './QuoteListProps';
 
-interface QuoteListProps {
-    session: Session | null;
-    fetchQuotes: () => void;
-    archiveQuote: (id: number) => Promise<void>;
-    transferToOrderList: (quoteId: number, data: any) => Promise<void>;
-    handleSelectQuote: (id: number) => void;
-    isAdmin: boolean;
-}
-
-const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuote, transferToOrderList, handleSelectQuote, isAdmin }) => {
+function QuoteList({ session, isAdmin }) {
     const supabase = useSupabaseClient<Database>();
     const [quotes, setQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
     const [profiles, setProfiles] = useState<Database['public']['Tables']['profiles']['Row'][]>([]);
@@ -29,7 +20,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
     const [quoteToEdit, setQuoteToEdit] = useState<Database['public']['Tables']['shippingquotes']['Row'] | null>(null);
     const [expandedRow, setExpandedRow] = useState<number | null>(null);
     const [sortedQuotes, setSortedQuotes] = useState(quotes);
-    const [sortConfig, setSortConfig] = useState<{ column: string; order: string }>({ column: 'id', order: 'desc' });
+    const [sortConfig, setSortConfig] = useState<{ column: string; order: string; }>({ column: 'id', order: 'desc' });
     const [searchTerm, setSearchTerm] = useState('');
     const [searchColumn, setSearchColumn] = useState('id');
     const [activeTab, setActiveTab] = useState('quotes'); // Add this line
@@ -106,39 +97,35 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
         return quotes;
     }, [supabase]);
 
-    useEffect(() => {
-        const fetchInitialQuotes = async () => {
-            if (!session?.user?.id) return;
+    const fetchInitialQuotes = useCallback(async () => {
+        if (!session?.user?.id) return;
 
-            // Fetch the user's profile
-            const { data: userProfile, error: userProfileError } = await supabase
-                .from('nts_users')
-                .select('company_id')
-                .eq('id', session.user.id)
-                .single();
+        // Fetch the user's profile
+        const { data: userProfile, error: userProfileError } = await supabase
+            .from('nts_users')
+            .select('company_id')
+            .eq('id', session.user.id)
+            .single();
 
-            if (userProfileError) {
-                console.error('Error fetching user profile:', userProfileError.message);
-                return;
-            }
+        if (userProfileError) {
+            console.error('Error fetching user profile:', userProfileError.message);
+            return;
+        }
 
-            const companyId = userProfile.company_id;
-            const profilesData = await fetchProfiles(companyId);
+        const companyId = userProfile.company_id;
+        const profilesData = await fetchProfiles(companyId);
 
-            setProfiles(profilesData);
+        setProfiles(profilesData);
 
-            const profileIds = profilesData.map(profile => profile.id);
-            const quotesData = await fetchShippingQuotes(profileIds);
+        const profileIds = profilesData.map(profile => profile.id);
+        const quotesData = await fetchShippingQuotes(profileIds);
 
-            setQuotes(quotesData);
-        };
-
-        fetchInitialQuotes();
+        setQuotes(quotesData);
     }, [session, supabase, fetchProfiles, fetchShippingQuotes]);
 
     useEffect(() => {
-        fetchQuotes();
-    }, [fetchQuotes]);
+        fetchInitialQuotes();
+    }, [fetchInitialQuotes]);
 
     const handleCreateOrderClick = (quoteId: number) => {
         setSelectedQuoteId(quoteId);
@@ -162,7 +149,6 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
             if (error) {
                 console.error('Error creating order:', error.message);
             } else {
-                transferToOrderList(selectedQuoteId, data);
                 setQuote(null);
             }
         }
@@ -181,10 +167,8 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
         if (error) {
             console.error('Error responding to quote:', error.message);
         } else {
-            setQuotes((prevQuotes) =>
-                prevQuotes.map((quote) =>
-                    quote.id === quoteId ? { ...quote, price: parseFloat(price) } : quote
-                )
+            setQuotes((prevQuotes) => prevQuotes.map((quote) => quote.id === quoteId ? { ...quote, price: parseFloat(price) } : quote
+            )
             );
         }
     };
@@ -247,10 +231,8 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
             if (historyError) {
                 console.error('Error logging edit history:', historyError.message);
             } else {
-                setQuotes((prevQuotes) =>
-                    prevQuotes.map((quote) =>
-                        quote.id === updatedQuote.id ? updatedQuote : quote
-                    )
+                setQuotes((prevQuotes) => prevQuotes.map((quote) => quote.id === updatedQuote.id ? updatedQuote : quote
+                )
                 );
             }
         }
@@ -277,7 +259,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
             if (data && data.length > 0) {
                 setPopupMessage(`Duplicate Quote Request Added - Quote #${data[0].id}`);
             }
-            fetchQuotes();
+            fetchInitialQuotes();
         }
     };
 
@@ -303,7 +285,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
             if (data && data.length > 0) {
                 setPopupMessage(`Flip Route Duplicate Request Added - Quote #${data[0].id}`);
             }
-            fetchQuotes();
+            fetchInitialQuotes();
         }
     };
 
@@ -327,54 +309,41 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, fetchQuotes, archiveQuot
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleModalSubmit}
-                quote={quote}
-            />
+                quote={quote} />
             <EditQuoteModal
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
                 onSubmit={handleEditModalSubmit}
-                quote={quoteToEdit}
-            />
+                quote={quoteToEdit} />
             <div className="hidden lg:block overflow-x-auto">
                 <QuoteTable
                     sortConfig={sortConfig}
                     handleSort={handleSort}
                     setSortedQuotes={setSortedQuotes}
+                    quotes={sortedQuotes}
                     setActiveTab={setActiveTab}
                     activeTab={activeTab}
-                    quoteToEdit={quoteToEdit}
-                    quotes={sortedQuotes}
-                    quote={quote}
-                    companyId={session?.user?.id || ''}
                     editHistory={editHistory}
-                    fetchEditHistory={fetchEditHistory}
                     expandedRow={expandedRow}
                     handleRowClick={handleRowClick}
-                    archiveQuote={archiveQuote}
+                    archiveQuote={null}
                     handleEditClick={handleEditClick}
+                    duplicateQuote={duplicateQuote}
+                    reverseQuote={reverseQuote}
+                    quoteToEdit={quoteToEdit}
+                    quote={quote}
+                    companyId={session?.user?.id}
+                    fetchEditHistory={fetchEditHistory}
                     handleCreateOrderClick={handleCreateOrderClick}
                     handleRespond={handleRespond}
                     isAdmin={isAdmin}
-                    duplicateQuote={duplicateQuote}
-                    reverseQuote={reverseQuote}
                 />
             </div>
             <div className="block 2xl:hidden">
-                {quotes.map((quote) => (
-                    <QuoteDetailsMobile
-                        key={quote.id}
-                        quote={quote}
-                        formatDate={formatDate}
-                        archiveQuote={archiveQuote}
-                        handleEditClick={handleEditClick}
-                        handleCreateOrderClick={handleCreateOrderClick}
-                        handleRespond={handleRespond}
-                        isAdmin={isAdmin}
-                    />
-                ))}
+
             </div>
         </div>
     );
-};
+}
 
 export default QuoteList;

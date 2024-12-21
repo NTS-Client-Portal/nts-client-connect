@@ -9,6 +9,7 @@ const FreightRFQPage: React.FC = () => {
     const company = { id: 'company-id' };
     const profiles = [];
     const ntsUsers = [];
+    const isAdmin = false; // or true, depending on your logic
 
     if (!session) {
         return <p>Loading...</p>;
@@ -17,7 +18,7 @@ const FreightRFQPage: React.FC = () => {
     return (
         <ProfilesUserProvider>
             <UserLayout>
-            <QuoteRequest session={session} companyId={company.id} profiles={profiles} ntsUsers={ntsUsers} />
+                <QuoteRequest session={session} profiles={profiles} ntsUsers={ntsUsers} isAdmin={isAdmin} />
             </UserLayout>
         </ProfilesUserProvider>
     );

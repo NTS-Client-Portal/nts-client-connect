@@ -28,7 +28,7 @@ const CompanyPage: React.FC<CompanyPageProps> = ({ company, profiles, ntsUsers }
             <SalesLayout>
                 <div>
                     <h1 className='font-bold text-lg'>{company.company_name}</h1>
-                    <QuoteRequest session={session} companyId={company.id} profiles={profiles} ntsUsers={ntsUsers} />
+                    <QuoteRequest session={session} profiles={profiles} ntsUsers={ntsUsers} isAdmin={false} />
                 </div>
             </SalesLayout>
         </NtsUsersProvider>
