@@ -296,8 +296,8 @@ export default function SignUpPage() {
 
                     <div className="sm:row-span-1 md:col-span-1 w-full h-full flex flex-col justify-center items-center bg-zinc-100">
                         <div className='hidden md:block md:absolute top-5 right-5'>
-                            <Link href="/" legacyBehavior>
-                                <a className="body-btn">Login</a>
+                            <Link href="/"  className="body-btn">
+                                Login
                             </Link>
                         </div>
                         <div className=" w-full text-zinc-900 h-full sm:h-auto sm:w-full max-w-md p-5 bg-white shadow flex flex-col justify-center items-center text-base">
@@ -439,8 +439,8 @@ export default function SignUpPage() {
                                 )}
                                 <div className='flex flex-col justify-evenly max-h-max items-center w-full my-4'>
                                     <div className='border-t border-zinc-900/40 pt-1 mb-2 w-full text-center'><h3>Already have an account?</h3></div>
-                                    <Link href="/" legacyBehavior>
-                                        <a className="text-center underline underline-offset-4 text-lg font-semibold text-zinc-700 hover:underline px-4 py-2 hover:text-zinc-900/70">Login</a>
+                                    <Link href="/" className="text-center underline underline-offset-4 text-lg font-semibold text-zinc-700 hover:underline px-4 py-2 hover:text-zinc-900/70">
+                                        Login
                                     </Link>
                                 </div>
                             </div>

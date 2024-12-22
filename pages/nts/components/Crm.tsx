@@ -141,8 +141,8 @@ const Crm: React.FC = () => {
             {companies.map(company => (
               <tr key={company.id} className="hover:bg-gray-100 divide-x-2">
                 <td className="px-4 py-2 border-b">
-                  <Link href={`/companies/${company.id}`} legacyBehavior>
-                    <a className="text-blue-500 hover:underline">{company.company_name}</a>
+                  <Link className="text-blue-500 hover:underline" href={`/companies/${company.id}`} legacyBehavior>
+                    {company.company_name}
                   </Link>
                 </td>
                 <td className="px-4 py-2 border-b">{company.company_size}</td>

@@ -50,7 +50,6 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
         }
     }, [isOpen, session, supabase]);
 
-
     const handleZipCodeBlur = async (type: 'origin' | 'destination') => {
         const zipCode = type === 'origin' ? originZip : destinationZip;
         if (zipCode.length === 5) {
@@ -114,8 +113,18 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
         };
 
         try {
-            addQuote(quote);
-            fetchQuotes();
+            const { error } = await supabase
+                .from('shippingquotes')
+                .insert([quote]);
+
+            if (error) {
+                console.error('Error submitting quote:', error.message);
+                setErrorText('Error submitting quote');
+            } else {
+                setErrorText('');
+                fetchQuotes(); // Fetch the updated list of quotes
+                onClose(); // Close the modal
+            }
 
             if (saveToInventory) {
                 const freightData = {
@@ -133,17 +142,15 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                     serial_number: formData.vin,
                 };
 
-                const { error } = await supabase
+                const { error: inventoryError } = await supabase
                     .from('freight')
                     .insert([freightData]);
 
-                if (error) {
-                    console.error('Error saving to inventory:', error.message);
+                if (inventoryError) {
+                    console.error('Error saving to inventory:', inventoryError.message);
                     setErrorText('Error saving to inventory');
                 }
             }
-
-            onClose();
         } catch (error) {
             console.error('Error submitting quote:', error);
             setErrorText('Error submitting quote');
@@ -157,7 +164,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
             <div className="bg-white p-6 rounded shadow-md w-full max-w-3xl relative z-50">
                 <h2 className="text-xl mb-4">Request a Shipping Estimate</h2>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Select Inventory Item
+                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Select Inventory Item
                         <select
                             className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
                             value={selectedInventoryItem}

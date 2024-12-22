@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSession } from '@supabase/auth-helpers-react';
+import { useSession, Session } from '@supabase/auth-helpers-react';
 import SalesLayout from './_components/layout/SalesLayout';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
 import Crm from '../components/Crm';
@@ -13,7 +13,7 @@ const ShipperConnect: React.FC = () => {
 
     return (
         <NtsUsersProvider>
-            <SalesLayout>
+            <SalesLayout session={session as Session}>
                 <Crm />
             </SalesLayout>
         </NtsUsersProvider>

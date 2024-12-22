@@ -16,16 +16,90 @@ interface QuoteRequestProps {
     isAdmin: boolean;
 }
 
-const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles, ntsUsers, isAdmin }: QuoteRequestProps) => {
+const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, ntsUsers, isAdmin }: QuoteRequestProps) => {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [activeTab, setActiveTab] = useState('requests');
-    const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768);
+    const [isMobile, setIsMobile] = useState<boolean>(false);
+    const supabase = useSupabaseClient<Database>();
+    const [profiles, setProfiles] = useState<any[]>([]);
+    const [quotes, setQuotes] = useState<any[]>([]);
+
+    const fetchProfiles = async (companyId: string) => {
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('company_id', companyId);
+
+            if (error) {
+                console.error('Error fetching profiles:', error.message);
+                return [];
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Unexpected error fetching profiles:', error);
+            return [];
+        }
+    };
+
+    const fetchShippingQuotes = async (profileIds: any[]) => {
+        try {
+            const { data, error } = await supabase
+                .from('shippingquotes')
+                .select('*')
+                .in('user_id', profileIds); // Use the correct column name
+
+            if (error) {
+                console.error('Error fetching shipping quotes:', error.message);
+                return [];
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Unexpected error fetching shipping quotes:', error);
+            return [];
+        }
+    };
+
+    const fetchQuotes = async () => {
+        if (!session?.user?.id) return;
+
+        // Check if the user is a client from the profiles table
+        const { data: userProfile, error: userProfileError } = await supabase
+            .from('profiles')
+            .select('company_id')
+            .eq('id', session.user.id)
+            .maybeSingle();
+
+        if (userProfileError) {
+            console.error('Error fetching user profile:', userProfileError.message);
+            return;
+        }
+
+        if (userProfile) {
+            // User is a client from the profiles table
+            const companyId = userProfile.company_id;
+            const profilesData = await fetchProfiles(companyId);
+
+            setProfiles(profilesData);
+
+            const profileIds = profilesData.map(profile => profile.id);
+            const quotesData = await fetchShippingQuotes(profileIds);
+
+            setQuotes(quotesData);
+        } else {
+            // User is not a client from the profiles table, handle accordingly
+            console.error('No user profile found in profiles table');
+        }
+    };
 
     useEffect(() => {
         const handleResize = () => {
             setIsMobile(window.innerWidth <= 768);
         };
 
+        handleResize(); // Set initial value
         window.addEventListener('resize', handleResize);
 
         return () => {
@@ -49,7 +123,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles, ntsUsers
                     addQuote={() => { }} // Pass an empty function or handle it in QuoteForm
                     errorText=""
                     setErrorText={() => { }} // Pass an empty function or handle it in QuoteForm
-                    fetchQuotes={() => { }} // Pass an empty function or handle it in QuoteForm
+                    fetchQuotes={fetchQuotes} // Pass fetchQuotes function
                     companyId={null} // Pass null or handle it in QuoteForm
                 />
             </div>

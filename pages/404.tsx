@@ -16,8 +16,8 @@ const Custom404 = () => {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
                 <h1 className="text-3xl font-bold text-red-500 mb-4">404 - You shouldn&apos;t be here</h1>
-                <Link href="/">
-                    <a className="text-blue-500 underline">Go to Home Page</a>
+                <Link className="text-blue-500 underline" href="/">
+                    Go to Home Page
                 </Link>
             </div>
         );
@@ -26,11 +26,10 @@ const Custom404 = () => {
     if (isNtsRoute) {
         return (
             <NtsUsersProvider>
-                <SalesLayout>
-                    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-                        <h1 className="text-3xl font-bold text-red-500">404 - You shouldn&apos;t be here</h1>
-                    </div>
-                </SalesLayout>
+                <SalesLayout session={session} />
+                <div className="min-h-screen flex items-center justify-center bg-gray-100">
+                    <h1 className="text-3xl font-bold text-red-500">404 - You shouldn&apos;t be here</h1>
+                </div>
             </NtsUsersProvider>
         );
     }

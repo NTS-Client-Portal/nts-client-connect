@@ -4,12 +4,15 @@ import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import OrderFormModal from './OrderFormModal';
 import EditQuoteModal from './EditQuoteModal';
 import QuoteDetailsMobile from '../mobile/QuoteDetailsMobile';
-import HistoryTab from './HistoryTab'; // Adjust the import path as needed
 import { freightTypeMapping, formatDate, renderAdditionalDetails } from './QuoteUtils';
 import QuoteTable from './QuoteTable';
-import { QuoteListProps } from './QuoteListProps';
 
-function QuoteList({ session, isAdmin }) {
+interface QuoteListProps {
+    session: any;
+    isAdmin: boolean;
+}
+
+const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
     const supabase = useSupabaseClient<Database>();
     const [quotes, setQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
     const [profiles, setProfiles] = useState<Database['public']['Tables']['profiles']['Row'][]>([]);
@@ -19,8 +22,8 @@ function QuoteList({ session, isAdmin }) {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [quoteToEdit, setQuoteToEdit] = useState<Database['public']['Tables']['shippingquotes']['Row'] | null>(null);
     const [expandedRow, setExpandedRow] = useState<number | null>(null);
-    const [sortedQuotes, setSortedQuotes] = useState(quotes);
-    const [sortConfig, setSortConfig] = useState<{ column: string; order: string; }>({ column: 'id', order: 'desc' });
+    const [sortedQuotes, setSortedQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
+    const [sortConfig, setSortConfig] = useState<{ column: string; order: string }>({ column: 'id', order: 'desc' });
     const [searchTerm, setSearchTerm] = useState('');
     const [searchColumn, setSearchColumn] = useState('id');
     const [activeTab, setActiveTab] = useState('quotes'); // Add this line
@@ -87,7 +90,7 @@ function QuoteList({ session, isAdmin }) {
         const { data: quotes, error } = await supabase
             .from('shippingquotes')
             .select('*')
-            .in('user_id', profileIds);
+            .in('user_id', profileIds); // Use the correct column name
 
         if (error) {
             console.error('Error fetching shipping quotes:', error.message);
@@ -102,7 +105,7 @@ function QuoteList({ session, isAdmin }) {
 
         // Fetch the user's profile
         const { data: userProfile, error: userProfileError } = await supabase
-            .from('nts_users')
+            .from('profiles')
             .select('company_id')
             .eq('id', session.user.id)
             .single();
@@ -319,7 +322,6 @@ function QuoteList({ session, isAdmin }) {
                 <QuoteTable
                     sortConfig={sortConfig}
                     handleSort={handleSort}
-                    setSortedQuotes={setSortedQuotes}
                     quotes={sortedQuotes}
                     setActiveTab={setActiveTab}
                     activeTab={activeTab}
@@ -340,7 +342,18 @@ function QuoteList({ session, isAdmin }) {
                 />
             </div>
             <div className="block 2xl:hidden">
-
+                {quotes.map((quote) => (
+                    <QuoteDetailsMobile
+                        key={quote.id}
+                        quote={quote}
+                        formatDate={formatDate}
+                        archiveQuote={null}
+                        handleEditClick={handleEditClick}
+                        handleCreateOrderClick={handleCreateOrderClick}
+                        handleRespond={handleRespond}
+                        isAdmin={isAdmin}
+                    />
+                ))}
             </div>
         </div>
     );

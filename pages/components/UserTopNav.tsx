@@ -4,7 +4,6 @@ import { useProfilesUser } from '@/context/ProfilesUserContext';
 import Image from 'next/image';
 import NotificationBell from '@/components/NotificationBell';
 import FeedBack from '@/components/ui/FeedBack';
-import DarkModeToggle from '@/components/ui/DarkModeToggle';
 import Link from 'next/link';
 import { useSession } from '@supabase/auth-helpers-react';
 import Router from 'next/router';
@@ -130,11 +129,11 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                                         <p>{userProfile?.phone_number}</p>
                                     </div>
                                     <div className="border-t border-gray-200">
-                                        <Link href="/user/settings" legacyBehavior>
-                                            <a className="block px-4 py-2 text-gray-800 hover:bg-gray-100">User Settings</a>
+                                        <Link href="/user/settings" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                                            User Settings
                                         </Link>
-                                        <Link href="/user/settings" legacyBehavior>
-                                            <a className="block px-4 py-2 text-gray-800 hover:bg-gray-100">Security Settings</a>
+                                        <Link href="/user/settings" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                                            Security Settings
                                         </Link>
                                         <button
                                             onClick={handleLogout}
@@ -207,11 +206,11 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                                     <p>{userProfile?.phone_number}</p>
                                 </div>
                                 <div className="border-t border-gray-200">
-                                    <Link href="/user/settings" legacyBehavior>
-                                        <a className="block px-4 py-2 text-gray-800 hover:bg-gray-100">User Settings</a>
+                                    <Link href="/user/settings" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                                        User Settings
                                     </Link>
-                                    <Link href="/user/settings" legacyBehavior>
-                                        <a className="block px-4 py-2 text-gray-800 hover:bg-gray-100">Security Settings</a>
+                                    <Link href="/user/settings" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                                        Security Settings
                                     </Link>
                                     <button
                                         onClick={handleLogout}

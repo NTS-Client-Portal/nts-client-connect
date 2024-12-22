@@ -4,7 +4,6 @@ import { SessionContextProvider, useSession, useSupabaseClient } from '@supabase
 import { createClient } from '@supabase/supabase-js';
 import type { AppProps } from 'next/app';
 import '@/styles/app.css';
-import { DarkModeProvider } from '@/context/DarkModeContext';
 import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
 
@@ -36,17 +35,15 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <SessionContextProvider supabaseClient={supabase} initialSession={pageProps.initialSession}>
-      <DarkModeProvider>
-        {isNtsRoute ? (
-          <NtsUsersProvider>
-            <Component {...pageProps} />
-          </NtsUsersProvider>
-        ) : (
-          <ProfilesUserProvider>
-            <Component {...pageProps} />
-          </ProfilesUserProvider>
-        )}
-      </DarkModeProvider>
+      {isNtsRoute ? (
+        <NtsUsersProvider>
+          <Component {...pageProps} />
+        </NtsUsersProvider>
+      ) : (
+        <ProfilesUserProvider>
+          <Component {...pageProps} />
+        </ProfilesUserProvider>
+      )}
     </SessionContextProvider>
   );
 }

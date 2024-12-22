@@ -1,23 +1,16 @@
-import { GetStaticPaths, GetStaticProps } from 'next';
+import React from 'react';
 import { useRouter } from 'next/router';
+import { useSession } from '@supabase/auth-helpers-react';
+import { GetStaticPaths, GetStaticProps } from 'next';
 import { createClient } from '@supabase/supabase-js';
-import { useSupabaseClient, Session, useSession } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
-import QuoteRequest from '@/components/user/QuoteRequest';
-import SalesLayout from '../nts/sales/_components/layout/SalesLayout';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
+import SalesLayout from '../nts/sales/_components/layout/SalesLayout';
+import QuoteRequest from '@/components/user/QuoteRequest';
 
-interface CompanyPageProps {
-    company: any;
-    profiles: any[];
-    ntsUsers: any[];
-    session: Session;
-}
-
-const CompanyPage: React.FC<CompanyPageProps> = ({ company, profiles, ntsUsers }) => {
-    const session = useSession();
+const CompanyPage: React.FC<{ company: any; profiles: any[]; ntsUsers: any[] }> = ({ company, profiles, ntsUsers }) => {
     const router = useRouter();
-    const supabase = useSupabaseClient<Database>();
+    const session = useSession();
 
     if (router.isFallback) {
         return <div>Loading...</div>;
@@ -25,7 +18,7 @@ const CompanyPage: React.FC<CompanyPageProps> = ({ company, profiles, ntsUsers }
 
     return (
         <NtsUsersProvider>
-            <SalesLayout>
+            <SalesLayout session={null}>
                 <div>
                     <h1 className='font-bold text-lg'>{company.company_name}</h1>
                     <QuoteRequest session={session} profiles={profiles} ntsUsers={ntsUsers} isAdmin={false} />
@@ -44,8 +37,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
         return { paths: [], fallback: true };
     }
 
-    const paths = companies.map((company: any) => ({
-        params: { companyId: company.id.toString() },
+    const paths = companies.map((company: { id: string }) => ({
+        params: { companyId: company.id },
     }));
 
     return { paths, fallback: true };
@@ -53,10 +46,12 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
     const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+    const { companyId } = params!;
+
     const { data: company, error: companyError } = await supabase
         .from('companies')
         .select('*')
-        .eq('id', params?.companyId)
+        .eq('id', companyId)
         .single();
 
     if (companyError) {
@@ -67,7 +62,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('company_id', company.id);
+        .eq('company_id', companyId);
 
     if (profilesError) {
         console.error('Error fetching profiles:', profilesError.message);
@@ -77,7 +72,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     const { data: ntsUsers, error: ntsUsersError } = await supabase
         .from('nts_users')
         .select('*')
-        .eq('company_id', company.id);
+        .eq('company_id', companyId);
 
     if (ntsUsersError) {
         console.error('Error fetching nts_users:', ntsUsersError.message);
@@ -90,7 +85,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
             profiles,
             ntsUsers,
         },
-        revalidate: 60, // Revalidate the page every 60 seconds
+        revalidate: 10, // Revalidate every 10 seconds
     };
 };
 
