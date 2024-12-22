@@ -64,7 +64,7 @@ const CustomSignInForm = () => {
 
             setError(null);
             // Redirect to /user/index.tsx
-            router.push('/user/index.tsx');
+            router.push('/user');
         } catch (error) {
             setError(error.message);
         }
