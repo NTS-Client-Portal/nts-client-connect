@@ -172,6 +172,27 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
         }
     }, [session, supabase, fetchProfiles, fetchShippingQuotes, fetchQuotesForNtsUsers, isAdmin]);
 
+
+
+    useEffect(() => {
+        const channel = supabase
+            .channel('shippingquotes')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'shippingquotes' },
+                (payload) => {
+                    console.log('Change received!', payload);
+                    fetchInitialQuotes(); // Update DOM or fetch updated data
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel); // Cleanup subscription
+        };
+    }, [supabase, fetchInitialQuotes]);
+
+
     useEffect(() => {
         fetchInitialQuotes();
     }, [fetchInitialQuotes]);

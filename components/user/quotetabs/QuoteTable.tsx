@@ -200,6 +200,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                             <TableHeaderSort column="due_date" sortOrder={sortConfig.column === 'due_date' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"> Status</th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                             <TableHeaderSort column="price" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
@@ -263,6 +264,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.origin_city}, {quote.origin_state}</td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.destination_city}, {quote.destination_state}</td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{formatDate(quote.due_date)}</td>
+                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.status}</td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">
                                     {isAdmin ? (
                                         showPriceInput === quote.id ? (
