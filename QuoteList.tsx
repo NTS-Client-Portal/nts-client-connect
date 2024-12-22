@@ -35,8 +35,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
         const quote = quotes.find((q) => q.id === quoteId);
         if (quote) {
             setSelectedQuoteId(quote.id);
-            setQuote(quote);
-            setIsModalOpen(true);
+            setShowOrderForm(true);
         }
     };
 
@@ -176,6 +175,8 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
         fetchInitialQuotes();
     }, [fetchInitialQuotes]);
 
+
+
     const handleModalSubmit = async (data: any) => {
         if (selectedQuoteId !== null && session?.user?.id) {
             const { error } = await supabase
@@ -195,8 +196,6 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
                 console.error('Error creating order:', error.message);
             } else {
                 setQuote(null);
-                // Remove the quote from the quotes state
-                setQuotes((prevQuotes) => prevQuotes.filter((quote) => quote.id !== selectedQuoteId));
             }
         }
         setIsModalOpen(false);

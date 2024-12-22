@@ -3,6 +3,7 @@ import EditHistory from '../../EditHistory';
 import { formatDate, renderAdditionalDetails, freightTypeMapping } from './QuoteUtils';
 import { supabase } from '@/lib/initSupabase';
 import { Database } from '@/lib/database.types';
+import OrderFormModal from './OrderFormModal';
 
 interface QuoteTableProps {
     sortConfig: { column: string; order: string };
@@ -289,7 +290,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                             </button>
                                         )
                                     ) : (
-                                        quote.price ? quote.price : 'Pending'
+                                        quote.price ? `$${quote.price}` : 'Pending'
                                     )}
                                 </td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">
@@ -382,6 +383,12 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                     ))}
                 </tbody>
             </table>
+            <OrderFormModal
+                isOpen={false} // Replace with actual state or prop
+                onClose={() => { }} // Replace with actual function
+                onSubmit={() => { }} // Replace with actual function
+                quote={null} // Replace with actual quote data
+            />
             <div className="flex justify-center mt-4">
                 {Array.from({ length: totalPages }, (_, index) => (
                     <button
