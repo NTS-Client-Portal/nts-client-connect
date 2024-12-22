@@ -18,10 +18,10 @@ const CompanyPage: React.FC<{ company: any; profiles: any[]; ntsUsers: any[] }> 
 
     return (
         <NtsUsersProvider>
-            <SalesLayout session={null}>
+            <SalesLayout>
                 <div>
                     <h1 className='font-bold text-lg'>{company.company_name}</h1>
-                    <QuoteRequest session={session} profiles={profiles} ntsUsers={ntsUsers} isAdmin={false} />
+                    <QuoteRequest session={session} />
                 </div>
             </SalesLayout>
         </NtsUsersProvider>

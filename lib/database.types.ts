@@ -128,6 +128,7 @@ export type Database = {
           company_name: string | null
           company_size: string | null
           id: string
+          industry: string | null
           name: string
         }
         Insert: {
@@ -136,6 +137,7 @@ export type Database = {
           company_name?: string | null
           company_size?: string | null
           id: string
+          industry?: string | null
           name: string
         }
         Update: {
@@ -144,6 +146,7 @@ export type Database = {
           company_name?: string | null
           company_size?: string | null
           id?: string
+          industry?: string | null
           name?: string
         }
         Relationships: []
@@ -783,6 +786,7 @@ export type Database = {
           email_notifications: boolean | null
           first_name: string | null
           id: string
+          industry: string | null
           inserted_at: string | null
           last_name: string | null
           phone_number: string | null
@@ -800,6 +804,7 @@ export type Database = {
           email_notifications?: boolean | null
           first_name?: string | null
           id: string
+          industry?: string | null
           inserted_at?: string | null
           last_name?: string | null
           phone_number?: string | null
@@ -817,6 +822,7 @@ export type Database = {
           email_notifications?: boolean | null
           first_name?: string | null
           id?: string
+          industry?: string | null
           inserted_at?: string | null
           last_name?: string | null
           phone_number?: string | null

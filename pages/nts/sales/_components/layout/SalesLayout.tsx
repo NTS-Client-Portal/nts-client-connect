@@ -1,89 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '@/lib/initSupabase';
-import { useNtsUsers } from '@/context/NtsUsersContext';
-import Image from 'next/image';
-import NotificationBell from '@/components/NotificationBell';
-import { Session } from '@supabase/auth-helpers-react';
-import FeedBack from '@/components/ui/FeedBack';
+import React, { ReactNode, useState, useEffect } from 'react';
+import SalesSideNav from './SalesSideNav';
+import SalesTopNav from './SalesTopNav';
+import { useSession } from '@supabase/auth-helpers-react';
 
-interface SalesTopNavProps {
-    className?: string;
+interface SalesLayoutProps {
+    children: ReactNode;
 }
 
-const SalesTopNav: React.FC<SalesTopNavProps> = ({ className = '' }) => {
-    const { userProfile } = useNtsUsers();
-    const [profilePictureUrl, setProfilePictureUrl] = useState<string>('https://www.gravatar.com/avatar?d=mp&s=100');
+const SalesLayout: React.FC<SalesLayoutProps> = ({ children }) => {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const session = useSession();
 
     useEffect(() => {
-        if (userProfile?.profile_picture) {
-            const profilePicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL}${userProfile.profile_picture}`;
-            setProfilePictureUrl(profilePicUrl);
+        // Check if the screen size is large enough to display the sidebar by default
+        const mediaQuery = window.matchMedia('(min-width: 1024px)');
+        if (mediaQuery.matches) {
+            setIsSidebarOpen(true);
         }
-    }, [userProfile]);
 
-    const handleLogout = async () => {
-        try {
-            const { error } = await supabase.auth.signOut();
-            if (error) {
-                console.error('Error logging out:', error.message);
-                alert('Failed to log out. Please try again.');
-            }
-            window.location.href = '/login'; // Redirect to login page
-        } catch (err) {
-            console.error('Unexpected error during logout:', err);
-            alert('An unexpected error occurred. Please try again.');
-            window.location.href = '/login'; // Redirect to login page
-        }
+        // Add a listener to update the state if the screen size changes
+        const handleMediaQueryChange = (e: MediaQueryListEvent) => {
+            setIsSidebarOpen(e.matches);
+        };
+
+        mediaQuery.addEventListener('change', handleMediaQueryChange);
+
+        // Clean up the event listener on component unmount
+        return () => {
+            mediaQuery.removeEventListener('change', handleMediaQueryChange);
+        };
+    }, []);
+
+    const toggleSidebar = () => {
+        setIsSidebarOpen(!isSidebarOpen);
     };
 
     return (
-        <>
-            <nav className={`md:hidden w-full max-h-max absolute top-0 bg-white dark:bg-zinc-700 flex flex-col md:flex-row gap-1 justify-end px-4 z-50 py-1 drop-shadow ${className}`}>
-                <ul className='flex gap-2 md:gap-4 items-center z-50 justify-end mr-4'>
-                    <li>
-                        <NotificationBell session={null} />
-                    </li>
-                    <li className='hidden md:block'>
-                        <FeedBack />
-                    </li>
-                    <li>
-                        <Image
-                            src={profilePictureUrl}
-                            alt='profile-img'
-                            className='rounded-full shadow-md'
-                            width={34}
-                            height={34}
-                            fetchPriority="low" // Use camelCase
-                        />
-                    </li>
-                </ul>
-                <FeedBack />
-            </nav>
-
-            <nav className={`hidden w-full bg-white absolute top-0 md:flex flex-col md:flex-row gap-1 justify-between px-4 z-50 py-2 drop-shadow ${className}`}>
-                <ul className='w-full flex gap-2 md:gap-4 items-center z-50 justify-start pl-64'>
-                    <li>
-                        <FeedBack />
-                    </li>
-                </ul>
-                <ul className='w-full flex gap-2 md:gap-4 items-center z-50 justify-end mr-12'>
-                    <li>
-                        <NotificationBell session={null} />
-                    </li>
-                    <li>
-                        <Image
-                            src={profilePictureUrl}
-                            alt='profile-img'
-                            className='rounded-full shadow-md'
-                            width={34}
-                            height={34}
-                            fetchPriority="high" // Use camelCase
-                        />
-                    </li>
-                </ul>
-            </nav>
-        </>
+        <div className="md:layout">
+            <SalesSideNav
+                isSidebarOpen={isSidebarOpen}
+                toggleSidebar={toggleSidebar}
+            />
+            <div className="w-full bg-white absolute z-10 top-0 left-0">
+                <SalesTopNav session={session} />
+            </div>
+            <main className="ml-0 mt-32 md:mt-20 xl:ml-52 p-4 z-0 relative">
+                {children}
+            </main>
+        </div>
     );
 };
 
-export default SalesTopNav;
+export default SalesLayout;

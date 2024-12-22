@@ -19,7 +19,7 @@ const FreightRFQPage: React.FC = () => {
     return (
         <ProfilesUserProvider>
             <UserLayout>
-                <QuoteRequest session={session} profiles={profiles} ntsUsers={ntsUsers} isAdmin={isAdmin} />
+                <QuoteRequest session={session} />
             </UserLayout>
         </ProfilesUserProvider>
     );

@@ -1,16 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useSupabaseClient, useSession } from '@supabase/auth-helpers-react';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import { sendInvitations } from '@/lib/invitationService'; // Adjust the import path as needed
 import { v4 as uuidv4 } from 'uuid'; // Import uuidv4
 import { assignSalesUser } from '@/lib/assignSalesUser'; // Import the assignSalesUser function
+import { profile } from 'console';
 
 export default function SignUpPage() {
     const supabase = useSupabaseClient();
-    const session = useSession();
     const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -19,9 +18,7 @@ export default function SignUpPage() {
     const [lastName, setLastName] = useState('');
     const [companyName, setCompanyName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [inviteEmails, setInviteEmails] = useState<{ email: string, role: 'manager' | 'member' }[]>([]);
-    const [inviteEmail, setInviteEmail] = useState('');
-    const [inviteRole, setInviteRole] = useState<'manager' | 'member'>('member');
+    const [industry, setIndustry] = useState(''); // Add industry state
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -68,6 +65,7 @@ export default function SignUpPage() {
                 return;
             }
 
+            // Sign up the user in the auth.users table
             const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
@@ -145,6 +143,8 @@ export default function SignUpPage() {
                             company_size: '1-10', // Force default company size
                             assigned_sales_user: assignedSalesUserId,
                             assigned_at: assignedAt,
+                            industry,
+                            profile_complete: true,
                         })
                         .select()
                         .single();
@@ -162,110 +162,32 @@ export default function SignUpPage() {
                 companyId = uuidv4();
             }
 
-            // Check if the profile already exists
-            const { data: existingProfile, error: profileError } = await supabase
+            // Insert the profile into the profiles table
+            const profileId = uuidv4(); // Generate a unique ID for the profile
+            const { error } = await supabase
                 .from('profiles')
-                .select('id')
-                .eq('email', email)
-                .single();
+                .insert({
+                    id: profileId, // Use the generated UUID
+                    email: email, // Use the email fetched from auth.users
+                    first_name: firstName,
+                    last_name: lastName,
+                    company_name: companyName || `${firstName} ${lastName}`,
+                    phone_number: phoneNumber, // Include phone number
+                    company_id: companyId,
+                    profile_complete: true, // Set profile_complete to true
+                    team_role: 'manager', // Set team_role to manager
+                    industry, // Include industry
+                });
 
-            if (profileError && profileError.code !== 'PGRST116') {
-                throw new Error(profileError.message);
+            if (error) {
+                throw new Error(error.message);
             }
 
-            if (existingProfile) {
-                // Update the existing profile
-                const { error } = await supabase
-                    .from('profiles')
-                    .update({
-                        first_name: firstName,
-                        last_name: lastName,
-                        company_name: companyName || `${firstName} ${lastName}`,
-                        phone_number: phoneNumber, // Include phone number
-                        company_id: companyId,
-                        profile_complete: true, // Set profile_complete to true
-                        team_role: 'manager', // Set team_role to manager
-                    })
-                    .eq('id', existingProfile.id);
-
-                if (error) {
-                    throw new Error(error.message);
-                }
-
-                console.log('Profile updated successfully');
-            } else {
-                // Insert a new profile with a generated UUID
-                const profileId = uuidv4(); // Generate a unique ID for the profile
-                const { error } = await supabase
-                    .from('profiles')
-                    .insert({
-                        id: profileId, // Use the generated UUID
-                        email: email, // Use the email fetched from auth.users
-                        first_name: firstName,
-                        last_name: lastName,
-                        company_name: companyName || `${firstName} ${lastName}`,
-                        phone_number: phoneNumber, // Include phone number
-                        company_id: companyId,
-                        profile_complete: true, // Set profile_complete to true
-                        team_role: 'manager', // Set team_role to manager
-                    });
-
-                if (error) {
-                    throw new Error(error.message);
-                }
-
-                console.log('Profile created successfully');
-            }
-
-            // Store invitations with roles and add invited users to the companies table
-            for (const invite of inviteEmails) {
-                const id = uuidv4(); // Generate a unique ID for the invitation
-                const token = uuidv4(); // Generate a unique token for the invitation
-                const { error: inviteError } = await supabase
-                    .from('invitations')
-                    .insert({
-                        id, // Set the id field
-                        email: invite.email,
-                        team_role: invite.role,
-                        company_id: companyId,
-                        token, // Set the token field
-                    });
-
-                if (inviteError) {
-                    throw new Error(inviteError.message);
-                }
-            }
+            console.log('Profile created successfully');
 
             setSuccess(true);
         } catch (error) {
             setError(error.message);
-        }
-    };
-
-    const handleAddInviteEmail = () => {
-        if (inviteEmail && !inviteEmails.some(invite => invite.email === inviteEmail)) {
-            setInviteEmails([...inviteEmails, { email: inviteEmail, role: inviteRole }]);
-            setInviteEmail('');
-        }
-    };
-
-    const handleSendInvitations = async () => {
-        if (session?.user?.id && companyName) {
-            const { data: existingCompany, error: companyError } = await supabase
-                .from('companies')
-                .select('id')
-                .eq('name', companyName)
-                .single();
-
-            if (companyError) {
-                setError(companyError.message);
-                return;
-            }
-
-            const companyId = existingCompany.id;
-
-            await sendInvitations(inviteEmails, session.user.id, companyId);
-            setInviteEmails([]);
         }
     };
 
@@ -296,7 +218,7 @@ export default function SignUpPage() {
 
                     <div className="sm:row-span-1 md:col-span-1 w-full h-full flex flex-col justify-center items-center bg-zinc-100">
                         <div className='hidden md:block md:absolute top-5 right-5'>
-                            <Link href="/"  className="body-btn">
+                            <Link href="/" className="body-btn">
                                 Login
                             </Link>
                         </div>
@@ -313,129 +235,107 @@ export default function SignUpPage() {
                                     </div>
                                 ) : (
                                     <form className="mt-4" onSubmit={handleSignUp}>
-                                    <div className='flex gap-2 mb-2'>
-                                        <label htmlFor="firstName" className="mt-4">First Name
+                                        <div className='flex gap-2 mb-2'>
+                                            <label htmlFor="firstName" className="mt-4">First Name
+                                                <input
+                                                    type="text"
+                                                    id="firstName"
+                                                    value={firstName}
+                                                    onChange={(e) => setFirstName(e.target.value)}
+                                                    required
+                                                    className="w-full p-1 border rounded"
+                                                    disabled={loading}
+                                                /></label>
+                                            <label htmlFor="lastName" className="mt-4">Last Name
+                                                <input
+                                                    type="text"
+                                                    id="lastName"
+                                                    value={lastName}
+                                                    onChange={(e) => setLastName(e.target.value)}
+                                                    required
+                                                    className="w-full p-1 mb-2 border rounded"
+                                                    disabled={loading}
+                                                /></label>
+                                        </div>
+                                        <label htmlFor="companyName" className="mt-4">Company Name</label>
                                         <input
                                             type="text"
-                                            id="firstName"
-                                            value={firstName}
-                                            onChange={(e) => setFirstName(e.target.value)}
-                                            required
-                                            className="w-full p-1 border rounded"
+                                            id="companyName"
+                                            value={companyName}
+                                            onChange={(e) => setCompanyName(e.target.value)}
+                                            className="w-full p-1 mb-2 border rounded"
                                             disabled={loading}
-                                        /></label>
-                                        <label htmlFor="lastName" className="mt-4">Last Name
+                                        />
+                                        <label htmlFor="phoneNumber" className="mt-4">Phone Number</label>
                                         <input
                                             type="text"
-                                            id="lastName"
-                                            value={lastName}
-                                            onChange={(e) => setLastName(e.target.value)}
+                                            id="phoneNumber"
+                                            value={phoneNumber}
+                                            onChange={(e) => setPhoneNumber(e.target.value)}
+                                            className="w-full p-1 mb-2 border rounded"
+                                            disabled={loading}
+                                        />
+                                        <label htmlFor="email" className="mt-4">Email</label>
+                                        <input
+                                            type="email"
+                                            id="email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
                                             required
                                             className="w-full p-1 mb-2 border rounded"
                                             disabled={loading}
-                                        /></label>
-                                    </div>
-                                    <label htmlFor="companyName" className="mt-4">Company Name</label>
-                                    <input
-                                        type="text"
-                                        id="companyName"
-                                        value={companyName}
-                                        onChange={(e) => setCompanyName(e.target.value)}
-                                        className="w-full p-1 mb-2 border rounded"
-                                        disabled={loading}
-                                    />
-                                    <label htmlFor="phoneNumber" className="mt-4">Phone Number</label>
-                                    <input
-                                        type="text"
-                                        id="phoneNumber"
-                                        value={phoneNumber}
-                                        onChange={(e) => setPhoneNumber(e.target.value)}
-                                        className="w-full p-1 mb-2 border rounded"
-                                        disabled={loading}
-                                    />
-                                    <label htmlFor="email" className="mt-4">Email</label>
-                                    <input
-                                        type="email"
-                                        id="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        required
-                                        className="w-full p-1 mb-2 border rounded"
-                                        disabled={loading}
-                                        autoComplete="email"
-                                    />
-                                    <label htmlFor="password" className="mt-4">Password</label>
-                                    <input
-                                        type="password"
-                                        id="password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        required
-                                        className="w-full p-1 mb-2 border rounded"
-                                        disabled={loading}
-                                        autoComplete="new-password"
-                                    />
-                                    <label htmlFor="confirmPassword" className="mt-4">Confirm Password</label>
-                                    <input
-                                        type="password"
-                                        id="confirmPassword"
-                                        value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        required
-                                        className="w-full p-2 mb-6 border rounded"
-                                        disabled={loading}
-                                        autoComplete="new-password"
-                                    />
-
-                                    {/* <div className="mt-8">
-                                        <h3 className="text-xl font-bold text-center">Invite Your Team!</h3>
-                                        <div className="flex mt-4">
-                                            <input
-                                                type="email"
-                                                placeholder="Enter email"
-                                                value={inviteEmail}
-                                                onChange={(e) => setInviteEmail(e.target.value)}
-                                                className="w-full p-2 border rounded"
-                                            />
-                                            <select
-                                                value={inviteRole}
-                                                onChange={(e) => setInviteRole(e.target.value as 'manager' | 'member')}
-                                                className="ml-2 p-2 border rounded"
-                                            >
-                                                <option value="manager">Manager</option>
-                                                <option value="member">Member</option>
-                                            </select>
-                                            <button
-                                                type="button"
-                                                onClick={handleAddInviteEmail}
-                                                className="ml-2 px-4 py-2 bg-blue-500 text-white rounded"
-                                            >
-                                                Add
-                                            </button>
-                                        </div>
-                                        <ul className="mt-4">
-                                            {inviteEmails.map((invite, index) => (
-                                                <li key={index} className="flex justify-between items-center">
-                                                    <span>{invite.email} ({invite.role})</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                        <button
-                                            type="button"
-                                            onClick={handleSendInvitations}
-                                            className="mt-4 w-full px-4 py-2 bg-green-500 text-white rounded"
+                                            autoComplete="email"
+                                        />
+                                        <label htmlFor="password" className="mt-4">Password</label>
+                                        <input
+                                            type="password"
+                                            id="password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            required
+                                            className="w-full p-1 mb-2 border rounded"
+                                            disabled={loading}
+                                            autoComplete="new-password"
+                                        />
+                                        <label htmlFor="confirmPassword" className="mt-4">Confirm Password</label>
+                                        <input
+                                            type="password"
+                                            id="confirmPassword"
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            required
+                                            className="w-full p-2 mb-6 border rounded"
+                                            disabled={loading}
+                                            autoComplete="new-password"
+                                        />
+                                        <label htmlFor="industry" className="mt-4">Industry</label>
+                                        <select
+                                            id="industry"
+                                            value={industry}
+                                            onChange={(e) => setIndustry(e.target.value)}
+                                            required
+                                            className="w-full p-2 mb-6 border rounded"
+                                            disabled={loading}
                                         >
-                                            Send Invitations
+                                            <option value="">Select Industry</option>
+                                            <option value="Construction/Contractor">Construction/Contractor</option>
+                                            <option value="Auto/Truck Dealer">Auto/Truck Dealer</option>
+                                            <option value="Retail">Retail</option>
+                                            <option value="Auction">Auction</option>
+                                            <option value="Wholesaler">Wholesaler</option>
+                                            <option value="Mining">Mining</option>
+                                            <option value="Manufacturer">Manufacturer</option>
+                                            <option value="Equipment Rental">Equipment Rental</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                        <button
+                                            type="submit"
+                                            className="w-full body-btn mt-12"
+                                            disabled={loading}
+                                        >
+                                            {loading ? 'Signing Up...' : 'Sign Up'}
                                         </button>
-                                    </div> */}
-                                    <button
-                                        type="submit"
-                                        className="w-full body-btn mt-12"
-                                        disabled={loading}
-                                    >
-                                        {loading ? 'Signing Up...' : 'Sign Up'}
-                                    </button>
-                                </form>
+                                    </form>
                                 )}
                                 <div className='flex flex-col justify-evenly max-h-max items-center w-full my-4'>
                                     <div className='border-t border-zinc-900/40 pt-1 mb-2 w-full text-center'><h3>Already have an account?</h3></div>

@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useRouter } from 'next/router';
 import { assignSalesUser } from '@/lib/assignSalesUser'; // Import the assignSalesUser function
 
 const CustomSignInForm = () => {
     const supabase = useSupabaseClient();
+    const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -13,6 +15,14 @@ const CustomSignInForm = () => {
         setError(null);
 
         try {
+            // Restrict users with emails from ntslogistics.com or nationwidetransportservices.com
+            const restrictedDomains = ['ntslogistics.com', 'nationwidetransportservices.com'];
+            const emailDomain = email.split('@')[1];
+            if (restrictedDomains.includes(emailDomain)) {
+                setError('Users with this email domain are not allowed to sign in through this form.');
+                return;
+            }
+
             // Check if the user exists in the nts_users table
             const { data: internalUser, error: internalUserError } = await supabase
                 .from('nts_users')
@@ -53,6 +63,8 @@ const CustomSignInForm = () => {
             }
 
             setError(null);
+            // Redirect to /user/index.tsx
+            router.push('/user/index.tsx');
         } catch (error) {
             setError(error.message);
         }

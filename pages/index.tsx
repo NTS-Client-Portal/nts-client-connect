@@ -138,8 +138,8 @@ const LoginPage = () => {
             </div>
 
             <div className='absolute top-5 right-5'>
-              <Link href="/signup"  className="body-btn">
-                Sign Up
+              <Link href="/signup" legacyBehavior>
+                <a className="body-btn">Sign Up</a>
               </Link>
             </div>
 
@@ -157,14 +157,14 @@ const LoginPage = () => {
                 </div>
                 <div className="mt-4 text-center">
                   <p>Don&apos;t have an account?</p>
-                  <Link href="/signup" className="text-zinc-900 font-semibold hover:underline">
-                    Sign Up
+                  <Link href="/signup" legacyBehavior>
+                    <a className="text-zinc-900 font-semibold hover:underline">Sign Up</a>
                   </Link>
                 </div>
                 <div className="mt-4 text-center">
                   <p>Forgot your password?</p>
-                  <Link href="/recover-password?userType=profiles" className="text-zinc-900 font-semibold hover:underline">
-                   Reset Password
+                  <Link href="/recover-password?userType=profiles" legacyBehavior>
+                    <a className="text-zinc-900 font-semibold hover:underline">Reset Password</a>
                   </Link>
                 </div>
                 <div className='md:hidden h-5/6 w-full flex items-end justify-center'>
@@ -229,4 +229,4 @@ const LoginPage = () => {
   );
 };
 
-export default withProfileCheck(LoginPage);
+export default LoginPage;

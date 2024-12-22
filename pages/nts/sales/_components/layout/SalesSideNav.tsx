@@ -56,30 +56,40 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                     </div>
                     <ul className='flex gap-3 flex-col flex-grow space-y-1 overflow-y-hidden'>
                         <li className={`w-full flex justify-normal m-0 ${router.pathname === '/nts/sales/shipper-management' ? "active" : ""}`}>
-                            <Link href="/nts/sales/shipper-management" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales/shipper-management' ? "active" : ""}`}>
-                                <span className='flex items-center flex-nowrap justify-normal gap-2'><Workflow size={'20px'} /> <span className='text-xs md:text-sm'>Shipper Management</span></span>
+                            <Link href="/nts/sales/shipper-management" legacyBehavior>
+                                <a className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales/shipper-management' ? "active" : ""}`}>
+                                    <span className='flex items-center flex-nowrap justify-normal gap-2'><Workflow size={'20px'} /> <span className='text-xs md:text-sm'>Shipper Management</span></span>
+                                </a>
                             </Link>
                         </li>
                         <li className={`w-full flex justify-normal m-0 ${router.pathname === '/nts/sales' ? "active" : ""}`}>
-                            <Link href="/nts/sales" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales' ? "active" : ""}`}>
-                                <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><ChartArea size={'20px'} /> <span className='text-xs md:text-sm'>Shipper Connect</span></span>
+                            <Link href="/nts/sales" legacyBehavior>
+                                <a className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales' ? "active" : ""}`}>
+                                    <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><ChartArea size={'20px'} /> <span className='text-xs md:text-sm'>Shipper Connect</span></span>
+                                </a>
                             </Link>
                         </li>
                         <li className={`w-full flex justify-normal m-0 ${router.pathname === '/nts/sales/documents' ? "active" : ""}`}>
-                            <Link href="/nts/sales/documents" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales/documents' ? "active" : ""}`}>
-                                <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><Folders size={'20px'} /> <span className='text-xs md:text-sm'>Documents/Photos</span></span>
+                            <Link href="/nts/sales/documents" legacyBehavior>
+                                <a className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales/documents' ? "active" : ""}`}>
+                                    <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><Folders size={'20px'} /> <span className='text-xs md:text-sm'>Documents/Photos</span></span>
+                                </a>
                             </Link>
                         </li>
                         <li className={`w-full flex justify-normal m-0 ${router.pathname === '/nts/sales/equipment-directory' ? "active" : ""}`}>
-                            <Link href="/nts/sales/equipment-directory" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales/equipment-directory' ? "active" : ""}`}>
-                                <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><NotebookTabs size={'20px'} /> <span className='text-xs md:text-sm'>Equipment Directory </span></span>
+                            <Link href="/nts/sales/equipment-directory" legacyBehavior>
+                                <a className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales/equipment-directory' ? "active" : ""}`}>
+                                    <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><NotebookTabs size={'20px'} /> <span className='text-xs md:text-sm'>Equipment Directory </span></span>
+                                </a>
                             </Link>
                         </li>
                     </ul>
                     <ul className='flex flex-col gap-4 justify-end items-center'>
                         <li className={`w-full text-nowrap flex justify-normal m-0 ${router.pathname === '/nts/sales/settings' ? "active" : ""}`}>
-                            <Link href="/nts/sales/settings" className={`logout mt-4 md:mt-0 dark:bg-zinc-300 dark:text-zinc-700 flex items-center justify-center gap-2 font-semibold py-1 w-full ${router.pathname === '/nts/sales/settings' ? "active" : ""}`}>
-                                <Settings />   Settings
+                            <Link href="/nts/sales/settings" legacyBehavior>
+                                <a className={`logout mt-4 md:mt-0 dark:bg-zinc-300 dark:text-zinc-700 flex items-center justify-center gap-2 font-semibold py-1 w-full ${router.pathname === '/nts/sales/settings' ? "active" : ""}`}>
+                                    <Settings />   Settings
+                                </a>
                             </Link>
                         </li>
                         <li className="w-full flex items-center justify-center m-0">

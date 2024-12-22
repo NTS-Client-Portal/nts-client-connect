@@ -30,17 +30,14 @@ export const ProfilesUserProvider: React.FC<{ children: React.ReactNode }> = ({ 
                     .from('profiles')
                     .select('*')
                     .eq('id', session.user.id)
-                    .limit(1) // Ensure only one row is returned
                     .single();
 
                 if (error) {
                     console.error('Error fetching user profile from profiles:', error.message);
                     setError('Error fetching user profile');
-                } else if (data) {
+                } else {
                     console.log('Fetched user profile from profiles:', data);
                     setUserProfile(data);
-                } else {
-                    setError('No profile found for user');
                 }
             } catch (err) {
                 console.error('Unexpected error fetching user profile:', err);

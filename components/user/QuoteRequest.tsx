@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import QuoteForm from './QuoteForm';
@@ -11,101 +11,231 @@ import EditHistory from '../EditHistory'; // Adjust the import path as needed
 
 interface QuoteRequestProps {
     session: Session | null;
-    profiles: any[];
-    ntsUsers: any[];
-    isAdmin: boolean;
 }
 
-const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, ntsUsers, isAdmin }: QuoteRequestProps) => {
+type ShippingQuote = Database['public']['Tables']['shippingquotes']['Row'];
+type Order = Database['public']['Tables']['orders']['Row'];
+type EditHistoryEntry = Database['public']['Tables']['edit_history']['Row'];
+
+const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestProps) => {
+    const supabase = useSupabaseClient<Database>();
+    const [quotes, setQuotes] = useState<ShippingQuote[]>([]);
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [editHistory, setEditHistory] = useState<EditHistoryEntry[]>([]);
+    const [errorText, setErrorText] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [activeTab, setActiveTab] = useState('requests');
     const [isMobile, setIsMobile] = useState<boolean>(false);
-    const supabase = useSupabaseClient<Database>();
-    const [profiles, setProfiles] = useState<any[]>([]);
-    const [quotes, setQuotes] = useState<any[]>([]);
+    const [isAdmin, setIsAdmin] = useState<boolean>(false);
+    const [companyId, setCompanyId] = useState<string | null>(null);
 
-    const fetchProfiles = async (companyId: string) => {
-        try {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('company_id', companyId);
-
-            if (error) {
-                console.error('Error fetching profiles:', error.message);
-                return [];
-            }
-
-            return data;
-        } catch (error) {
-            console.error('Unexpected error fetching profiles:', error);
-            return [];
-        }
-    };
-
-    const fetchShippingQuotes = async (profileIds: any[]) => {
-        try {
-            const { data, error } = await supabase
-                .from('shippingquotes')
-                .select('*')
-                .in('user_id', profileIds); // Use the correct column name
-
-            if (error) {
-                console.error('Error fetching shipping quotes:', error.message);
-                return [];
-            }
-
-            return data;
-        } catch (error) {
-            console.error('Unexpected error fetching shipping quotes:', error);
-            return [];
-        }
-    };
-
-    const fetchQuotes = async () => {
+    const fetchUserProfile = useCallback(async () => {
         if (!session?.user?.id) return;
 
-        // Check if the user is a client from the profiles table
-        const { data: userProfile, error: userProfileError } = await supabase
+        const { data: profile, error } = await supabase
             .from('profiles')
             .select('company_id')
             .eq('id', session.user.id)
-            .maybeSingle();
+            .single();
 
-        if (userProfileError) {
-            console.error('Error fetching user profile:', userProfileError.message);
+        if (error) {
+            console.error('Error fetching user profile:', error.message);
             return;
         }
 
-        if (userProfile) {
-            // User is a client from the profiles table
-            const companyId = userProfile.company_id;
-            const profilesData = await fetchProfiles(companyId);
+        setCompanyId(profile.company_id);
+    }, [session, supabase]);
 
-            setProfiles(profilesData);
+    const fetchQuotes = useCallback(async () => {
+        if (!session?.user?.id) return;
 
-            const profileIds = profilesData.map(profile => profile.id);
-            const quotesData = await fetchShippingQuotes(profileIds);
+        const { data, error } = await supabase
+            .from('shippingquotes')
+            .select('*')
+            .eq('assigned_sales_user', session.user.id)
+            .eq('is_archived', false); // Fetch only non-archived quotes
 
-            setQuotes(quotesData);
+        if (error) {
+            setErrorText(error.message);
         } else {
-            // User is not a client from the profiles table, handle accordingly
-            console.error('No user profile found in profiles table');
+            console.log('Fetched Quotes:', data);
+            setQuotes(data);
         }
-    };
+    }, [session, supabase]);
+
+    const fetchEditHistory = useCallback(async () => {
+        if (!companyId) return;
+
+        const { data, error } = await supabase
+            .from('edit_history')
+            .select('*')
+            .eq('company_id', companyId)
+            .order('edited_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching edit history:', error.message);
+        } else {
+            console.log('Fetched Edit History:', data);
+            setEditHistory(data);
+        }
+    }, [companyId, supabase]);
+
+    useEffect(() => {
+        if (session?.user?.id) {
+            fetchUserProfile();
+        }
+    }, [session, fetchUserProfile]);
+
+    useEffect(() => {
+        if (session?.user?.id) {
+            fetchQuotes();
+            fetchEditHistory();
+        }
+    }, [session, fetchQuotes, fetchEditHistory]);
 
     useEffect(() => {
         const handleResize = () => {
             setIsMobile(window.innerWidth <= 768);
         };
 
-        handleResize(); // Set initial value
+        handleResize();
         window.addEventListener('resize', handleResize);
 
         return () => {
             window.removeEventListener('resize', handleResize);
         };
     }, []);
+
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            if (!session?.user?.id) return;
+
+            const { data, error } = await supabase
+                .from('nts_users')
+                .select('id')
+                .eq('id', session.user.id)
+                .single();
+
+            if (error) {
+                console.error('Error fetching user role:', error.message);
+            } else {
+                setIsAdmin(!!data);
+            }
+        };
+
+        fetchUserRole();
+    }, [session, supabase]);
+
+    const addQuote = async (quote: Partial<Database['public']['Tables']['shippingquotes']['Insert'] & { containerLength?: number | null; containerType?: string | null; contentsDescription?: string | null; selectedOption?: string | null; }>) => {
+        if (!session?.user?.id) return;
+
+        console.log('Adding quote:', quote);
+
+        const { data: shippingQuoteData, error: shippingQuoteError } = await supabase
+            .from('shippingquotes')
+            .insert([{
+                ...quote,
+                user_id: session.user.id,
+                company_id: companyId,
+                first_name: quote.first_name || null,
+                last_name: quote.last_name || null,
+                email: quote.email || null,
+                inserted_at: quote.inserted_at || new Date().toISOString(),
+                is_complete: quote.is_complete || false,
+                is_archived: quote.is_archived || false,
+                year: quote.year?.toString() || null, // Ensure year is a string
+                make: quote.make || null,
+                model: quote.model || null,
+                length: quote.length?.toString() || null, // Ensure length is a string
+                width: quote.width?.toString() || null, // Ensure width is a string
+                height: quote.height?.toString() || null, // Ensure height is a string
+                weight: quote.weight?.toString() || null, // Ensure weight is a string
+            }])
+            .select();
+
+        if (shippingQuoteError) {
+            console.error('Error adding quote:', shippingQuoteError.message);
+            setErrorText('Error adding quote');
+            return;
+        }
+
+        console.log('Quote added successfully:', shippingQuoteData);
+        setQuotes([...quotes, ...(shippingQuoteData || [])]);
+
+        setErrorText('');
+        setIsModalOpen(false); // Close the modal after adding the quote
+        fetchQuotes(); // Fetch quotes after adding a new one
+    };
+
+    const archiveQuote = async (id: number) => {
+        if (!session?.user?.id) return;
+
+        const { error } = await supabase
+            .from('shippingquotes')
+            .update({ is_archived: true } as Database['public']['Tables']['shippingquotes']['Update']) // Mark the quote as archived
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error archiving quote:', error.message);
+            setErrorText('Error archiving quote');
+        } else {
+            setQuotes(quotes.filter(quote => quote.id !== id));
+        }
+    };
+
+    const transferToOrderList = async (quoteId: number) => {
+        if (!session?.user?.id) {
+            setErrorText('User is not authenticated');
+            return;
+        }
+
+        try {
+            // Logic to transfer the quote to the order list
+            const { data, error } = await supabase
+                .from('orders')
+                .insert([{ quote_id: quoteId, user_id: session.user.id }]);
+
+            if (error) {
+                console.error('Error transferring quote to order list:', error);
+                setErrorText('Error transferring quote to order list');
+            } else {
+                console.log('Quote transferred to order list:', data);
+                // Remove the transferred quote from the quotes array
+                setQuotes(quotes.filter(quote => quote.id !== quoteId));
+            }
+        } catch (error) {
+            console.error('Error transferring quote to order list:', error);
+            setErrorText('Error transferring quote to order list');
+        }
+    };
+
+    const handleMarkAsComplete = async (orderId: number): Promise<void> => {
+        try {
+            const { error } = await supabase
+                .from('orders')
+                .update({ status: 'delivered' })
+                .eq('id', orderId);
+
+            if (error) {
+                console.error('Error marking order as complete:', error.message);
+                setErrorText('Error marking order as complete');
+            } else {
+                setOrders(orders.filter(order => order.id !== orderId));
+            }
+        } catch (error) {
+            console.error('Error marking order as complete:', error);
+            setErrorText('Error marking order as complete');
+        }
+    };
+
+    const formatDate = (dateString: string | null) => {
+        if (!dateString) return 'No due date';
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    };
 
     return (
         <div className="w-full h-full overflow-auto">
@@ -120,11 +250,12 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, ntsUsers, isAdmin 
                     session={session}
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
-                    addQuote={() => { }} // Pass an empty function or handle it in QuoteForm
-                    errorText=""
-                    setErrorText={() => { }} // Pass an empty function or handle it in QuoteForm
-                    fetchQuotes={fetchQuotes} // Pass fetchQuotes function
-                    companyId={null} // Pass null or handle it in QuoteForm
+                    addQuote={addQuote}
+                    errorText={errorText}
+                    setErrorText={setErrorText}
+                    fetchQuotes={fetchQuotes} // Pass fetchQuotes to QuoteForm
+                    companyId={companyId} // Pass companyId to QuoteForm
+                    assignedSalesUser={session?.user?.id || ''} // Pass assignedSalesUser to QuoteForm
                 />
             </div>
             {isMobile ? (
@@ -192,9 +323,9 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, ntsUsers, isAdmin 
                 {activeTab === 'orders' && (
                     <OrderList
                         session={session}
-                        isAdmin={isAdmin}
-                        fetchQuotes={() => { }}
-                        markAsComplete={null}
+                        fetchQuotes={fetchQuotes}
+                        markAsComplete={handleMarkAsComplete} // Add this line
+                        isAdmin={isAdmin} // Pass isAdmin state
                     />
                 )}
                 {activeTab === 'history' && (
@@ -214,7 +345,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, ntsUsers, isAdmin 
                 )}
                 {activeTab === 'editHistory' && (
                     <EditHistory
-                        editHistory={[]} // Pass an empty array or handle it in EditHistory
+                        editHistory={editHistory}
                         quoteId={0} // Pass a dummy quoteId since it's not used in this context
                         searchTerm=""
                         searchColumn="id"

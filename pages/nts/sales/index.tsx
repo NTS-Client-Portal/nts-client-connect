@@ -13,7 +13,7 @@ const ShipperConnect: React.FC = () => {
 
     return (
         <NtsUsersProvider>
-            <SalesLayout session={session as Session}>
+            <SalesLayout>
                 <Crm />
             </SalesLayout>
         </NtsUsersProvider>

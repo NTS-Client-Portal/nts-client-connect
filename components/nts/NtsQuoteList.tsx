@@ -1,21 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Database } from '@/lib/database.types';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
-import OrderFormModal from './OrderFormModal';
-import EditQuoteModal from './EditQuoteModal';
-import QuoteDetailsMobile from '../mobile/QuoteDetailsMobile';
-import { freightTypeMapping, formatDate, renderAdditionalDetails } from './QuoteUtils';
-import QuoteTable from './QuoteTable';
+import NtsQuoteTable from './NtsQuoteTable';
+import OrderFormModal from '../user/quotetabs/OrderFormModal';
+import EditQuoteModal from '../user/quotetabs/EditQuoteModal';
+import QuoteDetailsMobile from '../user/mobile/QuoteDetailsMobile';
+import { freightTypeMapping, formatDate, renderAdditionalDetails } from '../user/quotetabs/QuoteUtils';
 
-interface QuoteListProps {
+interface NtsQuoteListProps {
     session: any;
-    isAdmin: boolean;
+    quotes: Database['public']['Tables']['shippingquotes']['Row'][];
 }
 
-const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
+const NtsQuoteList: React.FC<NtsQuoteListProps> = ({ session, quotes: initialQuotes }) => {
     const supabase = useSupabaseClient<Database>();
-    const [quotes, setQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
-    const [profiles, setProfiles] = useState<Database['public']['Tables']['profiles']['Row'][]>([]);
+    const [quotes, setQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>(initialQuotes);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedQuoteId, setSelectedQuoteId] = useState<number | null>(null);
     const [quote, setQuote] = useState<Database['public']['Tables']['shippingquotes']['Row'] | null>(null);
@@ -72,100 +71,6 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
         setSortConfig({ column, order });
     };
 
-    const fetchProfiles = useCallback(async (companyId: string) => {
-        const { data: profiles, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('company_id', companyId);
-
-        if (error) {
-            console.error('Error fetching profiles:', error.message);
-            return [];
-        }
-
-        return profiles;
-    }, [supabase]);
-
-    const fetchShippingQuotes = useCallback(async (profileIds: string[]) => {
-        const { data: quotes, error } = await supabase
-            .from('shippingquotes')
-            .select('*')
-            .in('user_id', profileIds); // Use the correct column name
-
-        if (error) {
-            console.error('Error fetching shipping quotes:', error.message);
-            return [];
-        }
-
-        return quotes;
-    }, [supabase]);
-
-    const fetchQuotesForNtsUsers = useCallback(async (userId: string) => {
-        const { data: companySalesUsers, error: companySalesUsersError } = await supabase
-            .from('company_sales_users')
-            .select('company_id')
-            .eq('sales_user_id', userId);
-
-        if (companySalesUsersError) {
-            console.error('Error fetching company_sales_users for nts_user:', companySalesUsersError.message);
-            return [];
-        }
-
-        const companyIds = companySalesUsers.map((companySalesUser) => companySalesUser.company_id);
-
-        const { data: quotes, error: quotesError } = await supabase
-            .from('shippingquotes')
-            .select('*')
-            .in('company_id', companyIds);
-
-        if (quotesError) {
-            console.error('Error fetching quotes for nts_user:', quotesError.message);
-            return [];
-        }
-
-        return quotes;
-    }, [supabase]);
-
-    const fetchInitialQuotes = useCallback(async () => {
-        if (!session?.user?.id) return;
-
-        if (isAdmin) {
-            const quotesData = await fetchQuotesForNtsUsers(session.user.id);
-            setQuotes(quotesData);
-        } else {
-            // Fetch the user's profile
-            const { data: userProfile, error: userProfileError } = await supabase
-                .from('profiles')
-                .select('company_id')
-                .eq('id', session.user.id)
-                .single();
-
-            if (userProfileError) {
-                console.error('Error fetching user profile:', userProfileError.message);
-                return;
-            }
-
-            if (!userProfile) {
-                console.error('No profile found for user');
-                return;
-            }
-
-            const companyId = userProfile.company_id;
-            const profilesData = await fetchProfiles(companyId);
-
-            setProfiles(profilesData);
-
-            const profileIds = profilesData.map(profile => profile.id);
-            const quotesData = await fetchShippingQuotes(profileIds);
-
-            setQuotes(quotesData);
-        }
-    }, [session, supabase, fetchProfiles, fetchShippingQuotes, fetchQuotesForNtsUsers, isAdmin]);
-
-    useEffect(() => {
-        fetchInitialQuotes();
-    }, [fetchInitialQuotes]);
-
     const handleCreateOrderClick = (quoteId: number) => {
         setSelectedQuoteId(quoteId);
     };
@@ -206,9 +111,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
         if (error) {
             console.error('Error responding to quote:', error.message);
         } else {
-            setQuotes((prevQuotes) => prevQuotes.map((quote) => quote.id === quoteId ? { ...quote, price: parseFloat(price) } : quote
-            )
-            );
+            setQuotes((prevQuotes) => prevQuotes.map((quote) => quote.id === quoteId ? { ...quote, price: parseFloat(price) } : quote));
         }
     };
 
@@ -270,9 +173,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
             if (historyError) {
                 console.error('Error logging edit history:', historyError.message);
             } else {
-                setQuotes((prevQuotes) => prevQuotes.map((quote) => quote.id === updatedQuote.id ? updatedQuote : quote
-                )
-                );
+                setQuotes((prevQuotes) => prevQuotes.map((quote) => quote.id === updatedQuote.id ? updatedQuote : quote));
             }
         }
         setIsEditModalOpen(false);
@@ -298,7 +199,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
             if (data && data.length > 0) {
                 setPopupMessage(`Duplicate Quote Request Added - Quote #${data[0].id}`);
             }
-            fetchInitialQuotes();
+            setQuotes((prevQuotes) => [...prevQuotes, ...data]);
         }
     };
 
@@ -324,7 +225,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
             if (data && data.length > 0) {
                 setPopupMessage(`Flip Route Duplicate Request Added - Quote #${data[0].id}`);
             }
-            fetchInitialQuotes();
+            setQuotes((prevQuotes) => [...prevQuotes, ...data]);
         }
     };
 
@@ -355,7 +256,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
                 onSubmit={handleEditModalSubmit}
                 quote={quoteToEdit} />
             <div className="hidden lg:block overflow-x-auto">
-                <QuoteTable
+                <NtsQuoteTable
                     sortConfig={sortConfig}
                     handleSort={handleSort}
                     quotes={sortedQuotes}
@@ -374,7 +275,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
                     fetchEditHistory={fetchEditHistory}
                     handleCreateOrderClick={handleCreateOrderClick}
                     handleRespond={handleRespond}
-                    isAdmin={isAdmin}
+                    isAdmin={session?.user?.isAdmin || false}
                 />
             </div>
             <div className="block 2xl:hidden">
@@ -387,7 +288,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
                         handleEditClick={handleEditClick}
                         handleCreateOrderClick={handleCreateOrderClick}
                         handleRespond={handleRespond}
-                        isAdmin={isAdmin}
+                        isAdmin={session?.user?.isAdmin || false}
                     />
                 ))}
             </div>
@@ -395,4 +296,4 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
     );
 }
 
-export default QuoteList;
+export default NtsQuoteList;
