@@ -253,7 +253,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                                     onClick={handleAssignSalesUser}
                                     className="body-btn text-white transition duration-200"
                                 >
-                                    Assign Sales User
+                                    Assign NTS Sales User
                                 </button>
                             </div>
                         </div>
