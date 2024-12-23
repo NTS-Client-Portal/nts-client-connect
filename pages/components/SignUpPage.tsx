@@ -6,7 +6,6 @@ import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { v4 as uuidv4 } from 'uuid'; // Import uuidv4
 import { assignSalesUser } from '@/lib/assignSalesUser'; // Import the assignSalesUser function
-import { profile } from 'console';
 
 export default function SignUpPage() {
     const supabase = useSupabaseClient();
@@ -48,23 +47,6 @@ export default function SignUpPage() {
         }
 
         try {
-            // Check if the user exists in the nts_users table
-            const { data: internalUser, error: internalUserError } = await supabase
-                .from('nts_users')
-                .select('id')
-                .eq('email', email)
-                .single();
-
-            if (internalUserError && internalUserError.code !== 'PGRST116') {
-                throw new Error(internalUserError.message);
-            }
-
-            if (internalUser) {
-                setError('Internal users are not allowed to sign up to the client version of the application.');
-                setLoading(false);
-                return;
-            }
-
             // Sign up the user in the auth.users table
             const { data, error } = await supabase.auth.signUp({
                 email,
