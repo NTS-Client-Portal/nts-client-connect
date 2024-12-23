@@ -41,7 +41,7 @@ const AdminAnalytics = () => {
     }, []);
 
     return (
-        <div className="p-4">
+        <div className="p-4 bg-gray-100">
             <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <AnalyticsCard title="New Signups" value={signups} description="Signups in the last month" />

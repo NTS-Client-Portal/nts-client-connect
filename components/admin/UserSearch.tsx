@@ -83,7 +83,7 @@ const UserSearch = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search by email"
-                    className="p-2 border rounded w-full"
+                    className="p-2 border border-zinc-500 rounded w-full"
                 />
                 <button type="submit" className="mt-2 p-2 bg-blue-500 text-white rounded">
                     Search

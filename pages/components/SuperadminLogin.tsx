@@ -30,7 +30,7 @@ const SuperadminLogin = () => {
         const { data: userProfile, error: profileError } = await supabase
             .from('nts_users')
             .select('role')
-            .eq('id', authData.user.id)
+            .eq('email', email)
             .single();
 
         setLoading(false);

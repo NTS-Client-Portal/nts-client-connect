@@ -24,7 +24,7 @@ const SuperadminDash = () => {
 
     return (
         <NtsUsersProvider>
-            <SuperadminDashboard session={session}/>
+            <SuperadminDashboard session={session} />
         </NtsUsersProvider>
     );
 };
