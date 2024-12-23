@@ -169,7 +169,7 @@ const LoginPage = () => {
                                 <div className="mt-4 text-center">
                                     <p>Forgot your password?</p>
                                     <Link href="/forgot-password" className="text-zinc-900 font-semibold hover:underline">
-                                       Reset Password
+                                        Reset Password
                                     </Link>
                                 </div>
                                 <div className='md:hidden h-5/6 w-full flex items-end justify-center'>
@@ -230,4 +230,4 @@ const LoginPage = () => {
     );
 };
 
-export default withProfileCheck(LoginPage);
+export default LoginPage;

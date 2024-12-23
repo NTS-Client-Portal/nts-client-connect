@@ -48,7 +48,7 @@ exports.handler = async (event, context) => {
 
         // Insert the user's profile into the profiles table
         const { error: profileError } = await supabase
-            .from('profiles')
+            .from('nts_users')
             .insert({
                 id: userId,
                 email,

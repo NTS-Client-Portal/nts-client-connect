@@ -1484,10 +1484,6 @@ body:is(.dark *) {
   gap: 2rem;
 }
 
-.gap-24 {
-  gap: 6rem;
-}
-
 .gap-y-10 {
   row-gap: 2.5rem;
 }
@@ -1792,16 +1788,6 @@ body:is(.dark *) {
 
 .border-zinc-900\/50 {
   border-color: rgb(24 24 27 / 0.5);
-}
-
-.border-t-zinc-500 {
-  --tw-border-opacity: 1;
-  border-top-color: rgb(113 113 122 / var(--tw-border-opacity, 1));
-}
-
-.border-t-zinc-300 {
-  --tw-border-opacity: 1;
-  border-top-color: rgb(212 212 216 / var(--tw-border-opacity, 1));
 }
 
 .bg-background {

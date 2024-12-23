@@ -30,7 +30,7 @@ const SuperadminLogin = () => {
         const { data: userProfile, error: profileError } = await supabase
             .from('nts_users')
             .select('role')
-            .eq('email', email)
+            .eq('email', email.toLowerCase()) // Ensure case-insensitive comparison
             .single();
 
         setLoading(false);

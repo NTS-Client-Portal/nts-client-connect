@@ -21,4 +21,4 @@ const UserDocumentsPage: React.FC = () => {
     );
 };
 
-export default withProfileCheck(UserDocumentsPage);
+export default UserDocumentsPage;

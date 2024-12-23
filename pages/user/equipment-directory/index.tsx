@@ -14,4 +14,4 @@ const EquipmentDirectoryPage: React.FC = () => {
     );
 };
 
-export default withProfileCheck(EquipmentDirectoryPage);
+export default EquipmentDirectoryPage;

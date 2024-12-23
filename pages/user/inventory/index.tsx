@@ -21,4 +21,4 @@ const FreightInventoryPage: React.FC = () => {
     );
 };
 
-export default withProfileCheck(FreightInventoryPage);
+export default FreightInventoryPage;

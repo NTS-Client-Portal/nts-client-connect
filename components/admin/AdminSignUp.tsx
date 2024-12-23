@@ -24,9 +24,9 @@ const AdminSignUp = () => {
         }
 
         // Restrict access based on email domain
-        const allowedDomain = 'ntslogistics.com';
+        const allowedDomains = ['ntslogistics.com', 'nationwidetransportservices.com'];
         const emailDomain = email.split('@')[1];
-        if (emailDomain !== allowedDomain) {
+        if (!allowedDomains.includes(emailDomain)) {
             setError('You are not authorized to sign up as an admin.');
             setLoading(false);
             return;

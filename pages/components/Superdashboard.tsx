@@ -133,7 +133,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
     };
 
     if (!session) {
-        return null; // or a loading spinner
+        return <p>Loading...</p>; // or a loading spinner
     }
 
     return (

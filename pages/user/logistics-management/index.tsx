@@ -25,4 +25,4 @@ const FreightRFQPage: React.FC = () => {
     );
 };
 
-export default withProfileCheck(FreightRFQPage);
+export default FreightRFQPage;
