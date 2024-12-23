@@ -1,16 +1,21 @@
 import React from 'react';
 import SalesLayout from '../_components/layout/SalesLayout';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
-import Settings from '@/components/user/UserSettings';
+import NtsSettings from '@/components/NtsSettings';
 import { useSession } from '@supabase/auth-helpers-react';
 
-const session = useSession();
+
 
 const SettingsPage: React.FC = () => {
+    const session = useSession();
+
+    if (!session) {
+        return <p>Loading...</p>;
+    }
     return (
         <NtsUsersProvider>
             <SalesLayout>
-                <Settings session={session} />
+                <NtsSettings />
             </SalesLayout>
         </NtsUsersProvider>
     );
