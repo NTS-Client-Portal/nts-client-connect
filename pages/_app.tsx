@@ -6,7 +6,7 @@ import type { AppProps } from 'next/app';
 import '@/styles/app.css';
 import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
-
+import '@/styles/ChatInterface.css'; // Import the CSS file
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

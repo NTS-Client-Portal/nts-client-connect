@@ -362,3 +362,62 @@ main {
     @apply bg-background dark:bg-zinc-700  text-foreground;
   }
 }
+
+.chat-interface {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ddd;
+}
+
+.message {
+    margin-bottom: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    max-width: 70%;
+}
+
+.message.sent {
+    background-color: #e1ffc7;
+    align-self: flex-end;
+}
+
+.message.received {
+    background-color: #fff;
+    align-self: flex-start;
+}
+
+.send-message-form {
+    display: flex;
+    padding: 1rem;
+    background-color: #fff;
+    border-top: 1px solid #ddd;
+}
+
+.send-message-form input {
+    flex-grow: 1;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    margin-right: 0.5rem;
+}
+
+.send-message-form button {
+    padding: 0.5rem 1rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+}
+
+.send-message-form button:hover {
+    background-color: #0056b3;
+}

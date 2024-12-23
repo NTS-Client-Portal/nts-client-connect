@@ -7,6 +7,7 @@ import FeedBack from '@/components/ui/FeedBack';
 import Link from 'next/link';
 import { useSession } from '@supabase/auth-helpers-react';
 import Router from 'next/router';
+import ShipperBrokerConnect from '@components/ShipperBrokerConnect';
 
 interface UserTopNavProps {
     className?: string;
@@ -169,9 +170,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                     <li>
                         <FeedBack />
                     </li>
-                    {/* <li>
-                        <DarkModeToggle />
-                    </li> */}
+
                 </ul>
                 <ul className='w-full flex gap-2 md:gap-4 items-start z-20 justify-end mr-12'>
                     <li>

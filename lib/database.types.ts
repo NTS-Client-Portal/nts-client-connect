@@ -53,6 +53,54 @@ export type Database = {
           },
         ]
       }
+      chat_requests: {
+        Row: {
+          accepted: boolean | null
+          broker_id: string | null
+          id: number
+          priority: string | null
+          request_time: string | null
+          session: string
+          shipper_id: string | null
+          topic: string
+        }
+        Insert: {
+          accepted?: boolean | null
+          broker_id?: string | null
+          id?: number
+          priority?: string | null
+          request_time?: string | null
+          session: string
+          shipper_id?: string | null
+          topic: string
+        }
+        Update: {
+          accepted?: boolean | null
+          broker_id?: string | null
+          id?: number
+          priority?: string | null
+          request_time?: string | null
+          session?: string
+          shipper_id?: string | null
+          topic?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_requests_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "nts_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_requests_shipper_id_fkey"
+            columns: ["shipper_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chrome_quotes: {
         Row: {
           created_at: string | null
@@ -611,6 +659,48 @@ export type Database = {
           {
             foreignKeyName: "ltl_ftl_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          broker_id: string | null
+          id: number
+          message_body: string
+          message_time: string | null
+          shipper_id: string | null
+          user_type: string | null
+        }
+        Insert: {
+          broker_id?: string | null
+          id?: number
+          message_body: string
+          message_time?: string | null
+          shipper_id?: string | null
+          user_type?: string | null
+        }
+        Update: {
+          broker_id?: string | null
+          id?: number
+          message_body?: string
+          message_time?: string | null
+          shipper_id?: string | null
+          user_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "nts_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_shipper_id_fkey"
+            columns: ["shipper_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
