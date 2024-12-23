@@ -4,7 +4,11 @@ import Image from 'next/image';
 import { UserRoundPen, BellRing, Building2, Shield, Menu, Sun, Moon } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
-const UserSettings = () => {
+interface UserProfileFormProps {
+    session: any;
+}
+
+const UserProfileForm: React.FC<UserProfileFormProps> = () => {
     const session = useSession();
     const supabase = useSupabaseClient<Database>();
     const [firstName, setFirstName] = useState('');
@@ -37,7 +41,7 @@ const UserSettings = () => {
             const { data, error } = await supabase
                 .from('profiles')
                 .select('first_name, last_name, company_name, address, phone_number, profile_picture, email_notifications, company_size')
-                .eq('id', session.user.id)
+                .eq('email', session.user.email) // Use the email for matching
                 .single();
 
             if (error) {
@@ -50,11 +54,11 @@ const UserSettings = () => {
                 setAddress(data.address || '');
                 setPhoneNumber(data.phone_number || '');
                 const profilePicUrl = data.profile_picture
-                    ? supabase.storage.from('profile-pictures').getPublicUrl(data.profile_picture).data.publicUrl
+                    ? await getSignedUrl(data.profile_picture)
                     : 'https://www.gravatar.com/avatar?d=mp&s=100';
                 setProfilePictureUrl(profilePicUrl);
                 setEmail(session.user.email || '');
-                setEmailNotifications(data.email_notifications || true)
+                setEmailNotifications(data.email_notifications || true);
                 setProfilePicture(null); // Reset the profile picture input
             }
         };
@@ -62,21 +66,10 @@ const UserSettings = () => {
         fetchUserProfile();
     }, [session, supabase]);
 
-    useEffect(() => {
-        // Load dark mode preference from local storage
-        const darkModePreference = localStorage.getItem('darkMode');
-        if (darkModePreference) {
-            setDarkMode(darkModePreference === 'true');
-            if (darkModePreference === 'true') {
-                document.documentElement.classList.add('dark');
-            }
-        }
-    }, []);
-
-    const uploadProfilePicture = async (file: File, userId: string) => {
+    const uploadProfilePicture = async (file: File, email: string) => {
         const { data, error } = await supabase.storage
             .from('profile-pictures')
-            .upload(`public/${userId}/${file.name}`, file, {
+            .upload(`${email}/${file.name}`, file, {
                 cacheControl: '3600',
                 upsert: true,
             });
@@ -89,6 +82,19 @@ const UserSettings = () => {
         return data?.path || '';
     };
 
+    const getSignedUrl = async (path: string) => {
+        const { data, error } = await supabase.storage
+            .from('profile-pictures')
+            .createSignedUrl(path, 60); // URL valid for 60 seconds
+
+        if (error) {
+            console.error('Error creating signed URL:', error.message);
+            throw new Error('Error creating signed URL');
+        }
+
+        return data.signedUrl;
+    };
+
     const handleProfileSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!session) return;
@@ -97,7 +103,7 @@ const UserSettings = () => {
 
         if (profilePicture) {
             try {
-                profilePicturePath = await uploadProfilePicture(profilePicture, session.user.id);
+                profilePicturePath = await uploadProfilePicture(profilePicture, session.user.email);
             } catch (error) {
                 if (error instanceof Error) {
                     setProfileError(error.message);
@@ -109,18 +115,17 @@ const UserSettings = () => {
         }
 
         const { error: updateError } = await supabase
-            .from('profiles') // Ensure the table name is correct
+            .from('profiles')
             .update({
                 first_name: firstName,
                 last_name: lastName,
                 company_name: companyName,
                 address: address,
                 phone_number: phoneNumber,
-                profile_picture: profilePicturePath || undefined, // Update profile picture URL if available
-                email: email,
+                profile_picture: profilePicturePath,
                 email_notifications: emailNotifications,
             })
-            .eq('id', session.user.id);
+            .eq('email', session.user.email);
         if (updateError) {
             console.error('Error updating user profile:', updateError.message);
             setProfileError('Error updating user profile');
@@ -212,11 +217,11 @@ const UserSettings = () => {
     };
 
     return (
-        <div className="flex h-screen z-0">
+        <div className="flex h-screen">
             {/* Sidebar */}
-            <div className={`fixed inset-y-0 top-0 left-0 z-0 transform ${sidebarOpen ? 'tranzinc-x-0' : '-tranzinc-x-full'} transition-transform duration-300 ease-in-out w-64 bg-zinc-200 dark:bg-zinc-900 dark:text-white p-4 border-r border-t border-zinc-700/20 shadow-lg z-0 md:relative md:tranzinc-x-0`}>
-                <h2 className="text-xl font-bold mb-4 pt-8 md:pt-0">Settings</h2>
-                <ul className="space-y-2 z-0">
+            <div className={`fixed inset-y-0 left-0 transform ${sidebarOpen ? 'tranzinc-x-0' : '-tranzinc-x-full'} transition-transform duration-300 ease-in-out w-64 bg-zinc-200 dark:bg-zinc-900 dark:text-white p-4 border-r border-t border-zinc-700/20 shadow-lg z-50 md:relative md:tranzinc-x-0`}>
+                <h2 className="text-xl font-bold mb-4">Settings</h2>
+                <ul className="space-y-2">
                     <li className='flex gap-1 items-center'>
                         <UserRoundPen />
                         <button
@@ -284,7 +289,7 @@ const UserSettings = () => {
                 </div>
 
                 {activeSection === 'personal' && (
-                    <div className=' flex flex-col w-full lg:w-2/3 md:items-end justify-center'>
+                    <div className=' flex flex-col w-full lg:w-1/2 md:items-center justify-center'>
                         <button
                             onClick={() => setIsEditing(true)}
                             className="body-btn"
@@ -504,4 +509,4 @@ const UserSettings = () => {
     );
 };
 
-export default UserSettings;
+export default UserProfileForm;

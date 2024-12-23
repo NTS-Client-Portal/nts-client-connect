@@ -865,6 +865,27 @@ export type Database = {
           },
         ]
       }
+      profile_pictures: {
+        Row: {
+          id: number
+          picture_url: string
+          uploaded_at: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: number
+          picture_url: string
+          uploaded_at?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: number
+          picture_url?: string
+          uploaded_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
