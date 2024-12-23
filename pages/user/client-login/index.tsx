@@ -104,7 +104,7 @@ const LoginPage = () => {
                 type: 'signup',
                 email: session.user.email,
                 options: {
-                    emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/profile-setup`
+                    emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}`
                 }
             });
 

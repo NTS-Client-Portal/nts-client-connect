@@ -7,7 +7,7 @@ import CustomSignInForm from '@/components/CustomSignInForm';
 import { MoveHorizontal } from 'lucide-react';
 import Layout from './components/Layout';
 import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
-import withProfileCheck from '@/components/hoc/withProfileCheck';
+import QuoteRequest from '@/components/user/QuoteRequest';
 import UserLayout from '@/pages/components/UserLayout';
 import Image from 'next/image';
 
@@ -80,7 +80,7 @@ const LoginPage = () => {
       if (event === 'PASSWORD_RECOVERY') {
         router.push(`/reset-password?access_token=${session?.access_token}`);
       } else if (event === 'SIGNED_IN') {
-        router.push('/profile-setup');
+        router.push('/user');
       }
     });
 
@@ -99,7 +99,7 @@ const LoginPage = () => {
         type: 'signup',
         email: session.user.email,
         options: {
-          emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/profile-setup`
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}`
         }
       });
 
@@ -219,11 +219,7 @@ const LoginPage = () => {
   return (
     <ProfilesUserProvider>
       <UserLayout>
-        <div className="w-full flex justify-center items-center p-4">
-          <div className="w-full sm:w-2/3 lg:w-3/4">
-            <p>Redirecting to user dashboard...</p>
-          </div>
-        </div>
+        <QuoteRequest session={session} />
       </UserLayout>
     </ProfilesUserProvider>
   );
