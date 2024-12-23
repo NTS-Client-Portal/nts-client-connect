@@ -69,9 +69,9 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
     const uploadProfilePicture = async (file: File, email: string) => {
         const { data, error } = await supabase.storage
             .from('profile-pictures')
-            .upload(`${email}/${file.name}`, file, {
+            .upload(`public/${email}/${file.name}`, file, {
                 cacheControl: '3600',
-                upsert: true,
+                upsert: false,
             });
 
         if (error) {
