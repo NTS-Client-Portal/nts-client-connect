@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@lib/initSupabase';
 import { useNtsUsers } from '@/context/NtsUsersContext';
 import { Database } from '@/lib/database.types';
-import ChatInterface from './ChatInterface';
-import Modal from './Modal';
+import FloatingChatWidget from './FloatingChatWidget';
 import { useSession } from '@supabase/auth-helpers-react';
 
 interface ChatRequest {
@@ -21,7 +20,7 @@ const ChatRequestListener: React.FC = () => {
     const { userProfile } = useNtsUsers();
     const [chatRequests, setChatRequests] = useState<ChatRequest[]>([]);
     const [activeChatId, setActiveChatId] = useState<string | null>(null);
-    const [isChatModalOpen, setIsChatModalOpen] = useState(false);
+    const [isMinimized, setIsMinimized] = useState(false);
 
     useEffect(() => {
         if (!userProfile) return;
@@ -45,7 +44,6 @@ const ChatRequestListener: React.FC = () => {
 
     const handleAcceptChat = async (chatId: string) => {
         setActiveChatId(chatId);
-        setIsChatModalOpen(true);
 
         // Update the chat request to indicate it has been accepted
         const { error } = await supabase
@@ -58,32 +56,50 @@ const ChatRequestListener: React.FC = () => {
         }
     };
 
+    const handleRescheduleChat = async (chatId: string) => {
+        // Implement reschedule logic here
+        console.log('Reschedule chat:', chatId);
+    };
+
+    const toggleMinimize = () => {
+        setIsMinimized(!isMinimized);
+    };
+
     return (
         <div>
             {chatRequests.length > 0 && (
                 <div className="fixed bottom-4 right-4 bg-white dark:bg-zinc-900 p-4 rounded-lg shadow-lg">
-                    <h2 className="text-lg font-bold mb-2">New Chat Requests</h2>
-                    <ul>
-                        {chatRequests.map((request) => (
-                            <li key={request.id} className="mb-2">
-                                <p><strong>Topic:</strong> {request.topic}</p>
-                                <p><strong>Priority:</strong> {request.priority}</p>
-                                <p><strong>Shipper ID:</strong> {request.shipper_id}</p>
-                                <button onClick={() => handleAcceptChat(request.id)}>Accept</button>
-                            </li>
-                        ))}
-                    </ul>
+                    <div className="flex justify-between items-center mb-2">
+                        <h2 className="text-lg font-bold">New Chat Requests</h2>
+                        <button onClick={toggleMinimize} className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-500">
+                            {isMinimized ? 'Expand' : 'Minimize'}
+                        </button>
+                    </div>
+                    {!isMinimized && (
+                        <ul>
+                            {chatRequests.map((request) => (
+                                <li key={request.id} className="mb-2">
+                                    <p><strong>Topic:</strong> {request.topic}</p>
+                                    <p><strong>Priority:</strong> {request.priority}</p>
+                                    <p><strong>Shipper ID:</strong> {request.shipper_id}</p>
+                                    <div className="flex space-x-2">
+                                        <button className='body-btn' onClick={() => handleAcceptChat(request.id)}>Accept Chat</button>
+                                        <button className='body-btn' onClick={() => handleRescheduleChat(request.id)}>Reschedule</button>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </div>
             )}
-            <Modal isOpen={isChatModalOpen} onClose={() => setIsChatModalOpen(false)}>
-                {activeChatId && (
-                    <ChatInterface
-                        brokerId={userProfile?.id || ''}
-                        shipperId={chatRequests.find((request) => request.id === activeChatId)?.shipper_id || ''}
-                        session={session}
-                    />
-                )}
-            </Modal>
+            {activeChatId && (
+                <FloatingChatWidget
+                    brokerId={userProfile?.id || ''}
+                    shipperId={chatRequests.find((request) => request.id === activeChatId)?.shipper_id || ''}
+                    session={session}
+                    activeChatId={activeChatId}
+                />
+            )}
         </div>
     );
 };

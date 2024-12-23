@@ -16,7 +16,7 @@ type Broker = Database['public']['Tables']['nts_users']['Row'] & {
 const ShipperBrokerConnect: React.FC<ShipperBrokerConnectProps> = ({ brokerId, shipperId, session }) => {
     const [open, setOpen] = useState(false);
     const [broker, setBroker] = useState<Broker | null>(null);
-    const [shipper, setShipper] = useState<Database['public']['Tables']['nts_users']['Row'] | null>(null);
+    const [shipper, setShipper] = useState<Database['public']['Tables']['profiles']['Row'] | null>(null);
     const [isBrokerAvailable, setIsBrokerAvailable] = useState(false);
     const [priority, setPriority] = useState('normal');
     const [topic, setTopic] = useState('');
@@ -30,7 +30,7 @@ const ShipperBrokerConnect: React.FC<ShipperBrokerConnectProps> = ({ brokerId, s
                 .single();
 
             const { data: shipperData, error: shipperError } = await supabase
-                .from('nts_users')
+                .from('profiles')
                 .select('*')
                 .eq('id', shipperId)
                 .single();
@@ -74,7 +74,7 @@ const ShipperBrokerConnect: React.FC<ShipperBrokerConnectProps> = ({ brokerId, s
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                     <div className="bg-white dark:bg-zinc-900 p-6 rounded-lg shadow-lg w-full max-w-md">
                         <h1 className="text-2xl font-bold text-center mb-4 text-ntsLightBlue">Live Chat</h1>
-                        <button className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-500" onClick={() => setOpen(false)}>Close</button>
+                        <button className="absolute top-4 cancel-btn right-4 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-500" onClick={() => setOpen(false)}>Close</button>
                         {broker && shipper && (
                             <div className="mb-4">
                                 <p className="text-lg"><strong>Broker:</strong> {broker.first_name} {broker.last_name}</p>
@@ -100,7 +100,7 @@ const ShipperBrokerConnect: React.FC<ShipperBrokerConnectProps> = ({ brokerId, s
                                     <input type="text" id="topic" name="topic" value={topic} onChange={(e) => setTopic(e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-ntsLightBlue focus:ring focus:ring-ntsLightBlue focus:ring-opacity-50 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-50" />
                                 </div>
                                 <div className="flex justify-end">
-                                    <button type="submit" className="dark-btn">Request Chat</button>
+                                    <button type="submit" className="body-btn">Request Chat</button>
                                 </div>
                             </form>
                         )}

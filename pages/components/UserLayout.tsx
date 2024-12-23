@@ -1,12 +1,10 @@
-// filepath: /home/adam/Desktop/nts-client-connect/pages/components/UserLayout.tsx
 import React, { ReactNode, useState, useEffect } from 'react';
 import UserSideNav from './UserSideNav';
 import UserTopNav from './UserTopNav';
 import { ProfilesUserProvider, useProfilesUser } from '@/context/ProfilesUserContext';
 import ShipperBrokerConnect from '@/components/ShipperBrokerConnect';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
-import ChatInterface from '@/components/ChatInterface';
-import Modal from '@/components/Modal';
+import FloatingChatWidget from '@/components/FloatingChatWidget';
 
 interface UserLayoutProps {
     children: ReactNode;
@@ -23,7 +21,6 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
     const supabase = useSupabaseClient();
     const { userProfile } = useProfilesUser();
     const [activeChatId, setActiveChatId] = useState<string | null>(null);
-    const [isChatModalOpen, setIsChatModalOpen] = useState(false);
 
     useEffect(() => {
         const mediaQuery = window.matchMedia('(min-width: 1024px)');
@@ -81,7 +78,6 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
                 (payload: { new: { broker_id: string; accepted: boolean; id: string } }) => {
                     if (payload.new.broker_id && payload.new.accepted) {
                         setActiveChatId(payload.new.id);
-                        setIsChatModalOpen(true);
                     }
                 }
             )
@@ -104,15 +100,22 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
                 </div>
                 <main className="ml-0 mt-32 md:mt-24 xl:ml-52 p-4">
                     {userProfile && session && (
-                        <ShipperBrokerConnect 
-                            brokerId={assignedSalesUsers[0]?.id || ''} 
-                            shipperId={userProfile.id} 
-                            session={session} 
-                        />
+                        <>
+                            <ShipperBrokerConnect
+                                brokerId={assignedSalesUsers[0]?.id || ''}
+                                shipperId={userProfile.id}
+                                session={session}
+                            />
+                            {activeChatId && (
+                                <FloatingChatWidget
+                                    brokerId={assignedSalesUsers[0]?.id || ''}
+                                    shipperId={userProfile.id}
+                                    session={session}
+                                    activeChatId={activeChatId}
+                                />
+                            )}
+                        </>
                     )}
-                    <Modal isOpen={isChatModalOpen} onClose={() => setIsChatModalOpen(false)}>
-                        {activeChatId && <ChatInterface brokerId={assignedSalesUsers[0]?.id || ''} shipperId={userProfile.id} session={session} />}
-                    </Modal>
                     {children}
                 </main>
             </div>

@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 if (process.env.NODE_ENV !== 'production') dotenv.config();
 
 const transporter = nodemailer.createTransport({
-    host: 'smtp.sendgrid.net',
+    host: process.env.SMTP_HOST,
     port: 587,
     auth: {
         user: process.env.SENDGRID_USER, // Your SendGrid username

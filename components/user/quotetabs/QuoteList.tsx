@@ -172,8 +172,6 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
         }
     }, [session, supabase, fetchProfiles, fetchShippingQuotes, fetchQuotesForNtsUsers, isAdmin]);
 
-
-
     useEffect(() => {
         const channel = supabase
             .channel('shippingquotes')
@@ -191,7 +189,6 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
             supabase.removeChannel(channel); // Cleanup subscription
         };
     }, [supabase, fetchInitialQuotes]);
-
 
     useEffect(() => {
         fetchInitialQuotes();
@@ -227,17 +224,66 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
         const price = prompt('Enter the price:');
         if (price === null) return;
 
-        const { error } = await supabase
+        const { data: updatedQuote, error } = await supabase
             .from('shippingquotes')
             .update({ price: parseFloat(price) })
-            .eq('id', quoteId);
+            .eq('id', quoteId)
+            .select()
+            .single();
 
         if (error) {
             console.error('Error responding to quote:', error.message);
         } else {
-            setQuotes((prevQuotes) => prevQuotes.map((quote) => quote.id === quoteId ? { ...quote, price: parseFloat(price) } : quote
-            )
-            );
+            setQuotes((prevQuotes) => prevQuotes.map((quote) => quote.id === quoteId ? { ...quote, price: parseFloat(price) } : quote));
+
+            // Send notification
+            const { data: userProfile, error: userProfileError } = await supabase
+                .from('profiles')
+                .select('email')
+                .eq('id', updatedQuote.user_id)
+                .single();
+
+            if (userProfileError) {
+                console.error('Error fetching user profile:', userProfileError.message);
+            } else {
+                const email = userProfile.email;
+                const message = 'Your quote has been responded to.';
+
+                // Insert notification into the database
+                const { error: notificationError } = await supabase
+                    .from('notifications')
+                    .insert({
+                        user_id: updatedQuote.user_id,
+                        message: message,
+                        is_read: false,
+                        created_at: new Date().toISOString(),
+                    });
+
+                if (notificationError) {
+                    console.error('Error inserting notification:', notificationError.message);
+                }
+
+                // Send email notification
+                handleSendEmailNotification(email, 'Quote Response Notification', message);
+            }
+        }
+    };
+
+    const handleSendEmailNotification = async (to: string, subject: string, text: string) => {
+        try {
+            const response = await fetch('/api/sendEmail', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ to, subject, text }),
+            });
+
+            if (!response.ok) {
+                console.error('Error sending email:', await response.json());
+            }
+        } catch (error) {
+            console.error('Error sending email:', error);
         }
     };
 
@@ -299,9 +345,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
             if (historyError) {
                 console.error('Error logging edit history:', historyError.message);
             } else {
-                setQuotes((prevQuotes) => prevQuotes.map((quote) => quote.id === updatedQuote.id ? updatedQuote : quote
-                )
-                );
+                setQuotes((prevQuotes) => prevQuotes.map((quote) => quote.id === updatedQuote.id ? updatedQuote : quote));
             }
         }
         setIsEditModalOpen(false);

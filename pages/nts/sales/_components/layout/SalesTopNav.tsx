@@ -88,7 +88,8 @@ const SalesTopNav: React.FC<SalesTopNavProps> = ({ session, className = '' }) =>
                             alt='profile-img'
                             className='rounded-full shadow-md'
                             width={34}
-                            height={34} />
+                            height={34}
+                            fetchPriority="high" />
                     </li>
                 </ul>
             </nav>

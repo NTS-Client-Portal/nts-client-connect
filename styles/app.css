@@ -728,6 +728,10 @@ body:is(.dark *) {
   left: 0.25rem;
 }
 
+.left-1\/2 {
+  left: 50%;
+}
+
 .left-2 {
   left: 0.5rem;
 }
@@ -750,6 +754,10 @@ body:is(.dark *) {
 
 .right-5 {
   right: 1.25rem;
+}
+
+.right-8 {
+  right: 2rem;
 }
 
 .top-0 {
@@ -1108,6 +1116,30 @@ body:is(.dark *) {
   height: 100vh;
 }
 
+.h-\[400px\] {
+  height: 400px;
+}
+
+.h-\[100px\] {
+  height: 100px;
+}
+
+.h-\[10px\] {
+  height: 10px;
+}
+
+.h-\[200px\] {
+  height: 200px;
+}
+
+.h-\[300px\] {
+  height: 300px;
+}
+
+.h-\[500px\] {
+  height: 500px;
+}
+
 .max-h-60 {
   max-height: 15rem;
 }
@@ -1205,6 +1237,10 @@ body:is(.dark *) {
   width: 20rem;
 }
 
+.w-96 {
+  width: 24rem;
+}
+
 .w-\[1px\] {
   width: 1px;
 }
@@ -1290,13 +1326,28 @@ body:is(.dark *) {
   flex-grow: 1;
 }
 
+.-translate-x-1\/2 {
+  --tw-translate-x: -50%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
 .-translate-x-full {
   --tw-translate-x: -100%;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
+.-translate-y-1\/2 {
+  --tw-translate-y: -50%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
 .translate-x-0 {
   --tw-translate-x: 0px;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.-translate-x-2 {
+  --tw-translate-x: -0.5rem;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
@@ -1492,6 +1543,12 @@ body:is(.dark *) {
   margin-bottom: calc(1rem * var(--tw-space-y-reverse));
 }
 
+.space-x-2 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(0.5rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.5rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
 .divide-x-2 > :not([hidden]) ~ :not([hidden]) {
   --tw-divide-x-reverse: 0;
   border-right-width: calc(2px * var(--tw-divide-x-reverse));
@@ -1594,6 +1651,16 @@ body:is(.dark *) {
 .rounded-b-md {
   border-bottom-right-radius: calc(var(--radius) - 2px);
   border-bottom-left-radius: calc(var(--radius) - 2px);
+}
+
+.rounded-l-lg {
+  border-top-left-radius: var(--radius);
+  border-bottom-left-radius: var(--radius);
+}
+
+.rounded-r-lg {
+  border-top-right-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
 }
 
 .rounded-t-lg {
@@ -1757,6 +1824,11 @@ body:is(.dark *) {
   background-color: rgb(0 0 0 / var(--tw-bg-opacity, 1));
 }
 
+.bg-blue-100 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(219 234 254 / var(--tw-bg-opacity, 1));
+}
+
 .bg-blue-50 {
   --tw-bg-opacity: 1;
   background-color: rgb(239 246 255 / var(--tw-bg-opacity, 1));
@@ -1835,6 +1907,11 @@ body:is(.dark *) {
 .bg-purple-50 {
   --tw-bg-opacity: 1;
   background-color: rgb(250 245 255 / var(--tw-bg-opacity, 1));
+}
+
+.bg-red-100 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 226 226 / var(--tw-bg-opacity, 1));
 }
 
 .bg-red-50 {
@@ -3242,31 +3319,26 @@ main:is(.dark *) {
   display: flex;
   flex-direction: column;
   height: 100%;
+  width:100%;
 }
 
 .messages {
-  flex-grow: 1;
   overflow-y: auto;
-  padding: 1rem;
   background-color: #f9f9f9;
   border-bottom: 1px solid #ddd;
 }
 
 .message {
   margin-bottom: 1rem;
-  padding: 0.5rem 1rem;
   border-radius: 0.5rem;
-  max-width: 70%;
 }
 
 .message.sent {
   background-color: #e1ffc7;
-  align-self: flex-end;
 }
 
 .message.received {
   background-color: #fff;
-  align-self: flex-start;
 }
 
 .send-message-form {
@@ -3280,8 +3352,8 @@ main:is(.dark *) {
   flex-grow: 1;
   padding: 0.5rem;
   border: 1px solid #ddd;
-  border-radius: 0.5rem;
-  margin-right: 0.5rem;
+  border-radius: 0.5rem 0 0 0.5rem;
+  margin-right: 0;
 }
 
 .send-message-form button {
@@ -3289,7 +3361,7 @@ main:is(.dark *) {
   background-color: #007bff;
   color: #fff;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 0 0.5rem 0.5rem 0;
   cursor: pointer;
 }
 

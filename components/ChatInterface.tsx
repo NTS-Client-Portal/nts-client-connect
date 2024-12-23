@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@lib/initSupabase';
 import { Session } from '@supabase/auth-helpers-react';
-import { Database } from '@/lib/database.types';
 
 interface ChatInterfaceProps {
     brokerId: string;
