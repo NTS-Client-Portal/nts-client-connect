@@ -30,6 +30,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
     const [editHistory, setEditHistory] = useState<Database['public']['Tables']['edit_history']['Row'][]>([]);
     const [popupMessage, setPopupMessage] = useState<string | null>(null); // Add state for popup message
     const [showOrderForm, setShowOrderForm] = useState(false);
+    const [errorText, setErrorText] = useState<string>('');
 
     const handleCreateOrderClick = (quoteId: number) => {
         const quote = quotes.find((q) => q.id === quoteId);
@@ -197,20 +198,19 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
     const handleModalSubmit = async (data: any) => {
         if (selectedQuoteId !== null && session?.user?.id) {
             const { error } = await supabase
-                .from('orders')
-                .insert({
-                    quote_id: selectedQuoteId,
+                .from('shippingquotes')
+                .update({
                     user_id: session.user.id,
                     origin_street: data.originStreet,
                     destination_street: data.destinationStreet,
                     earliest_pickup_date: data.earliestPickupDate,
                     latest_pickup_date: data.latestPickupDate,
                     notes: data.notes,
-                    status: 'pending',
-                });
+                })
+                .eq('id', selectedQuoteId);
 
             if (error) {
-                console.error('Error creating order:', error.message);
+                console.error('Error updating shipping quote:', error.message);
             } else {
                 setQuote(null);
                 // Remove the quote from the quotes state
@@ -410,6 +410,20 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
         }
     }, [popupMessage]);
 
+    const archiveQuote = async (quoteId: number) => {
+        const { error } = await supabase
+            .from('shippingquotes')
+            .update({ is_archived: true })
+            .eq('id', quoteId);
+
+        if (error) {
+            console.error('Error archiving quote:', error.message);
+            setErrorText('Error archiving quote');
+        } else {
+            setQuotes((prevQuotes) => prevQuotes.filter((quote) => quote.id !== quoteId));
+        }
+    };
+
     return (
         <div className="w-full bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md max-h-max flex-grow">
             {popupMessage && (
@@ -421,7 +435,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleModalSubmit}
-                quote={quote} />
+                quote={null} />
             <EditQuoteModal
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
@@ -437,7 +451,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
                     editHistory={editHistory}
                     expandedRow={expandedRow}
                     handleRowClick={handleRowClick}
-                    archiveQuote={null}
+                    archiveQuote={archiveQuote}
                     handleEditClick={handleEditClick}
                     duplicateQuote={duplicateQuote}
                     reverseQuote={reverseQuote}

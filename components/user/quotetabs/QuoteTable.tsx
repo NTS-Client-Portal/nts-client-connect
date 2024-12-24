@@ -364,12 +364,14 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                             Flip Route Duplicate
                                                         </button>
                                                     </div>
-                                                    <button onClick={() => handleEditClick(quote)} className="text-ntsLightBlue mt-3 font-semibold text-base underline mb-4 h-full">
-                                                        Edit Quote
-                                                    </button>
-                                                    <button onClick={() => archiveQuote(quote.id)} className="text-red-500 mt-4 text-sm">
-                                                        Archive Quote
-                                                    </button>
+                                                    <div className='flex gap-2 items-center'>
+                                                        <button onClick={() => handleEditClick(quote)} className="text-ntsLightBlue mt-3 font-semibold text-base underline h-full">
+                                                            Edit Quote
+                                                        </button>
+                                                        <button onClick={() => archiveQuote(quote.id)} className="text-red-500 mt-3 font-semibold underline text-sm">
+                                                            Archive Quote
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             )}
                                             {activeTab === 'editHistory' && (

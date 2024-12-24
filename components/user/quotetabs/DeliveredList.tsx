@@ -2,113 +2,43 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Session } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import { supabase } from '@/lib/initSupabase';
-import { formatDate, freightTypeMapping } from './QuoteUtils';
 
-interface ArchivedProps {
+type ShippingQuotesRow = Database['public']['Tables']['shippingquotes']['Row'];
+
+interface DeliveredListProps {
     session: Session | null;
     isAdmin: boolean;
 }
 
-const Archived: React.FC<ArchivedProps> = ({ session, isAdmin }) => {
+const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin }) => {
     const [errorText, setErrorText] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [archivedQuotes, setArchivedQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
+    const [deliveredQuotes, setDeliveredQuotes] = useState<ShippingQuotesRow[]>([]);
 
-    const fetchProfiles = useCallback(async (companyId: string) => {
-        const { data: profiles, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('company_id', companyId);
-
-        if (error) {
-            console.error('Error fetching profiles:', error.message);
-            return [];
-        }
-
-        return profiles;
-    }, [supabase]);
-
-    const fetchShippingQuotes = useCallback(async (profileIds: string[]) => {
+    const fetchDeliveredQuotes = useCallback(async () => {
         const { data: quotes, error } = await supabase
             .from('shippingquotes')
             .select('*')
-            .in('user_id', profileIds)
-            .eq('is_archived', true); // Fetch only archived quotes
+            .eq('is_complete', true); // Fetch only delivered quotes
 
         if (error) {
-            console.error('Error fetching shipping quotes:', error.message);
+            console.error('Error fetching delivered quotes:', error.message);
+            setErrorText('Error fetching delivered quotes');
             return [];
         }
 
         return quotes;
     }, [supabase]);
-
-    const fetchQuotesForNtsUsers = useCallback(async (userId: string) => {
-        const { data: companySalesUsers, error: companySalesUsersError } = await supabase
-            .from('company_sales_users')
-            .select('company_id')
-            .eq('sales_user_id', userId);
-
-        if (companySalesUsersError) {
-            console.error('Error fetching company_sales_users for nts_user:', companySalesUsersError.message);
-            return [];
-        }
-
-        const companyIds = companySalesUsers.map((companySalesUser) => companySalesUser.company_id);
-
-        const { data: quotes, error: quotesError } = await supabase
-            .from('shippingquotes')
-            .select('*')
-            .in('company_id', companyIds)
-            .eq('is_archived', true); // Fetch only archived quotes
-
-        if (quotesError) {
-            console.error('Error fetching quotes for nts_user:', quotesError.message);
-            return [];
-        }
-
-        return quotes;
-    }, [supabase]);
-
-    const fetchArchivedQuotes = useCallback(async () => {
-        if (!session?.user?.id) return;
-
-        if (isAdmin) {
-            const quotesData = await fetchQuotesForNtsUsers(session.user.id);
-            setArchivedQuotes(quotesData);
-        } else {
-            // Fetch the user's profile
-            const { data: userProfile, error: userProfileError } = await supabase
-                .from('profiles')
-                .select('company_id')
-                .eq('id', session.user.id)
-                .single();
-
-            if (userProfileError) {
-                console.error('Error fetching user profile:', userProfileError.message);
-                return;
-            }
-
-            if (!userProfile) {
-                console.error('No profile found for user');
-                return;
-            }
-
-            const companyId = userProfile.company_id;
-            const profilesData = await fetchProfiles(companyId);
-
-            const profileIds = profilesData.map(profile => profile.id);
-            const quotesData = await fetchShippingQuotes(profileIds);
-
-            setArchivedQuotes(quotesData);
-        }
-
-        setIsLoading(false);
-    }, [session, supabase, fetchProfiles, fetchShippingQuotes, fetchQuotesForNtsUsers, isAdmin]);
 
     useEffect(() => {
-        fetchArchivedQuotes();
-    }, [fetchArchivedQuotes]);
+        const fetchQuotes = async () => {
+            const quotesData = await fetchDeliveredQuotes();
+            setDeliveredQuotes(quotesData);
+            setIsLoading(false);
+        };
+
+        fetchQuotes();
+    }, [fetchDeliveredQuotes]);
 
     useEffect(() => {
         const channel = supabase
@@ -118,8 +48,8 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin }) => {
                 { event: '*', schema: 'public', table: 'shippingquotes' },
                 (payload) => {
                     console.log('Change received!', payload);
-                    if (payload.eventType === 'UPDATE' && payload.new.is_archived) {
-                        fetchArchivedQuotes();
+                    if (payload.eventType === 'UPDATE' && payload.new.is_complete) {
+                        fetchDeliveredQuotes();
                     }
                 }
             )
@@ -128,7 +58,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin }) => {
         return () => {
             supabase.removeChannel(channel); // Cleanup subscription
         };
-    }, [supabase, fetchArchivedQuotes]);
+    }, [supabase, fetchDeliveredQuotes]);
 
     return (
         <div className="w-full bg-white shadow rounded-md border border-zinc-400 max-h-max flex-grow">
@@ -146,15 +76,15 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin }) => {
                         </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-zinc-900/90 divide-y divide-zinc-200">
-                        {archivedQuotes.map((quote) => (
+                        {deliveredQuotes.map((quote) => (
                             <tr key={quote.id}>
                                 <td className="px-2 py-4 whitespace-nowrap border-r border-zinc-900/20 dark:border-zinc-100">
                                     {quote.id}
                                 </td>
                                 <td className="px-2 py-4 whitespace-nowrap border-r border-zinc-900/20 dark:border-zinc-100">
                                     <div className="flex flex-col justify-start">
-                                        <span><strong>Origin:</strong> {quote.origin_city ?? 'N/A'}, {quote.origin_state ?? 'N/A'} {quote.origin_zip ?? 'N/A'}</span>
-                                        <span><strong>Destination:</strong> {quote.destination_city ?? 'N/A'}, {quote.destination_state ?? 'N/A'} {quote.destination_zip ?? 'N/A'}</span>
+                                        <span><strong>Origin:</strong> {quote.origin_street ?? 'N/A'}, {quote.origin_city ?? 'N/A'}, {quote.origin_state ?? 'N/A'} {quote.origin_zip ?? 'N/A'}</span>
+                                        <span><strong>Destination:</strong> {quote.destination_street ?? 'N/A'}, {quote.destination_city ?? 'N/A'}, {quote.destination_state ?? 'N/A'} {quote.destination_zip ?? 'N/A'}</span>
                                     </div>
                                 </td>
                                 <td className="px-2 py-4 whitespace-nowrap border-r border-zinc-900/20 dark:border-zinc-100">
@@ -175,7 +105,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin }) => {
                 </table>
             </div>
             <div className="block 2xl:hidden">
-                {archivedQuotes.map((quote) => (
+                {deliveredQuotes.map((quote) => (
                     <div key={quote.id} className="bg-white shadow rounded-md mb-4 p-4 border border-zinc-400">
                         <div className="flex justify-between items-center mb-2">
                             <div className="text-sm font-extrabold text-zinc-500">ID</div>
@@ -185,12 +115,12 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin }) => {
                         <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
                             <div className="text-sm font-extrabold text-zinc-500">Origin</div>
                             <div className="text-sm text-zinc-900">
-                                {quote.origin_city}, {quote.origin_state} {quote.origin_zip}
+                                {quote.origin_street}, {quote.origin_city}, {quote.origin_state} {quote.origin_zip}
                             </div>
                         </div>
                         <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
                             <div className="text-sm font-extrabold text-zinc-500">Destination</div>
-                            <div className="text-sm text-zinc-900">{quote.destination_city}, {quote.destination_state} {quote.destination_zip}</div>
+                            <div className="text-sm text-zinc-900">{quote.destination_street}, {quote.destination_city}, {quote.destination_state} {quote.destination_zip}</div>
                         </div>
                         <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
                             <div className="text-sm font-extrabold text-zinc-500">Freight</div>
@@ -215,4 +145,4 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin }) => {
     );
 };
 
-export default Archived;
+export default DeliveredList;

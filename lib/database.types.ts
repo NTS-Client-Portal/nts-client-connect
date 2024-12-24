@@ -801,52 +801,232 @@ export type Database = {
       }
       orders: {
         Row: {
+          assigned_sales_user: string | null
+          auction: string | null
+          beam: string | null
+          buyer_number: string | null
+          class_type: string | null
+          commodity: string | null
+          company_id: string | null
+          container_length: number | null
+          container_type: string | null
+          contents_description: string | null
+          cradle: boolean | null
           created_at: string | null
           destination_city: string | null
           destination_state: string | null
           destination_street: string | null
+          destination_surface_type: string | null
+          destination_type: boolean | null
+          destination_type_description: string | null
           destination_zip: string | null
+          dock_no_dock: boolean | null
+          driveaway_or_towaway: boolean | null
+          due_date: string | null
           earliest_pickup_date: string | null
+          email: string | null
+          first_name: string | null
+          freight_class: string | null
+          freight_type: string | null
+          goods_value: string | null
+          height: string | null
           id: number
+          inserted_at: string | null
+          is_archived: boolean | null
+          is_complete: boolean | null
+          is_loaded: boolean | null
+          last_name: string | null
           latest_pickup_date: string | null
+          length: string | null
+          load_description: string | null
+          loading_assistance: string | null
+          loading_by: boolean | null
+          loading_unloading_requirements: string | null
+          lot_number: string | null
+          make: string | null
+          model: string | null
+          motorized_or_trailer: string | null
           notes: string | null
+          operational_condition: boolean | null
+          origin_address: string | null
+          origin_city: string | null
+          origin_state: string | null
           origin_street: string | null
+          origin_surface_type: string | null
+          origin_type: boolean | null
+          origin_type_description: string | null
+          origin_zip: string | null
+          packaging_type: string | null
+          pallet_count: string | null
+          price: number | null
           quote_id: number | null
+          roadworthy: boolean | null
+          save_to_inventory: boolean | null
+          shipment_items: Json | null
           status: string | null
+          tarping: boolean | null
+          trailer: boolean | null
+          type: string | null
+          unloading_by: boolean | null
           updated_at: string | null
           user_id: string | null
+          vin: string | null
+          weight: string | null
+          weight_per_pallet_unit: string | null
+          width: string | null
+          year: string | null
         }
         Insert: {
+          assigned_sales_user?: string | null
+          auction?: string | null
+          beam?: string | null
+          buyer_number?: string | null
+          class_type?: string | null
+          commodity?: string | null
+          company_id?: string | null
+          container_length?: number | null
+          container_type?: string | null
+          contents_description?: string | null
+          cradle?: boolean | null
           created_at?: string | null
           destination_city?: string | null
           destination_state?: string | null
           destination_street?: string | null
+          destination_surface_type?: string | null
+          destination_type?: boolean | null
+          destination_type_description?: string | null
           destination_zip?: string | null
+          dock_no_dock?: boolean | null
+          driveaway_or_towaway?: boolean | null
+          due_date?: string | null
           earliest_pickup_date?: string | null
+          email?: string | null
+          first_name?: string | null
+          freight_class?: string | null
+          freight_type?: string | null
+          goods_value?: string | null
+          height?: string | null
           id?: number
+          inserted_at?: string | null
+          is_archived?: boolean | null
+          is_complete?: boolean | null
+          is_loaded?: boolean | null
+          last_name?: string | null
           latest_pickup_date?: string | null
+          length?: string | null
+          load_description?: string | null
+          loading_assistance?: string | null
+          loading_by?: boolean | null
+          loading_unloading_requirements?: string | null
+          lot_number?: string | null
+          make?: string | null
+          model?: string | null
+          motorized_or_trailer?: string | null
           notes?: string | null
+          operational_condition?: boolean | null
+          origin_address?: string | null
+          origin_city?: string | null
+          origin_state?: string | null
           origin_street?: string | null
+          origin_surface_type?: string | null
+          origin_type?: boolean | null
+          origin_type_description?: string | null
+          origin_zip?: string | null
+          packaging_type?: string | null
+          pallet_count?: string | null
+          price?: number | null
           quote_id?: number | null
+          roadworthy?: boolean | null
+          save_to_inventory?: boolean | null
+          shipment_items?: Json | null
           status?: string | null
+          tarping?: boolean | null
+          trailer?: boolean | null
+          type?: string | null
+          unloading_by?: boolean | null
           updated_at?: string | null
           user_id?: string | null
+          vin?: string | null
+          weight?: string | null
+          weight_per_pallet_unit?: string | null
+          width?: string | null
+          year?: string | null
         }
         Update: {
+          assigned_sales_user?: string | null
+          auction?: string | null
+          beam?: string | null
+          buyer_number?: string | null
+          class_type?: string | null
+          commodity?: string | null
+          company_id?: string | null
+          container_length?: number | null
+          container_type?: string | null
+          contents_description?: string | null
+          cradle?: boolean | null
           created_at?: string | null
           destination_city?: string | null
           destination_state?: string | null
           destination_street?: string | null
+          destination_surface_type?: string | null
+          destination_type?: boolean | null
+          destination_type_description?: string | null
           destination_zip?: string | null
+          dock_no_dock?: boolean | null
+          driveaway_or_towaway?: boolean | null
+          due_date?: string | null
           earliest_pickup_date?: string | null
+          email?: string | null
+          first_name?: string | null
+          freight_class?: string | null
+          freight_type?: string | null
+          goods_value?: string | null
+          height?: string | null
           id?: number
+          inserted_at?: string | null
+          is_archived?: boolean | null
+          is_complete?: boolean | null
+          is_loaded?: boolean | null
+          last_name?: string | null
           latest_pickup_date?: string | null
+          length?: string | null
+          load_description?: string | null
+          loading_assistance?: string | null
+          loading_by?: boolean | null
+          loading_unloading_requirements?: string | null
+          lot_number?: string | null
+          make?: string | null
+          model?: string | null
+          motorized_or_trailer?: string | null
           notes?: string | null
+          operational_condition?: boolean | null
+          origin_address?: string | null
+          origin_city?: string | null
+          origin_state?: string | null
           origin_street?: string | null
+          origin_surface_type?: string | null
+          origin_type?: boolean | null
+          origin_type_description?: string | null
+          origin_zip?: string | null
+          packaging_type?: string | null
+          pallet_count?: string | null
+          price?: number | null
           quote_id?: number | null
+          roadworthy?: boolean | null
+          save_to_inventory?: boolean | null
+          shipment_items?: Json | null
           status?: string | null
+          tarping?: boolean | null
+          trailer?: boolean | null
+          type?: string | null
+          unloading_by?: boolean | null
           updated_at?: string | null
           user_id?: string | null
+          vin?: string | null
+          weight?: string | null
+          weight_per_pallet_unit?: string | null
+          width?: string | null
+          year?: string | null
         }
         Relationships: [
           {
@@ -1109,6 +1289,7 @@ export type Database = {
           container_type: string | null
           contents_description: string | null
           cradle: boolean | null
+          created_at: string | null
           destination_city: string | null
           destination_state: string | null
           destination_street: string | null
@@ -1119,6 +1300,7 @@ export type Database = {
           dock_no_dock: boolean | null
           driveaway_or_towaway: boolean | null
           due_date: string | null
+          earliest_pickup_date: string | null
           email: string | null
           first_name: string | null
           freight_class: string | null
@@ -1131,6 +1313,7 @@ export type Database = {
           is_complete: boolean | null
           is_loaded: boolean | null
           last_name: string | null
+          latest_pickup_date: string | null
           length: string | null
           load_description: string | null
           loading_assistance: string | null
@@ -1145,6 +1328,7 @@ export type Database = {
           origin_address: string | null
           origin_city: string | null
           origin_state: string | null
+          origin_street: string | null
           origin_surface_type: string | null
           origin_type: boolean | null
           origin_type_description: string | null
@@ -1152,6 +1336,7 @@ export type Database = {
           packaging_type: string | null
           pallet_count: string | null
           price: number | null
+          quote_id: number | null
           roadworthy: boolean | null
           save_to_inventory: boolean | null
           shipment_items: Json | null
@@ -1160,6 +1345,7 @@ export type Database = {
           trailer: boolean | null
           type: string | null
           unloading_by: boolean | null
+          updated_at: string | null
           user_id: string | null
           vin: string | null
           weight: string | null
@@ -1179,6 +1365,7 @@ export type Database = {
           container_type?: string | null
           contents_description?: string | null
           cradle?: boolean | null
+          created_at?: string | null
           destination_city?: string | null
           destination_state?: string | null
           destination_street?: string | null
@@ -1189,6 +1376,7 @@ export type Database = {
           dock_no_dock?: boolean | null
           driveaway_or_towaway?: boolean | null
           due_date?: string | null
+          earliest_pickup_date?: string | null
           email?: string | null
           first_name?: string | null
           freight_class?: string | null
@@ -1201,6 +1389,7 @@ export type Database = {
           is_complete?: boolean | null
           is_loaded?: boolean | null
           last_name?: string | null
+          latest_pickup_date?: string | null
           length?: string | null
           load_description?: string | null
           loading_assistance?: string | null
@@ -1215,6 +1404,7 @@ export type Database = {
           origin_address?: string | null
           origin_city?: string | null
           origin_state?: string | null
+          origin_street?: string | null
           origin_surface_type?: string | null
           origin_type?: boolean | null
           origin_type_description?: string | null
@@ -1222,6 +1412,7 @@ export type Database = {
           packaging_type?: string | null
           pallet_count?: string | null
           price?: number | null
+          quote_id?: number | null
           roadworthy?: boolean | null
           save_to_inventory?: boolean | null
           shipment_items?: Json | null
@@ -1230,6 +1421,7 @@ export type Database = {
           trailer?: boolean | null
           type?: string | null
           unloading_by?: boolean | null
+          updated_at?: string | null
           user_id?: string | null
           vin?: string | null
           weight?: string | null
@@ -1249,6 +1441,7 @@ export type Database = {
           container_type?: string | null
           contents_description?: string | null
           cradle?: boolean | null
+          created_at?: string | null
           destination_city?: string | null
           destination_state?: string | null
           destination_street?: string | null
@@ -1259,6 +1452,7 @@ export type Database = {
           dock_no_dock?: boolean | null
           driveaway_or_towaway?: boolean | null
           due_date?: string | null
+          earliest_pickup_date?: string | null
           email?: string | null
           first_name?: string | null
           freight_class?: string | null
@@ -1271,6 +1465,7 @@ export type Database = {
           is_complete?: boolean | null
           is_loaded?: boolean | null
           last_name?: string | null
+          latest_pickup_date?: string | null
           length?: string | null
           load_description?: string | null
           loading_assistance?: string | null
@@ -1285,6 +1480,7 @@ export type Database = {
           origin_address?: string | null
           origin_city?: string | null
           origin_state?: string | null
+          origin_street?: string | null
           origin_surface_type?: string | null
           origin_type?: boolean | null
           origin_type_description?: string | null
@@ -1292,6 +1488,7 @@ export type Database = {
           packaging_type?: string | null
           pallet_count?: string | null
           price?: number | null
+          quote_id?: number | null
           roadworthy?: boolean | null
           save_to_inventory?: boolean | null
           shipment_items?: Json | null
@@ -1300,6 +1497,7 @@ export type Database = {
           trailer?: boolean | null
           type?: string | null
           unloading_by?: boolean | null
+          updated_at?: string | null
           user_id?: string | null
           vin?: string | null
           weight?: string | null

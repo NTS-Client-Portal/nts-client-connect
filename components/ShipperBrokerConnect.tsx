@@ -23,6 +23,11 @@ const ShipperBrokerConnect: React.FC<ShipperBrokerConnectProps> = ({ brokerId, s
 
     useEffect(() => {
         const fetchUsers = async () => {
+            if (!brokerId || !shipperId) {
+                console.error('Invalid brokerId or shipperId');
+                return;
+            }
+
             const { data: brokerData, error: brokerError } = await supabase
                 .from('nts_users')
                 .select('*')

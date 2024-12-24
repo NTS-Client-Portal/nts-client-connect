@@ -3760,11 +3760,6 @@ main:is(.dark *) {
   background-color: rgb(239 68 68 / var(--tw-bg-opacity, 1));
 }
 
-.dark\:bg-zinc-100:is(.dark *) {
-  --tw-bg-opacity: 1;
-  background-color: rgb(244 244 245 / var(--tw-bg-opacity, 1));
-}
-
 .dark\:bg-zinc-300:is(.dark *) {
   --tw-bg-opacity: 1;
   background-color: rgb(212 212 216 / var(--tw-bg-opacity, 1));
@@ -3876,19 +3871,9 @@ main:is(.dark *) {
   background-color: rgb(252 211 77 / var(--tw-bg-opacity, 1));
 }
 
-.dark\:hover\:bg-amber-400:hover:is(.dark *) {
-  --tw-bg-opacity: 1;
-  background-color: rgb(251 191 36 / var(--tw-bg-opacity, 1));
-}
-
 .dark\:hover\:text-gray-500:hover:is(.dark *) {
   --tw-text-opacity: 1;
   color: rgb(107 114 128 / var(--tw-text-opacity, 1));
-}
-
-.dark\:hover\:text-zinc-800:hover:is(.dark *) {
-  --tw-text-opacity: 1;
-  color: rgb(39 39 42 / var(--tw-text-opacity, 1));
 }
 
 .dark\:hover\:text-zinc-900:hover:is(.dark *) {
@@ -4070,10 +4055,6 @@ main:is(.dark *) {
     align-items: flex-start;
   }
 
-  .md\:items-end {
-    align-items: flex-end;
-  }
-
   .md\:items-center {
     align-items: center;
   }
@@ -4101,10 +4082,6 @@ main:is(.dark *) {
   .md\:px-8 {
     padding-left: 2rem;
     padding-right: 2rem;
-  }
-
-  .md\:pt-0 {
-    padding-top: 0px;
   }
 
   .md\:pt-6 {

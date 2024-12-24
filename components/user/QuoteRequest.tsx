@@ -3,7 +3,7 @@ import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import QuoteForm from './QuoteForm';
 import QuoteList from './quotetabs/QuoteList';
-import HistoryList from './quotetabs/HistoryList';
+import DeliveredList from './quotetabs/DeliveredList';
 import OrderList from './quotetabs/OrderList';
 import Archived from './quotetabs/Archived';
 import Rejected from './quotetabs/Rejected';
@@ -192,41 +192,24 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
         try {
             // Logic to transfer the quote to the order list
             const { data, error } = await supabase
-                .from('orders')
+                .from('shippingquotes')
                 .insert([{ quote_id: quoteId, user_id: session.user.id }]);
 
             if (error) {
-                console.error('Error transferring quote to order list:', error);
-                setErrorText('Error transferring quote to order list');
+                console.error('Error transferring quote to shippingquotes list:', error);
+                setErrorText('Error transferring quote to shippingquotes list');
             } else {
-                console.log('Quote transferred to order list:', data);
+                console.log('Quote transferred to shippingquotes list:', data);
                 // Remove the transferred quote from the quotes array
                 setQuotes(quotes.filter(quote => quote.id !== quoteId));
             }
         } catch (error) {
-            console.error('Error transferring quote to order list:', error);
-            setErrorText('Error transferring quote to order list');
+            console.error('Error transferring quote to shippingquotes list:', error);
+            setErrorText('Error transferring quote to shippingquotes list');
         }
     };
 
-    const handleMarkAsComplete = async (orderId: number): Promise<void> => {
-        try {
-            const { error } = await supabase
-                .from('orders')
-                .update({ status: 'delivered' })
-                .eq('id', orderId);
 
-            if (error) {
-                console.error('Error marking order as complete:', error.message);
-                setErrorText('Error marking order as complete');
-            } else {
-                setOrders(orders.filter(order => order.id !== orderId));
-            }
-        } catch (error) {
-            console.error('Error marking order as complete:', error);
-            setErrorText('Error marking order as complete');
-        }
-    };
 
     const formatDate = (dateString: string | null) => {
         if (!dateString) return 'No due date';
@@ -288,8 +271,8 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
                         Shipping Orders
                     </button>
                     <button
-                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'history' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
-                        onClick={() => setActiveTab('history')}
+                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'delivered' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                        onClick={() => setActiveTab('delivered')}
                     >
                         Completed Orders
                     </button>
@@ -305,12 +288,6 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
                     >
                         Rejected RFQ&apos;
                     </button>
-                    <button
-                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'editHistory' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
-                        onClick={() => setActiveTab('editHistory')}
-                    >
-                        Edit History
-                    </button>
                 </div>
             )}
             <div className="p-4 bg-white border border-gray-300 rounded-b-md">
@@ -324,31 +301,24 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
                     <OrderList
                         session={session}
                         fetchQuotes={fetchQuotes}
-                        markAsComplete={handleMarkAsComplete} // Add this line
                         isAdmin={isAdmin} // Pass isAdmin state
                     />
                 )}
-                {activeTab === 'history' && (
-                    <HistoryList
+                {activeTab === 'delivered' && (
+                    <DeliveredList
+                        isAdmin={isAdmin}
                         session={session}
                     />
                 )}
                 {activeTab === 'archived' && (
                     <Archived
                         session={session}
+                        isAdmin={isAdmin}
                     />
                 )}
                 {activeTab === 'rejected' && (
                     <Rejected
                         session={session}
-                    />
-                )}
-                {activeTab === 'editHistory' && (
-                    <EditHistory
-                        editHistory={editHistory}
-                        quoteId={0} // Pass a dummy quoteId since it's not used in this context
-                        searchTerm=""
-                        searchColumn="id"
                     />
                 )}
             </div>

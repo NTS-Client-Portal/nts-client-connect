@@ -38,6 +38,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
         }
     }, []);
 
+
     useEffect(() => {
         if (userProfile?.profile_picture) {
             const profilePicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL}${userProfile.profile_picture}`;
