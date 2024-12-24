@@ -472,13 +472,20 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
                 {quotes.map((quote) => (
                     <QuoteDetailsMobile
                         key={quote.id}
-                        quote={quote}
+                        quotes={quotes}
                         formatDate={formatDate}
                         archiveQuote={null}
                         handleEditClick={handleEditClick}
                         handleCreateOrderClick={handleCreateOrderClick}
                         handleRespond={handleRespond}
                         isAdmin={isAdmin}
+                        handleStatusChange={() => {}}
+                        getStatusClasses={() => ''}
+                        handlePriceSubmit={() => {}}
+                        showPriceInput={null}
+                        priceInput={null}
+                        setShowPriceInput={() => {}}
+                        setPriceInput={() => {}}
                     />
                 ))}
             </div>

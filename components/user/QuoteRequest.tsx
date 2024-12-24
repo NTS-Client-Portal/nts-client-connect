@@ -242,7 +242,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
                 />
             </div>
             {isMobile ? (
-                <div className="relative">
+                <div className="static z-0">
                     <select
                         className="w-full p-2 border border-gray-300 rounded-md"
                         value={activeTab}
@@ -257,7 +257,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
                     </select>
                 </div>
             ) : (
-                <div className="flex gap-1 border-b border-gray-300">
+                <div className="flex gap-1 border-b border-gray-300 z-0">
                     <button
                         className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'requests' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
                         onClick={() => setActiveTab('requests')}
