@@ -474,7 +474,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
                         key={quote.id}
                         quotes={quotes}
                         formatDate={formatDate}
-                        archiveQuote={null}
+                        archiveQuote={archiveQuote}
                         handleEditClick={handleEditClick}
                         handleCreateOrderClick={handleCreateOrderClick}
                         handleRespond={handleRespond}

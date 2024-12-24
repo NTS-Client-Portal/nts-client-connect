@@ -279,18 +279,7 @@ const NtsQuoteList: React.FC<NtsQuoteListProps> = ({ session, quotes: initialQuo
                 />
             </div>
             <div className="block 2xl:hidden">
-                {quotes.map((quote) => (
-                    <QuoteDetailsMobile
-                        key={quote.id}
-                        quote={quote}
-                        formatDate={formatDate}
-                        archiveQuote={null}
-                        handleEditClick={handleEditClick}
-                        handleCreateOrderClick={handleCreateOrderClick}
-                        handleRespond={handleRespond}
-                        isAdmin={session?.user?.isAdmin || false}
-                    />
-                ))}
+
             </div>
         </div>
     );
