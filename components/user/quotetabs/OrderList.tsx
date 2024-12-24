@@ -44,24 +44,25 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes: parentFetch
     }, [session, isNtsUser]);
 
     useEffect(() => {
-        const fetchUserRole = async () => {
-            if (!session?.user?.id) return;
+        const checkNtsUser = async () => {
+            if (session?.user?.id) {
+                const { data, error } = await supabase
+                    .from('nts_users')
+                    .select('id')
+                    .eq('id', session.user.id)
+                    .single();
 
-            const { data, error } = await supabase
-                .from('nts_users')
-                .select('id')
-                .eq('id', session.user.id)
-                .single();
-
-            if (error) {
-                console.error('Error fetching user role:', error.message);
-            } else {
-                setIsAdmin(!!data);
+                if (error) {
+                    console.error('Error fetching user role:', error.message);
+                } else {
+                    setIsNtsUser(!!data);
+                }
             }
         };
 
-        fetchUserRole();
-    }, [session, supabase]);
+        checkNtsUser();
+        fetchQuotes();
+    }, [session, fetchQuotes]);
 
     const generatePDF = (quote: ShippingQuotesRow) => {
         const doc = new jsPDF();
