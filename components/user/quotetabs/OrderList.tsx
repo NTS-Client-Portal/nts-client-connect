@@ -27,7 +27,6 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes: parentFetch
         let query = supabase
             .from('shippingquotes')
             .select('*')
-            .neq('is_complete', true); // Exclude completed quotes
 
         if (!isNtsUser && session?.user?.id) {
             query = query.eq('user_id', session.user.id);

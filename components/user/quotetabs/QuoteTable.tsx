@@ -19,8 +19,8 @@ interface QuoteTableProps {
     expandedRow: number | null;
     handleRowClick: (id: number) => void;
     archiveQuote: (id: number) => Promise<void>;
-    handleEditClick: (quote: Database['public']['Tables']['shippingquotes']['Row']) => void;
     handleCreateOrderClick: (quoteId: number) => void;
+    handleEditClick: (quote: Database['public']['Tables']['shippingquotes']['Row']) => void;
     handleRespond: (quoteId: number, price: number) => void;
     isAdmin: boolean;
     duplicateQuote: (quote: Database['public']['Tables']['shippingquotes']['Row']) => void;

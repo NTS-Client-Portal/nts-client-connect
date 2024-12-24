@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
+import { supabase } from '@lib/initSupabase';
 
 interface OrderFormModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (data: {
-        originStreet: string;
-        destinationStreet: string;
-        earliestPickupDate: string;
-        latestPickupDate: string;
-        notes: string;
-    }) => void;
+    onSubmit: (quoteId: number) => void;
     quote: {
+        id: number;
+        user_id: string;
         origin_city: string;
         origin_state: string;
         origin_zip: string;
@@ -24,7 +21,7 @@ interface OrderFormModalProps {
         width: string;
         height: string;
         weight: string;
-        is_complete: boolean;
+        status: string;
     } | null; // Allow quote to be null
 }
 
@@ -35,10 +32,21 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
     const [latestPickupDate, setLatestPickupDate] = useState('');
     const [notes, setNotes] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit({ originStreet, destinationStreet, earliestPickupDate, latestPickupDate, notes });
-        onClose();
+        if (!quote) return;
+
+        const { error } = await supabase
+            .from('shippingquotes')
+            .update({ status: 'Order' })
+            .eq('id', quote.id);
+
+        if (error) {
+            console.error('Error updating quote status:', error.message);
+        } else {
+            onSubmit(quote.id);
+            onClose();
+        }
     };
 
     if (!isOpen) return null;

@@ -101,13 +101,17 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
         const { data: quotes, error } = await supabase
             .from('shippingquotes')
             .select('*')
-            .in('user_id', profileIds); // Use the correct column name
+            .in('user_id', profileIds)
+            .not('status', 'eq', 'Order')
+            .not('is_archived', 'eq', true);
+            
 
+    
         if (error) {
             console.error('Error fetching shipping quotes:', error.message);
             return [];
         }
-
+    
         return quotes;
     }, [supabase]);
 
@@ -115,31 +119,31 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
         const { data: companySalesUsers, error: companySalesUsersError } = await supabase
             .from('company_sales_users')
             .select('company_id')
-            .eq('sales_user_id', userId);
+            .eq('sales_user_id', userId)
 
         if (companySalesUsersError) {
             console.error('Error fetching company_sales_users for nts_user:', companySalesUsersError.message);
             return [];
         }
-
+    
         const companyIds = companySalesUsers.map((companySalesUser) => companySalesUser.company_id);
-
         const { data: quotes, error: quotesError } = await supabase
-            .from('shippingquotes')
-            .select('*')
-            .in('company_id', companyIds);
+        .from('shippingquotes')
+        .select('*')
+        .in('company_id', companyIds)
+        .not('status', 'eq', 'Order'); // Exclude quotes with status 'Order'
 
-        if (quotesError) {
-            console.error('Error fetching quotes for nts_user:', quotesError.message);
-            return [];
-        }
+    if (quotesError) {
+        console.error('Error fetching quotes for nts_user:', quotesError.message);
+        return [];
+    }
 
-        return quotes;
-    }, [supabase]);
+    return quotes;
+}, [supabase]);
 
     const fetchInitialQuotes = useCallback(async () => {
         if (!session?.user?.id) return;
-
+    
         if (isAdmin) {
             const quotesData = await fetchQuotesForNtsUsers(session.user.id);
             setQuotes(quotesData);
@@ -150,25 +154,25 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
                 .select('company_id')
                 .eq('id', session.user.id)
                 .single();
-
+    
             if (userProfileError) {
                 console.error('Error fetching user profile:', userProfileError.message);
                 return;
             }
-
+    
             if (!userProfile) {
                 console.error('No profile found for user');
                 return;
             }
-
+    
             const companyId = userProfile.company_id;
             const profilesData = await fetchProfiles(companyId);
-
+    
             setProfiles(profilesData);
-
+    
             const profileIds = profilesData.map(profile => profile.id);
             const quotesData = await fetchShippingQuotes(profileIds);
-
+    
             setQuotes(quotesData);
         }
     }, [session, supabase, fetchProfiles, fetchShippingQuotes, fetchQuotesForNtsUsers, isAdmin]);
@@ -415,7 +419,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
             .from('shippingquotes')
             .update({ is_archived: true })
             .eq('id', quoteId);
-
+    
         if (error) {
             console.error('Error archiving quote:', error.message);
             setErrorText('Error archiving quote');
