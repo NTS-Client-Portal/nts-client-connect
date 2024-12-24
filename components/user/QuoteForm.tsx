@@ -97,7 +97,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
+    
         const quote = {
             user_id: session.user.id,
             company_id: companyId, // Ensure company_id is included
@@ -110,15 +110,16 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
             destination_state: destinationState,
             due_date: dueDate,
             freight_type: selectedOption,
+            status: 'Quote', // Set the status to 'Quote'
             ...formData, // Include form data from selected form
             save_to_inventory: saveToInventory,
         };
-
+    
         try {
             const { error } = await supabase
                 .from('shippingquotes')
                 .insert([quote]);
-
+    
             if (error) {
                 console.error('Error submitting quote:', error.message);
                 setErrorText('Error submitting quote');
@@ -127,7 +128,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                 fetchQuotes(); // Fetch the updated list of quotes
                 onClose(); // Close the modal
             }
-
+    
             if (saveToInventory) {
                 const freightData = {
                     user_id: session.user.id,
@@ -143,11 +144,11 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                     pallet_count: formData.pallet_count,
                     serial_number: formData.vin,
                 };
-
+    
                 const { error: inventoryError } = await supabase
                     .from('freight')
                     .insert([freightData]);
-
+    
                 if (inventoryError) {
                     console.error('Error saving to inventory:', inventoryError.message);
                     setErrorText('Error saving to inventory');

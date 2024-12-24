@@ -32,6 +32,20 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
     const [showOrderForm, setShowOrderForm] = useState(false);
     const [errorText, setErrorText] = useState<string>('');
 
+    const archiveQuote = async (quoteId: number) => {
+        const { error } = await supabase
+            .from('shippingquotes')
+            .update({ is_archived: true })
+            .eq('id', quoteId);
+    
+        if (error) {
+            console.error('Error archiving quote:', error.message);
+            setErrorText('Error archiving quote');
+        } else {
+            setQuotes((prevQuotes) => prevQuotes.filter((quote) => quote.id !== quoteId));
+        }
+    };
+
     const handleCreateOrderClick = (quoteId: number) => {
         const quote = quotes.find((q) => q.id === quoteId);
         if (quote) {
@@ -102,10 +116,8 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
             .from('shippingquotes')
             .select('*')
             .in('user_id', profileIds)
-            .not('status', 'eq', 'Order')
+            .eq('status', 'Quote') // Fetch only quotes with the status 'Quote'
             .not('is_archived', 'eq', true);
-            
-
     
         if (error) {
             console.error('Error fetching shipping quotes:', error.message);
@@ -120,26 +132,28 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
             .from('company_sales_users')
             .select('company_id')
             .eq('sales_user_id', userId)
-
+            .not('is_archived', 'eq', true);
+    
         if (companySalesUsersError) {
             console.error('Error fetching company_sales_users for nts_user:', companySalesUsersError.message);
             return [];
         }
     
         const companyIds = companySalesUsers.map((companySalesUser) => companySalesUser.company_id);
+    
         const { data: quotes, error: quotesError } = await supabase
-        .from('shippingquotes')
-        .select('*')
-        .in('company_id', companyIds)
-        .not('status', 'eq', 'Order'); // Exclude quotes with status 'Order'
-
-    if (quotesError) {
-        console.error('Error fetching quotes for nts_user:', quotesError.message);
-        return [];
-    }
-
-    return quotes;
-}, [supabase]);
+            .from('shippingquotes')
+            .select('*')
+            .in('company_id', companyIds)
+            .eq('status', 'Quote'); // Fetch only quotes with the status 'Quote'
+    
+        if (quotesError) {
+            console.error('Error fetching quotes for nts_user:', quotesError.message);
+            return [];
+        }
+    
+        return quotes;
+    }, [supabase]);
 
     const fetchInitialQuotes = useCallback(async () => {
         if (!session?.user?.id) return;
@@ -177,6 +191,8 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
         }
     }, [session, supabase, fetchProfiles, fetchShippingQuotes, fetchQuotesForNtsUsers, isAdmin]);
 
+
+
     useEffect(() => {
         const channel = supabase
             .channel('shippingquotes')
@@ -195,6 +211,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
         };
     }, [supabase, fetchInitialQuotes]);
 
+
     useEffect(() => {
         fetchInitialQuotes();
     }, [fetchInitialQuotes]);
@@ -202,92 +219,53 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
     const handleModalSubmit = async (data: any) => {
         if (selectedQuoteId !== null && session?.user?.id) {
             const { error } = await supabase
-                .from('shippingquotes')
-                .update({
+                .from('orders')
+                .insert({
+                    quote_id: selectedQuoteId,
                     user_id: session.user.id,
                     origin_street: data.originStreet,
                     destination_street: data.destinationStreet,
                     earliest_pickup_date: data.earliestPickupDate,
                     latest_pickup_date: data.latestPickupDate,
                     notes: data.notes,
-                })
-                .eq('id', selectedQuoteId);
-
+                    status: 'Orders',
+                });
+    
             if (error) {
-                console.error('Error updating shipping quote:', error.message);
+                console.error('Error creating order:', error.message);
             } else {
-                setQuote(null);
-                // Remove the quote from the quotes state
-                setQuotes((prevQuotes) => prevQuotes.filter((quote) => quote.id !== selectedQuoteId));
+                // Update the status of the quote to "Order"
+                const { error: updateError } = await supabase
+                    .from('shippingquotes')
+                    .update({ status: 'Order' })
+                    .eq('id', selectedQuoteId);
+    
+                if (updateError) {
+                    console.error('Error updating quote status:', updateError.message);
+                } else {
+                    setQuote(null);
+                    // Remove the quote from the quotes state
+                    setQuotes((prevQuotes) => prevQuotes.filter((quote) => quote.id !== selectedQuoteId));
+                }
             }
         }
         setIsModalOpen(false);
     };
-
     const handleRespond = async (quoteId: number) => {
         const price = prompt('Enter the price:');
         if (price === null) return;
 
-        const { data: updatedQuote, error } = await supabase
+        const { error } = await supabase
             .from('shippingquotes')
             .update({ price: parseFloat(price) })
-            .eq('id', quoteId)
-            .select()
-            .single();
+            .eq('id', quoteId);
 
         if (error) {
             console.error('Error responding to quote:', error.message);
         } else {
-            setQuotes((prevQuotes) => prevQuotes.map((quote) => quote.id === quoteId ? { ...quote, price: parseFloat(price) } : quote));
-
-            // Send notification
-            const { data: userProfile, error: userProfileError } = await supabase
-                .from('profiles')
-                .select('email')
-                .eq('id', updatedQuote.user_id)
-                .single();
-
-            if (userProfileError) {
-                console.error('Error fetching user profile:', userProfileError.message);
-            } else {
-                const email = userProfile.email;
-                const message = 'Your quote has been responded to.';
-
-                // Insert notification into the database
-                const { error: notificationError } = await supabase
-                    .from('notifications')
-                    .insert({
-                        user_id: updatedQuote.user_id,
-                        message: message,
-                        is_read: false,
-                        created_at: new Date().toISOString(),
-                    });
-
-                if (notificationError) {
-                    console.error('Error inserting notification:', notificationError.message);
-                }
-
-                // Send email notification
-                handleSendEmailNotification(email, 'Quote Response Notification', message);
-            }
-        }
-    };
-
-    const handleSendEmailNotification = async (to: string, subject: string, text: string) => {
-        try {
-            const response = await fetch('/api/sendEmail', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ to, subject, text }),
-            });
-
-            if (!response.ok) {
-                console.error('Error sending email:', await response.json());
-            }
-        } catch (error) {
-            console.error('Error sending email:', error);
+            setQuotes((prevQuotes) => prevQuotes.map((quote) => quote.id === quoteId ? { ...quote, price: parseFloat(price) } : quote
+            )
+            );
         }
     };
 
@@ -349,7 +327,9 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
             if (historyError) {
                 console.error('Error logging edit history:', historyError.message);
             } else {
-                setQuotes((prevQuotes) => prevQuotes.map((quote) => quote.id === updatedQuote.id ? updatedQuote : quote));
+                setQuotes((prevQuotes) => prevQuotes.map((quote) => quote.id === updatedQuote.id ? updatedQuote : quote
+                )
+                );
             }
         }
         setIsEditModalOpen(false);
@@ -414,20 +394,6 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
         }
     }, [popupMessage]);
 
-    const archiveQuote = async (quoteId: number) => {
-        const { error } = await supabase
-            .from('shippingquotes')
-            .update({ is_archived: true })
-            .eq('id', quoteId);
-    
-        if (error) {
-            console.error('Error archiving quote:', error.message);
-            setErrorText('Error archiving quote');
-        } else {
-            setQuotes((prevQuotes) => prevQuotes.filter((quote) => quote.id !== quoteId));
-        }
-    };
-
     return (
         <div className="w-full bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md max-h-max flex-grow">
             {popupMessage && (
@@ -439,7 +405,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleModalSubmit}
-                quote={null} />
+                quote={quote} />
             <EditQuoteModal
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
@@ -468,23 +434,22 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
                     isAdmin={isAdmin}
                 />
             </div>
-            <div className="block 2xl:hidden">
+            <div className="block xl:hidden">
                 {quotes.map((quote) => (
                     <QuoteDetailsMobile
                         key={quote.id}
                         quotes={quotes}
+                        handleStatusChange={() => {}}
+                        getStatusClasses={() => ''}
                         formatDate={formatDate}
-                        archiveQuote={archiveQuote}
+                        archiveQuote={null}
                         handleEditClick={handleEditClick}
                         handleCreateOrderClick={handleCreateOrderClick}
                         handleRespond={handleRespond}
                         isAdmin={isAdmin}
-                        handleStatusChange={() => {}}
-                        getStatusClasses={() => ''}
-                        handlePriceSubmit={() => {}}
+                        setShowPriceInput={() => {}}
                         showPriceInput={null}
                         priceInput={null}
-                        setShowPriceInput={() => {}}
                         setPriceInput={() => {}}
                     />
                 ))}

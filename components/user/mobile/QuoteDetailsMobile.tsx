@@ -11,7 +11,6 @@ interface QuoteDetailsMobileProps {
     isAdmin: boolean;
     handleStatusChange: (e: React.ChangeEvent<HTMLSelectElement>, quoteId: number) => void;
     getStatusClasses: (status: string) => string;
-    handlePriceSubmit: (e: React.FormEvent, quoteId: number) => void;
     setShowPriceInput: React.Dispatch<React.SetStateAction<number | null>>;
     showPriceInput: number | null;
     priceInput: string;
@@ -28,7 +27,6 @@ const QuoteDetailsMobile: React.FC<QuoteDetailsMobileProps> = ({
     isAdmin,
     handleStatusChange,
     getStatusClasses,
-    handlePriceSubmit,
     setShowPriceInput,
     showPriceInput,
     priceInput,

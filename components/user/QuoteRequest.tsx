@@ -128,9 +128,9 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
 
     const addQuote = async (quote: Partial<Database['public']['Tables']['shippingquotes']['Insert'] & { containerLength?: number | null; containerType?: string | null; contentsDescription?: string | null; selectedOption?: string | null; }>) => {
         if (!session?.user?.id) return;
-
+    
         console.log('Adding quote:', quote);
-
+    
         const { data: shippingQuoteData, error: shippingQuoteError } = await supabase
             .from('shippingquotes')
             .insert([{
@@ -152,16 +152,16 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
                 weight: quote.weight?.toString() || null, // Ensure weight is a string
             }])
             .select();
-
+    
         if (shippingQuoteError) {
             console.error('Error adding quote:', shippingQuoteError.message);
             setErrorText('Error adding quote');
             return;
         }
-
+    
         console.log('Quote added successfully:', shippingQuoteData);
         setQuotes([...quotes, ...(shippingQuoteData || [])]);
-
+    
         setErrorText('');
         setIsModalOpen(false); // Close the modal after adding the quote
         fetchQuotes(); // Fetch quotes after adding a new one
@@ -242,7 +242,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
                 />
             </div>
             {isMobile ? (
-                <div className="static z-0">
+                <div className="relative z-0">
                     <select
                         className="w-full p-2 border border-gray-300 rounded-md"
                         value={activeTab}
@@ -257,7 +257,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
                     </select>
                 </div>
             ) : (
-                <div className="flex gap-1 border-b border-gray-300 z-0">
+                <div className="flex gap-1 border-b border-gray-300">
                     <button
                         className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'requests' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
                         onClick={() => setActiveTab('requests')}
@@ -306,8 +306,8 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
                 )}
                 {activeTab === 'delivered' && (
                     <DeliveredList
-                        isAdmin={isAdmin}
                         session={session}
+                        isAdmin={isAdmin}
                     />
                 )}
                 {activeTab === 'archived' && (

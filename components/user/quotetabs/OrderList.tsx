@@ -4,6 +4,7 @@ import { Database } from '@/lib/database.types';
 import { supabase } from '@/lib/initSupabase';
 import Modal from '@/components/ui/Modal';
 import jsPDF from 'jspdf';
+import OrderTable from './OrderTable';
 
 type ShippingQuotesRow = Database['public']['Tables']['shippingquotes']['Row'];
 
@@ -13,8 +14,9 @@ interface OrderListProps {
     isAdmin: boolean;
 }
 
-const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes: parentFetchQuotes, isAdmin }) => {
+const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
     const [quotes, setQuotes] = useState<ShippingQuotesRow[]>([]);
+    const [sortConfig, setSortConfig] = useState<{ column: string; order: 'asc' | 'desc' }>({ column: '', order: 'asc' });
     const [errorText, setErrorText] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [selectedQuoteId, setSelectedQuoteId] = useState<number | null>(null);
@@ -23,17 +25,46 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes: parentFetch
     const [editData, setEditData] = useState<Partial<ShippingQuotesRow>>({});
     const [isNtsUser, setIsNtsUser] = useState(false);
 
+    const fetchOrdersForNtsUsers = useCallback(async (userId: string) => {
+        const { data: companySalesUsers, error: companySalesUsersError } = await supabase
+            .from('company_sales_users')
+            .select('company_id')
+            .eq('sales_user_id', userId);
+
+        if (companySalesUsersError) {
+            console.error('Error fetching company_sales_users for nts_user:', companySalesUsersError.message);
+            return [];
+        }
+
+        const companyIds = companySalesUsers.map((companySalesUser) => companySalesUser.company_id);
+
+        const { data: quotes, error: quotesError } = await supabase
+            .from('shippingquotes')
+            .select('*')
+            .in('company_id', companyIds)
+            .eq('status', 'Order');
+
+        if (quotesError) {
+            console.error('Error fetching quotes for nts_user:', quotesError.message);
+            return [];
+        }
+
+        return quotes;
+    }, []);
+
     const fetchQuotes = useCallback(async () => {
         let query = supabase
             .from('shippingquotes')
             .select('*')
-
+            .eq('status', 'Order')
+            .not('is_complete', 'eq', true);
+    
         if (!isNtsUser && session?.user?.id) {
             query = query.eq('user_id', session.user.id);
         }
-
+    
         const { data, error } = await query;
-
+    
         if (error) {
             setErrorText(error.message);
         } else {
@@ -185,65 +216,43 @@ const OrderList: React.FC<OrderListProps> = ({ session, fetchQuotes: parentFetch
         }
     };
 
+    async function handleStatusChange(e: React.ChangeEvent<HTMLSelectElement>, id: number): Promise<void> {
+            const newStatus = e.target.value;
+            try {
+                const { error } = await supabase
+                    .from('shippingquotes')
+                    .update({ status: newStatus })
+                    .eq('id', id);
+    
+                if (error) {
+                    console.error('Error updating status:', error);
+                    return;  
+                }
+            } catch (error) {
+                console.error('Error updating status:', error);
+            }
+            setQuotes((prevQuotes) =>
+                prevQuotes.map((quote) => (quote.id === id ? { ...quote, status: newStatus } : quote))
+            );
+    }
+
     return (
         <div className="w-full bg-white dark:bg-zinc-800 dark:text-zinc-100 shadow rounded-md border border-zinc-400 max-h-max flex-grow">
             {!!errorText && <div className="text-red-500">{errorText}</div>}
             <div className="hidden 2xl:block overflow-x-auto">
-                <table className="min-w-full divide-y divide-zinc-200 dark:text-zinc-900">
-                    <thead className="bg-ntsLightBlue dark:bg-zinc-900">
-                        <tr className='text-zinc-50 font-semibold border-b border-zinc-900 dark:border-zinc-100'>
-                            <th className="px-2 pt-4 pb-1 text-left text-xs  dark:text-white uppercase tracking-wider border-r border-zinc-900/20 dark:border-zinc-100">ID</th>
-                            <th className="px-2 pt-4 pb-1 text-left text-xs  dark:text-white uppercase tracking-wider border-r border-zinc-900/20 dark:border-zinc-100">Origin</th>
-                            <th className="px-2 pt-4 pb-1 text-left text-xs  dark:text-white uppercase tracking-wider border-r border-zinc-900/20 dark:border-zinc-100">Freight</th>
-                            <th className="px-2 pt-4 pb-1 text-left text-xs  dark:text-white uppercase tracking-wider border-r border-zinc-900/20 dark:border-zinc-100">Shipping Date</th>
-                            <th className="px-2 pt-4 pb-1 text-left text-xs  dark:text-white uppercase tracking-wider border-r border-zinc-900/20 dark:border-zinc-100">Price</th>
-                            <th className="px-2 pt-4 pb-1 text-left text-xs  dark:text-white uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-zinc-100">
-                        {quotes.map((quote) => (
-                            <tr key={quote.id}>
-                                <td className="px-2 py-4 whitespace-nowrap border-r border-zinc-900/20 dark:border-zinc-100">
-                                    {quote.id}
-                                </td>
-                                <td className="px-2 py-4 whitespace-nowrap border-r border-zinc-900/20 dark:border-zinc-100">
-                                    <div className="flex flex-col justify-start">
-                                        <span><strong>Origin Address:</strong>  {quote.origin_street} </span>
-                                        <span><strong>Origin City/State/Zip:</strong> {quote.origin_city}, {quote.origin_state} {quote.origin_zip}</span>
-                                        <span><strong>Destination Address:</strong>  {quote.destination_street} </span>
-                                        <span><strong>Destination City/State/Zip:</strong> {quote.destination_city}, {quote.destination_state} {quote.destination_zip}</span>
-                                    </div>
-                                </td>
-                                <td className="px-2 py-4 whitespace-nowrap border-r border-zinc-900/20 dark:border-zinc-100 ">
-                                    {quote.year} {quote.make} {quote.model}
-                                </td>
-                                <td className="px-2 py-4 whitespace-nowrap border-r border-zinc-900/20 dark:border-zinc-100 ">
-                                    {quote.due_date || 'No due date'}
-                                </td>
-                                <td className="px-2 py-4 whitespace-nowrap border-r border-zinc-900/20 dark:border-zinc-100 ">
-                                    {quote.price ? `$${quote.price}` : 'coming soon'}
-                                </td>
-                                <td className="px-2 py-4 whitespace-nowrap border-r border-zinc-900/20 dark:border-zinc-100">
-                                    <div className='flex flex-col gap-2 items-center'>
-                                        <button onClick={() => { setSelectedQuoteId(quote.id); setIsModalOpen(true); }} className="cancel-btn">
-                                            Cancel Quote
-                                        </button>
-                                    </div>
-                                    {isNtsUser && (
-                                        <>
-                                            <button onClick={() => handleMarkAsComplete(quote.id)} className="text-green-600 ml-2">
-                                                Quote Completed
-                                            </button>
-                                            <button onClick={() => handleEditQuote(quote)} className="text-blue-600 dark:text-blue-400 ml-2">
-                                                Edit Quote
-                                            </button>
-                                        </>
-                                    )}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                <OrderTable
+                    handleEditClick={handleEditQuote}
+                    isAdmin={isAdmin}
+                    sortConfig={sortConfig}
+                    handleSort={(column) => {
+                        const order = sortConfig.column === column && sortConfig.order === 'asc' ? 'desc' : 'asc';
+                        setSortConfig({ column, order });
+                    }}
+                    orders={quotes}
+                    expandedRow={null} // Provide appropriate value
+                    handleRowClick={() => {}} // Provide appropriate function
+                    archiveOrder={async (id: number) => { /* Implement the function here */ }} // Provide appropriate function
+                />
             </div>
             <div className="block 2xl:hidden mt-">
                 <div className='mt-1'>

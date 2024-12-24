@@ -21,7 +21,6 @@ interface OrderFormModalProps {
         width: string;
         height: string;
         weight: string;
-        status: string;
     } | null; // Allow quote to be null
 }
 
