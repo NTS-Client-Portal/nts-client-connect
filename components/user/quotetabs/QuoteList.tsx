@@ -434,7 +434,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
                     isAdmin={isAdmin}
                 />
             </div>
-            <div className="block xl:hidden">
+            <div className="block md:hidden">
                 {quotes.map((quote) => (
                     <QuoteDetailsMobile
                         key={quote.id}

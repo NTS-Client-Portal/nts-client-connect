@@ -5,7 +5,7 @@ import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import { useProfilesUser } from '@/context/ProfilesUserContext';
 import Image from 'next/image';
-import { PanelLeftOpen, PanelRightClose, Workflow, Folders, NotebookTabs, Settings } from 'lucide-react';
+import { PanelLeftOpen, PanelRightClose, Workflow, Folders, NotebookTabs, Settings, TruckIcon } from 'lucide-react';
 
 interface UserSideNavProps {
     isSidebarOpen: boolean;
@@ -63,9 +63,14 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                         <h3 className='font-normal'>Welcome {userProfile?.first_name || 'User'}</h3>
                     </span>
                     <ul className='flex flex-col flex-grow overflow-y-auto'>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user' || router.pathname === '/' ? "active" : ""}`}>
+                    <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user' || router.pathname === '/' ? "active" : ""}`}>
                             <Link href="/user" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user' || router.pathname === '/' ? "active" : ""}`}>
-                                <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><Workflow size={'20px'} /> <span className='text-xs md:text-sm '>Logistics RFQ </span></span>
+                                <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><Workflow size={'20px'} /> <span className='text-xs md:text-sm '>{`${userProfile?.company_name}` || ''}<br /> Dashboard</span></span>
+                            </Link>
+                        </li>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/logistics-management' || router.pathname === '/' ? "active" : ""}`}>
+                            <Link href="/user/logistics-management" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/logistics-management' || router.pathname === '/' ? "active" : ""}`}>
+                                <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><TruckIcon size={'20px'} /> <span className='text-xs md:text-sm '>Logistics RFQ </span></span>
                             </Link>
                         </li>
                         <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/inventory' ? "active" : ""}`}>
