@@ -4,6 +4,7 @@ import { formatDate, renderAdditionalDetails, freightTypeMapping } from './Quote
 import { supabase } from '@/lib/initSupabase';
 import { Database } from '@/lib/database.types';
 import OrderFormModal from './OrderFormModal';
+import { generatePDF, uploadPDFToSupabase, insertDocumentRecord } from '../GeneratePDF';
 
 interface QuoteTableProps {
     sortConfig: { column: string; order: string };
@@ -66,11 +67,13 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
     const [searchColumn, setSearchColumn] = useState('id');
 
     const filteredQuotes = useMemo(() => {
-        return quotes.filter((quote) => {
-            const value = quote[searchColumn]?.toString().toLowerCase() || '';
-            return value.includes(searchTerm.toLowerCase());
-        });
-    }, [searchTerm, searchColumn, quotes]);
+        return quotes
+            .filter((quote) => !quote.is_complete && !quote.is_archived) // Filter out completed and archived quotes
+            .filter((quote) => {
+                const value = quote[sortConfig.column]?.toString().toLowerCase() || '';
+                return value.includes(searchTerm.toLowerCase());
+            });
+    }, [searchTerm, sortConfig.column, quotes]);
 
     const [showPriceInput, setShowPriceInput] = useState<number | null>(null);
     const [priceInput, setPriceInput] = useState('');
@@ -128,6 +131,14 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
         } else {
             setShowPriceInput(null);
             setQuotes((prevQuotes) => prevQuotes.map((quote) => quote.id === quoteId ? { ...quote, price } : quote));
+
+            // Generate PDF and upload to Supabase
+            const quote = quotes.find(q => q.id === quoteId);
+            if (quote) {
+                const pdf = generatePDF(quote);
+                const filePath = await uploadPDFToSupabase(pdf, quote);
+                await insertDocumentRecord(filePath, quote);
+            }
         }
     };
 
@@ -159,11 +170,11 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
 
     return (
         <div className='w-full'>
-            <div className="flex justify-start gap-4 my-4 ml-4">
+                        <div className="flex justify-start gap-4 my-4 ml-4">
                 <div className="flex items-center">
                     <label className="mr-2">Search by:</label>
                     <select
-                        value={searchColumn}
+                        value={sortConfig.column}
                         onChange={(e) => setSearchColumn(e.target.value)}
                         className="border border-gray-300 rounded-md shadow-sm"
                     >
@@ -208,6 +219,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                     </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
+    
                     {currentRows.map((quote, index) => (
                         <React.Fragment key={quote.id}>
                             <tr
@@ -217,6 +229,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                 }}
                                 className={`cursor-pointer mb-4 w-max ${index % 2 === 0 ? 'bg-white h-fit w-full' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}
                             >
+                                
                                 <td className="px-6 py-3 w-[30px] whitespace-nowrap text-sm font-medium text-gray-900">
                                     {quote.id}
                                 </td>

@@ -7,7 +7,6 @@ import Image from 'next/image';
 import { useProfilesUser } from '@/context/ProfilesUserContext';
 import ShipperBrokerConnect from '@/components/ShipperBrokerConnect';
 import FloatingChatWidget from '@/components/FloatingChatWidget';
-import { Quote } from '../../lib/types';
 
 type NtsUsersRow = Database['public']['Tables']['nts_users']['Row'];
 type AssignedSalesUser = Database['public']['Tables']['nts_users']['Row'];
@@ -261,15 +260,19 @@ const ShipperDash = () => {
                             <h3 className="text-lg font-semibold"></h3>
                             <div className='mb-2 w-full'>
                                 <ul className='flex flex-col gap-2'>
-                                    {quotes.filter(quote => quote.status === 'Order').map((quote) => (
-                                        <li key={quote.id} className="mb-2 flex gap-1">
-                                            <p>ID: {quote.id}</p>
-                                            <p>Status: {quote.status}</p>
-                                            <p>Commodity: {quote.make && quote.model ? ( `${quote.make} ${quote.model}`
-                                                ) : quote.container_type ? (  `${quote.container_length} ${quote.container_type}` ) : ( "N/A" )}
-                                            </p>
-                                        </li>
-                                    ))}
+                                    {quotes.filter(quote => quote.status === 'Order').length > 0 ? (
+                                        quotes.filter(quote => quote.status === 'Order').map((quote) => (
+                                            <li key={quote.id} className="mb-2 flex gap-1">
+                                                <p>ID: {quote.id}</p>
+                                                <p>Status: {quote.status}</p>
+                                                <p>Commodity: {quote.make && quote.model ? ( `${quote.make} ${quote.model}`
+                                                    ) : quote.container_type ? (  `${quote.container_length} ${quote.container_type}` ) : ( "N/A" )}
+                                                </p>
+                                            </li>
+                                        ))
+                                    ) : (
+                                        <p>No Active Orders</p>
+                                    )}
                                 </ul>
                             </div>
                         </div>

@@ -391,6 +391,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
             return () => clearTimeout(timer);
         }
     }, [popupMessage]);
+    
 
     return (
         <div className="w-full bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md max-h-max flex-grow">

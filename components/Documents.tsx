@@ -3,6 +3,7 @@ import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import { FolderHeart, Folder, Menu, Star, Trash2 } from 'lucide-react';
 import { updateFavoriteStatus } from '@/lib/database';
+import { useDocumentNotification } from '@/context/DocumentNotificationContext';
 
 interface DocumentsProps {
     session: Session | null;
@@ -22,6 +23,9 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
     const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
     const [documentToDelete, setDocumentToDelete] = useState<number | null>(null); // State to store the document to be deleted
     const [isNtsUser, setIsNtsUser] = useState(false);
+    const [viewFileUrl, setViewFileUrl] = useState<string | null>(null); // State to store the file URL for viewing
+
+    const { setNewDocumentAdded } = useDocumentNotification();
 
     const fetchDocuments = useCallback(async () => {
         if (!session) return;
@@ -88,6 +92,9 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
             if (notificationError) {
                 console.error('Error creating notification:', notificationError.message);
             }
+
+            // Set the notification state
+            setNewDocumentAdded(true);
         } catch (error) {
             setError(error.message);
         }
@@ -179,6 +186,20 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
         document.body.removeChild(a);
     };
 
+    const handleView = async (fileUrl: string) => {
+        const { data, error } = await supabase.storage
+            .from('documents')
+            .download(fileUrl);
+
+        if (error) {
+            setError(error.message);
+            return;
+        }
+
+        const url = window.URL.createObjectURL(data);
+        setViewFileUrl(url);
+    };
+
     const renderDocuments = (docs: Database['public']['Tables']['documents']['Row'][]) => {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -196,9 +217,14 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
                             </div>
                         </div>
                         <div className="text-sm text-zinc-900 dark:text-white mb-2">{doc.description}</div>
-                        <button onClick={() => handleDownload(doc.file_url, doc.file_name)} className="btn-blue">
-                            Download
-                        </button>
+                        <div className="flex gap-2">
+                            <button onClick={() => handleDownload(doc.file_url, doc.file_name)} className="btn-blue">
+                                Download
+                            </button>
+                            <button onClick={() => handleView(doc.file_url)} className="btn-blue">
+                                View
+                            </button>
+                        </div>
                     </div>
                 ))}
             </div>
@@ -312,6 +338,27 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
                                 onClick={handleDelete}
                             >
                                 Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* View File Modal */}
+            {viewFileUrl && (
+                <div className="fixed inset-0 flex items-center justify-center z-50">
+                    <div className="fixed inset-0 bg-black opacity-50"></div>
+                    <div className="bg-white rounded-lg shadow-lg p-6 z-50 max-w-3xl w-full">
+                        <h2 className="text-xl font-bold mb-4">View Document</h2>
+                        <div className="mb-4">
+                            <iframe src={viewFileUrl} className="w-full h-96" />
+                        </div>
+                        <div className="flex justify-end">
+                            <button
+                                className="bg-zinc-300 text-zinc-700 px-4 py-2 rounded"
+                                onClick={() => setViewFileUrl(null)}
+                            >
+                                Close
                             </button>
                         </div>
                     </div>

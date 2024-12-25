@@ -6,6 +6,7 @@ import { Database } from '@/lib/database.types';
 import { useProfilesUser } from '@/context/ProfilesUserContext';
 import Image from 'next/image';
 import { PanelLeftOpen, PanelRightClose, Workflow, Folders, NotebookTabs, Settings, TruckIcon } from 'lucide-react';
+import { useDocumentNotification } from '@/context/DocumentNotificationContext';
 
 interface UserSideNavProps {
     isSidebarOpen: boolean;
@@ -16,6 +17,7 @@ interface UserSideNavProps {
 const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar, className = '' }) => {
     const supabase = useSupabaseClient<Database>();
     const { userProfile } = useProfilesUser();
+    const { newDocumentAdded, setNewDocumentAdded } = useDocumentNotification();
     const router = useRouter();
 
     const handleLogout = async () => {
@@ -79,10 +81,14 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                             </Link>
                         </li>
                         <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/documents' ? "active" : ""}`}>
-                            <Link href="/user/documents" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/documents' ? "active" : ""}`}>
-                                <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><Folders size={'20px'} /> <span className='text-xs md:text-sm '>Documents/Pictures</span></span>
-                            </Link>
-                        </li>
+                    <Link href="/user/documents" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/documents' ? "active" : ""}`} onClick={() => setNewDocumentAdded(false)}>
+                        <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3 relative'>
+                            <Folders size={'20px'} />
+                            <span className='text-xs md:text-sm '>Documents/Pictures</span>
+                            {newDocumentAdded && <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full z-10"></span>}
+                        </span>
+                    </Link>
+                </li>
                         <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/equipment-directory' ? "active" : ""}`}>
                             <Link href="/user/equipment-directory" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/equipment-directory' ? "active" : ""}`}>
                                 <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><NotebookTabs size={'20px'} /> <span className='text-xs md:text-sm'>Equipment Directory </span></span>

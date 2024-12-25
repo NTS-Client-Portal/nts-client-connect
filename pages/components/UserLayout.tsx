@@ -99,23 +99,6 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
                     <UserTopNav />
                 </div>
                 <main className="ml-0 mt-32 md:mt-24 xl:ml-52 p-4">
-                    {/* {userProfile && session && (
-                        <>
-                            <ShipperBrokerConnect
-                                brokerId={assignedSalesUsers[0]?.id || ''}
-                                shipperId={userProfile.id}
-                                session={session}
-                            />
-                            {activeChatId && (
-                                <FloatingChatWidget
-                                    brokerId={assignedSalesUsers[0]?.id || ''}
-                                    shipperId={userProfile.id}
-                                    session={session}
-                                    activeChatId={activeChatId}
-                                />
-                            )}
-                        </>
-                    )} */}
                     {children}
                 </main>
             </div>
