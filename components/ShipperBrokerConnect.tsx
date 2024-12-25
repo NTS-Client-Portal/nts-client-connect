@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@lib/initSupabase';
 import { Session } from '@supabase/auth-helpers-react';
 import { Database } from '@lib/database.types';
+import { useProfilesUser } from '@/context/ProfilesUserContext';
 
 interface ShipperBrokerConnectProps {
     brokerId: string;
@@ -13,13 +14,19 @@ type Broker = Database['public']['Tables']['nts_users']['Row'] & {
     available: boolean;
 };
 
+type AssignedSalesUser = Database['public']['Tables']['nts_users']['Row'];
+
 const ShipperBrokerConnect: React.FC<ShipperBrokerConnectProps> = ({ brokerId, shipperId, session }) => {
     const [open, setOpen] = useState(false);
     const [broker, setBroker] = useState<Broker | null>(null);
     const [shipper, setShipper] = useState<Database['public']['Tables']['profiles']['Row'] | null>(null);
     const [isBrokerAvailable, setIsBrokerAvailable] = useState(false);
     const [priority, setPriority] = useState('normal');
+    const [assignedSalesUsers, setAssignedSalesUsers] = useState<AssignedSalesUser[]>([]);
+    const { userProfile } = useProfilesUser();
     const [topic, setTopic] = useState('');
+
+    
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -72,13 +79,41 @@ const ShipperBrokerConnect: React.FC<ShipperBrokerConnectProps> = ({ brokerId, s
         }
     };
 
+        useEffect(() => {
+            const fetchAssignedSalesUsers = async () => {
+                if (userProfile?.company_id) {
+                    const { data, error } = await supabase
+                        .from('company_sales_users')
+                        .select(`
+                            sales_user_id,
+                            nts_users (
+                                first_name,
+                                last_name,
+                                email,
+                                phone_number,
+                                profile_picture
+                            )
+                        `)
+                        .eq('company_id', userProfile.company_id);
+    
+                    if (error) {
+                        console.error('Error fetching assigned sales users:', error.message);
+                    } else if (data) {
+                        setAssignedSalesUsers(data.map((item: any) => item.nts_users));
+                    }
+                }
+            };
+    
+            fetchAssignedSalesUsers();
+        }, [userProfile]);
+
     return (
         <div className="p-4">
-            <button className="body-btn" onClick={() => setOpen(true)}>Live Chat</button>
+            <button className="body-btn" onClick={() => setOpen(true)}>Chat with {assignedSalesUsers.map((user) => user.first_name).join(', ')}</button>
             {open && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                     <div className="bg-white dark:bg-zinc-900 p-6 rounded-lg shadow-lg w-full max-w-md">
-                        <h1 className="text-2xl font-bold text-center mb-4 text-ntsLightBlue">Live Chat</h1>
+                        <h1 className="text-2xl font-bold text-center mb-4 text-ntsLightBlue">Schedule a Live Chat</h1>
                         <button className="absolute top-4 cancel-btn right-4 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-500" onClick={() => setOpen(false)}>Close</button>
                         {broker && shipper && (
                             <div className="mb-4">

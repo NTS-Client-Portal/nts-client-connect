@@ -15,7 +15,7 @@ const ShipperDashboard: React.FC = () => {
     return (
         <ProfilesUserProvider>
             <UserLayout>
-                <ShipperDash session={session} />
+                <ShipperDash />
             </UserLayout>
         </ProfilesUserProvider>
     );

@@ -3,8 +3,8 @@ import UserSideNav from './UserSideNav';
 import UserTopNav from './UserTopNav';
 import { ProfilesUserProvider, useProfilesUser } from '@/context/ProfilesUserContext';
 import ShipperBrokerConnect from '@/components/ShipperBrokerConnect';
-import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import FloatingChatWidget from '@/components/FloatingChatWidget';
+import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 
 interface UserLayoutProps {
     children: ReactNode;
@@ -99,7 +99,7 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
                     <UserTopNav />
                 </div>
                 <main className="ml-0 mt-32 md:mt-24 xl:ml-52 p-4">
-                    {userProfile && session && (
+                    {/* {userProfile && session && (
                         <>
                             <ShipperBrokerConnect
                                 brokerId={assignedSalesUsers[0]?.id || ''}
@@ -115,7 +115,7 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
                                 />
                             )}
                         </>
-                    )}
+                    )} */}
                     {children}
                 </main>
             </div>
