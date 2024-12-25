@@ -50,7 +50,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [quotesState, setQuotes] = useState(quotes);
-    const rowsPerPage = 10;
+    const rowsPerPage = 5;
 
     const indexOfLastRow = currentPage * rowsPerPage;
     const indexOfFirstRow = indexOfLastRow - rowsPerPage;

@@ -139,7 +139,7 @@ const ShipperDash = () => {
             {isLoading ? (
                 <p>Loading...</p>
             ) : (
-                <div className='flex gap-6 justify-start w-full'>
+                <div className='flex justify-start items-stretch gap-6'>
                     {assignedSalesUsers.map((user, index) => (
                         <div key={index} className="broker-card flex text-nowrap flex-col justify-center items-center p-4 bg-white shadow rounded-lg w-fit max-h-96">
                             <h2 className='text-xl underline font-bold mb-4'>Your Logistics Representative</h2>
@@ -175,11 +175,11 @@ const ShipperDash = () => {
                         {setQuotes ? (
                             <div className='flex flex-col gap-2'>
                                <div className=' mb-4'>
-                                <Link className="body-btn" href={`/user`}>
-                                  Respond
+                                <Link className="text-ntsLightBlue font-semibold underline" href={`/user`}>
+                                  Create Order
                                 </Link>
                                 </div>
-                                <ul className='flex gap-2 flex-wrap '>
+                                <ul className='grid grid-cols-3 gap-2 w-full'>
                                     {quotes.filter(quote => quote.price !== null && quote.price > 0).map((quote) => (
                                         <li key={quote.id} className="mb-2">
                                             <p>ID: {quote.id}</p>
@@ -205,9 +205,12 @@ const ShipperDash = () => {
             <div className='mt-4 flex gap-6 justify-start items-stretch w-full'>
                 <div className="p-4 bg-gray-100 shadow rounded-lg max-w-lg max-h-96 overflow-auto">
                     <h2 className="text-xl font-bold mb-4">Active Orders</h2>
-    
-                        <div>
-                            
+                                <div className='mb-4'>
+                                    <Link className="text-ntsLightBlue font-semibold underline" href={`/user`}>
+                                        View Quotes
+                                    </Link>
+                                </div>
+                             <div>
                                 <div>
                                     <h3 className="text-lg font-semibold"></h3>
                                     <div className='mb-2'>
@@ -224,9 +227,7 @@ const ShipperDash = () => {
                                         </ul>
                                     </div>
                                 </div>
-                                <Link className="body-btn mt-4" href={`/user`}>
-                                    View Quotes
-                                </Link>
+
                          
                         </div>
                    
@@ -237,6 +238,11 @@ const ShipperDash = () => {
                         <h3 className="text-lg font-semibold mb-2">Delivered Orders</h3>
                         {setQuotes ? (
                            <>
+                                 <div className='mb-4'>
+                                  <Link className="text-ntsLightBlue font-semibold underline" href={`/user/documents`}>
+                                     View Photos and Documents
+                                 </Link>
+                             </div>
                                 <div>
                                     <ul className='flex gap-2 flex-wrap'>
                                         {quotes.filter(quote => quote.price !== null && quote.price > 0).map((quote) => (
@@ -250,11 +256,7 @@ const ShipperDash = () => {
                                         ))}
                                     </ul>
                                 </div>
-                             <div className='mt-4'>
-                                  <Link className="body-btn" href={`/user/documents`}>
-                                     View Photos and Documents
-                                 </Link>
-                             </div>
+
                            </>
                         ) : (
                             <Link className="body-btn" href={`/user`}>
