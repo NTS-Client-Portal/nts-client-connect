@@ -48,6 +48,8 @@ const Crm: React.FC = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [shippingQuotes, setShippingQuotes] = useState<ShippingQuote[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchColumn, setSearchColumn] = useState('company_name');
 
   useEffect(() => {
     const fetchAssignedCustomers = async () => {
@@ -124,12 +126,45 @@ const Crm: React.FC = () => {
     return shippingQuotes.filter(quote => quote.company_id === companyId);
   };
 
+  const filteredCompanies = companies.filter(company => {
+    if (searchColumn === 'company_name') {
+      return company.company_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    } else if (searchColumn === 'first_name' || searchColumn === 'last_name' || searchColumn === 'email') {
+      return getProfilesForCompany(company.id).some(profile =>
+        profile[searchColumn]?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    return false;
+  });
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Assigned Customers</h1>
+      <div className="flex justify-start gap-4 my-4">
+        <div className="flex items-center">
+          <label className="mr-2">Search by:</label>
+          <select
+            value={searchColumn}
+            onChange={(e) => setSearchColumn(e.target.value)}
+            className="border border-gray-300 rounded-md shadow-sm"
+          >
+            <option value="company_name">Company Name</option>
+            <option value="first_name">First Name</option>
+            <option value="last_name">Last Name</option>
+            <option value="email">Email</option>
+          </select>
+        </div>
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search..."
+          className="border border-gray-300 pl-2 rounded-md shadow-sm"
+        />
+      </div>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-300">
-          <thead>
+          <thead className='bg-ntsBlue text-white'>
             <tr className='divide-x-2'>
               <th className="text-start px-4 py-2 border-b">Company Name</th>
               <th className="text-start px-4 py-2 border-b">Company Size</th>
@@ -138,7 +173,7 @@ const Crm: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {companies.map(company => (
+            {filteredCompanies.map(company => (
               <tr key={company.id} className="hover:bg-gray-100 divide-x-2">
                 <td className="px-4 py-2 border-b">
                   <Link className="text-blue-500 hover:underline" href={`/companies/${company.id}`} legacyBehavior>

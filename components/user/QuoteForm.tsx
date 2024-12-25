@@ -169,10 +169,10 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
         <div className="fixed inset-0 bg-zinc-600 bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded shadow-md w-full max-w-3xl relative z-50">
                 <h2 className="text-xl mb-4">{ntsUser ? 'Create Shipping Quote for Customer' : profilesUser ? 'Request a Shipping Estimate' : 'Request a Shipping Estimate'}</h2>
-                <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Select Inventory Item
+                <form onSubmit={handleSubmit} className="flex flex-col gap-3 bg-gray-100 p-4">
+                    <label className='dark:text-zinc-100 font-medium'>Select Inventory Item
                         <select
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                            className="rounded text-zinc-800 w-full p-1 border border-zinc-900"
                             value={selectedInventoryItem}
                             onChange={(e) => {
                                 setSelectedInventoryItem(e.target.value);
@@ -192,9 +192,9 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                         </select>
                     </label>
                     <span className='flex items-center w-1/2'>
-                        <span className='border-b p-0 border-zinc-400 w-full'></span>
-                        <span>Or</span>
-                        <span className='border-b p-0 border-zinc-400 w-full'></span>
+                        <span className='border-b p-0 border-zinc-400 w-1/6'></span>
+                        <span className='font-semibold'>Or</span>
+                        <span className='border-b p-0 border-zinc-400 w-1/6'></span>
                     </span>
                     <SelectOption
                         selectedOption={selectedOption}
@@ -276,14 +276,15 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                             }}
                         />
                     </label>
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>
-                        <input
-                            type="checkbox"
-                            checked={saveToInventory}
-                            onChange={(e) => setSaveToInventory(e.target.checked)}
-                        />
-                        Save to Inventory
-                    </label>
+                    <div className='flex gap-2'>
+                                <input
+                                    type="checkbox"
+                                    checked={saveToInventory}
+                                    onChange={(e) => setSaveToInventory(e.target.checked)}
+                                />
+                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Save to Inventory</label>
+                    </div>
+                    
                     <div className='flex justify-center'>
                         <div className='flex gap-2 w-full justify-around'>
                             <button type="submit" className="body-btn w-2/3 place-self-center">
