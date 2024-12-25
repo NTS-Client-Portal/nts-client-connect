@@ -10,6 +10,7 @@ type ShippingQuotesRow = Database['public']['Tables']['shippingquotes']['Row'];
 
 interface OrderListProps {
     session: Session | null;
+    selectedUserId: string;
     fetchQuotes: () => void;
     isAdmin: boolean;
 }

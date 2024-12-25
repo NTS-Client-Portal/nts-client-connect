@@ -3,7 +3,7 @@ import { useSession } from '@supabase/auth-helpers-react';
 import QuoteRequest from '@/components/user/QuoteRequest';
 import UserLayout from '@/pages/components/UserLayout';
 import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
-
+import { NtsUsersProvider } from '@/context/NtsUsersContext';
 const FreightRFQPage: React.FC = () => {
     const session = useSession();
     const company = { id: 'company-id' };
@@ -16,11 +16,13 @@ const FreightRFQPage: React.FC = () => {
     }
 
     return (
-        <ProfilesUserProvider>
-            <UserLayout>
-                <QuoteRequest session={session} />
-            </UserLayout>
-        </ProfilesUserProvider>
+        <NtsUsersProvider>
+            <ProfilesUserProvider>
+                <UserLayout>
+                    <QuoteRequest session={session} profiles={profiles} />
+                </UserLayout>
+            </ProfilesUserProvider>
+        </NtsUsersProvider>
     );
 };
 

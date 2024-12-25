@@ -3,6 +3,7 @@ import { Database } from '@/lib/database.types';
 import Image from 'next/image';
 import { UserRoundPen, BellRing, Building2, Shield, Menu, Sun, Moon } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import InviteUserForm from './InviteUserForm'; // Import InviteUserForm
 
 interface UserProfileFormProps {
     session: any;
@@ -33,6 +34,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [sidebarOpen, setSidebarOpen] = useState(false); // State to control sidebar visibility
     const [darkMode, setDarkMode] = useState(false); // State to control dark mode
+    const [companyId, setCompanyId] = useState<string | null>(null); // State to store company ID
 
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -40,7 +42,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
 
             const { data, error } = await supabase
                 .from('profiles')
-                .select('first_name, last_name, company_name, address, phone_number, profile_picture, email_notifications, company_size')
+                .select('first_name, last_name, company_name, address, phone_number, profile_picture, email_notifications, company_size, company_id')
                 .eq('email', session.user.email) // Use the email for matching
                 .single();
 
@@ -60,6 +62,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
                 setEmail(session.user.email || '');
                 setEmailNotifications(data.email_notifications || true);
                 setProfilePicture(null); // Reset the profile picture input
+                setCompanyId(data.company_id || null); // Set company ID
             }
         };
 
@@ -205,17 +208,6 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
         }
     };
 
-    const toggleDarkMode = () => {
-        setDarkMode(!darkMode);
-        if (!darkMode) {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('darkMode', 'true');
-        } else {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('darkMode', 'false');
-        }
-    };
-
     return (
         <div className="flex h-screen">
             {/* Sidebar */}
@@ -250,6 +242,15 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
                         </button>
                     </li>
                     <li className='flex gap-1 items-center'>
+                        <UserRoundPen />
+                        <button
+                            className={`w-full text-left p-2 ${activeSection === 'invite' ? ' bg-zinc-300 dark:text-zinc-800' : ''}`}
+                            onClick={() => setActiveSection('invite')}
+                        >
+                            Invite User
+                        </button>
+                    </li>
+                    <li className='flex gap-1 items-center'>
                         <Shield />
                         <button
                             className={`w-full text-left p-2 ${activeSection === 'security' ? ' bg-zinc-300 dark:text-zinc-800' : ''}`}
@@ -258,16 +259,8 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
                             Security Settings
                         </button>
                     </li>
+
                 </ul>
-                <div className="mt-4">
-                    <button
-                        className="flex items-center p-2 text-zinc-700 hover:bg-zinc-200 rounded w-full text-left bg-zinc-200 dark:bg-zinc-900 dark:text-white"
-                        onClick={toggleDarkMode}
-                    >
-                        {darkMode ? <Sun className="mr-2" /> : <Moon className="mr-2" />}
-                        {darkMode ? 'Light Mode' : 'Dark Mode'}
-                    </button>
-                </div>
             </div>
 
             {/* Main Content */}
@@ -283,6 +276,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
                         {activeSection === 'personal' && 'Personal Details'}
                         {activeSection === 'company' && 'Company Details'}
                         {activeSection === 'notifications' && 'Notification Settings'}
+                        {activeSection === 'invite' && 'Invite User'}
                         {activeSection === 'security' && 'Security Settings'}
                     </h1>
 
@@ -297,7 +291,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
                         >
                             Edit Profile Information
                         </button>
-                        <div className="flex flex-col gap-4 bg-stone-200 dark:text-zinc-800 px-12 pt-6 pb-12 border border-zinc-600/40 shadow-sm rounded-sm">
+                        <div className=" mt-4 flex flex-col gap-4 bg-stone-200 dark:text-zinc-800 px-12 pt-6 pb-12 border border-zinc-600/40 shadow-sm rounded-sm">
                             <form onSubmit={handleProfileSubmit} className="flex flex-col justify-center items-center gap-4 w-full">
                                 {profilePictureUrl && (
                                     <div className="flex flex-col items-center">
@@ -458,6 +452,12 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
                         </div>
                     </div>
                 )}
+
+                {activeSection === 'invite' && (
+                    <div>
+                        <InviteUserForm companyId={companyId} />
+                        </div>
+                        )}
 
                 {activeSection === 'security' && (
                     <div>

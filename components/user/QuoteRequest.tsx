@@ -8,26 +8,30 @@ import OrderList from './quotetabs/OrderList';
 import Archived from './quotetabs/Archived';
 import Rejected from './quotetabs/Rejected';
 import EditHistory from '../EditHistory'; // Adjust the import path as needed
+import { NtsUsersProvider } from '@/context/NtsUsersContext';
+import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
+import { useProfilesUser } from '@/context/ProfilesUserContext'; // Import ProfilesUserContext
+import { useNtsUsers } from '@/context/NtsUsersContext'; 
 
 interface QuoteRequestProps {
     session: Session | null;
+    profiles: Database['public']['Tables']['profiles']['Row'][]; // Ensure profiles is passed as a prop
 }
 
-type ShippingQuote = Database['public']['Tables']['shippingquotes']['Row'];
-type Order = Database['public']['Tables']['orders']['Row'];
-type EditHistoryEntry = Database['public']['Tables']['edit_history']['Row'];
-
-const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestProps) => {
+const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [] }) => { // Add default value for profiles
     const supabase = useSupabaseClient<Database>();
-    const [quotes, setQuotes] = useState<ShippingQuote[]>([]);
-    const [orders, setOrders] = useState<Order[]>([]);
-    const [editHistory, setEditHistory] = useState<EditHistoryEntry[]>([]);
+        const { userProfile: profilesUser } = useProfilesUser(); // Use ProfilesUserContext
+        const { userProfile: ntsUser } = useNtsUsers(); // Use NtsUsersContext
+    const [quotes, setQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
+    const [orders, setOrders] = useState<Database['public']['Tables']['orders']['Row'][]>([]);
+    const [editHistory, setEditHistory] = useState<Database['public']['Tables']['edit_history']['Row'][]>([]);
     const [errorText, setErrorText] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [activeTab, setActiveTab] = useState('requests');
     const [isMobile, setIsMobile] = useState<boolean>(false);
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
     const [companyId, setCompanyId] = useState<string | null>(null);
+    const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
     const fetchUserProfile = useCallback(async () => {
         if (!session?.user?.id) return;
@@ -47,12 +51,12 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
     }, [session, supabase]);
 
     const fetchQuotes = useCallback(async () => {
-        if (!session?.user?.id) return;
+        if (!session?.user?.id || !selectedUserId) return;
 
         const { data, error } = await supabase
             .from('shippingquotes')
             .select('*')
-            .eq('assigned_sales_user', session.user.id)
+            .eq('assigned_sales_user', selectedUserId)
             .eq('is_archived', false); // Fetch only non-archived quotes
 
         if (error) {
@@ -61,7 +65,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
             console.log('Fetched Quotes:', data);
             setQuotes(data);
         }
-    }, [session, supabase]);
+    }, [session, selectedUserId, supabase]);
 
     const fetchEditHistory = useCallback(async () => {
         if (!companyId) return;
@@ -210,8 +214,6 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
         }
     };
 
-
-
     const formatDate = (dateString: string | null) => {
         if (!dateString) return 'No due date';
         const date = new Date(dateString);
@@ -227,20 +229,39 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
                 <div className='flex flex-col justify-center items-center gap-2 mb-4'>
                     <h1 className="xs:text-md mb-2 text-xl md:text-2xl font-medium text-center underline underline-offset-8">Request a Shipping Quote</h1>
                     <button onClick={() => setIsModalOpen(true)} className="body-btn">
-                        Request a Shipping Estimate
+                    {ntsUser ? 'Create Shipping Quote for Customer' : profilesUser ? 'Request a Shipping Estimate' : 'Request a Shipping Estimate'}
                     </button>
                 </div>
-                <QuoteForm
-                    session={session}
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    addQuote={addQuote}
-                    errorText={errorText}
-                    setErrorText={setErrorText}
-                    companyId={companyId} // Pass companyId to QuoteForm
-                    assignedSalesUser={session?.user?.id || ''} // Pass assignedSalesUser to QuoteForm
-                    fetchQuotes={fetchQuotes}
-                />
+                <NtsUsersProvider>
+                    <ProfilesUserProvider>
+                        <QuoteForm
+                            session={session}
+                            isOpen={isModalOpen}
+                            onClose={() => setIsModalOpen(false)}
+                            addQuote={addQuote}
+                            errorText={errorText}
+                            setErrorText={setErrorText}
+                            companyId={companyId} // Pass companyId to QuoteForm
+                            assignedSalesUser={session?.user?.id || ''} // Pass assignedSalesUser to QuoteForm
+                            fetchQuotes={fetchQuotes}
+                        />
+                    </ProfilesUserProvider>
+                </NtsUsersProvider>
+            </div>
+            <div className="flex justify-center mb-4">
+                <label className="mr-2">Select User:</label>
+                <select
+                    value={selectedUserId || ''}
+                    onChange={(e) => setSelectedUserId(e.target.value)}
+                    className="border border-gray-300 rounded-md shadow-sm"
+                >
+                    <option value="">All Users</option>
+                    {profiles.map((profile) => (
+                        <option key={profile.id} value={profile.id}>
+                            {profile.first_name} {profile.last_name}
+                        </option>
+                    ))}
+                </select>
             </div>
             {isMobile ? (
                 <div className="relative z-0">
@@ -260,31 +281,31 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
             ) : (
                 <div className="flex gap-1 border-b border-gray-300">
                     <button
-                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'requests' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'requests' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
                         onClick={() => setActiveTab('requests')}
                     >
                         Shipping Requests
                     </button>
                     <button
-                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'orders' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'orders' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
                         onClick={() => setActiveTab('orders')}
                     >
                         Shipping Orders
                     </button>
                     <button
-                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'delivered' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'delivered' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
                         onClick={() => setActiveTab('delivered')}
                     >
                         Completed Orders
                     </button>
                     <button
-                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'archived' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'archived' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
                         onClick={() => setActiveTab('archived')}
                     >
                         Archived
                     </button>
                     <button
-                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'rejected' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
+                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'rejected' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
                         onClick={() => setActiveTab('rejected')}
                     >
                         Rejected RFQ&apos;
@@ -296,7 +317,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
                     <QuoteList
                         session={session}
                         isAdmin={isAdmin} // Pass isAdmin state
-                        
+                        selectedUserId={selectedUserId} // Pass selectedUserId
                     />
                 )}
                 {activeTab === 'orders' && (
@@ -304,23 +325,27 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
                         session={session}
                         fetchQuotes={fetchQuotes}
                         isAdmin={isAdmin} // Pass isAdmin state
+                        selectedUserId={selectedUserId} // Pass selectedUserId
                     />
                 )}
                 {activeTab === 'delivered' && (
                     <DeliveredList
                         session={session}
                         isAdmin={isAdmin}
+                        selectedUserId={selectedUserId} // Pass selectedUserId
                     />
                 )}
                 {activeTab === 'archived' && (
                     <Archived
                         session={session}
                         isAdmin={isAdmin}
+                        selectedUserId={selectedUserId} // Pass selectedUserId
                     />
                 )}
                 {activeTab === 'rejected' && (
                     <Rejected
                         session={session}
+                        selectedUserId={selectedUserId} // Pass selectedUserId
                     />
                 )}
             </div>

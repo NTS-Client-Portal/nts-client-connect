@@ -65,7 +65,7 @@
 }
 
 .cancel-btn {
-  @apply m-0 px-4 py-2 text-nowrap border border-zinc-800 rounded-sm bg-zinc-800 text-stone-100 font-medium hover:bg-zinc-800/80 hover:border dark:border-zinc-900 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-900/90 dark:hover:text-zinc-100 dark:hover:border-ntsLightBlue/90;
+  @apply m-0 px-4 py-2 text-nowrap border border-zinc-800 rounded-sm bg-ntsBlue text-stone-100 font-medium hover:bg-ntsBlue/80 hover:border dark:border-zinc-900 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-900/90 dark:hover:text-zinc-100 dark:hover:border-ntsLightBlue/90;
 }
 
 .upload-button {

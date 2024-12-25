@@ -7,7 +7,7 @@ import CustomSignInForm from '@/components/CustomSignInForm';
 import { MoveHorizontal } from 'lucide-react';
 import Layout from './components/Layout';
 import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
-import QuoteRequest from '@/components/user/QuoteRequest';
+import ShipperDash from '@/components/user/ShipperDash';
 import UserLayout from '@/pages/components/UserLayout';
 import Image from 'next/image';
 
@@ -219,7 +219,7 @@ const LoginPage = () => {
   return (
     <ProfilesUserProvider>
       <UserLayout>
-        <QuoteRequest session={session} />
+        <ShipperDash />
       </UserLayout>
     </ProfilesUserProvider>
   );

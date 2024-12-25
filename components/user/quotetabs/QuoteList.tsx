@@ -9,6 +9,7 @@ import QuoteTable from './QuoteTable';
 
 interface QuoteListProps {
     session: any;
+    selectedUserId: string;
     isAdmin: boolean;
 }
 

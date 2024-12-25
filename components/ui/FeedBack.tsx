@@ -93,7 +93,7 @@ const FeedBack = () => {
                                 onChange={(e) => setScreenshot(e.target.files?.[0] || null)}
                             />
                         </div>
-                        <Button type="submit">Submit</Button>
+                        <Button className='cancel-btn' type="submit">Submit</Button>
                     </div>
                 </form>
             </PopoverContent>

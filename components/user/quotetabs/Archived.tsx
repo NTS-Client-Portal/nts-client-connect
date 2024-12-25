@@ -7,6 +7,7 @@ import ArchivedTable from './ArchivedTable';
 
 interface ArchivedProps {
     session: Session | null;
+    selectedUserId: string;
     isAdmin: boolean;
 }
 

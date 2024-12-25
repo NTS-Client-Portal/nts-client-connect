@@ -3,6 +3,8 @@ import { Session } from '@supabase/auth-helpers-react';
 import SelectOption from './SelectOption';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
+import { useProfilesUser } from '@/context/ProfilesUserContext'; // Import ProfilesUserContext
+import { useNtsUsers } from '@/context/NtsUsersContext'; // Import NtsUsersContext
 
 interface QuoteFormProps {
     isOpen: boolean;
@@ -18,6 +20,8 @@ interface QuoteFormProps {
 
 const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorText, setErrorText, session, fetchQuotes, companyId, assignedSalesUser }) => {
     const supabase = useSupabaseClient<Database>();
+    const { userProfile: profilesUser } = useProfilesUser(); // Use ProfilesUserContext
+    const { userProfile: ntsUser } = useNtsUsers(); // Use NtsUsersContext
     const [selectedOption, setSelectedOption] = useState('');
     const [originZip, setOriginZip] = useState('');
     const [originCity, setOriginCity] = useState('');
@@ -33,7 +37,6 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
 
     useEffect(() => {
         if (isOpen && session) {
-            // Fetch inventory items when the form is opened
             const fetchInventoryItems = async () => {
                 const { data, error } = await supabase
                     .from('freight')
@@ -100,8 +103,8 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
     
         const quote = {
             user_id: session.user.id,
-            company_id: companyId, // Ensure company_id is included
-            assigned_sales_user: assignedSalesUser, // Ensure assigned_sales_user is included
+            company_id: companyId,
+            assigned_sales_user: assignedSalesUser, 
             origin_zip: originZip,
             origin_city: originCity,
             origin_state: originState,
@@ -110,8 +113,8 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
             destination_state: destinationState,
             due_date: dueDate,
             freight_type: selectedOption,
-            status: 'Quote', // Set the status to 'Quote'
-            ...formData, // Include form data from selected form
+            status: 'Quote', 
+            ...formData, 
             save_to_inventory: saveToInventory,
         };
     
@@ -125,8 +128,8 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                 setErrorText('Error submitting quote');
             } else {
                 setErrorText('');
-                fetchQuotes(); // Fetch the updated list of quotes
-                onClose(); // Close the modal
+                fetchQuotes(); 
+                onClose(); 
             }
     
             if (saveToInventory) {
@@ -165,7 +168,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
     return (
         <div className="fixed inset-0 bg-zinc-600 bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded shadow-md w-full max-w-3xl relative z-50">
-                <h2 className="text-xl mb-4">Request a Shipping Estimate</h2>
+                <h2 className="text-xl mb-4">{ntsUser ? 'Create Shipping Quote for Customer' : profilesUser ? 'Request a Shipping Estimate' : 'Request a Shipping Estimate'}</h2>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Select Inventory Item
                         <select
@@ -284,7 +287,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                     <div className='flex justify-center'>
                         <div className='flex gap-2 w-full justify-around'>
                             <button type="submit" className="body-btn w-2/3 place-self-center">
-                                Submit
+                                {ntsUser ? 'Create Shipping Quote for Customer' : 'Request a Shipping Estimate'}
                             </button>
                             <button onClick={onClose} className="cancel-btn mt-4 w-1/4 place-self-center">
                                 Close

@@ -10,6 +10,7 @@ type ShippingQuotesRow = Database['public']['Tables']['shippingquotes']['Row'];
 
 interface DeliveredListProps {
     session: Session | null;
+    selectedUserId: string;
     isAdmin: boolean;
 }
 
