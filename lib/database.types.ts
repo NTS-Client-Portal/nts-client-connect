@@ -595,6 +595,66 @@ export type Database = {
           },
         ]
       }
+      lanes_inventory: {
+        Row: {
+          company_id: string
+          destination_address: string
+          destination_city: string
+          destination_state: string
+          destination_zip: string
+          id: string
+          notes: string | null
+          origin_address: string
+          origin_city: string
+          origin_state: string
+          origin_zip: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          destination_address: string
+          destination_city: string
+          destination_state: string
+          destination_zip: string
+          id: string
+          notes?: string | null
+          origin_address: string
+          origin_city: string
+          origin_state: string
+          origin_zip: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          destination_address?: string
+          destination_city?: string
+          destination_state?: string
+          destination_zip?: string
+          id?: string
+          notes?: string | null
+          origin_address?: string
+          origin_city?: string
+          origin_state?: string
+          origin_zip?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_company_id"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ltl_ftl: {
         Row: {
           company_id: string | null

@@ -493,13 +493,6 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
 
 
             <div className="flex justify-between w-full border-b border-zinc-300">
-            
-                <button
-                    className={`px-4 py-2 ${activeTab === 'inventory' ? 'border-b-2 border-red-300' : ''}`}
-                    onClick={() => setActiveTab('inventory')}
-                >
-                    Inventory
-                </button>
                 <div className='flex flex-col gap-2 justify-normal items-end'>
                     <div>
                         <a href="/public/EQUIPMENT_CSV_TEMPLATE.csv" download className="upload-button m-0 px-5 py-2 ">Download Equipment CSV Template </a>
