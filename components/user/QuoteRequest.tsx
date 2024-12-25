@@ -150,6 +150,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
                 width: quote.width?.toString() || null, // Ensure width is a string
                 height: quote.height?.toString() || null, // Ensure height is a string
                 weight: quote.weight?.toString() || null, // Ensure weight is a string
+                status: quote.status || 'Quote',
             }])
             .select();
     
@@ -236,9 +237,9 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
                     addQuote={addQuote}
                     errorText={errorText}
                     setErrorText={setErrorText}
-                    fetchQuotes={fetchQuotes} // Pass fetchQuotes to QuoteForm
                     companyId={companyId} // Pass companyId to QuoteForm
                     assignedSalesUser={session?.user?.id || ''} // Pass assignedSalesUser to QuoteForm
+                    fetchQuotes={fetchQuotes}
                 />
             </div>
             {isMobile ? (
@@ -295,6 +296,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, }: QuoteRequestPro
                     <QuoteList
                         session={session}
                         isAdmin={isAdmin} // Pass isAdmin state
+                        
                     />
                 )}
                 {activeTab === 'orders' && (

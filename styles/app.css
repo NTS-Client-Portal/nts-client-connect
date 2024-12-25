@@ -1133,6 +1133,11 @@ body:is(.dark *) {
   max-height: max-content;
 }
 
+.max-h-fit {
+  max-height: -moz-fit-content;
+  max-height: fit-content;
+}
+
 .min-h-\[80px\] {
   min-height: 80px;
 }
@@ -1301,6 +1306,10 @@ body:is(.dark *) {
 
 .max-w-sm {
   max-width: 24rem;
+}
+
+.max-w-xl {
+  max-width: 36rem;
 }
 
 .flex-1 {
@@ -2061,6 +2070,18 @@ body:is(.dark *) {
 
 .p-8 {
   padding: 2rem;
+}
+
+.p-10 {
+  padding: 2.5rem;
+}
+
+.p-12 {
+  padding: 3rem;
+}
+
+.p-9 {
+  padding: 2.25rem;
 }
 
 .px-1 {

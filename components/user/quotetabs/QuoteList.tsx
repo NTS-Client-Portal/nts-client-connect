@@ -116,8 +116,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
             .from('shippingquotes')
             .select('*')
             .in('user_id', profileIds)
-            .eq('status', 'Quote') // Fetch only quotes with the status 'Quote'
-            .not('is_archived', 'eq', true);
+            .eq('status', 'Quote');
     
         if (error) {
             console.error('Error fetching shipping quotes:', error.message);
@@ -132,7 +131,6 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
             .from('company_sales_users')
             .select('company_id')
             .eq('sales_user_id', userId)
-            .not('is_archived', 'eq', true);
     
         if (companySalesUsersError) {
             console.error('Error fetching company_sales_users for nts_user:', companySalesUsersError.message);

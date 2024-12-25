@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { useProfilesUser } from '@/context/ProfilesUserContext';
 import ShipperBrokerConnect from '@/components/ShipperBrokerConnect';
 import FloatingChatWidget from '@/components/FloatingChatWidget';
+import { Quote } from '../../lib/types';
 
 type NtsUsersRow = Database['public']['Tables']['nts_users']['Row'];
 type AssignedSalesUser = Database['public']['Tables']['nts_users']['Row'];
@@ -98,7 +99,10 @@ const ShipperDash = () => {
             .from('shippingquotes')
             .select('*')
             .eq('user_id', session?.user.id)
-            .eq('price', Number);
+            .eq('price', Number)
+            .eq('status', 'quote')
+            .not('status', 'eq', 'order')
+            .not('is_complete', 'eq', true);
 
         if (error) {
             console.error('Error fetching priced quotes:', error.message);
@@ -115,7 +119,8 @@ const ShipperDash = () => {
                 .from('shippingquotes')
                 .select('*')
                 .eq('user_id', session?.user.id)
-                .gt('price', 0);
+                .gt('price', 0)
+
 
             if (error) {
                 console.error('Error fetching priced quotes:', error.message);
@@ -128,6 +133,45 @@ const ShipperDash = () => {
 
         if (session) {
             fetchPricedQuotes();
+        }
+    }, [session]);
+
+    const fetchOrders = async () => {
+        const { data, error } = await supabase
+            .from('shippingquotes')
+            .select('*')
+            .eq('user_id', session?.user.id)
+            .eq('status', 'Order');
+
+        if (error) {
+            console.error('Error fetching orders:', error.message);
+            setErrorText('Error fetching orders');
+            return;
+        }
+
+        setQuotes(data);
+    }
+
+    const fetchDeliveredOrders = async () => {
+        const { data, error } = await supabase
+            .from('shippingquotes')
+            .select('*')
+            .eq('user_id', session?.user.id)
+            .eq('is_complete', true);
+
+        if (error) {
+            console.error('Error fetching delivered orders:', error.message);
+            setErrorText('Error fetching delivered orders');
+            return;
+        }
+
+        setQuotes(data);
+    }
+
+    useEffect(() => {
+        if (session) {
+            fetchOrders();
+            fetchDeliveredOrders();
         }
     }, [session]);
 
@@ -169,100 +213,97 @@ const ShipperDash = () => {
                         </div>
                     ))}
 
-             {quotes.length > 0 && (
+             {quotes.filter(quote => quote.price !== null && quote.price > 0).length > 0 ? (
                     <div className="p-4 bg-gray-100 w-1/2 shadow rounded-lg max-h-96 overflow-auto">
                         <h3 className="text-lg font-semibold mb-4">Quote Responses</h3>
-                        {setQuotes ? (
-                            <div className='flex flex-col gap-2'>
-                               <div className=' mb-4'>
-                                <Link className="text-ntsLightBlue font-semibold underline" href={`/user`}>
-                                  Create Order
-                                </Link>
-                                </div>
-                                <ul className='grid grid-cols-3 gap-2 w-full'>
-                                    {quotes.filter(quote => quote.price !== null && quote.price > 0).map((quote) => (
-                                        <li key={quote.id} className="mb-2">
-                                            <p>ID: {quote.id}</p>
-                                            <p>Price: ${quote.price}</p>
-                                            <p>Commodity: {quote.make && quote.model ? ( `${quote.make} ${quote.model}`
-                                            ) : quote.container_type ? (  `${quote.container_length} ${quote.container_type}` ) : ( "N/A" )}
-                                            </p>
-                                        </li>
-                                    ))}
-                                </ul>
-                                
-                            </div>
-                            
-                        ) : (
-                            <Link className="body-btn" href={`/user`}>
-                                View Status
+                        <div className='flex flex-col gap-2'>
+                           <div className=' mb-4'>
+                            <Link className="text-ntsLightBlue font-semibold underline" href={`/user`}>
+                              Create Order
                             </Link>
-                        )}
+                            </div>
+                            <ul className='grid grid-cols-2 gap-2 w-full'>
+                                {quotes.filter(quote => quote.price !== null && quote.price > 0).map((quote) => (
+                                    <li key={quote.id} className="mb-2 flex gap-1">
+                                        <p>ID: {quote.id}</p>
+                                        <p>Price: ${quote.price}</p>
+                                        <p>Commodity: {quote.make && quote.model ? ( `${quote.make} ${quote.model}`
+                                        ) : quote.container_type ? (  `${quote.container_length} ${quote.container_type}` ) : ( "N/A" )}
+                                        </p>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="p-4 bg-gray-100 w-1/2 shadow rounded-lg max-h-96 overflow-auto">
+                        <h3 className="text-lg font-semibold mb-4">Quote Responses</h3>
+                        <div className='flex flex-col gap-2'>
+                            <h2>No Quotes Available</h2>
+                            <Link className="body-btn w-fit" href={`/user`}>
+                                Create Quote
+                            </Link>
+                        </div>
                     </div>
                 )}
                 </div>
             )}
             <div className='mt-4 flex gap-6 justify-start items-stretch w-full'>
-                <div className="p-4 bg-gray-100 shadow rounded-lg max-w-lg max-h-96 overflow-auto">
-                    <h2 className="text-xl font-bold mb-4">Active Orders</h2>
-                                <div className='mb-4'>
-                                    <Link className="text-ntsLightBlue font-semibold underline" href={`/user`}>
-                                        View Quotes
-                                    </Link>
-                                </div>
-                             <div>
-                                <div>
-                                    <h3 className="text-lg font-semibold"></h3>
-                                    <div className='mb-2'>
-                                        <ul className='flex gap-2 flex-wrap'>
-                                            {quotes.map((quote) => (
-                                                <li key={quote.id} className="mb-2">
-                                                    <p>ID: {quote.id}</p>
-                                                    <p>Status: {quote.status}</p>
-                                                    <p>Commodity: {quote.make && quote.model ? ( `${quote.make} ${quote.model}`
-                                                        ) : quote.container_type ? (  `${quote.container_length} ${quote.container_type}` ) : ( "N/A" )}
-                                                    </p>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                </div>
-
-                         
+                <div className="p-8 bg-gray-100 shadow rounded-lg max-w-lg max-h-96 overflow-auto">
+                    <h2 className="text-xl font-bold mb-2">Active Orders</h2>
+                    <div className='mb-4'>
+                        <Link className="text-ntsLightBlue font-semibold underline" href={`/user`}>
+                            View Orders
+                        </Link>
+                    </div>
+                    <div>
+                        <div>
+                            <h3 className="text-lg font-semibold"></h3>
+                            <div className='mb-2 w-full'>
+                                <ul className='flex flex-col gap-2'>
+                                    {quotes.filter(quote => quote.status === 'Order').map((quote) => (
+                                        <li key={quote.id} className="mb-2 flex gap-1">
+                                            <p>ID: {quote.id}</p>
+                                            <p>Status: {quote.status}</p>
+                                            <p>Commodity: {quote.make && quote.model ? ( `${quote.make} ${quote.model}`
+                                                ) : quote.container_type ? (  `${quote.container_length} ${quote.container_type}` ) : ( "N/A" )}
+                                            </p>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
                         </div>
-                   
+                    </div>
                 </div>
     
-                {quotes.length > 0 && (
+                {quotes.filter(quote => quote.is_complete).length > 0 ? (
                     <div className="p-4 bg-gray-100 shadow rounded-lg w-1/2 max-h-96 overflow-auto">
                         <h3 className="text-lg font-semibold mb-2">Delivered Orders</h3>
-                        {setQuotes ? (
-                           <>
-                                 <div className='mb-4'>
-                                  <Link className="text-ntsLightBlue font-semibold underline" href={`/user/documents`}>
-                                     View Photos and Documents
-                                 </Link>
-                             </div>
-                                <div>
-                                    <ul className='flex gap-2 flex-wrap'>
-                                        {quotes.filter(quote => quote.price !== null && quote.price > 0).map((quote) => (
-                                            <li key={quote.id} className="mb-2">
-                                                <p>ID: {quote.id}</p>
-                                                <p>Status: {quote.status}</p>
-                                                <p>Commodity: {quote.make && quote.model ? ( `${quote.make} ${quote.model}`
-                                                ) : quote.container_type ? (  `${quote.container_length} ${quote.container_type}` ) : ( "N/A" )}
-                                                </p>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-
-                           </>
-                        ) : (
-                            <Link className="body-btn" href={`/user`}>
-                                View Status
+                        <div className='mb-4'>
+                            <Link className="text-ntsLightBlue font-semibold underline" href={`/user/documents`}>
+                                View Photos and Documents
                             </Link>
-                        )}
+                        </div>
+                        <div>
+                            <ul className='flex gap-2 flex-wrap'>
+                                {quotes.filter(quote => quote.is_complete).map((quote) => (
+                                    <li key={quote.id} className="mb-2">
+                                        <p>ID: {quote.id}</p>
+                                        <p>Status: {quote.status}</p>
+                                        <p>Commodity: {quote.make && quote.model ? ( `${quote.make} ${quote.model}`
+                                        ) : quote.container_type ? (  `${quote.container_length} ${quote.container_type}` ) : ( "N/A" )}
+                                        </p>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="p-4 bg-gray-100 shadow rounded-lg w-1/2 max-h-96 overflow-auto">
+                        <h3 className="text-lg font-semibold mb-2">Delivered Orders</h3>
+                        <div className='flex flex-col gap-2'>
+                            <p>No Delivered Orders</p>
+                        </div>
                     </div>
                 )}
             </div>

@@ -1341,6 +1341,7 @@ export type Database = {
           assigned_sales_user: string | null
           auction: string | null
           beam: string | null
+          brokers_status: string | null
           buyer_number: string | null
           class_type: string | null
           commodity: string | null
@@ -1417,6 +1418,7 @@ export type Database = {
           assigned_sales_user?: string | null
           auction?: string | null
           beam?: string | null
+          brokers_status?: string | null
           buyer_number?: string | null
           class_type?: string | null
           commodity?: string | null
@@ -1493,6 +1495,7 @@ export type Database = {
           assigned_sales_user?: string | null
           auction?: string | null
           beam?: string | null
+          brokers_status?: string | null
           buyer_number?: string | null
           class_type?: string | null
           commodity?: string | null

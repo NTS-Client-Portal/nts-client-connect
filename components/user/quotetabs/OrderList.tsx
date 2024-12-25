@@ -30,7 +30,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
             .from('company_sales_users')
             .select('company_id')
             .eq('sales_user_id', userId);
-
+            
         if (companySalesUsersError) {
             console.error('Error fetching company_sales_users for nts_user:', companySalesUsersError.message);
             return [];
@@ -52,12 +52,26 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
         return quotes;
     }, []);
 
+    const fetchQuotesForCompany = useCallback(async (companyId: string) => {
+        const { data: quotes, error: quotesError } = await supabase
+            .from('shippingquotes')
+            .select('*')
+            .eq('company_id', companyId)
+            .eq('status', 'Order');
+
+        if (quotesError) {
+            console.error('Error fetching quotes for company:', quotesError.message);
+            return [];
+        }
+
+        return quotes;
+    }, []);
+
     const fetchQuotes = useCallback(async () => {
         let query = supabase
             .from('shippingquotes')
             .select('*')
-            .eq('status', 'Order')
-            .not('is_complete', 'eq', true);
+            .eq('status', 'Order');
     
         if (!isNtsUser && session?.user?.id) {
             query = query.eq('user_id', session.user.id);
@@ -74,25 +88,43 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
     }, [session, isNtsUser]);
 
     useEffect(() => {
-        const checkNtsUser = async () => {
+        const checkUserType = async () => {
             if (session?.user?.id) {
-                const { data, error } = await supabase
+                const { data: ntsUserData, error: ntsUserError } = await supabase
                     .from('nts_users')
                     .select('id')
                     .eq('id', session.user.id)
                     .single();
 
-                if (error) {
-                    console.error('Error fetching user role:', error.message);
-                } else {
-                    setIsNtsUser(!!data);
+                if (ntsUserError) {
+                    console.error('Error fetching nts_user role:', ntsUserError.message);
+                } else if (ntsUserData) {
+                    setIsNtsUser(true);
+                    const quotes = await fetchOrdersForNtsUsers(session.user.id);
+                    setQuotes(quotes);
+                    return;
                 }
+
+                const { data: profileData, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('company_id')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (profileError) {
+                    console.error('Error fetching profile:', profileError.message);
+                } else if (profileData?.company_id) {
+                    const quotes = await fetchQuotesForCompany(profileData.company_id);
+                    setQuotes(quotes);
+                    return;
+                }
+
+                fetchQuotes();
             }
         };
 
-        checkNtsUser();
-        fetchQuotes();
-    }, [session, fetchQuotes]);
+        checkUserType();
+    }, [session, fetchQuotes, fetchOrdersForNtsUsers, fetchQuotesForCompany]);
 
     const generatePDF = (quote: ShippingQuotesRow) => {
         const doc = new jsPDF();
@@ -249,9 +281,11 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
                         setSortConfig({ column, order });
                     }}
                     orders={quotes}
+                    // sortConfig={sortConfig} // Provide appropriate value
                     expandedRow={null} // Provide appropriate value
                     handleRowClick={() => {}} // Provide appropriate function
-                    archiveOrder={async (id: number) => { /* Implement the function here */ }} // Provide appropriate function
+                    archiveOrder={async (id: number) => { /* Implement the function here */ }} 
+                    handleMarkAsComplete={(id) => () => handleMarkAsComplete(id)}
                 />
             </div>
             <div className="block 2xl:hidden mt-">

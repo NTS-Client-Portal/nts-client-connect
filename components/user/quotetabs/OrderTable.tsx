@@ -12,6 +12,7 @@ interface OrderTableProps {
     archiveOrder: (id: number) => Promise<void>;
     handleEditClick: (order: Database['public']['Tables']['shippingquotes']['Row']) => void;
     isAdmin: boolean;
+    handleMarkAsComplete: (id: number) => React.MouseEventHandler<HTMLButtonElement>;
 }
 
 const OrderTable: React.FC<OrderTableProps> = ({
@@ -101,7 +102,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
         try {
             const { error } = await supabase
                 .from('shippingquotes')
-                .update({ status: newStatus })
+                .update({ brokers_status: newStatus })
                 .eq('id', id);
 
             if (error) {
@@ -117,6 +118,30 @@ const OrderTable: React.FC<OrderTableProps> = ({
         } catch (error) {
             console.error('Error updating status:', error);
         }
+    }
+    function handleMarkAsComplete(id: number): React.MouseEventHandler<HTMLButtonElement> {
+        return async (e) => {
+            e.stopPropagation();
+            try {
+                const { error } = await supabase
+                    .from('shippingquotes')
+                    .update({ status: 'Completed' })
+                    .eq('id', id);
+
+                if (error) {
+                    console.error('Error marking as complete:', error);
+                    return;
+                }
+
+                // Optionally, you can update the local state to reflect the change immediately
+                const updatedOrders = orders.map(order => 
+                    order.id === id ? { ...order, status: 'Completed' } : order
+                );
+                handleSort(sortConfig.column, sortConfig.order); // Re-sort the table if necessary
+            } catch (error) {
+                console.error('Error marking as complete:', error);
+            }
+        };
     }
     return (
         <div className='w-full'>
@@ -241,19 +266,25 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                             Edit Order
                                         </button>
                                         {isAdmin && (
-                                            <select
-                                                value={order.status}
-                                                onChange={(e) => handleStatusChange(e, order.id)}
-                                                className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(order.status)}`}
-                                            >
-                                                <option value="Pending" className={getStatusClasses('Pending')}>Pending</option>
-                                                <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
-                                                <option value="Dispatched" className={getStatusClasses('Dispatched')}>Dispatched</option>
-                                                <option value="Picked Up" className={getStatusClasses('Picked Up')}>Picked Up</option>
-                                                <option value="Delivered" className={getStatusClasses('Delivered')}>Delivered</option>
-                                                <option value="Completed" className={getStatusClasses('Completed')}>Completed</option>
-                                                <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
-                                            </select>
+                                            <>
+                                                <select
+                                                    value={order.status}
+                                                    onChange={(e) => handleStatusChange(e, order.id)}
+                                                    className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(order.status)}`}
+                                                >
+                                                    <option value="Pending" className={getStatusClasses('Pending')}>Pending</option>
+                                                    <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
+                                                    <option value="Dispatched" className={getStatusClasses('Dispatched')}>Dispatched</option>
+                                                    <option value="Picked Up" className={getStatusClasses('Picked Up')}>Picked Up</option>
+                                                    <option value="Delivered" className={getStatusClasses('Delivered')}>Delivered</option>
+                                                    <option value="Completed" className={getStatusClasses('Completed')}>Completed</option>
+                                                    <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
+                                                </select>
+                                                <button onClick={() => handleMarkAsComplete(order.id)} className="text-green-600 ml-2">
+                                                    Mark as Complete
+                                                </button>
+                                            </>
+                                           
                                         )}
                                     </div>
                                 </td>

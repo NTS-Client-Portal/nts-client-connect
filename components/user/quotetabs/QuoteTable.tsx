@@ -81,7 +81,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
         // Update the status in the database
         const { error } = await supabase
             .from('shippingquotes')
-            .update({ status: newStatus })
+            .update({ brokers_status: newStatus })
             .eq('id', quoteId);
 
         if (error) {
@@ -296,7 +296,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                     )}
                                 </td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">
-                                    <div className='flex flex-col gap-2'>
+                                    <div className='flex flex-col items-center gap-2'>
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -317,12 +317,11 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                 Create Order
                                             </button>
                                         ) : null}
-                                        {isAdmin && (
-                                            <select
-                                                value={quote.status}
-                                                onChange={(e) => handleStatusChange(e, quote.id)}
-                                                className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(quote.status)}`}
-                                            >
+                                            {isAdmin ? (
+                                     <select
+                                            value={quote.brokers_status}
+                                            onChange={(e) => handleStatusChange(e, quote.id)}
+                                            className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(quote.brokers_status)}`}>
                                                 <option value="Pending" className={getStatusClasses('Pending')}>Pending</option>
                                                 <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
                                                 <option value="Dispatched" className={getStatusClasses('Dispatched')}>Dispatched</option>
@@ -330,7 +329,9 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                 <option value="Delivered" className={getStatusClasses('Delivered')}>Delivered</option>
                                                 <option value="Completed" className={getStatusClasses('Completed')}>Completed</option>
                                                 <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
-                                            </select>
+                                    </select>
+                                        ) : (
+                                     <span><strong>Status: </strong>{quote.brokers_status ? quote.brokers_status : 'Pending'}</span>
                                         )}
                                     </div>
                                 </td>
