@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import EditHistory from '../../EditHistory';
 import { formatDate, renderAdditionalDetails, freightTypeMapping } from './QuoteUtils';
 import { supabase } from '@/lib/initSupabase';
@@ -55,25 +55,27 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
 
     const indexOfLastRow = currentPage * rowsPerPage;
     const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-    const currentRows = quotes.slice(indexOfFirstRow, indexOfLastRow);
-
-    const totalPages = Math.ceil(quotes.length / rowsPerPage);
-
-    const handlePageChange = (pageNumber: number) => {
-        setCurrentPage(pageNumber);
-    };
 
     const [searchTerm, setSearchTerm] = useState('');
     const [searchColumn, setSearchColumn] = useState('id');
 
     const filteredQuotes = useMemo(() => {
+        if (!searchTerm) {
+            return quotes;
+        }
         return quotes
-            .filter((quote) => !quote.is_complete && !quote.is_archived) // Filter out completed and archived quotes
             .filter((quote) => {
-                const value = quote[sortConfig.column]?.toString().toLowerCase() || '';
+                const value = quote[searchColumn]?.toString().toLowerCase() || '';
                 return value.includes(searchTerm.toLowerCase());
             });
-    }, [searchTerm, sortConfig.column, quotes]);
+    }, [searchTerm, searchColumn, quotes]);
+
+    const currentRows = filteredQuotes.slice(indexOfFirstRow, indexOfLastRow);
+    const totalPages = Math.ceil(filteredQuotes.length / rowsPerPage);
+
+    const handlePageChange = (pageNumber: number) => {
+        setCurrentPage(pageNumber);
+    };
 
     const [showPriceInput, setShowPriceInput] = useState<number | null>(null);
     const [priceInput, setPriceInput] = useState('');
@@ -167,14 +169,13 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
             </button>
         );
     };
-
     return (
         <div className='w-full'>
-                        <div className="flex justify-start gap-4 my-4 ml-4">
+            <div className="flex justify-start gap-4 my-4 ml-4">
                 <div className="flex items-center">
                     <label className="mr-2">Search by:</label>
                     <select
-                        value={sortConfig.column}
+                        value={searchColumn}
                         onChange={(e) => setSearchColumn(e.target.value)}
                         className="border border-gray-300 rounded-md shadow-sm"
                     >
@@ -195,7 +196,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
             </div>
             <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
                 <thead className="bg-ntsLightBlue text-zinc-50 dark:bg-zinc-900 static top-0 w-full">
-                    <tr >
+                    <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                             <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : 'desc'} onSort={handleSort} />
                         </th>
@@ -219,7 +220,6 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                     </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-    
                     {currentRows.map((quote, index) => (
                         <React.Fragment key={quote.id}>
                             <tr
@@ -229,7 +229,6 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                 }}
                                 className={`cursor-pointer mb-4 w-max ${index % 2 === 0 ? 'bg-white h-fit w-full' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}
                             >
-                                
                                 <td className="px-6 py-3 w-[30px] whitespace-nowrap text-sm font-medium text-gray-900">
                                     {quote.id}
                                 </td>
