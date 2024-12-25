@@ -139,7 +139,7 @@ const ShipperDash = () => {
             {isLoading ? (
                 <p>Loading...</p>
             ) : (
-                <div className='flex gap-6 justify-center items-stretch w-full'>
+                <div className='flex gap-6 justify-start w-full'>
                     {assignedSalesUsers.map((user, index) => (
                         <div key={index} className="broker-card flex text-nowrap flex-col justify-center items-center p-4 bg-white shadow rounded-lg w-fit max-h-96">
                             <h2 className='text-xl underline font-bold mb-4'>Your Logistics Representative</h2>
@@ -170,21 +170,29 @@ const ShipperDash = () => {
                     ))}
 
              {quotes.length > 0 && (
-                    <div className="p-4 bg-gray-100 shadow rounded-lg max-w-fit max-h-96 overflow-auto">
-                        <h3 className="text-lg font-semibold mb-2">Quotes with Price</h3>
+                    <div className="p-4 bg-gray-100 w-1/2 shadow rounded-lg max-h-96 overflow-auto">
+                        <h3 className="text-lg font-semibold mb-4">Quote Responses</h3>
                         {setQuotes ? (
-                            <ul className='flex gap-2 flex-wrap'>
-                                {quotes.filter(quote => quote.price !== null && quote.price > 0).map((quote) => (
-                                    <li key={quote.id} className="mb-2">
-                                        <p>ID: {quote.id}</p>
-                                        <p>Price: ${quote.price}</p>
-                                        <p>Status: {quote.status}</p>
-                                        <p>Commodity: {quote.make && quote.model ? ( `${quote.make} ${quote.model}`
-                                        ) : quote.container_type ? (  `${quote.container_length} ${quote.container_type}` ) : ( "N/A" )}
-                                        </p>
-                                    </li>
-                                ))}
-                            </ul>
+                            <div className='flex flex-col gap-2'>
+                               <div className=' mb-4'>
+                                <Link className="body-btn" href={`/user`}>
+                                  Respond
+                                </Link>
+                                </div>
+                                <ul className='flex gap-2 flex-wrap '>
+                                    {quotes.filter(quote => quote.price !== null && quote.price > 0).map((quote) => (
+                                        <li key={quote.id} className="mb-2">
+                                            <p>ID: {quote.id}</p>
+                                            <p>Price: ${quote.price}</p>
+                                            <p>Commodity: {quote.make && quote.model ? ( `${quote.make} ${quote.model}`
+                                            ) : quote.container_type ? (  `${quote.container_length} ${quote.container_type}` ) : ( "N/A" )}
+                                            </p>
+                                        </li>
+                                    ))}
+                                </ul>
+                                
+                            </div>
+                            
                         ) : (
                             <Link className="body-btn" href={`/user`}>
                                 View Status
@@ -194,17 +202,15 @@ const ShipperDash = () => {
                 )}
                 </div>
             )}
-            <div className='mt-4 flex gap-6 justify-center items-stretch w-full'>
+            <div className='mt-4 flex gap-6 justify-start items-stretch w-full'>
                 <div className="p-4 bg-gray-100 shadow rounded-lg max-w-lg max-h-96 overflow-auto">
-                    <h2 className="text-xl font-bold mb-4">Quotes Analytics</h2>
-                    {errorText ? (
-                        <p className="text-red-500">{errorText}</p>
-                    ) : (
+                    <h2 className="text-xl font-bold mb-4">Active Orders</h2>
+    
                         <div>
-                            {analytics ? (
+                            
                                 <div>
-                                    <h3 className="text-lg font-semibold">Active Quotes</h3>
-                                    <div>
+                                    <h3 className="text-lg font-semibold"></h3>
+                                    <div className='mb-2'>
                                         <ul className='flex gap-2 flex-wrap'>
                                             {quotes.map((quote) => (
                                                 <li key={quote.id} className="mb-2">
@@ -218,31 +224,38 @@ const ShipperDash = () => {
                                         </ul>
                                     </div>
                                 </div>
-                            ) : (
-                                <Link className="body-btn" href={`/user`}>
-                                    Create Shipping Quote
+                                <Link className="body-btn mt-4" href={`/user`}>
+                                    View Quotes
                                 </Link>
-                            )}
+                         
                         </div>
-                    )}
+                   
                 </div>
     
                 {quotes.length > 0 && (
-                    <div className="p-4 bg-gray-100 shadow rounded-lg max-w-fit max-h-96 overflow-auto">
-                        <h3 className="text-lg font-semibold mb-2">Quotes with Price</h3>
+                    <div className="p-4 bg-gray-100 shadow rounded-lg w-1/2 max-h-96 overflow-auto">
+                        <h3 className="text-lg font-semibold mb-2">Delivered Orders</h3>
                         {setQuotes ? (
-                            <ul className='flex gap-2 flex-wrap'>
-                                {quotes.filter(quote => quote.price !== null && quote.price > 0).map((quote) => (
-                                    <li key={quote.id} className="mb-2">
-                                        <p>ID: {quote.id}</p>
-                                        <p>Price: ${quote.price}</p>
-                                        <p>Status: {quote.status}</p>
-                                        <p>Commodity: {quote.make && quote.model ? ( `${quote.make} ${quote.model}`
-                                        ) : quote.container_type ? (  `${quote.container_length} ${quote.container_type}` ) : ( "N/A" )}
-                                        </p>
-                                    </li>
-                                ))}
-                            </ul>
+                           <>
+                                <div>
+                                    <ul className='flex gap-2 flex-wrap'>
+                                        {quotes.filter(quote => quote.price !== null && quote.price > 0).map((quote) => (
+                                            <li key={quote.id} className="mb-2">
+                                                <p>ID: {quote.id}</p>
+                                                <p>Status: {quote.status}</p>
+                                                <p>Commodity: {quote.make && quote.model ? ( `${quote.make} ${quote.model}`
+                                                ) : quote.container_type ? (  `${quote.container_length} ${quote.container_type}` ) : ( "N/A" )}
+                                                </p>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                             <div className='mt-4'>
+                                  <Link className="body-btn" href={`/user/documents`}>
+                                     View Photos and Documents
+                                 </Link>
+                             </div>
+                           </>
                         ) : (
                             <Link className="body-btn" href={`/user`}>
                                 View Status

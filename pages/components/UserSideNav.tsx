@@ -65,7 +65,7 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                     <ul className='flex flex-col flex-grow overflow-y-auto'>
                     <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user' || router.pathname === '/' ? "active" : ""}`}>
                             <Link href="/user" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user' || router.pathname === '/' ? "active" : ""}`}>
-                                <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><Workflow size={'20px'} /> <span className='text-xs md:text-xs '>{`${userProfile?.company_name}` || ''}<br /> Dashboard</span></span>
+                                <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><Workflow size={'20px'} /> Dashboard</span>
                             </Link>
                         </li>
                         <li className={`w-full flex justify-normal m-0 ${router.pathname === '/' ? "active" : ""}`}>
