@@ -142,7 +142,8 @@ const ShipperDash = () => {
             .from('shippingquotes')
             .select('*')
             .eq('user_id', session?.user.id)
-            .eq('status', 'Order');
+            .eq('status', 'Order')
+            .or('is_archived.is.null,is_archived.eq.false');
 
         if (error) {
             console.error('Error fetching orders:', error.message);
