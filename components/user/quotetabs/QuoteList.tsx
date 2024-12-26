@@ -387,7 +387,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
 
 
     return (
-        <div className="w-full bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md max-h-max flex-grow">
+        <div className="w-full bg-white max-h-max flex-grow">
             {popupMessage && (
                 <div className="absolute top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg animate-fade-in-out">
                     {popupMessage}

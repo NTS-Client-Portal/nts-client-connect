@@ -313,7 +313,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [] }) =
                     </button>
                 </div>
             )}
-            <div className="p-4 bg-white border border-gray-300 rounded-b-md">
+            <div className="p-4 bg-white ">
                 {activeTab === 'requests' && (
                     <QuoteList
                         session={session}

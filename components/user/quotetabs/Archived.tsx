@@ -154,7 +154,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin }) => {
     };
 
     return (
-        <div className="w-full bg-white shadow rounded-md border border-zinc-400 max-h-max flex-grow">
+        <div className="w-full bg-white0 max-h-max flex-grow">
             {!!errorText && <div className="text-red-500">{errorText}</div>}
             <div className="hidden 2xl:block overflow-x-auto">
                 <ArchivedTable

@@ -140,6 +140,16 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                 const pdf = generatePDF(quote);
                 const filePath = await uploadPDFToSupabase(pdf, quote);
                 await insertDocumentRecord(filePath, quote);
+
+                // Create a notification for the user
+                const notificationMessage = `Quote ID ${quote.id} has been updated with a new price. <a href="/user/documents">View BOL</a>`;
+                await supabase
+                    .from('notifications')
+                    .insert({
+                        user_id: quote.user_id,
+                        message: notificationMessage,
+                        is_read: false,
+                    });
             }
         }
     };
@@ -194,8 +204,8 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                     className="border border-gray-300 pl-2 rounded-md shadow-sm"
                 />
             </div>
-            <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
-                <thead className="bg-ntsBlue text-zinc-50 dark:bg-zinc-900 static top-0 w-full">
+            <table className="min-w-full divide-y divide-zinc-200">
+                <thead className="bg-ntsBlue border-2 border-t-orange-500 text-zinc-50  top-0 w-full">
                     <tr>
                         <th className="px-6 py-3 text-left text-xs text-nowrap font-medium uppercase tracking-wider">
                             <TableHeaderSort column="Quote ID" sortOrder={sortConfig.column === 'id' ? sortConfig.order : 'desc'} onSort={handleSort} />
@@ -219,7 +229,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white divide-y divide-x-2 divide-gray-200">
                     {currentRows.map((quote, index) => (
                         <React.Fragment key={quote.id}>
                             <tr
@@ -227,12 +237,12 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                     handleRowClick(quote.id);
                                     setActiveTab('quotedetails'); // Set activeTab to 'quotedetails' when row is expanded
                                 }}
-                                className={`cursor-pointer mb-4 w-max ${index % 2 === 0 ? 'bg-white h-fit w-full' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}
+                                className={`cursor-pointer divide-x-2 divide-gray-200 border border-zinc-300 mb-4 w-max ${index % 2 === 0 ? 'bg-white h-fit w-full' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}
                             >
-                                <td className="px-6 py-3 w-[30px] whitespace-nowrap text-sm font-medium text-gray-900">
+                                <td className="px-6 py-3 w-[30px] whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200">
                                     {quote.id}
                                 </td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                                <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200">
                                     <div className=''>
                                         {Array.isArray(quote.shipment_items) ? quote.shipment_items.map((item: any, index) => (
                                             <React.Fragment key={index}>
@@ -274,11 +284,11 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                         </div>
                                     </div>
                                 </td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.origin_city}, {quote.origin_state} {quote.origin_zip}</td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.destination_city}, {quote.destination_state} {quote.destination_zip}</td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.due_date}</td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.status}</td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">
+                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.origin_city}, {quote.origin_state} {quote.origin_zip}</td>
+                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.destination_city}, {quote.destination_state} {quote.destination_zip}</td>
+                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.due_date}</td>
+                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.status}</td>
+                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
                                     {isAdmin ? (
                                         showPriceInput === quote.id ? (
                                             <form onSubmit={(e) => handlePriceSubmit(e, quote.id)}>
@@ -308,7 +318,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                         quote.price ? `$${quote.price}` : 'Pending'
                                     )}
                                 </td>
-                                <td className="px-6 py-3 whitespace-nowrap text-left text-sm text-gray-500">
+                                <td className="px-6 py-3 whitespace-nowrap text-left text-sm text-gray-500 border border-gray-200">
                                     <div className='flex flex-col justify-center text-left items-start gap-2'>
                                         <button
                                             onClick={(e) => {

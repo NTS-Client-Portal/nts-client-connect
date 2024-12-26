@@ -93,8 +93,8 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
                     className="border border-gray-300 pl-2 rounded-md shadow-sm"
                 />
             </div>
-            <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
-                <thead className="bg-ntsBlue text-zinc-50 dark:bg-zinc-900 static top-0 w-full">
+            <table className="min-w-full divide-y divide-zinc-200">
+                <thead className="bg-ntsBlue border-2 border-t-orange-500 text-zinc-50 dark:bg-zinc-900 static top-0 w-full">
                     <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                             <TableHeaderSort column="Quote ID" sortOrder={sortConfig.column === 'id' ? sortConfig.order : 'desc'} onSort={handleSort} />
@@ -121,8 +121,8 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
                 <tbody className="bg-white divide-y divide-gray-200">
                     {quotes.map((quote, index) => (
                         <tr key={quote.id} className={`cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{quote.id}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200">{quote.id}</td>
+                            <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200">
                                 <div className=''>
                                     {Array.isArray(quote.shipment_items) ? quote.shipment_items.map((item: any, index) => (
                                         <React.Fragment key={index}>
@@ -163,12 +163,12 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
                                     </div>
                                 </div>
                             </td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.origin_city}, {quote.origin_state}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.destination_city}, {quote.destination_state}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.due_date}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.status}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.price ? `$${quote.price}` : 'Pending'}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">
+                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.origin_city}, {quote.origin_state}</td>
+                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.destination_city}, {quote.destination_state}</td>
+                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.due_date}</td>
+                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.status}</td>
+                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.price ? `$${quote.price}` : 'Pending'}</td>
+                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
                                 <div className='flex flex-col items-start gap-2'>
                                     <button onClick={() => unArchive(quote)} className="text-ntsLightBlue font-semibold text-base underline h-full">
                                         Unarchive Quote

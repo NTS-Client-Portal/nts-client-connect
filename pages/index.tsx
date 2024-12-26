@@ -7,9 +7,12 @@ import CustomSignInForm from '@/components/CustomSignInForm';
 import { MoveHorizontal } from 'lucide-react';
 import Layout from './components/Layout';
 import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
+import { NtsUsersProvider } from '@/context/NtsUsersContext';
 import ShipperDash from '@/components/user/ShipperDash';
+import QuoteRequest from '@/components/user/QuoteRequest';
 import UserLayout from '@/pages/components/UserLayout';
 import Image from 'next/image';
+
 
 interface UserProfile {
   id: string;
@@ -22,9 +25,19 @@ interface UserProfile {
   profile_picture?: string | null;
   address?: string | null;
   phone_number?: string | null;
+  assigned_sales_user?: string | null;
+  company_id?: string | null;
+  company_size?: string | null;
+  email_notifications?: boolean | null;
+  industry?: string | null;
 }
 
 const LoginPage = () => {
+  // or true, depending on your logic
+  const company = { id: 'company-id' };
+  const profiles = [];
+  const ntsUsers = [];
+  const isAdmin = false;
   const session = useSession();
   const supabase = useSupabaseClient();
   const router = useRouter();
@@ -49,7 +62,7 @@ const LoginPage = () => {
 
         if (userProfile) {
           setUserProfile(userProfile as UserProfile);
-          router.push('/user');
+          router.push('/user/logistics-management');
         } else {
           // Create a new profile if it doesn't exist
           const { data, error } = await supabase
@@ -216,13 +229,18 @@ const LoginPage = () => {
     );
   }
 
-  return (
-    <ProfilesUserProvider>
-      <UserLayout>
-        <ShipperDash />
-      </UserLayout>
-    </ProfilesUserProvider>
-  );
+
+  if (!session)
+
+    return (
+      <NtsUsersProvider>
+        <ProfilesUserProvider>
+          <UserLayout>
+            <QuoteRequest session={session} profiles={profiles} />
+          </UserLayout>
+        </ProfilesUserProvider>
+      </NtsUsersProvider>
+    );
 };
 
 export default LoginPage;

@@ -79,7 +79,7 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
                 />
             </div>
             <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
-                <thead className="bg-ntsBlue text-zinc-50 dark:bg-zinc-900 static top-0 w-full">
+                <thead className="bg-ntsBlue text-zinc-50 border-2 border-t-orange-500 dark:bg-zinc-900 static top-0 w-full">
                     <tr>
                         <th className="px-6 py-3 text-left text-nowrap text-xs font-medium uppercase tracking-wider">
                             <TableHeaderSort column="Order ID" sortOrder={sortConfig.column === 'id' ? sortConfig.order : 'desc'} onSort={handleSort} />
@@ -148,12 +148,12 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
                                     </div>
                                 </div>
                             </td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.origin_city}, {quote.origin_state}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.destination_city}, {quote.destination_state}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.due_date}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.status}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.price ? `$${quote.price}` : 'Pending'}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">
+                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.origin_city}, {quote.origin_state}</td>
+                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.destination_city}, {quote.destination_state}</td>
+                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.due_date}</td>
+                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.status}</td>
+                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.price ? `$${quote.price}` : 'Pending'}</td>
+                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
                                 <div className='flex flex-col items-start gap-2'>
                                     <button onClick={() => duplicateQuote(quote)} className="body-btn w-fit">
                                         Duplicate Quote

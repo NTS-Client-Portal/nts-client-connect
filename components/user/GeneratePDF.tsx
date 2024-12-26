@@ -18,7 +18,7 @@ export const generatePDF = (quote: ShippingQuotesRow) => {
 
 export const uploadPDFToSupabase = async (pdf: jsPDF, quote: ShippingQuotesRow) => {
     const pdfBlob = pdf.output('blob');
-    const fileName = `receipts/${quote.id}.pdf`;
+    const fileName = `quotes/${quote.id}.pdf`;
     const { data, error } = await supabase.storage
         .from('documents')
         .upload(fileName, pdfBlob);

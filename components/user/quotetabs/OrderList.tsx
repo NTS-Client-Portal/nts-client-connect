@@ -45,7 +45,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
             .select('*')
             .in('company_id', companyIds)
             .eq('status', 'Order')
-            .or('is_archived.is.null,is_archived.eq.false');
+            .not('is_complete', 'is', true);
 
         if (quotesError) {
             console.error('Error fetching quotes for nts_user:', quotesError.message);
@@ -61,7 +61,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
             .select('*')
             .eq('company_id', companyId)
             .eq('status', 'Order')
-            .or('is_archived.is.null,is_archived.eq.false');
+            .not('is_complete', 'is', true);
 
         if (quotesError) {
             console.error('Error fetching quotes for company:', quotesError.message);
@@ -75,7 +75,11 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
         let query = supabase
             .from('shippingquotes')
             .select('*')
-            .eq('status', 'Order');
+            .eq('status', 'Order')
+            .or('is_archived.is.null,is_archived.eq.false')
+            .not('is_complete', 'eq', true)
+            .or('is_complete.is.null,is_complete.eq.true');
+
 
         if (!isNtsUser && session?.user?.id) {
             query = query.eq('user_id', session.user.id);
@@ -179,8 +183,8 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
             .from('documents')
             .insert({
                 user_id: quote.user_id,
-                title: `Receipt for Quote ${quote.id}`,
-                description: `Receipt for Quote ${quote.id}`,
+                title: `Receipt for BOL ${quote.id}`,
+                description: `Receipt for BOL ${quote.id}`,
                 file_name: `${quote.id}.pdf`,
                 file_type: 'application/pdf',
                 file_url: filePath,
@@ -202,6 +206,23 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
                 console.error('Error marking quote as complete:', error.message);
                 setErrorText('Error marking quote as complete');
             } else {
+                const quote = quotes.find(q => q.id === quoteId);
+                if (quote) {
+                    // Generate PDF and upload to Supabase
+                    const pdf = generatePDF(quote);
+                    const filePath = await uploadPDFToSupabase(pdf, quote);
+                    await insertDocumentRecord(filePath, quote);
+
+                    // Create a notification for the user
+                    const notificationMessage = `Quote ID ${quote.id} was delivered. <a href="/user/documents">View BOL</a>`;
+                    await supabase
+                        .from('notifications')
+                        .insert({
+                            user_id: quote.user_id,
+                            message: notificationMessage,
+                            is_read: false,
+                        });
+                }
                 setQuotes(quotes.filter(quote => quote.id !== quoteId));
             }
         } catch (error) {
@@ -291,7 +312,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
     }
 
     return (
-        <div className="w-full bg-white dark:bg-zinc-800 dark:text-zinc-100 shadow rounded-md border border-zinc-400 max-h-max flex-grow">
+        <div className="w-full bg-white  shadow rounded-md max-h-max flex-grow">
             {!!errorText && <div className="text-red-500">{errorText}</div>}
             <div className="hidden 2xl:block overflow-x-auto">
                 <OrderTable

@@ -4,6 +4,7 @@ import QuoteRequest from '@/components/user/QuoteRequest';
 import UserLayout from '@/pages/components/UserLayout';
 import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
+
 const FreightRFQPage: React.FC = () => {
     const session = useSession();
     const company = { id: 'company-id' };
