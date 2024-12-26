@@ -184,37 +184,39 @@ const ShipperDash = () => {
         <div className='container mx-auto flex flex-col'>
 
 
-            <div className='mt-4 flex gap-6 justify-start items-stretch w-full'>
-                <div className="p-8 bg-gray-100 shadow rounded-lg max-w-lg max-h-96 overflow-auto">
-                    <h2 className="text-xl font-bold mb-2">Active Orders</h2>
-                    <div className='mb-4'>
-                        <Link className="text-ntsLightBlue font-semibold underline" href={`/user`}>
-                            View Orders
-                        </Link>
-                    </div>
-                    <div>
+            <div className='flex sm:flex-col-reverse xl:flex-row gap-4'>
+                <div className='mt-4 flex gap-2 justify-start items-stretch w-full'>
+                    <div className="p-8 bg-gray-100 shadow rounded-lg max-w-lg max-h-96 overflow-auto">
+                        <h2 className="text-xl font-bold mb-2">Active Orders</h2>
+                        <div className='mb-4'>
+                            <Link className="text-ntsLightBlue font-semibold underline" href={`/user`}>
+                                View Orders
+                            </Link>
+                        </div>
                         <div>
-                            <h3 className="text-lg font-semibold"></h3>
-                            <div className='mb-2 w-full'>
-                                <ul className='flex flex-col gap-2'>
-                                    {quotes.filter(quote => quote.status === 'Order').length > 0 ? (
-                                        quotes.filter(quote => quote.status === 'Order').map((quote) => (
-                                            <li key={quote.id} className="mb-2 flex flex-col gap-1">
-                                                <p><strong>ID:</strong> {quote.id} <strong>Status:</strong> {quote.status}</p>
-                                                <p>{quote.make && quote.model ? (`${quote.make} ${quote.model}`
-                                                ) : quote.container_type ? (`${quote.container_length} ${quote.container_type}`) : ("N/A")}
-                                                </p>
-                                            </li>
-                                        ))
-                                    ) : (
-                                        <p>No Active Orders</p>
-                                    )}
-                                </ul>
+                            <div>
+                                <h3 className="text-lg font-semibold"></h3>
+                                <div className='mb-2 w-full'>
+                                    <ul className='flex flex-col gap-2'>
+                                        {quotes.filter(quote => quote.status === 'Order').length > 0 ? (
+                                            quotes.filter(quote => quote.status === 'Order').map((quote) => (
+                                                <li key={quote.id} className="mb-2 flex flex-col gap-1">
+                                                    <p><strong>ID:</strong> {quote.id} <strong>Status:</strong> {quote.status}</p>
+                                                    <p>{quote.make && quote.model ? (`${quote.make} ${quote.model}`
+                                                    ) : quote.container_type ? (`${quote.container_length} ${quote.container_type}`) : ("N/A")}
+                                                    </p>
+                                                </li>
+                                            ))
+                                        ) : (
+                                            <p>No Active Orders</p>
+                                        )}
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <ShippingCalendar />
                 </div>
-                <ShippingCalendar />
 
                 {assignedSalesUsers.map((user, index) => (
                     <div key={index} className="broker-card flex text-nowrap flex-col justify-center items-center p-4 bg-white shadow rounded-lg w-fit max-h-96">

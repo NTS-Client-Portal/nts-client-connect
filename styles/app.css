@@ -3969,6 +3969,10 @@ main:is(.dark *) {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
+  .sm\:flex-col-reverse {
+    flex-direction: column-reverse;
+  }
+
   .sm\:gap-2 {
     gap: 0.5rem;
   }
@@ -4092,6 +4096,10 @@ main:is(.dark *) {
     flex-direction: column;
   }
 
+  .md\:flex-col-reverse {
+    flex-direction: column-reverse;
+  }
+
   .md\:place-items-center {
     place-items: center;
   }
@@ -4196,6 +4204,10 @@ main:is(.dark *) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .lg\:flex-row {
+    flex-direction: row;
+  }
+
   .lg\:text-xl {
     font-size: 1.25rem;
     line-height: 1.75rem;
@@ -4221,6 +4233,10 @@ main:is(.dark *) {
 
   .xl\:w-\[46\%\] {
     width: 46%;
+  }
+
+  .xl\:flex-row {
+    flex-direction: row;
   }
 
   .xl\:p-3 {
