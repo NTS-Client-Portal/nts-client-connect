@@ -346,6 +346,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [] }) =
                 {activeTab === 'rejected' && (
                     <Rejected
                         session={session}
+                        selectedUserId={selectedUserId}
                     />
                 )}
             </div>
