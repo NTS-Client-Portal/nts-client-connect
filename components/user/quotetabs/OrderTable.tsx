@@ -54,7 +54,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
             const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
             onSort(column, newOrder);
         };
-    
+
         return (
             <button onClick={handleSort} className="flex items-center">
                 {column}
@@ -96,7 +96,6 @@ const OrderTable: React.FC<OrderTableProps> = ({
         }
     }
 
-
     async function handleStatusChange(e: React.ChangeEvent<HTMLSelectElement>, id: number): Promise<void> {
         const newStatus = e.target.value;
         try {
@@ -111,7 +110,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
             }
 
             // Optionally, you can update the local state to reflect the change immediately
-            const updatedOrders = orders.map(order => 
+            const updatedOrders = orders.map(order =>
                 order.id === id ? { ...order, status: newStatus } : order
             );
             handleSort(sortConfig.column, sortConfig.order); // Re-sort the table if necessary
@@ -119,6 +118,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
             console.error('Error updating status:', error);
         }
     }
+
     function handleMarkAsComplete(id: number): React.MouseEventHandler<HTMLButtonElement> {
         return async (e) => {
             e.stopPropagation();
@@ -134,7 +134,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                 }
 
                 // Optionally, you can update the local state to reflect the change immediately
-                const updatedOrders = orders.map(order => 
+                const updatedOrders = orders.map(order =>
                     order.id === id ? { ...order, status: 'Completed' } : order
                 );
                 handleSort(sortConfig.column, sortConfig.order); // Re-sort the table if necessary
@@ -143,6 +143,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
             }
         };
     }
+
     return (
         <div className='w-full'>
             <div className="flex justify-start gap-4 my-4 ml-4">
@@ -184,7 +185,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                             <TableHeaderSort column="destination_city" sortOrder={sortConfig.column === 'destination_city' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="due_date" sortOrder={sortConfig.column === 'due_date' ? sortConfig.order : null} onSort={handleSort} />
+                            <TableHeaderSort column="pickup_date_range" sortOrder={sortConfig.column === 'pickup_date_range' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"> Status</th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
@@ -199,7 +200,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                             <tr
                                 onClick={() => {
                                     handleRowClick(order.id);
-                                    setActiveTab('orderdetails'); // Set activeTab to 'orderdetails' when row is expanded
+                                    setActiveTab('orderdetails');
                                 }}
                                 className={`cursor-pointer mb-4 w-max ${index % 2 === 0 ? 'bg-white h-fit w-full' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}
                             >
@@ -247,9 +248,9 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                         </div>
                                     </div>
                                 </td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{order.origin_city}, {order.origin_state}</td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{order.destination_city}, {order.destination_state}</td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{formatDate(order.due_date)}</td>
+                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{order.origin_street} <br />{order.origin_city}, {order.origin_state}</td>
+                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{order.destination_street}<br /> {order.destination_city}, {order.destination_state}</td>
+                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{order.earliest_pickup_date} - {order.latest_pickup_date}</td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{order.status}</td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">
                                     {order.price ? `$${order.price}` : 'Pending'}
@@ -265,26 +266,21 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                         >
                                             Edit Order
                                         </button>
-                                        {isAdmin && (
-                                            <>
-                                                <select
-                                                    value={order.status}
-                                                    onChange={(e) => handleStatusChange(e, order.id)}
-                                                    className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(order.status)}`}
-                                                >
-                                                    <option value="Pending" className={getStatusClasses('Pending')}>Pending</option>
-                                                    <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
-                                                    <option value="Dispatched" className={getStatusClasses('Dispatched')}>Dispatched</option>
-                                                    <option value="Picked Up" className={getStatusClasses('Picked Up')}>Picked Up</option>
-                                                    <option value="Delivered" className={getStatusClasses('Delivered')}>Delivered</option>
-                                                    <option value="Completed" className={getStatusClasses('Completed')}>Completed</option>
-                                                    <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
-                                                </select>
-                                                <button onClick={() => handleMarkAsComplete(order.id)} className="text-green-600 ml-2">
-                                                    Mark as Complete
-                                                </button>
-                                            </>
-                                           
+                                        {isAdmin ? (
+                                            <select
+                                                value={order.brokers_status}
+                                                onChange={(e) => handleStatusChange(e, order.id)}
+                                                className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(order.brokers_status)}`}>
+                                                <option value="Pending" className={getStatusClasses('Pending')}>Pending</option>
+                                                <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
+                                                <option value="Dispatched" className={getStatusClasses('Dispatched')}>Dispatched</option>
+                                                <option value="Picked Up" className={getStatusClasses('Picked Up')}>Picked Up</option>
+                                                <option value="Delivered" className={getStatusClasses('Delivered')}>Delivered</option>
+                                                <option value="Completed" className={getStatusClasses('Completed')}>Completed</option>
+                                                <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
+                                            </select>
+                                        ) : (
+                                            <span><strong>Status: </strong>{order.brokers_status ? order.brokers_status : 'Pending'}</span>
                                         )}
                                     </div>
                                 </td>

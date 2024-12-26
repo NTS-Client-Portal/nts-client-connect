@@ -1,27 +1,18 @@
 import React, { useState } from 'react';
 import { supabase } from '@lib/initSupabase';
+import { Database } from '@lib/database.types';
 
 interface OrderFormModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (quoteId: number) => void;
-    quote: {
-        id: number;
-        user_id: string;
-        origin_city: string;
-        origin_state: string;
-        origin_zip: string;
-        destination_city: string;
-        destination_state: string;
-        destination_zip: string;
-        make: string;
-        model: string;
-        year: string;
-        length: string;
-        width: string;
-        height: string;
-        weight: string;
-    } | null; // Allow quote to be null
+    onSubmit: (data: {
+        originStreet: string;
+        destinationStreet: string;
+        earliestPickupDate: string;
+        latestPickupDate: string;
+        notes: string;
+    }) => void;
+    quote: Database['public']['Tables']['shippingquotes']['Row'];
 }
 
 const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubmit, quote }) => {
@@ -33,19 +24,26 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!quote) return;
+        onSubmit({ originStreet, destinationStreet, earliestPickupDate, latestPickupDate, notes });
 
+        // Update the shipping quote with the new order details
         const { error } = await supabase
             .from('shippingquotes')
-            .update({ status: 'Order' })
+            .update({
+                origin_street: originStreet,
+                destination_street: destinationStreet,
+                earliest_pickup_date: earliestPickupDate,
+                latest_pickup_date: latestPickupDate,
+                notes: notes,
+                status: 'Order'
+            })
             .eq('id', quote.id);
 
         if (error) {
-            console.error('Error updating quote status:', error.message);
-        } else {
-            onSubmit(quote.id);
-            onClose();
+            console.error('Error updating shipping quote:', error.message);
         }
+
+        onClose();
     };
 
     if (!isOpen) return null;

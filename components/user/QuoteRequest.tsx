@@ -11,7 +11,7 @@ import EditHistory from '../EditHistory'; // Adjust the import path as needed
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
 import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
 import { useProfilesUser } from '@/context/ProfilesUserContext'; // Import ProfilesUserContext
-import { useNtsUsers } from '@/context/NtsUsersContext'; 
+import { useNtsUsers } from '@/context/NtsUsersContext';
 
 interface QuoteRequestProps {
     session: Session | null;
@@ -20,8 +20,8 @@ interface QuoteRequestProps {
 
 const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [] }) => { // Add default value for profiles
     const supabase = useSupabaseClient<Database>();
-        const { userProfile: profilesUser } = useProfilesUser(); // Use ProfilesUserContext
-        const { userProfile: ntsUser } = useNtsUsers(); // Use NtsUsersContext
+    const { userProfile: profilesUser } = useProfilesUser(); // Use ProfilesUserContext
+    const { userProfile: ntsUser } = useNtsUsers(); // Use NtsUsersContext
     const [quotes, setQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
     const [orders, setOrders] = useState<Database['public']['Tables']['orders']['Row'][]>([]);
     const [editHistory, setEditHistory] = useState<Database['public']['Tables']['edit_history']['Row'][]>([]);
@@ -132,9 +132,9 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [] }) =
 
     const addQuote = async (quote: Partial<Database['public']['Tables']['shippingquotes']['Insert'] & { containerLength?: number | null; containerType?: string | null; contentsDescription?: string | null; selectedOption?: string | null; }>) => {
         if (!session?.user?.id) return;
-    
+
         console.log('Adding quote:', quote);
-    
+
         const { data: shippingQuoteData, error: shippingQuoteError } = await supabase
             .from('shippingquotes')
             .insert([{
@@ -157,16 +157,16 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [] }) =
                 status: quote.status || 'Quote',
             }])
             .select();
-    
+
         if (shippingQuoteError) {
             console.error('Error adding quote:', shippingQuoteError.message);
             setErrorText('Error adding quote');
             return;
         }
-    
+
         console.log('Quote added successfully:', shippingQuoteData);
         setQuotes([...quotes, ...(shippingQuoteData || [])]);
-    
+
         setErrorText('');
         setIsModalOpen(false); // Close the modal after adding the quote
         fetchQuotes(); // Fetch quotes after adding a new one
@@ -229,7 +229,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [] }) =
                 <div className='flex flex-col justify-center items-center gap-2 mb-4'>
                     <h1 className="xs:text-md mb-2 text-xl md:text-2xl font-medium text-center underline underline-offset-8">Request a Shipping Quote</h1>
                     <button onClick={() => setIsModalOpen(true)} className="body-btn">
-                    {ntsUser ? 'Create Shipping Quote for Customer' : profilesUser ? 'Request a Shipping Estimate' : 'Request a Shipping Estimate'}
+                        {ntsUser ? 'Create Shipping Quote for Customer' : profilesUser ? 'Request a Shipping Estimate' : 'Request a Shipping Estimate'}
                     </button>
                 </div>
                 <NtsUsersProvider>
@@ -244,6 +244,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [] }) =
                             companyId={companyId} // Pass companyId to QuoteForm
                             assignedSalesUser={session?.user?.id || ''} // Pass assignedSalesUser to QuoteForm
                             fetchQuotes={fetchQuotes}
+
                         />
                     </ProfilesUserProvider>
                 </NtsUsersProvider>
@@ -339,13 +340,12 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [] }) =
                     <Archived
                         session={session}
                         isAdmin={isAdmin}
-                        selectedUserId={selectedUserId} // Pass selectedUserId
+                        selectedUserId={selectedUserId}
                     />
                 )}
                 {activeTab === 'rejected' && (
                     <Rejected
                         session={session}
-                        selectedUserId={selectedUserId} // Pass selectedUserId
                     />
                 )}
             </div>

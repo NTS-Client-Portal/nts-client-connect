@@ -20,6 +20,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
     const [sortConfig, setSortConfig] = useState<{ column: string; order: 'asc' | 'desc' }>({ column: '', order: 'asc' });
     const [errorText, setErrorText] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [expandedRow, setExpandedRow] = useState<number | null>(null);
     const [selectedQuoteId, setSelectedQuoteId] = useState<number | null>(null);
     const [cancellationReason, setCancellationReason] = useState<string>('');
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
@@ -31,7 +32,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
             .from('company_sales_users')
             .select('company_id')
             .eq('sales_user_id', userId);
-            
+
         if (companySalesUsersError) {
             console.error('Error fetching company_sales_users for nts_user:', companySalesUsersError.message);
             return [];
@@ -43,7 +44,8 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
             .from('shippingquotes')
             .select('*')
             .in('company_id', companyIds)
-            .eq('status', 'Order');
+            .eq('status', 'Order')
+            .or('is_archived.is.null,is_archived.eq.false');
 
         if (quotesError) {
             console.error('Error fetching quotes for nts_user:', quotesError.message);
@@ -58,7 +60,8 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
             .from('shippingquotes')
             .select('*')
             .eq('company_id', companyId)
-            .eq('status', 'Order');
+            .eq('status', 'Order')
+            .or('is_archived.is.null,is_archived.eq.false');
 
         if (quotesError) {
             console.error('Error fetching quotes for company:', quotesError.message);
@@ -73,13 +76,13 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
             .from('shippingquotes')
             .select('*')
             .eq('status', 'Order');
-    
+
         if (!isNtsUser && session?.user?.id) {
             query = query.eq('user_id', session.user.id);
         }
-    
+
         const { data, error } = await query;
-    
+
         if (error) {
             setErrorText(error.message);
         } else {
@@ -126,6 +129,24 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
 
         checkUserType();
     }, [session, fetchQuotes, fetchOrdersForNtsUsers, fetchQuotesForCompany]);
+
+    const handleRowClick = (id: number) => {
+        setExpandedRow(expandedRow === id ? null : id);
+    };
+
+    const archiveOrder = async (quoteId: number) => {
+        const { error } = await supabase
+            .from('shippingquotes')
+            .update({ is_archived: true })
+            .eq('id', quoteId);
+
+        if (error) {
+            console.error('Error archiving quote:', error.message);
+            setErrorText('Error archiving quote');
+        } else {
+            setQuotes((prevQuotes) => prevQuotes.filter((quote) => quote.id !== quoteId));
+        }
+    };
 
     const generatePDF = (quote: ShippingQuotesRow) => {
         const doc = new jsPDF();
@@ -250,23 +271,23 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
     };
 
     async function handleStatusChange(e: React.ChangeEvent<HTMLSelectElement>, id: number): Promise<void> {
-            const newStatus = e.target.value;
-            try {
-                const { error } = await supabase
-                    .from('shippingquotes')
-                    .update({ status: newStatus })
-                    .eq('id', id);
-    
-                if (error) {
-                    console.error('Error updating status:', error);
-                    return;  
-                }
-            } catch (error) {
+        const newStatus = e.target.value;
+        try {
+            const { error } = await supabase
+                .from('shippingquotes')
+                .update({ status: newStatus })
+                .eq('id', id);
+
+            if (error) {
                 console.error('Error updating status:', error);
+                return;
             }
-            setQuotes((prevQuotes) =>
-                prevQuotes.map((quote) => (quote.id === id ? { ...quote, status: newStatus } : quote))
-            );
+        } catch (error) {
+            console.error('Error updating status:', error);
+        }
+        setQuotes((prevQuotes) =>
+            prevQuotes.map((quote) => (quote.id === id ? { ...quote, status: newStatus } : quote))
+        );
     }
 
     return (
@@ -282,10 +303,9 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
                         setSortConfig({ column, order });
                     }}
                     orders={quotes}
-                    // sortConfig={sortConfig} // Provide appropriate value
-                    expandedRow={null} // Provide appropriate value
-                    handleRowClick={() => {}} // Provide appropriate function
-                    archiveOrder={async (id: number) => { /* Implement the function here */ }} 
+                    expandedRow={expandedRow}
+                    handleRowClick={handleRowClick}
+                    archiveOrder={archiveOrder}
                     handleMarkAsComplete={(id) => () => handleMarkAsComplete(id)}
                 />
             </div>

@@ -38,7 +38,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
             .from('shippingquotes')
             .update({ is_archived: true })
             .eq('id', quoteId);
-    
+
         if (error) {
             console.error('Error archiving quote:', error.message);
             setErrorText('Error archiving quote');
@@ -118,12 +118,12 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
             .select('*')
             .in('user_id', profileIds)
             .eq('status', 'Quote');
-    
+
         if (error) {
             console.error('Error fetching shipping quotes:', error.message);
             return [];
         }
-    
+
         return quotes;
     }, [supabase]);
 
@@ -132,31 +132,31 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
             .from('company_sales_users')
             .select('company_id')
             .eq('sales_user_id', userId)
-    
+
         if (companySalesUsersError) {
             console.error('Error fetching company_sales_users for nts_user:', companySalesUsersError.message);
             return [];
         }
-    
+
         const companyIds = companySalesUsers.map((companySalesUser) => companySalesUser.company_id);
-    
+
         const { data: quotes, error: quotesError } = await supabase
             .from('shippingquotes')
             .select('*')
             .in('company_id', companyIds)
             .eq('status', 'Quote'); // Fetch only quotes with the status 'Quote'
-    
+
         if (quotesError) {
             console.error('Error fetching quotes for nts_user:', quotesError.message);
             return [];
         }
-    
+
         return quotes;
     }, [supabase]);
 
     const fetchInitialQuotes = useCallback(async () => {
         if (!session?.user?.id) return;
-    
+
         if (isAdmin) {
             const quotesData = await fetchQuotesForNtsUsers(session.user.id);
             setQuotes(quotesData);
@@ -167,25 +167,25 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
                 .select('company_id')
                 .eq('id', session.user.id)
                 .single();
-    
+
             if (userProfileError) {
                 console.error('Error fetching user profile:', userProfileError.message);
                 return;
             }
-    
+
             if (!userProfile) {
                 console.error('No profile found for user');
                 return;
             }
-    
+
             const companyId = userProfile.company_id;
             const profilesData = await fetchProfiles(companyId);
-    
+
             setProfiles(profilesData);
-    
+
             const profileIds = profilesData.map(profile => profile.id);
             const quotesData = await fetchShippingQuotes(profileIds);
-    
+
             setQuotes(quotesData);
         }
     }, [session, supabase, fetchProfiles, fetchShippingQuotes, fetchQuotesForNtsUsers, isAdmin]);
@@ -218,38 +218,28 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
     const handleModalSubmit = async (data: any) => {
         if (selectedQuoteId !== null && session?.user?.id) {
             const { error } = await supabase
-                .from('orders')
-                .insert({
-                    quote_id: selectedQuoteId,
-                    user_id: session.user.id,
+                .from('shippingquotes')
+                .update({
                     origin_street: data.originStreet,
                     destination_street: data.destinationStreet,
                     earliest_pickup_date: data.earliestPickupDate,
                     latest_pickup_date: data.latestPickupDate,
                     notes: data.notes,
-                    status: 'Orders',
-                });
-    
+                    status: 'Order',
+                })
+                .eq('id', selectedQuoteId);
+
             if (error) {
-                console.error('Error creating order:', error.message);
+                console.error('Error updating shipping quote:', error.message);
             } else {
-                // Update the status of the quote to "Order"
-                const { error: updateError } = await supabase
-                    .from('shippingquotes')
-                    .update({ status: 'Order' })
-                    .eq('id', selectedQuoteId);
-    
-                if (updateError) {
-                    console.error('Error updating quote status:', updateError.message);
-                } else {
-                    setQuote(null);
-                    // Remove the quote from the quotes state
-                    setQuotes((prevQuotes) => prevQuotes.filter((quote) => quote.id !== selectedQuoteId));
-                }
+                setQuote(null);
+                // Remove the quote from the quotes state
+                setQuotes((prevQuotes) => prevQuotes.filter((quote) => quote.id !== selectedQuoteId));
             }
         }
         setIsModalOpen(false);
     };
+
     const handleRespond = async (quoteId: number) => {
         const price = prompt('Enter the price:');
         if (price === null) return;
@@ -392,7 +382,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
             return () => clearTimeout(timer);
         }
     }, [popupMessage]);
-    
+
 
     return (
         <div className="w-full bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md max-h-max flex-grow">
@@ -439,7 +429,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
                     <QuoteDetailsMobile
                         key={quote.id}
                         quotes={quotes}
-                        handleStatusChange={() => {}}
+                        handleStatusChange={() => { }}
                         getStatusClasses={() => ''}
                         formatDate={formatDate}
                         archiveQuote={null}
@@ -447,10 +437,10 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
                         handleCreateOrderClick={handleCreateOrderClick}
                         handleRespond={handleRespond}
                         isAdmin={isAdmin}
-                        setShowPriceInput={() => {}}
+                        setShowPriceInput={() => { }}
                         showPriceInput={null}
                         priceInput={null}
-                        setPriceInput={() => {}}
+                        setPriceInput={() => { }}
                     />
                 ))}
             </div>

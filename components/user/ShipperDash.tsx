@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { useProfilesUser } from '@/context/ProfilesUserContext';
 import ShipperBrokerConnect from '@/components/ShipperBrokerConnect';
 import FloatingChatWidget from '@/components/FloatingChatWidget';
+import ShippingCalendar from './ShippingCalendar';
 
 type NtsUsersRow = Database['public']['Tables']['nts_users']['Row'];
 type AssignedSalesUser = Database['public']['Tables']['nts_users']['Row'];
@@ -58,7 +59,8 @@ const ShipperDash = () => {
                 .from('shippingquotes')
                 .select('*')
                 .eq('user_id', session?.user.id)
-                .neq('status', 'Quotes');
+                .neq('status', 'Order')
+                .or('is_archived.is.null,is_archived.eq.false');
 
             if (analyticsError) {
                 console.error('Error fetching analytics:', analyticsError.message);
@@ -174,79 +176,13 @@ const ShipperDash = () => {
         }
     }, [session]);
 
-  const NtsBrokerPicture = `${process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL}/nts_users/noah-profile.png?t=2024-12-24T23%3A54%3A10.034Z`;
-    
+    const NtsBrokerPicture = `${process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL}/nts_users/noah-profile.png?t=2024-12-24T23%3A54%3A10.034Z`;
+
 
     return (
-        <div className='container mx-auto'>
-            {isLoading ? (
-                <p>Loading...</p>
-            ) : (
-                <div className='flex justify-start items-stretch gap-6'>
-                    {assignedSalesUsers.map((user, index) => (
-                        <div key={index} className="broker-card flex text-nowrap flex-col justify-center items-center p-4 bg-white shadow rounded-lg w-fit max-h-96">
-                            <h2 className='text-xl underline font-bold mb-4'>Your Logistics Representative</h2>
-                            <Image src={NtsBrokerPicture} alt="Profile Picture" className="avatar" width={100} height={100} />
-                            <h2 className='text-xl underline font-semibold mb-4'>{user.first_name} {user.last_name}</h2>
-                            <span className="flex flex-col gap-1 justify-start items-start">
-                                <p><strong>Phone: </strong>{user.phone_number}</p>
-                                <p><strong>Email:</strong> {user.email}</p>
-                            </span>
-                            {userProfile && session && (
-                        <>
-                            <ShipperBrokerConnect
-                                brokerId={assignedSalesUsers[0]?.id || ''}
-                                shipperId={userProfile.id}
-                                session={session}
-                            />
-                            {activeChatId && (
-                                <FloatingChatWidget
-                                    brokerId={assignedSalesUsers[0]?.id || ''}
-                                    shipperId={userProfile.id}
-                                    session={session}
-                                    activeChatId={activeChatId}
-                                />
-                            )}
-                        </>
-                    )}
-                        </div>
-                    ))}
+        <div className='container mx-auto flex flex-col'>
 
-             {quotes.filter(quote => quote.price !== null && quote.price > 0).length > 0 ? (
-                    <div className="p-4 bg-gray-100 w-1/2 shadow rounded-lg max-h-96 overflow-auto">
-                        <h3 className="text-lg font-semibold mb-4">Quote Responses</h3>
-                        <div className='flex flex-col gap-2'>
-                           <div className=' mb-4'>
-                            <Link className="text-ntsLightBlue font-semibold underline" href={`/user`}>
-                              Create Order
-                            </Link>
-                            </div>
-                            <ul className='grid grid-cols-2 gap-2 w-full'>
-                                {quotes.filter(quote => quote.price !== null && quote.price > 0).map((quote) => (
-                                    <li key={quote.id} className="mb-2 flex gap-1">
-                                        <p>ID: {quote.id}</p>
-                                        <p>Price: ${quote.price}</p>
-                                        <p>Commodity: {quote.make && quote.model ? ( `${quote.make} ${quote.model}`
-                                        ) : quote.container_type ? (  `${quote.container_length} ${quote.container_type}` ) : ( "N/A" )}
-                                        </p>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="p-4 bg-gray-100 w-1/2 shadow rounded-lg max-h-96 overflow-auto">
-                        <h3 className="text-lg font-semibold mb-4">Quote Responses</h3>
-                        <div className='flex flex-col gap-2'>
-                            <h2>No Quotes Available</h2>
-                            <Link className="body-btn w-fit" href={`/user`}>
-                                Create Quote
-                            </Link>
-                        </div>
-                    </div>
-                )}
-                </div>
-            )}
+
             <div className='mt-4 flex gap-6 justify-start items-stretch w-full'>
                 <div className="p-8 bg-gray-100 shadow rounded-lg max-w-lg max-h-96 overflow-auto">
                     <h2 className="text-xl font-bold mb-2">Active Orders</h2>
@@ -262,11 +198,10 @@ const ShipperDash = () => {
                                 <ul className='flex flex-col gap-2'>
                                     {quotes.filter(quote => quote.status === 'Order').length > 0 ? (
                                         quotes.filter(quote => quote.status === 'Order').map((quote) => (
-                                            <li key={quote.id} className="mb-2 flex gap-1">
-                                                <p>ID: {quote.id}</p>
-                                                <p>Status: {quote.status}</p>
-                                                <p>Commodity: {quote.make && quote.model ? ( `${quote.make} ${quote.model}`
-                                                    ) : quote.container_type ? (  `${quote.container_length} ${quote.container_type}` ) : ( "N/A" )}
+                                            <li key={quote.id} className="mb-2 flex flex-col gap-1">
+                                                <p><strong>ID:</strong> {quote.id} <strong>Status:</strong> {quote.status}</p>
+                                                <p>{quote.make && quote.model ? (`${quote.make} ${quote.model}`
+                                                ) : quote.container_type ? (`${quote.container_length} ${quote.container_type}`) : ("N/A")}
                                                 </p>
                                             </li>
                                         ))
@@ -278,37 +213,36 @@ const ShipperDash = () => {
                         </div>
                     </div>
                 </div>
-    
-                {quotes.filter(quote => quote.is_complete).length > 0 ? (
-                    <div className="p-4 bg-gray-100 shadow rounded-lg w-1/2 max-h-96 overflow-auto">
-                        <h3 className="text-lg font-semibold mb-2">Delivered Orders</h3>
-                        <div className='mb-4'>
-                            <Link className="text-ntsLightBlue font-semibold underline" href={`/user/documents`}>
-                                View Photos and Documents
-                            </Link>
-                        </div>
-                        <div>
-                            <ul className='flex gap-2 flex-wrap'>
-                                {quotes.filter(quote => quote.is_complete).map((quote) => (
-                                    <li key={quote.id} className="mb-2">
-                                        <p>ID: {quote.id}</p>
-                                        <p>Status: {quote.status}</p>
-                                        <p>Commodity: {quote.make && quote.model ? ( `${quote.make} ${quote.model}`
-                                        ) : quote.container_type ? (  `${quote.container_length} ${quote.container_type}` ) : ( "N/A" )}
-                                        </p>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
+                <ShippingCalendar />
+
+                {assignedSalesUsers.map((user, index) => (
+                    <div key={index} className="broker-card flex text-nowrap flex-col justify-center items-center p-4 bg-white shadow rounded-lg w-fit max-h-96">
+                        <h2 className='text-xl underline font-bold mb-4'>Your Logistics Representative</h2>
+                        <Image src={NtsBrokerPicture} alt="Profile Picture" className="avatar" width={100} height={100} />
+                        <h2 className='text-xl underline font-semibold mb-4'>{user.first_name} {user.last_name}</h2>
+                        <span className="flex flex-col gap-1 justify-start items-start">
+                            <p><strong>Phone: </strong>{user.phone_number}</p>
+                            <p><strong>Email:</strong> {user.email}</p>
+                        </span>
+                        {userProfile && session && (
+                            <>
+                                <ShipperBrokerConnect
+                                    brokerId={assignedSalesUsers[0]?.id || ''}
+                                    shipperId={userProfile.id}
+                                    session={session}
+                                />
+                                {activeChatId && (
+                                    <FloatingChatWidget
+                                        brokerId={assignedSalesUsers[0]?.id || ''}
+                                        shipperId={userProfile.id}
+                                        session={session}
+                                        activeChatId={activeChatId}
+                                    />
+                                )}
+                            </>
+                        )}
                     </div>
-                ) : (
-                    <div className="p-4 bg-gray-100 shadow rounded-lg w-1/2 max-h-96 overflow-auto">
-                        <h3 className="text-lg font-semibold mb-2">Delivered Orders</h3>
-                        <div className='flex flex-col gap-2'>
-                            <p>No Delivered Orders</p>
-                        </div>
-                    </div>
-                )}
+                ))}
             </div>
         </div>
     );

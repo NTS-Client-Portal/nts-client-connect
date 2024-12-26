@@ -246,6 +246,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                     <span className='flex flex-col gap-0 w-min'>
                                                         <span className='font-semibold text-sm text-gray-700 p-0 w-min'>Shipment Item {index + 1}:</span>
                                                         <span className='text-base text-zinc-900 p-0 w-min'>{`${item.year} ${item.make} ${item.model}`}</span>
+                                                        <span>{`${item.length} x ${item.width} x ${item.height}, ${item.weight}`}</span>
                                                     </span>
                                                 )}
                                             </React.Fragment>
@@ -261,7 +262,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                     {quote.year && quote.make && quote.model && (
                                                         <>
                                                             <span className='font-semibold text-sm text-gray-700 p-0 text-start w-min'>Shipment Item:</span><br />
-                                                            <span className='text-normal text-zinc-900 text-start w-min'>{`${quote.year} ${quote.make} ${quote.model}`}</span>
+                                                            <span className='text-normal text-zinc-900 text-start w-min'>{`${quote.year} ${quote.make} ${quote.model}`}<br />{`${quote.length} x ${quote.width} x ${quote.height}, ${quote.weight} lbs`}</span>
                                                         </>
                                                     )}
                                                 </div>
@@ -329,11 +330,11 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                 Create Order
                                             </button>
                                         ) : null}
-                                            {isAdmin ? (
-                                     <select
-                                            value={quote.brokers_status}
-                                            onChange={(e) => handleStatusChange(e, quote.id)}
-                                            className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(quote.brokers_status)}`}>
+                                        {isAdmin ? (
+                                            <select
+                                                value={quote.brokers_status}
+                                                onChange={(e) => handleStatusChange(e, quote.id)}
+                                                className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(quote.brokers_status)}`}>
                                                 <option value="Pending" className={getStatusClasses('Pending')}>Pending</option>
                                                 <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
                                                 <option value="Dispatched" className={getStatusClasses('Dispatched')}>Dispatched</option>
@@ -341,9 +342,9 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                 <option value="Delivered" className={getStatusClasses('Delivered')}>Delivered</option>
                                                 <option value="Completed" className={getStatusClasses('Completed')}>Completed</option>
                                                 <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
-                                    </select>
+                                            </select>
                                         ) : (
-                                     <span><strong>Status: </strong>{quote.brokers_status ? quote.brokers_status : 'Pending'}</span>
+                                            <span><strong>Status: </strong>{quote.brokers_status ? quote.brokers_status : 'Pending'}</span>
                                         )}
                                     </div>
                                 </td>

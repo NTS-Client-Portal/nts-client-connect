@@ -1153,6 +1153,10 @@ body:is(.dark *) {
   width: 25%;
 }
 
+.w-1\/6 {
+  width: 16.666667%;
+}
+
 .w-10 {
   width: 2.5rem;
 }
@@ -1254,14 +1258,6 @@ body:is(.dark *) {
 .w-min {
   width: -moz-min-content;
   width: min-content;
-}
-
-.w-1\/5 {
-  width: 20%;
-}
-
-.w-1\/6 {
-  width: 16.666667%;
 }
 
 .min-w-\[8rem\] {
