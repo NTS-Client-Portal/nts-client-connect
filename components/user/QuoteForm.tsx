@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Session } from '@supabase/auth-helpers-react';
 import SelectOption from './SelectOption';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import { useProfilesUser } from '@/context/ProfilesUserContext'; // Import ProfilesUserContext
 import { useNtsUsers } from '@/context/NtsUsersContext'; // Import NtsUsersContext
+import axios from 'axios';
 
 interface QuoteFormProps {
     isOpen: boolean;
@@ -23,88 +24,103 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
     const { userProfile: profilesUser } = useProfilesUser(); // Use ProfilesUserContext
     const { userProfile: ntsUser } = useNtsUsers(); // Use NtsUsersContext
     const [selectedOption, setSelectedOption] = useState('');
-    const [originZip, setOriginZip] = useState('');
+    const [originInput, setOriginInput] = useState('');
     const [originCity, setOriginCity] = useState('');
     const [originState, setOriginState] = useState('');
-    const [destinationZip, setDestinationZip] = useState('');
+    const [originZip, setOriginZip] = useState('');
+    const [destinationInput, setDestinationInput] = useState('');
     const [destinationCity, setDestinationCity] = useState('');
     const [destinationState, setDestinationState] = useState('');
+    const [destinationZip, setDestinationZip] = useState('');
     const [dueDate, setDueDate] = useState<string | null>(null);
     const [formData, setFormData] = useState<any>({});
     const [saveToInventory, setSaveToInventory] = useState(false);
     const [inventoryItems, setInventoryItems] = useState<any[]>([]);
     const [selectedInventoryItem, setSelectedInventoryItem] = useState('');
 
-    useEffect(() => {
-        if (isOpen && session) {
-            const fetchInventoryItems = async () => {
-                const { data, error } = await supabase
-                    .from('freight')
-                    .select('*')
-                    .eq('user_id', session.user.id);
-
-                if (error) {
-                    console.error('Error fetching inventory items:', error.message);
-                } else {
-                    setInventoryItems(data);
-                }
-            };
-
-            fetchInventoryItems();
-        }
-    }, [isOpen, session, supabase]);
-
-    const handleZipCodeBlur = async (type: 'origin' | 'destination') => {
-        const zipCode = type === 'origin' ? originZip : destinationZip;
-        if (zipCode.length === 5) {
+    const handleOriginInputBlur = async () => {
+        if (originInput.match(/^\d{5}$/)) {
+            // Input is a zip code
             try {
-                const response = await fetch(`https://api.zippopotam.us/us/${zipCode}`);
-                if (response.ok) {
-                    const data = await response.json();
+                const response = await axios.get(`https://api.zippopotam.us/us/${originInput}`);
+                if (response.status === 200) {
+                    const data = response.data;
                     const city = data.places[0]['place name'];
                     const state = data.places[0]['state abbreviation'];
-                    if (type === 'origin') {
-                        setOriginCity(city);
-                        setOriginState(state);
-                    } else {
-                        setDestinationCity(city);
-                        setDestinationState(state);
-                    }
-                } else {
-                    if (type === 'origin') {
-                        setOriginCity('');
-                        setOriginState('');
-                    } else {
-                        setDestinationCity('');
-                        setDestinationState('');
-                    }
+                    setOriginCity(city);
+                    setOriginState(state);
+                    setOriginZip(originInput);
+                    setOriginInput(`${city}, ${state} ${originInput}`);
                 }
             } catch (error) {
                 console.error('Error fetching city and state:', error);
-                if (type === 'origin') {
-                    setOriginCity('');
-                    setOriginState('');
-                } else {
-                    setDestinationCity('');
-                    setDestinationState('');
+            }
+        } else {
+            // Input is a city and state
+            const [city, state] = originInput.split(',').map((str) => str.trim());
+            if (city && state) {
+                try {
+                    const response = await axios.get(`https://api.zippopotam.us/us/${state}/${city}`);
+                    if (response.status === 200) {
+                        const data = response.data;
+                        const zip = data.places[0]['post code'];
+                        setOriginCity(city);
+                        setOriginState(state);
+                        setOriginZip(zip);
+                        setOriginInput(`${city}, ${state} ${zip}`);
+                    }
+                } catch (error) {
+                    console.error('Error fetching zip code:', error);
                 }
             }
         }
     };
 
-    const handleZipCodeKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, type: 'origin' | 'destination') => {
-        if (e.key === 'Enter') {
-            handleZipCodeBlur(type);
+    const handleDestinationInputBlur = async () => {
+        if (destinationInput.match(/^\d{5}$/)) {
+            // Input is a zip code
+            try {
+                const response = await axios.get(`https://api.zippopotam.us/us/${destinationInput}`);
+                if (response.status === 200) {
+                    const data = response.data;
+                    const city = data.places[0]['place name'];
+                    const state = data.places[0]['state abbreviation'];
+                    setDestinationCity(city);
+                    setDestinationState(state);
+                    setDestinationZip(destinationInput);
+                    setDestinationInput(`${city}, ${state} ${destinationInput}`);
+                }
+            } catch (error) {
+                console.error('Error fetching city and state:', error);
+            }
+        } else {
+            // Input is a city and state
+            const [city, state] = destinationInput.split(',').map((str) => str.trim());
+            if (city && state) {
+                try {
+                    const response = await axios.get(`https://api.zippopotam.us/us/${state}/${city}`);
+                    if (response.status === 200) {
+                        const data = response.data;
+                        const zip = data.places[0]['post code'];
+                        setDestinationCity(city);
+                        setDestinationState(state);
+                        setDestinationZip(zip);
+                        setDestinationInput(`${city}, ${state} ${zip}`);
+                    }
+                } catch (error) {
+                    console.error('Error fetching zip code:', error);
+                }
+            }
         }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-    
+
         const quote = {
             user_id: session.user.id,
             company_id: companyId,
-            assigned_sales_user: assignedSalesUser, 
+            assigned_sales_user: assignedSalesUser,
             origin_zip: originZip,
             origin_city: originCity,
             origin_state: originState,
@@ -113,25 +129,25 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
             destination_state: destinationState,
             due_date: dueDate,
             freight_type: selectedOption,
-            status: 'Quote', 
-            ...formData, 
+            status: 'Quote',
+            ...formData,
             save_to_inventory: saveToInventory,
         };
-    
+
         try {
             const { error } = await supabase
                 .from('shippingquotes')
                 .insert([quote]);
-    
+
             if (error) {
                 console.error('Error submitting quote:', error.message);
                 setErrorText('Error submitting quote');
             } else {
                 setErrorText('');
-                fetchQuotes(); 
-                onClose(); 
+                fetchQuotes();
+                onClose();
             }
-    
+
             if (saveToInventory) {
                 const freightData = {
                     user_id: session.user.id,
@@ -147,11 +163,11 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                     pallet_count: formData.pallet_count,
                     serial_number: formData.vin,
                 };
-    
+
                 const { error: inventoryError } = await supabase
                     .from('freight')
                     .insert([freightData]);
-    
+
                 if (inventoryError) {
                     console.error('Error saving to inventory:', inventoryError.message);
                     setErrorText('Error saving to inventory');
@@ -167,12 +183,12 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
 
     return (
         <div className="fixed inset-0 bg-zinc-600 bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded shadow-md w-full max-w-3xl relative z-50">
-                <h2 className="text-xl mb-4">{ntsUser ? 'Create Shipping Quote for Customer' : profilesUser ? 'Request a Shipping Estimate' : 'Request a Shipping Estimate'}</h2>
-                <form onSubmit={handleSubmit} className="flex flex-col gap-3 bg-gray-100 p-4">
+            <div className="bg-white px-3 py-2 rounded shadow-md w-full max-w-3xl relative z-50">
+                <h2 className="text-xl font-semibold mb-4">{ntsUser ? 'Create Shipping Quote for Customer' : profilesUser ? 'Request a Shipping Estimate' : 'Request a Shipping Estimate'}</h2>
+                <form onSubmit={handleSubmit} className="flex flex-col gap-3 bg-ntsLightBlue/10 p-6">
                     <label className='dark:text-zinc-100 font-medium'>Select Inventory Item
                         <select
-                            className="rounded text-zinc-800 w-full p-1 border border-zinc-900"
+                            className="rounded text-zinc-800 bg-white w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
                             value={selectedInventoryItem}
                             onChange={(e) => {
                                 setSelectedInventoryItem(e.target.value);
@@ -209,82 +225,61 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                         setFormData={setFormData}
                         disabled={false}
                     />
-                    <div className='flex gap-2'>
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Origin Zip
+                    <div className='flex gap-2 w-full'>
+                        <div className='flex flex-col items-start'>
+                            <label className='text-zinc-900 font-medium'>Origin</label>
                             <input
-                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                                className="rounded w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
                                 type="text"
-                                value={originZip}
-                                onChange={(e) => setOriginZip(e.target.value)}
-                                onBlur={() => handleZipCodeBlur('origin')}
-                                onKeyDown={(e) => handleZipCodeKeyDown(e, 'origin')}
+                                placeholder='Zip or City, State'
+                                value={originInput}
+                                onChange={(e) => setOriginInput(e.target.value)}
+                                onBlur={handleOriginInputBlur}
                             />
-                        </label>
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Origin City
+
+                            <input type="hidden" value={originCity} />
+                            <input type="hidden" value={originState} />
+                            <input type="hidden" value={originZip} />
+                        </div>
+                        <div className='flex flex-col items-start'>
+                            <label className='text-zinc-900 font-medium'>Destination</label>
                             <input
-                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                                className="rounded w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
                                 type="text"
-                                value={originCity}
-                                onChange={(e) => setOriginCity(e.target.value)}
+                                placeholder='Zip or City, State'
+                                value={destinationInput}
+                                onChange={(e) => setDestinationInput(e.target.value)}
+                                onBlur={handleDestinationInputBlur}
                             />
-                        </label>
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Origin State
-                            <input
-                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
-                                type="text"
-                                value={originState}
-                                onChange={(e) => setOriginState(e.target.value)}
-                            />
-                        </label>
-                    </div>
-                    <div className='flex gap-2'>
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Destination Zip
-                            <input
-                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
-                                type="text"
-                                value={destinationZip}
-                                onChange={(e) => setDestinationZip(e.target.value)}
-                                onBlur={() => handleZipCodeBlur('destination')}
-                                onKeyDown={(e) => handleZipCodeKeyDown(e, 'destination')}
-                            />
-                        </label>
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Destination City
-                            <input
-                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
-                                type="text"
-                                value={destinationCity}
-                                onChange={(e) => setDestinationCity(e.target.value)}
-                            />
-                        </label>
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Destination State
-                            <input
-                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
-                                type="text"
-                                value={destinationState}
-                                onChange={(e) => setDestinationState(e.target.value)}
-                            />
-                        </label>
-                    </div>
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Shipping Date
-                        <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
-                            type="date"
-                            value={dueDate || ''} // Ensure dueDate is either a valid timestamp or an empty string
-                            onChange={(e) => {
-                                setErrorText('');
-                                setDueDate(e.target.value || null); // Set dueDate to null if the input is empty
-                            }}
-                        />
-                    </label>
-                    <div className='flex gap-2'>
+
+                            <input type="hidden" value={destinationCity} />
+                            <input type="hidden" value={destinationState} />
+                            <input type="hidden" value={destinationZip} />
+                        </div>
+                        <div className='ml-12'>
+                            <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Shipping Date
                                 <input
-                                    type="checkbox"
-                                    checked={saveToInventory}
-                                    onChange={(e) => setSaveToInventory(e.target.checked)}
+                                    className="rounded w-full dark:text-zinc-800 px-1 py-1.5 border border-zinc-900/30 shadow-md text-zinc-500"
+                                    type="date"
+                                    value={dueDate || ''} // Ensure dueDate is either a valid timestamp or an empty string
+                                    onChange={(e) => {
+                                        setErrorText('');
+                                        setDueDate(e.target.value || null); // Set dueDate to null if the input is empty
+                                    }}
                                 />
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Save to Inventory</label>
+                            </label>
+                        </div>
                     </div>
-                    
+                    <div className='flex gap-2'>
+                        <label className='text-zinc-900 dark:text-zinc-100 font-medium' />
+                        <input
+                            type="checkbox"
+                            checked={saveToInventory}
+                            onChange={(e) => setSaveToInventory(e.target.checked)}
+                        />
+                        Save to Inventory
+                    </div>
+
                     <div className='flex justify-center'>
                         <div className='flex gap-2 w-full justify-around'>
                             <button type="submit" className="body-btn w-2/3 place-self-center">

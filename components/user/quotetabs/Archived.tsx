@@ -142,7 +142,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin }) => {
                 status: 'Quote', // Set the status back to 'Quote'
             })
             .select();
-    
+
         if (error) {
             console.error('Error duplicating quote:', error.message);
         } else {
@@ -160,14 +160,14 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin }) => {
                 <ArchivedTable
                     quotes={archivedQuotes}
                     sortConfig={{ column: 'id', order: 'asc' }}
-                    handleSort={() => {}}
-                    fetchDeliveredQuotes={() => {}}
+                    handleSort={() => { }}
+                    fetchDeliveredQuotes={() => { }}
                     unArchive={unArchive}
-                    handleStatusChange={() => {}}
+                    handleStatusChange={() => { }}
                     isAdmin={isAdmin}
                 />
             </div>
-            <div className="block 2xl:hidden">
+            <div className="block md:hidden">
                 {archivedQuotes.map((quote) => (
                     <div key={quote.id} className="bg-white shadow rounded-md mb-4 p-4 border border-zinc-400">
                         <div className="flex justify-between items-center mb-2">

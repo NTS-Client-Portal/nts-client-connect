@@ -34,20 +34,23 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
     return (
         <div className="flex flex-col gap-3">
             <div className='flex gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Class Type
+
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Year
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
-                        type="text"
-                        value={classType || ''}
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                        type="number"
+                        placeholder='2015'
+                        value={year || ''}
                         onChange={(e) => {
                             setErrorText('');
-                            setClassType(e.target.value);
+                            setYear(e.target.value ? parseInt(e.target.value) : null);
                         }}
                     />
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Make
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                        placeholder='Winnebago, Fleetwood, etc.'
                         type="text"
                         value={make || ''}
                         onChange={(e) => {
@@ -58,8 +61,9 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Model
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
+                        placeholder='Brave, Bounder, etc.'
                         value={model || ''}
                         onChange={(e) => {
                             setErrorText('');
@@ -67,12 +71,26 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
                         }}
                     />
                 </label>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Class Type
+                    <input
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                        type="text"
+                        placeholder='Class A, B, C, etc.'
+                        value={classType || ''}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setClassType(e.target.value);
+                        }}
+                    />
+                </label>
+
             </div>
             <div className='flex gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Motorized or Trailer
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Hitch Type (if applicable)
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
+                        placeholder='e.g. 5th wheel, gooseneck, etc.'
                         value={motorizedOrTrailer || ''}
                         onChange={(e) => {
                             setErrorText('');
@@ -80,21 +98,12 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
                         }}
                     />
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Roadworthy
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
-                        type="checkbox"
-                        checked={roadworthy || false}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setRoadworthy(e.target.checked);
-                        }}
-                    />
-                </label>
+
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>VIN
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
+                        placeholder='(optional)'
                         value={vin || ''}
                         onChange={(e) => {
                             setErrorText('');
@@ -102,17 +111,22 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
                         }}
                     />
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Year
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
-                        type="number"
-                        value={year || ''}
+
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Vehicle Condition
+                    <select
+                        className="rounded bg-white w-full py-1.5 px-1 border border-zinc-900/30 shadow-md"
+                        value={roadworthy === null ? '' : roadworthy ? 'operable' : 'inoperable'}
                         onChange={(e) => {
                             setErrorText('');
-                            setYear(e.target.value ? parseInt(e.target.value) : null);
+                            setRoadworthy(e.target.value === 'operable');
                         }}
-                    />
+                    >
+                        <option value="">Select...</option>
+                        <option value="operable">Operable</option>
+                        <option value="inoperable">Inoperable</option>
+                    </select>
                 </label>
+
             </div>
         </div>
     );

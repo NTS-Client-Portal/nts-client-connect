@@ -11,23 +11,20 @@ const AutoForm: React.FC<AutoFormProps> = ({
     setErrorText,
 }) => {
     const [items, setItems] = useState([{ year: '', make: '', model: '', vin: '', operationalCondition: null, isAuction: null, auction: '', buyerNumber: '', lotNumber: '' }]);
-    const [makes, setMakes] = useState([]);
-    const [models, setModels] = useState([]);
+    const [models, setModels] = useState<{ Model_ID: string; Model_Name: string }[]>([]);
+    const [filteredMakes, setFilteredMakes] = useState<string[]>([]);
+    const [filteredModels, setFilteredModels] = useState<{ Model_ID: string; Model_Name: string }[]>([]);
+    const [showMakeDropdown, setShowMakeDropdown] = useState(false);
+    const [showModelDropdown, setShowModelDropdown] = useState(false);
+    const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
+
+    const mainAutoBrands = [
+        'Volvo', 'Volkswagen', 'Ford', 'BMW', 'Mercedes', 'Hyundai', 'Toyota', 'Tesla', 'Honda', 'Chevrolet', 'Kia', 'Suzuki', 'Buick', 'Audi'
+    ];
 
     useEffect(() => {
         setFormData(items);
     }, [items]);
-
-    useEffect(() => {
-        // Fetch all makes
-        axios.get('https://vpic.nhtsa.dot.gov/api/vehicles/getallmakes?format=json')
-            .then(response => {
-                setMakes(response.data.Results);
-            })
-            .catch(error => {
-                console.error('Error fetching makes:', error);
-            });
-    }, []);
 
     useEffect(() => {
         if (items.some(item => item.make)) {
@@ -35,8 +32,13 @@ const AutoForm: React.FC<AutoFormProps> = ({
             const fetchModels = async () => {
                 const make = items.find(item => item.make)?.make;
                 if (make) {
-                    const response = await axios.get(`https://vpic.nhtsa.dot.gov/api/vehicles/getmodelsformake/${make}?format=json`);
-                    setModels(response.data.Results);
+                    try {
+                        const response = await axios.get(`https://vpic.nhtsa.dot.gov/api/vehicles/getmodelsformake/${make}?format=json`);
+                        setModels(response.data.Results);
+                    } catch (error) {
+                        console.error('Error fetching models:', error);
+                        setModels([]);
+                    }
                 }
             };
             fetchModels();
@@ -58,12 +60,51 @@ const AutoForm: React.FC<AutoFormProps> = ({
         setItems(newItems);
     };
 
+    const handleMakeInputChange = (index: number, value: string) => {
+        handleChange(index, 'make', value);
+        setFilteredMakes(mainAutoBrands.filter(make => make.toLowerCase().includes(value.toLowerCase())));
+        setShowMakeDropdown(true);
+        setHighlightedIndex(null);
+    };
+
+    const handleModelInputChange = (index: number, value: string) => {
+        handleChange(index, 'model', value);
+        setFilteredModels(models.filter(model => model.Model_Name.toLowerCase().includes(value.toLowerCase())));
+        setShowModelDropdown(true);
+        setHighlightedIndex(null);
+    };
+
+    const handleMakeSelect = (index: number, make: string) => {
+        handleChange(index, 'make', make);
+        setShowMakeDropdown(false);
+    };
+
+    const handleModelSelect = (index: number, model: string) => {
+        handleChange(index, 'model', model);
+        setShowModelDropdown(false);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent, index: number, type: 'make' | 'model') => {
+        const options = type === 'make' ? filteredMakes : filteredModels.map(model => model.Model_Name);
+        if (e.key === 'ArrowDown') {
+            setHighlightedIndex(prevIndex => (prevIndex === null || prevIndex === options.length - 1 ? 0 : prevIndex + 1));
+        } else if (e.key === 'ArrowUp') {
+            setHighlightedIndex(prevIndex => (prevIndex === null || prevIndex === 0 ? options.length - 1 : prevIndex - 1));
+        } else if (e.key === 'Enter' && highlightedIndex !== null) {
+            if (type === 'make') {
+                handleMakeSelect(index, options[highlightedIndex]);
+            } else {
+                handleModelSelect(index, options[highlightedIndex]);
+            }
+        }
+    };
+
     return (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
             {items.map((item, index) => (
-                <div key={index} className="border p-3 rounded mb-3">
+                <div key={index} className="border p-3 rounded">
                     <div className="flex justify-between items-center">
-                        <h3 className="text-lg font-medium">Shipment Item #{index + 1}</h3>
+                        <h3 className="text-lg font-medium">Vehicle Description {index > 0 ? index + 1 : ''}</h3>
                         {index > 0 && (
                             <button
                                 type="button"
@@ -74,63 +115,91 @@ const AutoForm: React.FC<AutoFormProps> = ({
                             </button>
                         )}
                     </div>
-                    <div>
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Year</label>
-                        <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
-                            type="text"
-                            value={item.year}
-                            onChange={(e) => { handleChange(index, 'year', e.target.value); setErrorText(''); }}
-                        />
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Make</label>
-                        <select
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
-                            value={item.make}
-                            onChange={(e) => { handleChange(index, 'make', e.target.value); setErrorText(''); }}
-                        >
-                            <option value="">Select Make</option>
-                            {makes.map((make) => (
-                                <option key={make.Make_ID} value={make.Make_Name}>
-                                    {make.Make_Name}
-                                </option>
-                            ))}
-                        </select>
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Model</label>
-                        <select
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
-                            value={item.model}
-                            onChange={(e) => { handleChange(index, 'model', e.target.value); setErrorText(''); }}
-                        >
-                            <option value="">Select Model</option>
-                            {models.map((model) => (
-                                <option key={model.Model_ID} value={model.Model_Name}>
-                                    {model.Model_Name}
-                                </option>
-                            ))}
-                        </select>
+                    <div className='flex gap-3'>
+                        <div className="flex flex-col w-1/4">
+                            <label className='text-zinc-900 font-medium'>Year</label>
+                            <input
+                                className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md/30 shadow-md"
+                                type="text"
+                                placeholder='e.g. 2020'
+                                value={item.year}
+                                onChange={(e) => { handleChange(index, 'year', e.target.value); setErrorText(''); }}
+                            />
+                        </div>
+                        <div className='flex flex-col w-1/3 relative'>
+                            <label className='text-zinc-900 font-medium'>Make</label>
+                            <input
+                                className="rounded bg-white w-full p-1 py-1.5 border border-zinc-900/30 shadow-md/30 shadow-md"
+                                value={item.make}
+                                placeholder='Toyota'
+                                onChange={(e) => { handleMakeInputChange(index, e.target.value); setErrorText(''); }}
+                                onKeyDown={(e) => handleKeyDown(e, index, 'make')}
+                            />
+                            {showMakeDropdown && filteredMakes.length > 0 && (
+                                <ul className="relative z-10 bg-white border border-zinc-900/30 shadow-md w-full max-h-40 overflow-y-auto">
+                                    {filteredMakes.map((make, i) => (
+                                        <li
+                                            key={make}
+                                            className={`p-2 cursor-pointer hover:bg-gray-200 ${highlightedIndex === i ? 'bg-gray-200' : ''}`}
+                                            onClick={() => handleMakeSelect(index, make)}
+                                        >
+                                            {make}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                        <div className='flex flex-col w-1/3 relative'>
+                            <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Model</label>
+                            <input
+                                className="rounded bg-white w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
+                                value={item.model}
+                                placeholder='RAV4'
+                                onChange={(e) => { handleModelInputChange(index, e.target.value); setErrorText(''); }}
+                                onKeyDown={(e) => handleKeyDown(e, index, 'model')}
+                            />
+                            {showModelDropdown && filteredModels.length > 0 && (
+                                <ul className="relative z-10 bg-white border border-zinc-900/30 shadow-md w-full max-h-40 overflow-y-auto">
+                                    {filteredModels.map((model, i) => (
+                                        <li
+                                            key={model.Model_ID}
+                                            className={`p-2 cursor-pointer hover:bg-gray-200 ${highlightedIndex === i ? 'bg-gray-200' : ''}`}
+                                            onClick={() => handleModelSelect(index, model.Model_Name)}
+                                        >
+                                            {model.Model_Name}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
                     </div>
-                    <div>
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>VIN #</label>
-                        <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
-                            placeholder='optional'
-                            type="text"
-                            value={item.vin}
-                            onChange={(e) => { handleChange(index, 'vin', e.target.value); setErrorText(''); }}
-                        />
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Operational Condition</label>
-                        <select
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
-                            value={item.operationalCondition || ''}
-                            onChange={(e) => handleChange(index, 'operationalCondition', e.target.value)}
-                        >
-                            <option value="">Select...</option>
-                            <option value="operable">Operable</option>
-                            <option value="inoperable">Inoperable</option>
-                        </select>
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Is Auction
+                    <div className='flex gap-2 mt-3'>
+                        <div className='flex flex-col w-1/2'>
+                            <label className='text-zinc-900 dark:text-zinc-100 font-medium'>VIN #</label>
+                            <input
+                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                                placeholder='optional'
+                                type="text"
+                                value={item.vin}
+                                onChange={(e) => { handleChange(index, 'vin', e.target.value); setErrorText(''); }}
+                            />
+                        </div>
+                        <div className='flex flex-col w-1/4'>
+                            <label className='text-zinc-900 text-nowrap dark:text-zinc-100 font-medium'>Vehicle Condition</label>
                             <select
-                                className='block'
+                                className="rounded bg-white w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
+                                value={item.operationalCondition || ''}
+                                onChange={(e) => handleChange(index, 'operationalCondition', e.target.value)}
+                            >
+                                <option value="">Select...</option>
+                                <option value="operable">Operable</option>
+                                <option value="inoperable">Inoperable</option>
+                            </select>
+                        </div>
+                        <div className='flex flex-col w-1/3'>
+                            <label className='text-zinc-900 text-nowrap font-medium'>Auction/Dealer Pickup?</label>
+                            <select
+                                className='rounded bg-white w-full p-1 py-1.5 border border-zinc-900/30 shadow-md'
                                 value={item.isAuction === null ? '' : item.isAuction ? 'yes' : 'no'}
                                 onChange={(e) => {
                                     setErrorText('');
@@ -141,16 +210,16 @@ const AutoForm: React.FC<AutoFormProps> = ({
                                 <option value="true">Yes</option>
                                 <option value="false">No</option>
                             </select>
-                        </label>
+                        </div>
                     </div>
                 </div>
             ))}
             <button
                 type="button"
-                className="body-btn mt-2 w-1/3"
+                className="text-ntsLightBlue font-semibold underline text-start"
                 onClick={handleAddItem}
             >
-                Add Item
+                Add Vehicle
             </button>
         </div>
     );

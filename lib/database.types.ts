@@ -1411,6 +1411,7 @@ export type Database = {
           vin: string | null
           weight: string | null
           weight_per_pallet_unit: string | null
+          weight_unit: string | null
           width: string | null
           year: string | null
         }
@@ -1488,6 +1489,7 @@ export type Database = {
           vin?: string | null
           weight?: string | null
           weight_per_pallet_unit?: string | null
+          weight_unit?: string | null
           width?: string | null
           year?: string | null
         }
@@ -1565,6 +1567,7 @@ export type Database = {
           vin?: string | null
           weight?: string | null
           weight_per_pallet_unit?: string | null
+          weight_unit?: string | null
           width?: string | null
           year?: string | null
         }

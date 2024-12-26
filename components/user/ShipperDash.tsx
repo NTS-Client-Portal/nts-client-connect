@@ -181,11 +181,11 @@ const ShipperDash = () => {
 
 
     return (
-        <div className='container mx-auto flex flex-col'>
+        <div className='container mx-auto'>
 
 
-            <div className='flex sm:flex-col-reverse xl:flex-row gap-4'>
-                <div className='mt-4 flex gap-2 justify-start items-stretch w-full'>
+            <div className='flex sm:flex-col-reverse xl:flex-row items-start gap-6'>
+                <div className='mt-4 flex gap-2 justify-start items-start'>
                     <div className="p-8 bg-gray-100 shadow rounded-lg max-w-lg max-h-96 overflow-auto">
                         <h2 className="text-xl font-bold mb-2">Active Orders</h2>
                         <div className='mb-4'>

@@ -9,75 +9,65 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
     setFormData,
     setErrorText,
 }) => {
-    const [driveawayOrTowaway, setDriveawayOrTowaway] = useState<boolean | null>(null);
-    const [height, setHeight] = useState<string | null>(null);
-    const [length, setLength] = useState<string | null>(null);
-    const [make, setMake] = useState<string | null>(null);
-    const [model, setModel] = useState<string | null>(null);
-    const [vin, setVin] = useState<string | null>(null);
-    const [weight, setWeight] = useState<string | null>(null);
-    const [width, setWidth] = useState<string | null>(null);
-    const [year, setYear] = useState<number | null>(null);
+    const [year, setYear] = useState('');
+    const [make, setMake] = useState('');
+    const [model, setModel] = useState('');
+    const [length, setLength] = useState('');
+    const [width, setWidth] = useState('');
+    const [height, setHeight] = useState('');
+    const [weight, setWeight] = useState('');
+    const [weightUnit, setWeightUnit] = useState('lbs');
+    const [vin, setVin] = useState('');
+    const [operationalCondition, setOperationalCondition] = useState<boolean | null>(null);
+    const [isAuction, setIsAuction] = useState<boolean | null>(null);
+    const [auction, setAuction] = useState('');
+    const [buyerNumber, setBuyerNumber] = useState('');
+    const [lotNumber, setLotNumber] = useState('');
+    const [loadingUnloadingRequirements, setLoadingUnloadingRequirements] = useState('');
 
     useEffect(() => {
         const formData = {
-            driveaway_or_towaway: driveawayOrTowaway,
-            height,
-            length,
+            year,
             make,
             model,
-            vin,
-            weight,
+            length,
             width,
-            year: year?.toString() || '',
+            height,
+            weight,
+            weight_unit: weightUnit,
+            vin,
+            operational_condition: operationalCondition,
+            is_auction: isAuction,
+            auction,
+            buyer_number: buyerNumber,
+            lot_number: lotNumber,
+            loading_unloading_requirements: loadingUnloadingRequirements,
         };
 
         setFormData(formData);
-    }, [driveawayOrTowaway, height, length, make, model, vin, weight, width, year, setFormData]);
+    }, [year, make, model, length, width, height, weight, weightUnit, vin, operationalCondition, isAuction, auction, buyerNumber, lotNumber, loadingUnloadingRequirements, setFormData]);
 
     return (
         <div className="flex flex-col gap-3">
             <div className='flex gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Driveaway or Towaway
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Year
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
-                        type="checkbox"
-                        checked={driveawayOrTowaway || false}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setDriveawayOrTowaway(e.target.checked);
-                        }}
-                    />
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Height
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
-                        value={height || ''}
+                        placeholder='2020'
+                        value={year}
                         onChange={(e) => {
                             setErrorText('');
-                            setHeight(e.target.value);
+                            setYear(e.target.value);
                         }}
                     />
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Length
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
-                        type="text"
-                        value={length || ''}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setLength(e.target.value);
-                        }}
-                    />
-                </label>
-            </div>
-            <div className='flex gap-2'>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Make
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
-                        value={make || ''}
+                        placeholder='Freightliner'
+                        value={make}
                         onChange={(e) => {
                             setErrorText('');
                             setMake(e.target.value);
@@ -86,62 +76,164 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Model
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
-                        value={model || ''}
+                        placeholder='Cascadia 126'
+                        value={model}
                         onChange={(e) => {
                             setErrorText('');
                             setModel(e.target.value);
                         }}
                     />
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>VIN
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
-                        type="text"
-                        value={vin || ''}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setVin(e.target.value);
-                        }}
-                    />
-                </label>
             </div>
+
             <div className='flex gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Weight
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Length
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
-                        value={weight || ''}
+                        placeholder="25&apos; 6&quot;"
+                        value={length}
                         onChange={(e) => {
                             setErrorText('');
-                            setWeight(e.target.value);
+                            setLength(e.target.value);
                         }}
                     />
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Width
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
-                        value={width || ''}
+                        placeholder="8&apos; 6&quot;"
+                        value={width}
                         onChange={(e) => {
                             setErrorText('');
                             setWidth(e.target.value);
                         }}
                     />
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Year
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Height
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
-                        type="number"
-                        value={year || ''}
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                        type="text"
+                        placeholder="13&apos; 4&quot;"
+                        value={height}
                         onChange={(e) => {
                             setErrorText('');
-                            setYear(e.target.value ? parseInt(e.target.value) : null);
+                            setHeight(e.target.value);
+                        }}
+                    />
+                </label>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Weight
+                    <div className="flex items-center">
+                        <input
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                            type="text"
+                            placeholder='e.g. 30,000'
+                            value={weight}
+                            onChange={(e) => {
+                                setErrorText('');
+                                setWeight(e.target.value);
+                            }}
+                        />
+                        <select
+                            className="rounded bg-white p-1 border border-zinc-900/30 shadow-md ml-2"
+                            value={weightUnit}
+                            onChange={(e) => setWeightUnit(e.target.value)}
+                        >
+                            <option value="lbs">lbs</option>
+                            <option value="tons">tons</option>
+                            <option value="kg">kg</option>
+                            <option value="g">g</option>
+                        </select>
+                    </div>
+                </label>
+            </div>
+            <div className='flex gap-2 justify-evenly'>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Vehicle Condition
+                    <select
+                        className="rounded bg-white w-full py-1.5 px-1 border border-zinc-900/30 shadow-md"
+                        value={operationalCondition === null ? '' : operationalCondition ? 'operable' : 'inoperable'}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setOperationalCondition(e.target.value === 'operable');
+                        }}
+                    >
+                        <option value="">Select...</option>
+                        <option value="operable">Operable</option>
+                        <option value="inoperable">Inoperable</option>
+                    </select>
+                </label>
+
+                <label className='text-zinc-900 font-medium'>Coming from an auction/dealer?
+                    <select
+                        className="rounded w-full bg-white px-1 py-1.5 border border-zinc-900/30 shadow-md"
+                        value={isAuction === null ? '' : isAuction ? 'yes' : 'no'}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setIsAuction(e.target.value === 'yes');
+                        }}
+                    >
+                        <option value="">Select...</option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                </label>
+            </div>
+            <div className='w-full'>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Loading/Unloading Requirements
+                    <input
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                        type="text"
+                        placeholder='e.g. Tarp, Forklift, Ramp, Dock'
+                        value={loadingUnloadingRequirements}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setLoadingUnloadingRequirements(e.target.value);
                         }}
                     />
                 </label>
             </div>
+            {isAuction && (
+                <>
+                    <div className='flex gap-2 flex-nowrap w-fit'>
+                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Auction/Dealer Name
+                            <input
+                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                                type="text"
+                                value={auction}
+                                onChange={(e) => {
+                                    setErrorText('');
+                                    setAuction(e.target.value);
+                                }}
+                            />
+                        </label>
+                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Buyer Number
+                            <input
+                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                                type="text"
+                                value={buyerNumber}
+                                onChange={(e) => {
+                                    setErrorText('');
+                                    setBuyerNumber(e.target.value);
+                                }}
+                            />
+                        </label>
+                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Lot Number
+                            <input
+                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                                type="text"
+                                value={lotNumber}
+                                onChange={(e) => {
+                                    setErrorText('');
+                                    setLotNumber(e.target.value);
+                                }}
+                            />
+                        </label>
+                    </div>
+                </>
+            )}
         </div>
     );
 };

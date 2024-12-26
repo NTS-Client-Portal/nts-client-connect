@@ -16,11 +16,14 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
     const [destinationType, setDestinationType] = useState<string | null>(null);
     const [destinationTypeDescription, setDestinationTypeDescription] = useState<string | null>(null);
     const [goodsValue, setGoodsValue] = useState<string | null>(null);
-    const [isLoaded, setIsLoaded] = useState<boolean | null>(null);
+    const [isLoaded, setIsLoaded] = useState<boolean | null>(true);
+    const [loadingAssistance, setLoadingAssistance] = useState('');
     const [loadingBy, setLoadingBy] = useState<boolean | null>(null);
     const [originSurfaceType, setOriginSurfaceType] = useState<string | null>(null);
     const [originType, setOriginType] = useState<string | null>(null);
     const [originTypeDescription, setOriginTypeDescription] = useState<string | null>(null);
+
+
 
     useEffect(() => {
         const formData = {
@@ -32,14 +35,14 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
             destination_type_description: destinationType === 'Other' ? destinationTypeDescription : null,
             goods_value: goodsValue,
             is_loaded: isLoaded,
-            loading_by: loadingBy,
+            loading_assistance: loadingAssistance,
             origin_surface_type: originSurfaceType,
             origin_type: originType === 'Business' || originType === 'Residential',
             origin_type_description: originType === 'Other' ? originTypeDescription : null,
         };
 
         setFormData(formData);
-    }, [containerLength, containerType, contentsDescription, destinationSurfaceType, destinationType, destinationTypeDescription, goodsValue, isLoaded, loadingBy, originSurfaceType, originType, originTypeDescription, setFormData]);
+    }, [containerLength, containerType, contentsDescription, destinationSurfaceType, destinationType, loadingAssistance, destinationTypeDescription, goodsValue, isLoaded, loadingBy, originSurfaceType, originType, originTypeDescription, setFormData]);
 
     return (
         <div className="flex flex-col gap-3">
@@ -47,8 +50,9 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
                 <div className='flex flex-col w-1/2'>
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Container Length
                         <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                             type="number"
+                            placeholder='20&apos; '
                             value={containerLength || ''}
                             onChange={(e) => {
                                 setErrorText('');
@@ -60,8 +64,9 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
                 <div className='flex flex-col w-1/2'>
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Container Type
                         <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                             type="text"
+                            placeholder='Standard, 40&apos; High Cube, Flat Rack etc.'
                             value={containerType || ''}
                             onChange={(e) => {
                                 setErrorText('');
@@ -72,10 +77,10 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
                 </div>
             </div>
             <div className='flex gap-2 w-full'>
-                <div className='flex flex-col w-1/2'>
+                <div className='flex flex-col gap-2 w-1/2'>
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Origin Type
                         <select
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                             value={originType || ''}
                             onChange={(e) => {
                                 setErrorText('');
@@ -94,7 +99,7 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
                     {originType === 'Other' && (
                         <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Please Describe Origin Type
                             <input
-                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                                 type="text"
                                 value={originTypeDescription || ''}
                                 onChange={(e) => {
@@ -106,7 +111,7 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
                     )}
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Ground Condition at Origin
                         <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                             type="text"
                             placeholder='soft ground, concrete, muddy, etc.'
                             value={originSurfaceType || ''}
@@ -117,10 +122,10 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
                         />
                     </label>
                 </div>
-                <div className='flex flex-col w-1/2'>
+                <div className='flex flex-col gap-2 w-1/2'>
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Destination Type
                         <select
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                             value={destinationType || ''}
                             onChange={(e) => {
                                 setErrorText('');
@@ -139,7 +144,7 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
                     {destinationType === 'Other' && (
                         <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Describe Destination Type
                             <input
-                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                                 type="text"
                                 value={destinationTypeDescription || ''}
                                 onChange={(e) => {
@@ -151,7 +156,7 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
                     )}
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Ground Condition at Destination
                         <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                             type="text"
                             placeholder='soft ground, concrete, muddy, etc.'
                             value={destinationSurfaceType || ''}
@@ -163,71 +168,61 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
                     </label>
                 </div>
             </div>
-            <div className='flex gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Will Loading Assistance be Provided?
-                    <div className="flex items-center">
-                        <input
-                            type="radio"
-                            id="loadingByYes"
-                            name="loadingBy"
-                            value="yes"
-                            checked={loadingBy === true}
-                            onChange={() => {
-                                setErrorText('');
-                                setLoadingBy(true);
-                            }}
-                        />
-                        <label htmlFor="loadingByYes" className="ml-2">Yes</label>
-                        <input
-                            type="radio"
-                            id="loadingByNo"
-                            name="loadingBy"
-                            value="no"
-                            checked={loadingBy === false}
-                            onChange={() => {
-                                setErrorText('');
-                                setLoadingBy(false);
-                            }}
-                            className="ml-4"
-                        />
-                        <label htmlFor="loadingByNo" className="ml-2">No</label>
-                    </div>
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Is the container empty?
-                    <div className="flex items-center">
-                        <input
-                            type="radio"
-                            id="isLoadedYes"
-                            name="isLoaded"
-                            value="yes"
-                            checked={isLoaded === true}
-                            onChange={() => {
-                                setErrorText('');
-                                setIsLoaded(true);
-                            }}
-                        />
-                        <label htmlFor="isLoadedYes" className="ml-2">Yes</label>
-                        <input
-                            type="radio"
-                            id="isLoadedNo"
-                            name="isLoaded"
-                            value="no"
-                            checked={isLoaded === false}
-                            onChange={() => {
-                                setErrorText('');
-                                setIsLoaded(false);
-                            }}
-                            className="ml-4"
-                        />
-                        <label htmlFor="isLoadedNo" className="ml-2">No</label>
-                    </div>
-                </label>
+            <div className='flex gap-2 items-center justify-between w-full'>
+                <div className='flex flex-col gap-2 w-1/2'>
+                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Loading/Unloading Assistance</label>
+                    <select
+                        className="rounded bg-white p-1 border border-zinc-900/30 shadow-md text-zinc-600"
+                        value={loadingAssistance}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setLoadingAssistance(e.target.value);
+                        }}
+                    >
+                        <option value="">Select...</option>
+                        <option value="At Origin">At Origin</option>
+                        <option value="At Destination">At Destination</option>
+                        <option value="Both Origin and Destination">Both Origin and Destination</option>
+                    </select>
+                </div>
+
+                <div className="md:pr-24">
+                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Is the container empty?
+                        <div className="flex items-center">
+                            <input
+                                type="radio"
+                                id="isLoadedYes"
+                                name="isLoaded"
+                                value="yes"
+                                checked={isLoaded === true}
+                                onChange={() => {
+                                    setErrorText('');
+                                    setIsLoaded(true);
+                                }}
+                            />
+                            <label htmlFor="isLoadedYes" className="ml-2">Yes</label>
+                            <input
+                                type="radio"
+                                id="isLoadedNo"
+                                name="isLoaded"
+                                value="no"
+                                checked={isLoaded === false}
+                                onChange={() => {
+                                    setErrorText('');
+                                    setIsLoaded(false);
+                                }}
+                                className="ml-4"
+                            />
+                            <label htmlFor="isLoadedNo" className="ml-2">No</label>
+                        </div>
+                    </label>
+                </div>
             </div>
             {!isLoaded && (
                 <div className='flex gap-2'>
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Contents Description
                         <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                             type="text"
                             value={contentsDescription || ''}
                             onChange={(e) => {
@@ -238,7 +233,7 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
                     </label>
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Container Contents Value
                         <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900"
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                             type="text"
                             value={goodsValue || ''}
                             onChange={(e) => {

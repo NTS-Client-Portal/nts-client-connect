@@ -5,20 +5,23 @@
 /* Custom styles */
 @keyframes fade-in-out {
   0% {
-      opacity: 0;
-      transform: translateY(-10px);
+    opacity: 0;
+    transform: translateY(-10px);
   }
+
   10% {
-      opacity: 1;
-      transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
   }
+
   90% {
-      opacity: 1;
-      transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
   }
+
   100% {
-      opacity: 0;
-      transform: translateY(-10px);
+    opacity: 0;
+    transform: translateY(-10px);
   }
 }
 
@@ -51,9 +54,7 @@
 }
 
 .dark-light-btn {
-  @apply m-0 px-4 text-nowrap py-2 border border-ntsLightBlue rounded-sm
-  bg-ntsLightBlue text-zinc-50 font-medium hover:border-ntsLightBlue hover:bg-ntsLightBlue/50
-  dark:border-zinc-900 dark:bg-ntsLightBlue dark:text-zinc-900 dark:hover:border-ntsLightBlue;
+  @apply m-0 px-4 text-nowrap py-2 border border-ntsLightBlue rounded-sm bg-ntsLightBlue text-zinc-50 font-medium hover:border-ntsLightBlue hover:bg-ntsLightBlue/50 dark:border-zinc-900 dark:bg-ntsLightBlue dark:text-zinc-900 dark:hover:border-ntsLightBlue;
 }
 
 .dark-btn {
@@ -69,13 +70,11 @@
 }
 
 .upload-button {
-    @apply text-base text-nowrap underline underline-offset-4 text-white dark:text-blue-400 dark:font-bold dark:text-base font-medium;
+  @apply text-base text-nowrap underline underline-offset-4 text-white dark:text-blue-400 dark:font-bold dark:text-base font-medium;
 }
 
 .contact-btn {
-  @apply px-4 py-1.5 font-semibold rounded-sm w-full max-w-max text-nowrap border-ntsLightBlue
-  bg-ntsLightBlue text-zinc-100 hover:border-ntsLightBlue hover:bg-ntsLightBlue/90
-  dark:border-zinc-900 dark:bg-ntsLightBlue dark:text-zinc-900 dark:hover:bg-ntsLightBlue/90 dark:hover:text-zinc-900 dark:hover:border-ntsLightBlue;
+  @apply px-4 py-1.5 font-semibold rounded-sm w-full max-w-max text-nowrap border-ntsLightBlue bg-ntsLightBlue text-zinc-100 hover:border-ntsLightBlue hover:bg-ntsLightBlue/90 dark:border-zinc-900 dark:bg-ntsLightBlue dark:text-zinc-900 dark:hover:bg-ntsLightBlue/90 dark:hover:text-zinc-900 dark:hover:border-ntsLightBlue;
 }
 
 input:placeholder-shown {
@@ -312,11 +311,14 @@ input:disabled+.slider:before {
   }
 
   .dark {
-    --background: 222.2 84% 4.9%; /* zinc-800 */
+    --background: 222.2 84% 4.9%;
+    /* zinc-800 */
     --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%; /* zinc-800 */
+    --card: 222.2 84% 4.9%;
+    /* zinc-800 */
     --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%; /* zinc-800 */
+    --popover: 222.2 84% 4.9%;
+    /* zinc-800 */
     --popover-foreground: 210 40% 98%;
     --primary: 222.2 84% 4.9%;
     --primary-foreground: 222.2 47.4% 11.2%;
@@ -339,7 +341,7 @@ input:disabled+.slider:before {
   }
 }
 
-p h1 h2 h3 h4 h5 h6 li span{
+p h1 h2 h3 h4 h5 h6 li span {
   @apply font-sans dark:text-zinc-50 !important;
 }
 
@@ -359,7 +361,7 @@ main {
   }
 
   body {
-    @apply bg-background dark:bg-zinc-700  text-foreground;
+    @apply bg-background dark:bg-zinc-700 text-foreground;
   }
 }
 
@@ -367,7 +369,7 @@ main {
   display: flex;
   flex-direction: column;
   height: 100%;
-  width:100%;
+  width: 100%;
 }
 
 .messages {
@@ -418,17 +420,17 @@ main {
 }
 
 .broker-card {
-    border: 1px solid #ccc;
-    padding: 16px;
-    border-radius: 8px;
-    text-align: center;
-    margin-top: 16px;
+  border: 1px solid #ccc;
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+  margin-top: 36px;
 }
 
 .avatar {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 6px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 6px;
 }

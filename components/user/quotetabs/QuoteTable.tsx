@@ -180,10 +180,10 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                         className="border border-gray-300 rounded-md shadow-sm"
                     >
                         <option value="id">ID</option>
-                        <option value="freight_type">Freight Type</option>
-                        <option value="origin_city">Origin City</option>
-                        <option value="destination_city">Destination City</option>
-                        <option value="due_date">Shipping Date</option>
+                        <option value="freight_type">Load Details</option>
+                        <option value="origin_city">Origin</option>
+                        <option value="destination_city">Destination</option>
+                        <option value="due_date">Date</option>
                     </select>
                 </div>
                 <input
@@ -197,24 +197,24 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
             <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
                 <thead className="bg-ntsBlue text-zinc-50 dark:bg-zinc-900 static top-0 w-full">
                     <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : 'desc'} onSort={handleSort} />
+                        <th className="px-6 py-3 text-left text-xs text-nowrap font-medium uppercase tracking-wider">
+                            <TableHeaderSort column="Quote ID" sortOrder={sortConfig.column === 'id' ? sortConfig.order : 'desc'} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="freight_type" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
+                            <TableHeaderSort column="Load Details" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="origin_city" sortOrder={sortConfig.column === 'origin_city' ? sortConfig.order : null} onSort={handleSort} />
+                            <TableHeaderSort column="Origin" sortOrder={sortConfig.column === 'origin_city' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="destination_city" sortOrder={sortConfig.column === 'destination_city' ? sortConfig.order : null} onSort={handleSort} />
+                            <TableHeaderSort column="Destination" sortOrder={sortConfig.column === 'destination_city' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="due_date" sortOrder={sortConfig.column === 'due_date' ? sortConfig.order : null} onSort={handleSort} />
+                            <TableHeaderSort column="Date" sortOrder={sortConfig.column === 'due_date' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"> Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="price" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
+                        <th className="px-6 py-3 text-left text-xs font-medium tracking-wider"> Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium tracking-wider">
+                            <TableHeaderSort column="Price" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
                     </tr>
@@ -269,14 +269,14 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                             </>
                                         )}
                                         <div className='text-start pt-1 w-min'>
-                                            <span className='font-semibold text-xs text-gray-700 text-start w-min'>Freight Type:</span>
+                                            <span className='font-semibold text-sm text-gray-700 text-start w-min'>Freight Type:</span>
                                             <span className='text-xs text-zinc-900 text-start px-1 w-min'>{freightTypeMapping[quote.freight_type] || (quote.freight_type ? quote.freight_type.toUpperCase() : 'N/A')}</span>
                                         </div>
                                     </div>
                                 </td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.origin_city}, {quote.origin_state}</td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.destination_city}, {quote.destination_state}</td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{formatDate(quote.due_date)}</td>
+                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.origin_city}, {quote.origin_state} {quote.origin_zip}</td>
+                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.destination_city}, {quote.destination_state} {quote.destination_zip}</td>
+                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.due_date}</td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{quote.status}</td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">
                                     {isAdmin ? (
@@ -308,8 +308,8 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                         quote.price ? `$${quote.price}` : 'Pending'
                                     )}
                                 </td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">
-                                    <div className='flex flex-col items-center gap-2'>
+                                <td className="px-6 py-3 whitespace-nowrap text-left text-sm text-gray-500">
+                                    <div className='flex flex-col justify-center text-left items-start gap-2'>
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();

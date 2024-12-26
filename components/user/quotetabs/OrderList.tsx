@@ -309,7 +309,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
                     handleMarkAsComplete={(id) => () => handleMarkAsComplete(id)}
                 />
             </div>
-            <div className="block 2xl:hidden mt-">
+            <div className="block md:hidden">
                 <div className='mt-1'>
                     {quotes.map((quote) => (
                         <div key={quote.id} className="bg-white dark:bg-zinc-800 shadow rounded-md mb-4 p-4 border border-zinc-400 dark:text-white">
