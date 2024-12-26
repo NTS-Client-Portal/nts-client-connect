@@ -102,8 +102,8 @@ const NtsLogin = () => {
                 </form>
                 <div className="mt-4 text-center">
                     <p>Forgot your password?</p>
-                    <Link href="/recover-password?userType=nts_users"  className="text-blue-500 hover:underline">
-                       Reset Password
+                    <Link href="/recover-password?userType=nts_users" className="text-blue-500 hover:underline">
+                        Reset Password
                     </Link>
                 </div>
             </div>
