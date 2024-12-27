@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Database } from '@/lib/database.types';
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
 import { v4 as uuidv4 } from 'uuid';
 
 interface AddNtsUserFormProps {
@@ -31,7 +31,8 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
 
         try {
             // Generate a random UUID for the id field
-            const userId = uuidv4();
+            const { data: { session } } = await supabase.auth.getSession();
+            const userId = session?.user?.id || uuidv4();
 
             // Insert the user into the nts_users table with the specified company_id
             const { error: insertError } = await supabase.from('nts_users').insert({

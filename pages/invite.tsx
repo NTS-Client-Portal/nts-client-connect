@@ -3,12 +3,14 @@ import { useRouter } from 'next/router';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import Head from 'next/head';
 
-const InvitePage = () => {
-    const router = useRouter();
+export default function InvitePage() {
     const supabase = useSupabaseClient();
+    const router = useRouter();
     const { token } = router.query;
     const [email, setEmail] = useState('');
-    const [teamRole, setTeamRole] = useState<'manager' | 'member'>('member');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -16,27 +18,27 @@ const InvitePage = () => {
     const [success, setSuccess] = useState(false);
 
     useEffect(() => {
-        const verifyToken = async () => {
-            if (token) {
-                const { data, error } = await supabase
-                    .from('invitations')
-                    .select('email, team_role')
-                    .eq('token', token)
-                    .single();
+        const fetchInvitation = async () => {
+            if (!token) return;
 
-                if (error) {
-                    setError('Invalid or expired invitation token');
-                } else {
-                    setEmail(data.email);
-                    setTeamRole(data.team_role);
-                }
+            const { data, error } = await supabase
+                .from('invitations')
+                .select('email')
+                .eq('token', token)
+                .single();
+
+            if (error) {
+                setError('Invalid or expired invitation token.');
+                return;
             }
+
+            setEmail(data.email);
         };
 
-        verifyToken();
+        fetchInvitation();
     }, [token, supabase]);
 
-    const handleSignUp = async (e: React.FormEvent) => {
+    const handleCompleteProfile = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
@@ -48,7 +50,7 @@ const InvitePage = () => {
         }
 
         try {
-            const { data, error: signUpError } = await supabase.auth.signUp({
+            const { data: user, error: signUpError } = await supabase.auth.signUp({
                 email,
                 password,
             });
@@ -57,26 +59,22 @@ const InvitePage = () => {
                 throw new Error(signUpError.message);
             }
 
-            const user = data.user;
-
-            // Update the user's profile
             const { error: profileError } = await supabase
                 .from('profiles')
-                .update({ profile_complete: true, team_role: teamRole })
+                .update({
+                    first_name: firstName,
+                    last_name: lastName,
+                    phone_number: phoneNumber,
+                    profile_complete: true,
+                })
                 .eq('email', email);
 
             if (profileError) {
                 throw new Error(profileError.message);
             }
 
-            // Delete the invitation token
-            await supabase
-                .from('invitations')
-                .delete()
-                .eq('token', token);
-
             setSuccess(true);
-            router.push('/user');
+            router.push('/login'); // Redirect to login page
         } catch (error) {
             setError(error.message);
         } finally {
@@ -105,7 +103,7 @@ const InvitePage = () => {
                                         Your account has been set up successfully! Redirecting...
                                     </div>
                                 ) : (
-                                    <form className="mt-4" onSubmit={handleSignUp}>
+                                    <form className="mt-4" onSubmit={handleCompleteProfile}>
                                         <label htmlFor="email" className="mt-4">Email</label>
                                         <input
                                             type="email"
@@ -113,6 +111,33 @@ const InvitePage = () => {
                                             value={email}
                                             readOnly
                                             className="w-full p-2 mt-2 border rounded bg-gray-200"
+                                        />
+                                        <label htmlFor="firstName" className="mt-4">First Name</label>
+                                        <input
+                                            type="text"
+                                            id="firstName"
+                                            value={firstName}
+                                            onChange={(e) => setFirstName(e.target.value)}
+                                            required
+                                            className="w-full p-2 mt-2 border rounded"
+                                        />
+                                        <label htmlFor="lastName" className="mt-4">Last Name</label>
+                                        <input
+                                            type="text"
+                                            id="lastName"
+                                            value={lastName}
+                                            onChange={(e) => setLastName(e.target.value)}
+                                            required
+                                            className="w-full p-2 mt-2 border rounded"
+                                        />
+                                        <label htmlFor="phoneNumber" className="mt-4">Phone Number</label>
+                                        <input
+                                            type="text"
+                                            id="phoneNumber"
+                                            value={phoneNumber}
+                                            onChange={(e) => setPhoneNumber(e.target.value)}
+                                            required
+                                            className="w-full p-2 mt-2 border rounded"
                                         />
                                         <label htmlFor="password" className="mt-4">Password</label>
                                         <input
@@ -122,8 +147,6 @@ const InvitePage = () => {
                                             onChange={(e) => setPassword(e.target.value)}
                                             required
                                             className="w-full p-2 mt-2 border rounded"
-                                            disabled={loading}
-                                            autoComplete="new-password"
                                         />
                                         <label htmlFor="confirmPassword" className="mt-4">Confirm Password</label>
                                         <input
@@ -133,15 +156,13 @@ const InvitePage = () => {
                                             onChange={(e) => setConfirmPassword(e.target.value)}
                                             required
                                             className="w-full p-2 mt-2 border rounded"
-                                            disabled={loading}
-                                            autoComplete="new-password"
                                         />
                                         <button
                                             type="submit"
                                             className="w-full body-btn mt-8"
                                             disabled={loading}
                                         >
-                                            {loading ? 'Setting Up...' : 'Set Up Account'}
+                                            {loading ? 'Completing Profile...' : 'Complete Profile'}
                                         </button>
                                     </form>
                                 )}
@@ -152,6 +173,4 @@ const InvitePage = () => {
             </div>
         </>
     );
-};
-
-export default InvitePage;
+}

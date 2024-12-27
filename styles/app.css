@@ -1140,10 +1140,6 @@ body:is(.dark *) {
   max-height: 15rem;
 }
 
-.max-h-80 {
-  max-height: 20rem;
-}
-
 .max-h-96 {
   max-height: 24rem;
 }
@@ -2040,6 +2036,11 @@ body:is(.dark *) {
 .bg-zinc-950 {
   --tw-bg-opacity: 1;
   background-color: rgb(9 9 11 / var(--tw-bg-opacity, 1));
+}
+
+.bg-gray-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(107 114 128 / var(--tw-bg-opacity, 1));
 }
 
 .bg-opacity-50 {
