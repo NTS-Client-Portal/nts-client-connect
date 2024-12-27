@@ -26,6 +26,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
     const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
     const [selectedSalesUserId, setSelectedSalesUserId] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<'analytics' | 'userManagement' | 'templateManager'>('analytics');
+    const [isSessionChecked, setIsSessionChecked] = useState(false); // Add state to track session check
 
     const checkSession = useCallback(async () => {
         if (!session) {
@@ -42,6 +43,8 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
 
         if (profileError || userProfile?.role !== 'superadmin') {
             router.push('/superadmin-login');
+        } else {
+            setIsSessionChecked(true); // Set session check as completed
         }
     }, [session, router, supabase]);
 
@@ -78,9 +81,11 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
     }, [session, supabase]);
 
     useEffect(() => {
-        fetchNtsUsers();
-        fetchCompanies();
-    }, [fetchNtsUsers, fetchCompanies]);
+        if (isSessionChecked) {
+            fetchNtsUsers();
+            fetchCompanies();
+        }
+    }, [fetchNtsUsers, fetchCompanies, isSessionChecked]);
 
     const handleDeleteNtsUser = async (id: string) => {
         setLoading(true);
@@ -135,7 +140,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         setLoading(false);
     };
 
-    if (!session) {
+    if (!isSessionChecked) {
         return <p>Loading...</p>; // or a loading spinner
     }
 
