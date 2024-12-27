@@ -4,7 +4,6 @@ import TemplateList from './TemplateList';
 import Modal from './Modal';
 import dynamic from 'next/dynamic';
 import 'react-quill/dist/quill.snow.css';
-import { generateAndUploadPDF, replaceShortcodes } from '@/components/GeneratePDF';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
@@ -158,16 +157,28 @@ const TemplateManager: React.FC = () => {
         setIsModalOpen(true);
     };
 
+    const replaceShortcodes = (templateContent: string, data: any) => {
+        return templateContent.replace(/{(.*?)}/g, (_, key) => {
+            const keys = key.split('.');
+            let value: any = data;
+            for (const k of keys) {
+                value = value[k];
+                if (value === undefined) {
+                    return `{${key}}`; // Return the original shortcode if the value is not found
+                }
+            }
+            return value;
+        });
+    };
+
     const handleSendEmail = async () => {
         if (!selectedTemplate) return;
 
         const emailContent = replaceShortcodes(selectedTemplate.content, { /* Add necessary data here */ });
-        const emailSubject = replaceShortcodes(selectedTemplate.title, { /* Add necessary data here */ });
         const emailData = {
             to: 'recipient@example.com', // Replace with actual recipient
-            subject: emailSubject,
-            text: emailContent.replace(/<[^>]+>/g, ''), // Strip HTML tags for plain text version
-            html: emailContent, // Include HTML content
+            subject: selectedTemplate.title,
+            text: emailContent,
             attachments: [],
         };
 
