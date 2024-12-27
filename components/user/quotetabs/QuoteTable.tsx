@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import EditHistory from '../../EditHistory';
 import { formatDate, renderAdditionalDetails, freightTypeMapping } from './QuoteUtils';
 import { supabase } from '@/lib/initSupabase';
@@ -116,54 +116,36 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
         }
     };
 
+    useEffect(() => {
+        fetchQuotes();
+    }, []);
+
+    const fetchQuotes = async () => {
+        const { data, error } = await supabase
+            .from('shippingquotes')
+            .select('*');
+
+        if (error) {
+            console.error('Error fetching quotes:', error.message);
+        } else {
+            setQuotes(data);
+        }
+    };
+
+
     const handlePriceSubmit = async (e: React.FormEvent, quoteId: number) => {
         e.preventDefault();
-        const price = parseFloat(priceInput);
-        if (isNaN(price)) {
-            console.error('Invalid price');
-            return;
-        }
-
         const { error } = await supabase
             .from('shippingquotes')
-            .update({ price })
+            .update({ price: parseFloat(priceInput) })
             .eq('id', quoteId);
 
         if (error) {
             console.error('Error updating price:', error.message);
         } else {
+            fetchQuotes();
             setShowPriceInput(null);
-            setQuotes((prevQuotes) => prevQuotes.map((quote) => quote.id === quoteId ? { ...quote, price } : quote));
-
-            // Generate PDF and upload to Supabase
-            const quote = quotes.find(q => q.id === quoteId);
-            if (quote) {
-                const { data: templateData, error: templateError } = await supabase
-                    .from('templates')
-                    .select('content, title')
-                    .eq('title', 'Quote Updated')
-                    .single();
-
-                if (templateError) {
-                    console.error('Error fetching template:', templateError.message);
-                    return;
-                }
-
-                const pdf = generatePDF(quote, templateData.content);
-                const fileName = `${templateData.title.replace(/\s+/g, '_')}_for_Quote_${quote.id}.pdf`;
-                const filePath = await uploadPDFToSupabase(pdf, fileName);
-                await insertDocumentRecord(filePath, quote, templateData.title);
-
-                // Create a notification for the user
-                const notificationMessage = `Quote ID ${quote.id} has been updated with a new price. <a class="text-ntsBlue underline font-semibold" href="/user/documents">View BOL</a>`;
-                await supabase
-                    .from('notifications')
-                    .insert({
-                        user_id: quote.user_id,
-                        message: notificationMessage,
-                        is_read: false,
-                    });
-            }
+            setPriceInput('');
         }
     };
 
@@ -317,15 +299,32 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                 </button>
                                             </form>
                                         ) : (
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setShowPriceInput(quote.id);
-                                                }}
-                                                className="text-ntsLightBlue font-medium underline"
-                                            >
-                                                Price Quote Request
-                                            </button>
+                                            <div>
+                                                {quote.price ? (
+                                                    <>
+                                                        <span>{`$${quote.price}`}</span>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setShowPriceInput(quote.id);
+                                                            }}
+                                                            className="ml-2 text-ntsLightBlue font-medium underline"
+                                                        >
+                                                            Edit Quote
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setShowPriceInput(quote.id);
+                                                        }}
+                                                        className="text-ntsLightBlue font-medium underline"
+                                                    >
+                                                        Price Quote Request
+                                                    </button>
+                                                )}
+                                            </div>
                                         )
                                     ) : (
                                         quote.price ? `$${quote.price}` : 'Pending'

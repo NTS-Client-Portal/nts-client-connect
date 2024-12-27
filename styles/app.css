@@ -2449,11 +2449,6 @@ body:is(.dark *) {
   color: hsl(var(--muted-foreground));
 }
 
-.text-ntsBlue {
-  --tw-text-opacity: 1;
-  color: rgb(54 64 78 / var(--tw-text-opacity, 1));
-}
-
 .text-ntsLightBlue {
   --tw-text-opacity: 1;
   color: rgb(51 122 183 / var(--tw-text-opacity, 1));

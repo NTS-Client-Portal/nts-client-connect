@@ -3,8 +3,13 @@ import { Database } from '@/lib/database.types';
 import Image from 'next/image';
 import { UserRoundPen, BellRing, Building2, Shield, Menu, Sun, Moon } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { User } from '@/lib/types';
 
-const NtsSettings: React.FC = () => {
+interface UserProfileFormProps {
+    session: any;
+}
+
+const NtsSettings: React.FC<UserProfileFormProps> = () => {
     const session = useSession();
     const supabase = useSupabaseClient<Database>();
     const [firstName, setFirstName] = useState('');
@@ -27,8 +32,8 @@ const NtsSettings: React.FC = () => {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [sidebarOpen, setSidebarOpen] = useState(false); // State to control sidebar visibility
-    const [darkMode, setDarkMode] = useState(false); // State to control dark mode
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [userId, setUserId] = useState<string | null>(null); // State to store user ID
 
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -36,7 +41,7 @@ const NtsSettings: React.FC = () => {
 
             const { data, error } = await supabase
                 .from('nts_users')
-                .select('first_name, last_name, company_id, address, phone_number, profile_picture, email_notifications')
+                .select('id, first_name, last_name, company_id, address, phone_number, profile_picture, email_notifications')
                 .eq('email', session.user.email) // Use the email for matching
                 .single();
 
@@ -44,6 +49,7 @@ const NtsSettings: React.FC = () => {
                 console.error('Error fetching user profile:', error.message);
                 setProfileError('Error fetching user profile');
             } else {
+                setUserId(data.id);
                 setFirstName(data.first_name || '');
                 setLastName(data.last_name || '');
                 setCompanyName(data.company_id || '');
@@ -62,10 +68,10 @@ const NtsSettings: React.FC = () => {
         fetchUserProfile();
     }, [session, supabase]);
 
-    const uploadProfilePicture = async (file: File, email: string) => {
+    const uploadProfilePicture = async (file: File, userId: string) => {
         const { data, error } = await supabase.storage
             .from('profile-pictures')
-            .upload(`${email}/${file.name}`, file, {
+            .upload(`${userId}/${file.name}`, file, {
                 cacheControl: '3600',
                 upsert: true,
             });
@@ -93,13 +99,13 @@ const NtsSettings: React.FC = () => {
 
     const handleProfileSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!session) return;
+        if (!session || !userId) return;
 
         let profilePicturePath = '';
 
         if (profilePicture) {
             try {
-                profilePicturePath = await uploadProfilePicture(profilePicture, session.user.email);
+                profilePicturePath = await uploadProfilePicture(profilePicture, userId);
             } catch (error) {
                 if (error instanceof Error) {
                     setProfileError(error.message);
@@ -130,7 +136,7 @@ const NtsSettings: React.FC = () => {
             setProfileError('');
             setProfileSuccess('Profile updated successfully');
             const profilePicUrl = profilePicturePath
-                ? supabase.storage.from('profile-pictures').getPublicUrl(profilePicturePath).data.publicUrl
+                ? await getSignedUrl(profilePicturePath)
                 : profilePictureUrl;
             setProfilePictureUrl(profilePicUrl);
             setIsEditing(false);

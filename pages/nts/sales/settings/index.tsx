@@ -15,7 +15,7 @@ const SettingsPage: React.FC = () => {
     return (
         <NtsUsersProvider>
             <SalesLayout>
-                <NtsSettings />
+                <NtsSettings session={session} />
             </SalesLayout>
         </NtsUsersProvider>
     );

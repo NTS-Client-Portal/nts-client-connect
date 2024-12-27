@@ -25,7 +25,7 @@ const TemplateManager: React.FC = () => {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [type, setType] = useState('pdf');
-    const [context, setContext] = useState('Quote'); // Add state for context
+    const [context, setContext] = useState('quote'); // Add state for context
     const [isHtmlView, setIsHtmlView] = useState(false); // Add state for HTML view toggle
     const [isModalOpen, setIsModalOpen] = useState(false); // Add state for modal
 
@@ -157,8 +157,52 @@ const TemplateManager: React.FC = () => {
         setIsModalOpen(true);
     };
 
+    const replaceShortcodes = (templateContent: string, data: any) => {
+        return templateContent.replace(/{(.*?)}/g, (_, key) => {
+            const keys = key.split('.');
+            let value: any = data;
+            for (const k of keys) {
+                value = value[k];
+                if (value === undefined) {
+                    return `{${key}}`; // Return the original shortcode if the value is not found
+                }
+            }
+            return value;
+        });
+    };
+
+    const handleSendEmail = async () => {
+        if (!selectedTemplate) return;
+
+        const emailContent = replaceShortcodes(selectedTemplate.content, { /* Add necessary data here */ });
+        const emailData = {
+            to: 'recipient@example.com', // Replace with actual recipient
+            subject: selectedTemplate.title,
+            text: emailContent,
+            attachments: [],
+        };
+
+        try {
+            const response = await fetch('/api/sendEmail', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(emailData),
+            });
+
+            if (response.ok) {
+                alert('Email sent successfully');
+            } else {
+                alert('Error sending email');
+            }
+        } catch (error) {
+            console.error('Error sending email:', error);
+        }
+    };
+
     return (
-        <div className='h-screen w-full bg-ntsBlue/10 p-8'>
+        <div className='h-full w-full bg-ntsBlue/10 p-8'>
             <h1 className="text-2xl font-bold mb-4">Template Manager</h1>
             <div className='flex gap-12'>
                 <div className='w-1/2'>
@@ -228,6 +272,14 @@ const TemplateManager: React.FC = () => {
                     >
                         {selectedTemplate ? 'Update Template' : 'Create Template'}
                     </button>
+                    {type === 'email' && (
+                        <button
+                            onClick={handleSendEmail}
+                            className="py-2 px-4 mt-4 rounded-md text-sm font-medium text-white bg-ntsLightBlue hover:bg-ntsLightBlue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ntsLightBlue"
+                        >
+                            Send Email
+                        </button>
+                    )}
                 </div>
                 <div className="mt-8 border border-zinc-900/30 p-4 bg-white shadow-md rounded-md w-fit">
                     <h2 className="text-xl font-bold mb-4">Shortcodes Legend</h2>
@@ -259,28 +311,28 @@ const TemplateManager: React.FC = () => {
             <div className='grid grid-cols-3 gap-8 mt-8 justify-items-center'>
                 <TemplateList
                     templates={templates}
-                    context="Quote"
+                    context="quote"
                     handleEditTemplate={handleEditTemplate}
                     handleDeleteTemplate={handleDeleteTemplate}
                     handleViewTemplate={handleViewTemplate}
                 />
                 <TemplateList
                     templates={templates}
-                    context="Order"
+                    context="order"
                     handleEditTemplate={handleEditTemplate}
                     handleDeleteTemplate={handleDeleteTemplate}
                     handleViewTemplate={handleViewTemplate}
                 />
                 <TemplateList
                     templates={templates}
-                    context="Dispatch Notification"
+                    context="shipment"
                     handleEditTemplate={handleEditTemplate}
                     handleDeleteTemplate={handleDeleteTemplate}
                     handleViewTemplate={handleViewTemplate}
                 />
                 <TemplateList
                     templates={templates}
-                    context="BOL"
+                    context="bol"
                     handleEditTemplate={handleEditTemplate}
                     handleDeleteTemplate={handleDeleteTemplate}
                     handleViewTemplate={handleViewTemplate}
@@ -294,7 +346,7 @@ const TemplateManager: React.FC = () => {
                 />
                 <TemplateList
                     templates={templates}
-                    context="Receipt"
+                    context="payment"
                     handleEditTemplate={handleEditTemplate}
                     handleDeleteTemplate={handleDeleteTemplate}
                     handleViewTemplate={handleViewTemplate}
