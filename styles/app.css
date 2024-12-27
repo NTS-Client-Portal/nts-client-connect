@@ -2671,6 +2671,11 @@ body:is(.dark *) {
   color: rgb(75 85 99 / var(--tw-text-opacity, 1));
 }
 
+.text-ntsBlue {
+  --tw-text-opacity: 1;
+  color: rgb(54 64 78 / var(--tw-text-opacity, 1));
+}
+
 .underline {
   text-decoration-line: underline;
 }

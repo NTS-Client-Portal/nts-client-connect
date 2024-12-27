@@ -25,7 +25,9 @@ const ShippingCalendar: React.FC<ShippingCalendarProps> = () => {
                 const { data: schedules, error } = await supabase
                     .from('shippingquotes')
                     .select('id, earliest_pickup_date, latest_pickup_date')
-                    .eq('status', 'Order');
+                    .eq('status', 'Order')
+                    .or('is_complete.is.null,is_complete.eq.false')
+                    .or('is_archived.is.null,is_archived.eq.false');
 
                 if (error) {
                     setErrorText(error.message);

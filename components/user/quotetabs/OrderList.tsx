@@ -169,7 +169,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
         const fileName = `receipts/${quote.id}.pdf`;
         const { data, error } = await supabase.storage
             .from('documents')
-            .upload(fileName, pdfBlob);
+            .upload(fileName, pdfBlob, { upsert: true }); // Use upsert to overwrite existing file
 
         if (error) {
             throw new Error(error.message);
@@ -214,7 +214,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
                     await insertDocumentRecord(filePath, quote);
 
                     // Create a notification for the user
-                    const notificationMessage = `Quote ID ${quote.id} was delivered. <a href="/user/documents">View BOL</a>`;
+                    const notificationMessage = `Quote ID ${quote.id} was delivered. <a class="text-ntsLightBlue underline font-semibold" href="/user/documents">View Quote</a>`;
                     await supabase
                         .from('notifications')
                         .insert({

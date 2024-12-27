@@ -456,8 +456,8 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
                 {activeSection === 'invite' && (
                     <div>
                         <InviteUserForm companyId={companyId} />
-                        </div>
-                        )}
+                    </div>
+                )}
 
                 {activeSection === 'security' && (
                     <div>

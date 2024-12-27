@@ -142,7 +142,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                 await insertDocumentRecord(filePath, quote);
 
                 // Create a notification for the user
-                const notificationMessage = `Quote ID ${quote.id} has been updated with a new price. <a href="/user/documents">View BOL</a>`;
+                const notificationMessage = `Quote ID ${quote.id} has been updated with a new price. <a class="text-ntsBlue underline font-semibold" href="/user/documents">View BOL</a>`;
                 await supabase
                     .from('notifications')
                     .insert({
@@ -153,7 +153,6 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
             }
         }
     };
-
     const TableHeaderSort: React.FC<{ column: string; sortOrder: string | null; onSort: (column: string, order: string) => void }> = ({ column, sortOrder, onSort }) => {
         const handleSort = () => {
             const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';

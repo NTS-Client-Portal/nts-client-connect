@@ -3,6 +3,7 @@ import { supabase } from '@lib/initSupabase';
 import { Session } from '@supabase/auth-helpers-react';
 import { Database } from '@lib/database.types';
 import { useProfilesUser } from '@/context/ProfilesUserContext';
+import { NtsUsersProvider } from '@/context/NtsUsersContext';
 
 interface ShipperBrokerConnectProps {
     brokerId: string;
@@ -26,7 +27,7 @@ const ShipperBrokerConnect: React.FC<ShipperBrokerConnectProps> = ({ brokerId, s
     const { userProfile } = useProfilesUser();
     const [topic, setTopic] = useState('');
 
-    
+
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -79,12 +80,12 @@ const ShipperBrokerConnect: React.FC<ShipperBrokerConnectProps> = ({ brokerId, s
         }
     };
 
-        useEffect(() => {
-            const fetchAssignedSalesUsers = async () => {
-                if (userProfile?.company_id) {
-                    const { data, error } = await supabase
-                        .from('company_sales_users')
-                        .select(`
+    useEffect(() => {
+        const fetchAssignedSalesUsers = async () => {
+            if (userProfile?.company_id) {
+                const { data, error } = await supabase
+                    .from('company_sales_users')
+                    .select(`
                             sales_user_id,
                             nts_users (
                                 first_name,
@@ -94,18 +95,18 @@ const ShipperBrokerConnect: React.FC<ShipperBrokerConnectProps> = ({ brokerId, s
                                 profile_picture
                             )
                         `)
-                        .eq('company_id', userProfile.company_id);
-    
-                    if (error) {
-                        console.error('Error fetching assigned sales users:', error.message);
-                    } else if (data) {
-                        setAssignedSalesUsers(data.map((item: any) => item.nts_users));
-                    }
+                    .eq('company_id', userProfile.company_id);
+
+                if (error) {
+                    console.error('Error fetching assigned sales users:', error.message);
+                } else if (data) {
+                    setAssignedSalesUsers(data.map((item: any) => item.nts_users));
                 }
-            };
-    
-            fetchAssignedSalesUsers();
-        }, [userProfile]);
+            }
+        };
+
+        fetchAssignedSalesUsers();
+    }, [userProfile]);
 
     return (
         <div className="p-4">

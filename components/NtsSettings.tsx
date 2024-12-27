@@ -254,7 +254,7 @@ const NtsSettings: React.FC = () => {
                 {/* Header */}
 
                 <div className="flex flex-row-reverse md:flex-row justify-between items-center mb-4">
-                    <button className="md:hidden btn-blue" onClick={() => setSidebarOpen(!sidebarOpen)}>
+                    <button className="md:hidden btn-blue absolute z-60 top-0 left-0" onClick={() => setSidebarOpen(!sidebarOpen)}>
                         <Menu className="h-6 w-6" />
                     </button>
                     <h1 className="text-2xl xs:pr-8  text-center w-full font-bold">
