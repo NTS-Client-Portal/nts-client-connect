@@ -50,7 +50,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
 
     return (
         <div className="fixed inset-0 bg-zinc-600 bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-8 rounded shadow-md w-1/2">
+            <div className="bg-white p-8 rounded shadow-md w-1/2 overflow-y-auto h-fit max-h-5/6">
                 <h2 className="text-xl mb-4">Create Order</h2>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div>
