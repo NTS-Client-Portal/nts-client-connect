@@ -3,8 +3,8 @@ import { Session } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import { supabase } from '@/lib/initSupabase';
 import Modal from '@/components/ui/Modal';
-import jsPDF from 'jspdf';
 import OrderTable from './OrderTable';
+import { generatePDF, uploadPDFToSupabase, insertDocumentRecord } from '@/components/GeneratePDF';
 
 type ShippingQuotesRow = Database['public']['Tables']['shippingquotes']['Row'];
 
@@ -152,49 +152,6 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
         }
     };
 
-    const generatePDF = (quote: ShippingQuotesRow) => {
-        const doc = new jsPDF();
-        doc.text(`Order Receipt`, 10, 10);
-        doc.text(`Quote ID: ${quote.id}`, 10, 20);
-        doc.text(`Origin: ${quote.origin_street}, ${quote.origin_city}, ${quote.origin_state} ${quote.origin_zip}`, 10, 30);
-        doc.text(`Destination: ${quote.destination_street}, ${quote.destination_city}, ${quote.destination_state} ${quote.destination_zip}`, 10, 40);
-        doc.text(`Freight: ${quote.year} ${quote.make} ${quote.model}`, 10, 50);
-        doc.text(`Shipping Date: ${quote.due_date || 'No due date'}`, 10, 60);
-        doc.text(`Price: ${quote.price ? `$${quote.price}` : 'Not priced yet'}`, 10, 70);
-        return doc;
-    };
-
-    const uploadPDFToSupabase = async (pdf: jsPDF, quote: ShippingQuotesRow) => {
-        const pdfBlob = pdf.output('blob');
-        const fileName = `receipts/${quote.id}.pdf`;
-        const { data, error } = await supabase.storage
-            .from('documents')
-            .upload(fileName, pdfBlob, { upsert: true }); // Use upsert to overwrite existing file
-
-        if (error) {
-            throw new Error(error.message);
-        }
-
-        return data.path;
-    };
-
-    const insertDocumentRecord = async (filePath: string, quote: ShippingQuotesRow) => {
-        const { error } = await supabase
-            .from('documents')
-            .insert({
-                user_id: quote.user_id,
-                title: `Receipt for BOL ${quote.id}`,
-                description: `Receipt for BOL ${quote.id}`,
-                file_name: `${quote.id}.pdf`,
-                file_type: 'application/pdf',
-                file_url: filePath,
-            });
-
-        if (error) {
-            throw new Error(error.message);
-        }
-    };
-
     const handleMarkAsComplete = async (quoteId: number): Promise<void> => {
         try {
             const { error } = await supabase
@@ -208,10 +165,23 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
             } else {
                 const quote = quotes.find(q => q.id === quoteId);
                 if (quote) {
+                    // Fetch the template for order completion
+                    const { data: templateData, error: templateError } = await supabase
+                        .from('templates')
+                        .select('content, title')
+                        .eq('title', 'Order Completion')
+                        .single();
+
+                    if (templateError) {
+                        console.error('Error fetching template:', templateError.message);
+                        return;
+                    }
+
                     // Generate PDF and upload to Supabase
-                    const pdf = generatePDF(quote);
-                    const filePath = await uploadPDFToSupabase(pdf, quote);
-                    await insertDocumentRecord(filePath, quote);
+                    const pdf = generatePDF(quote, templateData.content);
+                    const fileName = `${templateData.title.replace(/\s+/g, '_')}_for_Quote_${quote.id}.pdf`;
+                    const filePath = await uploadPDFToSupabase(pdf, fileName);
+                    await insertDocumentRecord(filePath, quote, templateData.title);
 
                     // Create a notification for the user
                     const notificationMessage = `Quote ID ${quote.id} was delivered. <a class="text-ntsLightBlue underline font-semibold" href="/user/documents">View Quote</a>`;
@@ -229,7 +199,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
             console.error('Error marking quote as complete:', error);
             setErrorText('Error marking quote as complete');
         }
-        setQuotes((prevQuotes) => prevQuotes.filter((quote) => quote.id !== selectedQuoteId));
+        setQuotes((prevQuotes) => prevQuotes.filter((quote) => quote.id !== quoteId));
     };
 
     const handleEditQuote = (quote: ShippingQuotesRow) => {

@@ -4,7 +4,7 @@ import { formatDate, renderAdditionalDetails, freightTypeMapping } from './Quote
 import { supabase } from '@/lib/initSupabase';
 import { Database } from '@/lib/database.types';
 import OrderFormModal from './OrderFormModal';
-import { generatePDF, uploadPDFToSupabase, insertDocumentRecord } from '../GeneratePDF';
+import { generatePDF, uploadPDFToSupabase, insertDocumentRecord } from '../../GeneratePDF';
 
 interface QuoteTableProps {
     sortConfig: { column: string; order: string };
@@ -137,9 +137,21 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
             // Generate PDF and upload to Supabase
             const quote = quotes.find(q => q.id === quoteId);
             if (quote) {
-                const pdf = generatePDF(quote);
-                const filePath = await uploadPDFToSupabase(pdf, quote);
-                await insertDocumentRecord(filePath, quote);
+                const { data: templateData, error: templateError } = await supabase
+                    .from('templates')
+                    .select('content, title')
+                    .eq('title', 'Quote Updated')
+                    .single();
+
+                if (templateError) {
+                    console.error('Error fetching template:', templateError.message);
+                    return;
+                }
+
+                const pdf = generatePDF(quote, templateData.content);
+                const fileName = `${templateData.title.replace(/\s+/g, '_')}_for_Quote_${quote.id}.pdf`;
+                const filePath = await uploadPDFToSupabase(pdf, fileName);
+                await insertDocumentRecord(filePath, quote, templateData.title);
 
                 // Create a notification for the user
                 const notificationMessage = `Quote ID ${quote.id} has been updated with a new price. <a class="text-ntsBlue underline font-semibold" href="/user/documents">View BOL</a>`;
@@ -153,6 +165,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
             }
         }
     };
+
     const TableHeaderSort: React.FC<{ column: string; sortOrder: string | null; onSort: (column: string, order: string) => void }> = ({ column, sortOrder, onSort }) => {
         const handleSort = () => {
             const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';

@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { supabase } from '@/lib/initSupabase';
 
 const SuperadminLogin = () => {
-    const supabase = useSupabaseClient();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -26,62 +25,63 @@ const SuperadminLogin = () => {
             return;
         }
 
-        // Check if the user has the superadmin role
+        // Check if the user has the superadmin role using auth_uid
         const { data: userProfile, error: profileError } = await supabase
             .from('nts_users')
             .select('role')
-            .eq('email', email.toLowerCase()) // Ensure case-insensitive comparison
+            .eq('auth_uid', authData.user.id)
             .single();
 
         setLoading(false);
 
         if (profileError || userProfile?.role !== 'superadmin') {
             setError('You do not have permission to access this page');
-            await supabase.auth.signOut();
-        } else {
-            router.push('/superdash');
+            return;
         }
+
+        // Redirect to the superadmin dashboard
+        router.push('/superdash');
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-            <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
-                <h1 className="text-2xl font-bold mb-6 text-center">Superadmin Login</h1>
-                {error && <div className="text-red-500 mb-4">{error}</div>}
-                <form onSubmit={handleLogin}>
-                    <div className="mb-4">
-                        <label htmlFor="email" className="block text-gray-700">Email</label>
-                        <input
-                            id="email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            aria-label="Email"
-                        />
-                    </div>
-                    <div className="mb-6">
-                        <label htmlFor="password" className="block text-gray-700">Password</label>
-                        <input
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            aria-label="Password"
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200"
-                        disabled={loading}
-                    >
-                        {loading ? 'Logging in...' : 'Login'}
-                    </button>
-                </form>
-            </div>
+        <div className="flex flex-col items-center justify-center min-h-screen py-2">
+            <h1 className="text-2xl font-bold mb-4">Superadmin Login</h1>
+            {error && <p className="text-red-500 mb-4">{error}</p>}
+            <form onSubmit={handleLogin} className="w-full max-w-sm">
+                <div className="mb-4">
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                        Email
+                    </label>
+                    <input
+                        type="email"
+                        id="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
+                    />
+                </div>
+                <div className="mb-4">
+                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                        Password
+                    </label>
+                    <input
+                        type="password"
+                        id="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
+                    />
+                </div>
+                <button
+                    type="submit"
+                    className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    disabled={loading}
+                >
+                    {loading ? 'Logging in...' : 'Login'}
+                </button>
+            </form>
         </div>
     );
 };

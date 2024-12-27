@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { Database } from '@/lib/database.types';
 import AdminAnalytics from '@components/admin/AdminAnalytics';
 import AddNtsUserForm from './AddNtsUserForm';
+import TemplateManager from './TemplateManager';
 
 interface SuperadminDashboardProps {
     session: Session | null;
@@ -24,7 +25,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
     const [isNtsUserModalOpen, setIsNtsUserModalOpen] = useState(false);
     const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
     const [selectedSalesUserId, setSelectedSalesUserId] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState<'analytics' | 'userManagement'>('analytics');
+    const [activeTab, setActiveTab] = useState<'analytics' | 'userManagement' | 'templateManager'>('analytics');
 
     const checkSession = useCallback(async () => {
         if (!session) {
@@ -36,7 +37,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         const { data: userProfile, error: profileError } = await supabase
             .from('nts_users')
             .select('role')
-            .eq('id', session.user.id)
+            .eq('auth_uid', session.user.id)
             .single();
 
         if (profileError || userProfile?.role !== 'superadmin') {
@@ -52,11 +53,13 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         if (!session) return;
 
         setLoading(true);
-        const { data, error } = await supabase.from('nts_users').select('*');
+        const { data, error } = await supabase
+            .from('nts_users')
+            .select('email, first_name, last_name, role');
         if (error) {
             setError(error.message);
         } else {
-            setNtsUsers(data);
+            setNtsUsers(data as NtsUser[]);
         }
         setLoading(false);
     }, [session, supabase]);
@@ -137,127 +140,138 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-100 p-8">
+        <div className="min-h-screen bg-white">
             <h1 className="text-3xl font-bold mb-6 text-center">Superadmin Dashboard</h1>
             {error && <div className="text-red-500 mb-4">{error}</div>}
             {success && <div className="text-green-500 mb-4">{success}</div>}
-            <div className="mb-6">
-                <div className="flex justify-center mb-4">
+            <div className="h-full">
+                <div className="flex justify-center gap-1">
                     <button
                         onClick={() => setActiveTab('analytics')}
-                        className={`px-4 py-2 rounded-t-lg ${activeTab === 'analytics' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+                        className={`px-4 py-2 border  rounded-t-lg ${activeTab === 'analytics' ? 'bg-blue-500 shadow-md text-white' : 'bg-gray-200 text-gray-700'}`}
                     >
                         Analytics
                     </button>
                     <button
                         onClick={() => setActiveTab('userManagement')}
-                        className={`px-4 py-2 rounded-t-lg ${activeTab === 'userManagement' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+                        className={`px-4 py-2 rounded-t-lg ${activeTab === 'userManagement' ? 'bg-blue-500 shadow-md text-white' : 'bg-gray-200 text-gray-700'}`}
                     >
                         User Management
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('templateManager')}
+                        className={`px-4 py-2 rounded-t-lg ${activeTab === 'templateManager' ? 'bg-blue-500 shadow-md text-white' : 'bg-gray-200 text-gray-700'}`}
+                    >
+                        Template Manager
                     </button>
                 </div>
                 {activeTab === 'analytics' && (
                     <AdminAnalytics />
                 )}
                 {activeTab === 'userManagement' && (
-                    <div>
+                    <div className='bg-ntsBlue/10 w-full h-screen p-4'>
                         <h2 className="text-2xl font-semibold mb-4">NTS Users</h2>
-                        <table className="min-w-full bg-white rounded-lg shadow-md overflow-hidden">
-                            <thead className="bg-gray-200">
-                                <tr>
-                                    {ntsUsers.length > 0 &&
-                                        Object.keys(ntsUsers[0]).map((key) => (
-                                            <th key={key} className="py-2 px-4 text-left">{key}</th>
-                                        ))}
-                                    <th className="py-2 px-4 text-left">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {ntsUsers.map((user) => (
-                                    <tr key={user.id} className="border-t">
-                                        {Object.entries(user).map(([key, value]) => (
-                                            <td key={key} className="py-2 px-4">{String(value)}</td>
-                                        ))}
-                                        <td className="py-2 px-4">
-                                            <button
-                                                onClick={() => handleDeleteNtsUser(user.id)}
-                                                className="bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600 transition duration-200 mr-2"
-                                            >
-                                                Delete
-                                            </button>
-                                            <button
-                                                onClick={() => handleEditNtsUser(user.id, user)}
-                                                className="bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600 transition duration-200"
-                                            >
-                                                Edit
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h3 className="text-xl font-semibold mb-4">Add New NTS User</h3>
-                                <button
-                                    onClick={() => setIsNtsUserModalOpen(true)}
-                                    className="body-btn text-white transition duration-200"
-                                >
-                                    Add NTS User
-                                </button>
-                                <AddNtsUserForm
-                                    isOpen={isNtsUserModalOpen}
-                                    onClose={() => setIsNtsUserModalOpen(false)}
-                                    onSuccess={() => {
-                                        setSuccess('NTS User added successfully');
-                                        fetchNtsUsers();
-                                    }}
-                                    ntsUsers={ntsUsers}
-                                />
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-semibold mb-4">Assign Sales User to Company</h3>
-                                <div className="mb-4">
-                                    <label className="block text-gray-700">Select Company</label>
-                                    <select
-                                        value={selectedCompanyId || ''}
-                                        onChange={(e) => setSelectedCompanyId(e.target.value)}
-                                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        <div className='flex gap-2 justify-evenly'>
+                            <div className="mt-2 gap-6 flex flex-col items-start justify-around">
+                                <div>
+                                    <h3 className="text-xl font-semibold mb-1">Add New NTS User</h3>
+                                    <button
+                                        onClick={() => setIsNtsUserModalOpen(true)}
+                                        className="body-btn text-white transition duration-200"
                                     >
-                                        <option value="">Select a company</option>
-                                        {companies.map((company) => (
-                                            <option key={company.id} value={company.id}>
-                                                {company.name}
-                                            </option>
-                                        ))}
-                                    </select>
+                                        Add NTS User
+                                    </button>
+                                    <AddNtsUserForm
+                                        isOpen={isNtsUserModalOpen}
+                                        onClose={() => setIsNtsUserModalOpen(false)}
+                                        onSuccess={() => {
+                                            setSuccess('NTS User added successfully');
+                                            fetchNtsUsers();
+                                        }}
+                                        ntsUsers={ntsUsers}
+                                    />
                                 </div>
-                                <div className="mb-4">
-                                    <label className="block text-gray-700">Select Sales User</label>
-                                    <select
-                                        value={selectedSalesUserId || ''}
-                                        onChange={(e) => setSelectedSalesUserId(e.target.value)}
-                                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    >
-                                        <option value="">Select a sales user</option>
-                                        {ntsUsers
-                                            .filter((user) => user.role === 'sales')
-                                            .map((user) => (
-                                                <option key={user.id} value={user.id}>
-                                                    {user.first_name} {user.last_name}
+                                <div>
+                                    <div className="mb-4">
+                                        <h3 className="text-xl font-semibold mb-4">Assign Sales User to Company</h3>
+                                        <label className="block text-gray-700">Select Company</label>
+                                        <select
+                                            value={selectedCompanyId || ''}
+                                            onChange={(e) => setSelectedCompanyId(e.target.value)}
+                                            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        >
+                                            <option value="">Select a company</option>
+                                            {companies.map((company) => (
+                                                <option key={company.id} value={company.id}>
+                                                    {company.name}
                                                 </option>
                                             ))}
-                                    </select>
+                                        </select>
+                                    </div>
+                                    <div className="mb-4">
+                                        <label className="block text-gray-700">Select Sales User</label>
+                                        <select
+                                            value={selectedSalesUserId || ''}
+                                            onChange={(e) => setSelectedSalesUserId(e.target.value)}
+                                            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        >
+                                            <option value="">Select a sales user</option>
+                                            {ntsUsers
+                                                .filter((user) => user.role === 'sales')
+                                                .map((user) => (
+                                                    <option key={user.id} value={user.id}>
+                                                        {user.first_name} {user.last_name}
+                                                    </option>
+                                                ))}
+                                        </select>
+                                    </div>
+                                    <button
+                                        onClick={handleAssignSalesUser}
+                                        className="body-btn text-white transition duration-200"
+                                    >
+                                        Assign NTS Sales User
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={handleAssignSalesUser}
-                                    className="body-btn text-white transition duration-200"
-                                >
-                                    Assign NTS Sales User
-                                </button>
                             </div>
+                            <table className="w-2/3 max-h-2/3 overflow-auto bg-white rounded-lg shadow-md">
+                                <thead className="bg-gray-200">
+                                    <tr>
+                                        {ntsUsers.length > 0 &&
+                                            Object.keys(ntsUsers[0]).map((key) => (
+                                                <th key={key} className="py-2 px-4 text-left">{key}</th>
+                                            ))}
+                                        <th className="py-2 px-4 text-left">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {ntsUsers.map((user) => (
+                                        <tr key={user.id} className="border-t">
+                                            {Object.entries(user).map(([key, value]) => (
+                                                <td key={key} className="py-1 px-4">{String(value)}</td>
+                                            ))}
+                                            <td className="py-2 px-4">
+                                                <button
+                                                    onClick={() => handleDeleteNtsUser(user.id)}
+                                                    className="bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600 transition duration-200 mr-2"
+                                                >
+                                                    Delete
+                                                </button>
+                                                <button
+                                                    onClick={() => handleEditNtsUser(user.id, user)}
+                                                    className="bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600 transition duration-200"
+                                                >
+                                                    Edit
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
+                )}
+                {activeTab === 'templateManager' && (
+                    <TemplateManager />
                 )}
             </div>
         </div>

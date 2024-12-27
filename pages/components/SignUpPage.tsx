@@ -21,6 +21,7 @@ export default function SignUpPage() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [userType, setUserType] = useState('company'); // Add userType state
 
     const validatePassword = (password: string): boolean => {
         const hasLowercase = /[a-z]/.test(password);
@@ -73,7 +74,7 @@ export default function SignUpPage() {
         try {
             // Ensure the company exists or create a new one
             let companyId: string;
-            if (companyName) {
+            if (userType === 'company' && companyName) {
                 const { data: existingCompany, error: companyError } = await supabase
                     .from('companies')
                     .select('*')
@@ -217,6 +218,27 @@ export default function SignUpPage() {
                                     </div>
                                 ) : (
                                     <form className="mt-4" onSubmit={handleSignUp}>
+                                        <div className="mb-4">
+                                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Are you signing up as a company or an individual?</label>
+                                            <div className="flex gap-2 mt-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setUserType('company')}
+                                                    className={`w-full p-2 border rounded ${userType === 'company' ? 'bg-ntsLightBlue text-white' : 'bg-gray-200'}`}
+                                                    disabled={loading}
+                                                >
+                                                    Company
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setUserType('individual')}
+                                                    className={`w-full p-2 border rounded ${userType === 'individual' ? 'bg-ntsLightBlue text-white' : 'bg-gray-200'}`}
+                                                    disabled={loading}
+                                                >
+                                                    Individual
+                                                </button>
+                                            </div>
+                                        </div>
                                         <div className='flex gap-2 mb-2'>
                                             <label htmlFor="firstName" className="mt-4">First Name
                                                 <input
@@ -239,15 +261,19 @@ export default function SignUpPage() {
                                                     disabled={loading}
                                                 /></label>
                                         </div>
-                                        <label htmlFor="companyName" className="mt-4">Company Name</label>
-                                        <input
-                                            type="text"
-                                            id="companyName"
-                                            value={companyName}
-                                            onChange={(e) => setCompanyName(e.target.value)}
-                                            className="w-full p-1 mb-2 border rounded"
-                                            disabled={loading}
-                                        />
+                                        {userType === 'company' && (
+                                            <>
+                                                <label htmlFor="companyName" className="mt-4">Company Name</label>
+                                                <input
+                                                    type="text"
+                                                    id="companyName"
+                                                    value={companyName}
+                                                    onChange={(e) => setCompanyName(e.target.value)}
+                                                    className="w-full p-1 mb-2 border rounded"
+                                                    disabled={loading}
+                                                />
+                                            </>
+                                        )}
                                         <label htmlFor="phoneNumber" className="mt-4">Phone Number</label>
                                         <input
                                             type="text"

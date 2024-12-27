@@ -802,6 +802,7 @@ export type Database = {
       nts_users: {
         Row: {
           address: string | null
+          auth_uid: string | null
           company_id: string | null
           email: string
           email_notifications: boolean | null
@@ -816,6 +817,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          auth_uid?: string | null
           company_id?: string | null
           email: string
           email_notifications?: boolean | null
@@ -830,6 +832,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          auth_uid?: string | null
           company_id?: string | null
           email?: string
           email_notifications?: boolean | null
@@ -1587,6 +1590,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      templates: {
+        Row: {
+          content: string
+          context: string | null
+          created_at: string | null
+          id: string
+          title: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          context?: string | null
+          created_at?: string | null
+          id?: string
+          title: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          context?: string | null
+          created_at?: string | null
+          id?: string
+          title?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       usage_stats: {
         Row: {

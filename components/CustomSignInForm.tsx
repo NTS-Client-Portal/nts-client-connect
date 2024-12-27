@@ -107,9 +107,9 @@ const CustomSignInForm = () => {
                 <button
                     type="button"
                     onClick={togglePasswordVisibility}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                    className="absolute inset-y-0 top-1/3 right-0 pr-3 flex items-center text-sm leading-5"
                 >
-                    {showPassword ? <EyeOff className="h-5 w-5 text-gray-500" /> : <Eye className="h-5 w-5 text-gray-500" />}
+                    {showPassword ? <EyeOff className="h-5 w-5 text-zinc-900" /> : <Eye className="h-5 w-5 text-zinc-900" />}
                 </button>
             </div>
             <button type="submit" className="flex justify-center w-full">
