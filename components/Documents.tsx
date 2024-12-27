@@ -231,6 +231,7 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
         );
     };
 
+
     return (
         <div className="flex h-screen">
             {/* Sidebar */}

@@ -178,7 +178,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
                     }
 
                     // Generate PDF and upload to Supabase
-                    const pdf = generatePDF(quote, templateData.content);
+                    const pdf = await generatePDF(quote, templateData.content);
                     const fileName = `${templateData.title.replace(/\s+/g, '_')}_for_Quote_${quote.id}.pdf`;
                     const filePath = await uploadPDFToSupabase(pdf, fileName);
                     await insertDocumentRecord(filePath, quote, templateData.title);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/initSupabase';
 import { Template } from '@/pages/components/TemplateManager';
-import { generateAndUploadPDF } from '@/components/GeneratePDF';
+import { generateAndUploadPDF, replaceShortcodes } from '@/components/GeneratePDF';
 import { useRouter } from 'next/router';
 
 interface SelectTemplateProps {
@@ -53,7 +53,7 @@ const SelectTemplate: React.FC<SelectTemplateProps> = ({ quoteId }) => {
 
         const { data: profile, error: profileError } = await supabase
             .from('profiles')
-            .select('email')
+            .select('*')
             .eq('company_id', quote.company_id)
             .single();
 
@@ -65,11 +65,13 @@ const SelectTemplate: React.FC<SelectTemplateProps> = ({ quoteId }) => {
         try {
             await generateAndUploadPDF(quote, selectedTemplateData.content, selectedTemplateData.title);
 
-            const emailContent = replaceShortcodes(selectedTemplateData.content, quote);
+            const emailContent = replaceShortcodes(selectedTemplateData.content, { quote, profile });
+            const emailSubject = replaceShortcodes(selectedTemplateData.title, { quote, profile });
             const emailData = {
                 to: profile.email,
-                subject: selectedTemplateData.title,
-                text: emailContent,
+                subject: emailSubject,
+                text: emailContent.replace(/<[^>]+>/g, ''), // Strip HTML tags for plain text version
+                html: emailContent, // Include HTML content
                 attachments: [],
             };
 
@@ -83,27 +85,12 @@ const SelectTemplate: React.FC<SelectTemplateProps> = ({ quoteId }) => {
 
             if (response.ok) {
                 alert('Email sent successfully');
-                router.push('/documents');
             } else {
                 alert('Error sending email');
             }
         } catch (error) {
             console.error('Error generating and uploading PDF or sending email:', error);
         }
-    };
-
-    const replaceShortcodes = (templateContent: string, data: any) => {
-        return templateContent.replace(/{(.*?)}/g, (_, key) => {
-            const keys = key.split('.');
-            let value: any = data;
-            for (const k of keys) {
-                value = value[k];
-                if (value === undefined) {
-                    return `{${key}}`; // Return the original shortcode if the value is not found
-                }
-            }
-            return value;
-        });
     };
 
     return (

@@ -1,13 +1,13 @@
-const { sendEmail } = require('./../lib/sgEmail');
+const { sendEmail } = require('../../lib/sgEmail');
 
 exports.handler = async function (event, context) {
     console.log('Received event:', event);
     if (event.httpMethod === 'POST') {
-        const { to, subject, text, attachments } = JSON.parse(event.body || '{}');
-        console.log('Parsed request body:', { to, subject, text, attachments });
+        const { to, subject, text, html, attachments } = JSON.parse(event.body || '{}');
+        console.log('Parsed request body:', { to, subject, text, html, attachments });
 
         try {
-            await sendEmail(to, subject, text, attachments);
+            await sendEmail(to, subject, text, html, attachments);
             return {
                 statusCode: 200,
                 body: JSON.stringify({ message: 'Email sent successfully' }),

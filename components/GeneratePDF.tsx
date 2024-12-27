@@ -4,10 +4,10 @@ import { Database } from '@/lib/database.types';
 
 type ShippingQuotesRow = Database['public']['Tables']['shippingquotes']['Row'];
 
-export const replaceShortcodes = (templateContent: string, quote: ShippingQuotesRow) => {
+export const replaceShortcodes = (templateContent: string, data: any) => {
     return templateContent.replace(/{(.*?)}/g, (_, key) => {
         const keys = key.split('.');
-        let value: any = quote;
+        let value: any = data;
         for (const k of keys) {
             value = value[k];
             if (value === undefined) {
@@ -18,10 +18,16 @@ export const replaceShortcodes = (templateContent: string, quote: ShippingQuotes
     });
 };
 
-export const generatePDF = (quote: ShippingQuotesRow, templateContent: string) => {
+export const generatePDF = async (quote: ShippingQuotesRow, templateContent: string) => {
     const doc = new jsPDF();
-    const content = replaceShortcodes(templateContent, quote);
-    doc.text(content, 10, 10);
+    const content = replaceShortcodes(templateContent, { quote });
+    await doc.html(content, {
+        callback: function (doc) {
+            doc.save();
+        },
+        x: 10,
+        y: 10
+    }); // Use html to handle HTML content
     return doc;
 };
 
@@ -74,7 +80,7 @@ export const createNotification = async (userId: string, documentId: number, tem
 };
 
 export const generateAndUploadPDF = async (quote: ShippingQuotesRow, templateContent: string, templateTitle: string) => {
-    const pdf = generatePDF(quote, templateContent);
+    const pdf = await generatePDF(quote, templateContent);
     const fileName = `${templateTitle.replace(/\s+/g, '_')}_for_Quote_${quote.id}.pdf`;
     const filePath = await uploadPDFToSupabase(pdf, fileName);
     const documentData = await insertDocumentRecord(filePath, quote, templateTitle);

@@ -17,11 +17,13 @@ const FreightRFQPage: React.FC = () => {
     }
 
     return (
-        <ProfilesUserProvider>
-            <UserLayout>
-                <QuoteRequest session={session} profiles={profiles} />
-            </UserLayout>
-        </ProfilesUserProvider>
+        <NtsUsersProvider>
+            <ProfilesUserProvider>
+                <UserLayout>
+                    <QuoteRequest session={session} profiles={profiles} />
+                </UserLayout>
+            </ProfilesUserProvider>
+        </NtsUsersProvider>
     );
 };
 
