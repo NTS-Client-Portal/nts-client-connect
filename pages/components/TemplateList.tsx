@@ -9,7 +9,7 @@ interface TemplateListProps {
     handleViewTemplate: (template: Template) => void;
 }
 
-const TemplateList: React.FC<TemplateListProps> = ({ templates, context, handleEditTemplate, handleDeleteTemplate, handleViewTemplate }) => {
+const TemplateList: React.FC<TemplateListProps> = ({ templates = [], context, handleEditTemplate, handleDeleteTemplate, handleViewTemplate }) => {
     const filteredTemplates = templates.filter(template => template.context.toLowerCase() === context.toLowerCase());
 
     return (
