@@ -54,7 +54,7 @@ const SelectTemplate: React.FC<SelectTemplateProps> = ({ quoteId }) => {
         const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('email')
-            .eq('id', quote.user_id)
+            .eq('company_id', quote.company_id)
             .single();
 
         if (profileError) {

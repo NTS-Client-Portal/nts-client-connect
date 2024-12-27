@@ -1,9 +1,10 @@
-import { Handler } from '@netlify/functions';
-import { sendEmail } from '@/lib/sgEmail';
+const { sendEmail } = require('./../lib/sgEmail');
 
-const handler: Handler = async (event, context) => {
+exports.handler = async function (event, context) {
+    console.log('Received event:', event);
     if (event.httpMethod === 'POST') {
         const { to, subject, text, attachments } = JSON.parse(event.body || '{}');
+        console.log('Parsed request body:', { to, subject, text, attachments });
 
         try {
             await sendEmail(to, subject, text, attachments);
@@ -28,5 +29,3 @@ const handler: Handler = async (event, context) => {
         };
     }
 };
-
-export { handler };

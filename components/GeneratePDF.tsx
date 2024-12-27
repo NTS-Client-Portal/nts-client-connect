@@ -29,7 +29,7 @@ export const uploadPDFToSupabase = async (pdf: jsPDF, fileName: string) => {
     const pdfBlob = pdf.output('blob');
     const { data, error } = await supabase.storage
         .from('documents')
-        .upload(fileName, pdfBlob);
+        .upload(fileName, pdfBlob, { upsert: true });
 
     if (error) {
         throw new Error(error.message);
@@ -41,7 +41,7 @@ export const uploadPDFToSupabase = async (pdf: jsPDF, fileName: string) => {
 export const insertDocumentRecord = async (filePath: string, quote: ShippingQuotesRow, templateTitle: string) => {
     const { data, error } = await supabase
         .from('documents')
-        .insert({
+        .upsert({
             user_id: quote.user_id,
             title: `${templateTitle} for Quote ${quote.id}`,
             description: `${templateTitle} for Quote ${quote.id}`,

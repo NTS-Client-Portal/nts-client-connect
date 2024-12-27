@@ -770,6 +770,7 @@ export type Database = {
       notifications: {
         Row: {
           created_at: string | null
+          document_id: number | null
           id: number
           is_read: boolean | null
           message: string | null
@@ -777,6 +778,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          document_id?: number | null
           id?: number
           is_read?: boolean | null
           message?: string | null
@@ -784,6 +786,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          document_id?: number | null
           id?: number
           is_read?: boolean | null
           message?: string | null
