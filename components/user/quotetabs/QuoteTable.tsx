@@ -5,6 +5,7 @@ import { supabase } from '@/lib/initSupabase';
 import { Database } from '@/lib/database.types';
 import OrderFormModal from './OrderFormModal';
 import { generatePDF, uploadPDFToSupabase, insertDocumentRecord } from '../../GeneratePDF';
+import SelectTemplate from '@/components/SelectTemplate';
 
 interface QuoteTableProps {
     sortConfig: { column: string; order: string };
@@ -241,7 +242,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-x-2 divide-gray-200">
+                <tbody className="bg-white divide-y divide-2 divide-gray-200">
                     {currentRows.map((quote, index) => (
                         <React.Fragment key={quote.id}>
                             <tr
@@ -353,18 +354,21 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                             </button>
                                         ) : null}
                                         {isAdmin ? (
-                                            <select
-                                                value={quote.brokers_status}
-                                                onChange={(e) => handleStatusChange(e, quote.id)}
-                                                className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(quote.brokers_status)}`}>
-                                                <option value="Pending" className={getStatusClasses('Pending')}>Pending</option>
-                                                <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
-                                                <option value="Dispatched" className={getStatusClasses('Dispatched')}>Dispatched</option>
-                                                <option value="Picked Up" className={getStatusClasses('Picked Up')}>Picked Up</option>
-                                                <option value="Delivered" className={getStatusClasses('Delivered')}>Delivered</option>
-                                                <option value="Completed" className={getStatusClasses('Completed')}>Completed</option>
-                                                <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
-                                            </select>
+                                            <>
+                                                <select
+                                                    value={quote.brokers_status}
+                                                    onChange={(e) => handleStatusChange(e, quote.id)}
+                                                    className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(quote.brokers_status)}`}>
+                                                    <option value="Pending" className={getStatusClasses('Pending')}>Pending</option>
+                                                    <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
+                                                    <option value="Dispatched" className={getStatusClasses('Dispatched')}>Dispatched</option>
+                                                    <option value="Picked Up" className={getStatusClasses('Picked Up')}>Picked Up</option>
+                                                    <option value="Delivered" className={getStatusClasses('Delivered')}>Delivered</option>
+                                                    <option value="Completed" className={getStatusClasses('Completed')}>Completed</option>
+                                                    <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
+                                                </select>
+                                                <SelectTemplate quoteId={quote.id} />
+                                            </>
                                         ) : (
                                             <span><strong>Status: </strong>{quote.brokers_status ? quote.brokers_status : 'Pending'}</span>
                                         )}
