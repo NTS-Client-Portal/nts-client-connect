@@ -1,16 +1,15 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useSupabaseClient, useSession } from '@supabase/auth-helpers-react';
-import { sendInvitations } from '@/lib/invitationService';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { v4 as uuidv4 } from 'uuid'; // Import uuidv4
 import { assignSalesUser } from '@/lib/assignSalesUser'; // Import the assignSalesUser function
+import InviteUserForm from '@/components/user/InviteUserForm'; // Import InviteUserForm
 
 export default function SignUpPage() {
     const supabase = useSupabaseClient();
-    const session = useSession();
     const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -19,15 +18,13 @@ export default function SignUpPage() {
     const [lastName, setLastName] = useState('');
     const [companyName, setCompanyName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [inviteEmails, setInviteEmails] = useState<{ email: string, role: 'manager' | 'member' }[]>([]);
-    const [inviteEmail, setInviteEmail] = useState('');
-    const [inviteRole, setInviteRole] = useState<'manager' | 'member'>('member');
     const [industry, setIndustry] = useState(''); // Add industry state
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [userType, setUserType] = useState('company'); // Add userType state
     const [currentStep, setCurrentStep] = useState(1); // Add currentStep state
+    const [companyId, setCompanyId] = useState<string | null>(null); // Add companyId state
 
     const validatePassword = (password: string): boolean => {
         const hasLowercase = /[a-z]/.test(password);
@@ -150,6 +147,8 @@ export default function SignUpPage() {
                 companyId = uuidv4();
             }
 
+            setCompanyId(companyId); // Set the companyId state
+
             // Insert the profile into the profiles table
             const profileId = uuidv4(); // Generate a unique ID for the profile
             const { error } = await supabase
@@ -176,33 +175,6 @@ export default function SignUpPage() {
             setSuccess(true);
         } catch (error) {
             setError(error.message);
-        }
-    };
-
-    const handleAddInviteEmail = () => {
-        if (inviteEmail && !inviteEmails.some(invite => invite.email === inviteEmail)) {
-            setInviteEmails([...inviteEmails, { email: inviteEmail, role: inviteRole }]);
-            setInviteEmail('');
-        }
-    };
-
-    const handleSendInvitations = async () => {
-        if (session?.user?.id && companyName) {
-            const { data: existingCompany, error: companyError } = await supabase
-                .from('companies')
-                .select('id')
-                .eq('name', companyName)
-                .single();
-
-            if (companyError) {
-                setError(companyError.message);
-                return;
-            }
-
-            const companyId = existingCompany.id;
-
-            await sendInvitations(inviteEmails, session.user.id, companyId);
-            setInviteEmails([]);
         }
     };
 
@@ -379,55 +351,8 @@ export default function SignUpPage() {
                                                 </button>
                                             </form>
                                         )}
-                                        {currentStep === 2 && (
-                                            <div className="mt-8">
-                                                <h3 className="text-xl font-bold text-center">Invite Your Team!</h3>
-                                                <div className="flex mt-4">
-                                                    <input
-                                                        type="email"
-                                                        placeholder="Enter email"
-                                                        value={inviteEmail}
-                                                        onChange={(e) => setInviteEmail(e.target.value)}
-                                                        className="w-full p-2 border rounded"
-                                                    />
-                                                    <select
-                                                        value={inviteRole}
-                                                        onChange={(e) => setInviteRole(e.target.value as 'manager' | 'member')}
-                                                        className="ml-2 p-2 border rounded"
-                                                    >
-                                                        <option value="manager">Manager</option>
-                                                        <option value="member">Member</option>
-                                                    </select>
-                                                    <button
-                                                        type="button"
-                                                        onClick={handleAddInviteEmail}
-                                                        className="ml-2 px-4 py-2 bg-blue-500 text-white rounded"
-                                                    >
-                                                        Add
-                                                    </button>
-                                                </div>
-                                                <ul className="mt-4">
-                                                    {inviteEmails.map((invite, index) => (
-                                                        <li key={index} className="flex justify-between items-center">
-                                                            <span>{invite.email} ({invite.role})</span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                                <button
-                                                    type="button"
-                                                    onClick={handleSendInvitations}
-                                                    className="mt-4 w-full px-4 py-2 bg-green-500 text-white rounded"
-                                                >
-                                                    Send Invitations
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => router.push('/user')}
-                                                    className="mt-4 w-full px-4 py-2 bg-gray-500 text-white rounded"
-                                                >
-                                                    Skip
-                                                </button>
-                                            </div>
+                                        {currentStep === 2 && companyId && (
+                                            <InviteUserForm companyId={companyId} />
                                         )}
                                     </>
                                 )}
