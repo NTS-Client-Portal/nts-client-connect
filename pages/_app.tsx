@@ -8,6 +8,7 @@ import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
 import '@/styles/ChatInterface.css'; // Import the CSS file
 import { DocumentNotificationProvider } from '@/context/DocumentNotificationContext';
+import { ChatProvider } from '@/context/ChatContext';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -38,15 +39,17 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <SessionContextProvider supabaseClient={supabase} initialSession={pageProps.initialSession}>
       <DocumentNotificationProvider>
-        {isNtsRoute ? (
-          <NtsUsersProvider>
-            <Component {...pageProps} />
-          </NtsUsersProvider>
-        ) : (
-          <ProfilesUserProvider>
-            <Component {...pageProps} />
-          </ProfilesUserProvider>
-        )}
+        <ChatProvider>
+          {isNtsRoute ? (
+            <NtsUsersProvider>
+              <Component {...pageProps} />
+            </NtsUsersProvider>
+          ) : (
+            <ProfilesUserProvider>
+              <Component {...pageProps} />
+            </ProfilesUserProvider>
+          )}
+        </ChatProvider>
       </DocumentNotificationProvider>
     </SessionContextProvider>
   );

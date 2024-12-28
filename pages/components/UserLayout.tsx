@@ -99,6 +99,7 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
                     <UserTopNav />
                 </div>
                 <main className="ml-0 mt-32 md:mt-24 xl:ml-52 p-4">
+                    
                     {children}
                 </main>
             </div>

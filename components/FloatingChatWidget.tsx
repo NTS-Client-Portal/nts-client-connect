@@ -73,6 +73,29 @@ const FloatingChatWidget: React.FC<FloatingChatWidgetProps> = ({ brokerId, shipp
             return;
         }
 
+        // Check if brokerId and shipperId exist in the respective tables
+        const { data: brokerData, error: brokerError } = await supabase
+            .from('nts_users')
+            .select('id')
+            .eq('id', brokerId)
+            .single();
+
+        const { data: shipperData, error: shipperError } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('id', shipperId)
+            .single();
+
+        if (brokerError || !brokerData) {
+            console.error('Broker ID does not exist:', brokerError?.message);
+            return;
+        }
+
+        if (shipperError || !shipperData) {
+            console.error('Shipper ID does not exist:', shipperError?.message);
+            return;
+        }
+
         // Determine the user type based on the session user ID
         const userType = session?.user.id === brokerId ? 'broker' : 'shipper';
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/initSupabase';
 import { useSession } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
@@ -8,6 +8,7 @@ import { useProfilesUser } from '@/context/ProfilesUserContext';
 import ShipperBrokerConnect from '@/components/ShipperBrokerConnect';
 import FloatingChatWidget from '@/components/FloatingChatWidget';
 import ShippingCalendar from './ShippingCalendar';
+import { ChatProvider } from '@/context/ChatContext';
 
 type NtsUsersRow = Database['public']['Tables']['nts_users']['Row'];
 type AssignedSalesUser = Database['public']['Tables']['nts_users']['Row'];
@@ -25,6 +26,48 @@ const ShipperDash = () => {
     const [activeChatId, setActiveChatId] = useState<string | null>(null);
     const session = useSession();
 
+    const fetchOrders = useCallback(async () => {
+        const { data, error } = await supabase
+            .from('shippingquotes')
+            .select('*')
+            .eq('user_id', session?.user.id)
+            .eq('status', 'Order')
+            .or('is_archived.is.null,is_archived.eq.false');
+
+        if (error) {
+            console.error('Error fetching orders:', error.message);
+            setErrorText('Error fetching orders');
+            return;
+        }
+
+        setQuotes(data);
+    }, [session?.user.id]);
+
+    const fetchDeliveredOrders = useCallback(async () => {
+        const { data, error } = await supabase
+            .from('shippingquotes')
+            .select('*')
+            .eq('user_id', session?.user.id)
+            .eq('is_complete', true);
+
+        if (error) {
+            console.error('Error fetching delivered orders:', error.message);
+            setErrorText('Error fetching delivered orders');
+            return;
+        }
+
+        setQuotes(data);
+    }, [session?.user.id]);
+
+    useEffect(() => {
+        if (session) {
+            fetchOrders();
+            fetchDeliveredOrders();
+        }
+    }, [session, fetchOrders, fetchDeliveredOrders]);
+
+    const NtsBrokerPicture = `${process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL}/nts_users/noah-profile.png?t=2024-12-24T23%3A54%3A10.034Z`;
+
     useEffect(() => {
         const fetchAssignedSalesUsers = async () => {
             if (userProfile?.company_id) {
@@ -33,11 +76,7 @@ const ShipperDash = () => {
                     .select(`
                         sales_user_id,
                         nts_users (
-                            first_name,
-                            last_name,
-                            email,
-                            phone_number,
-                            profile_picture
+                            id
                         )
                     `)
                     .eq('company_id', userProfile.company_id);
@@ -54,136 +93,28 @@ const ShipperDash = () => {
     }, [userProfile]);
 
     useEffect(() => {
-        const fetchQuotesAnalytics = async () => {
-            const { data: analyticsData, error: analyticsError } = await supabase
-                .from('shippingquotes')
-                .select('*')
-                .eq('user_id', session?.user.id)
-                .neq('status', 'Order')
-                .or('is_archived.is.null,is_archived.eq.false');
+        if (!userProfile) return;
 
-            if (analyticsError) {
-                console.error('Error fetching analytics:', analyticsError.message);
-                setErrorText('Error fetching analytics');
-            } else {
-                setAnalytics(analyticsData as any as Database);
-            }
+        const channel = supabase
+            .channel(`public:chat_requests:shipper_id=eq.${userProfile.id}`)
+            .on(
+                'postgres_changes',
+                { event: 'UPDATE', schema: 'public', table: 'chat_requests' },
+                (payload: { new: { broker_id: string; accepted: boolean; id: string } }) => {
+                    if (payload.new.broker_id && payload.new.accepted) {
+                        setActiveChatId(payload.new.id);
+                    }
+                }
+            )
+            .subscribe();
 
-            setIsLoading(false);
+        return () => {
+            supabase.removeChannel(channel);
         };
-
-        if (session) {
-            fetchQuotesAnalytics();
-        } else {
-            setIsLoading(false);
-        }
-    }, [session]);
-
-    const fetchOrdersCompleted = async () => {
-        const { data, error } = await supabase
-            .from('shippingquotes')
-            .select('id')
-            .eq('user_id', session?.user.id)
-            .eq('is_completed', true);
-
-        if (error) {
-            console.error('Error fetching completed orders:', error.message);
-            setErrorText('Error fetching completed orders');
-            return;
-        }
-
-        setQuoteIds(data.map((quote: any) => quote.id));
-    }
-
-    const fetchPricedQuotes = async () => {
-        const { data, error } = await supabase
-            .from('shippingquotes')
-            .select('*')
-            .eq('user_id', session?.user.id)
-            .eq('price', Number)
-            .eq('status', 'quote')
-            .not('status', 'eq', 'order')
-            .not('is_complete', 'eq', true);
-
-        if (error) {
-            console.error('Error fetching priced quotes:', error.message);
-            setErrorText('Error fetching priced quotes');
-            return;
-        }
-
-        setQuotes(data);
-    }
-
-    useEffect(() => {
-        const fetchPricedQuotes = async () => {
-            const { data, error } = await supabase
-                .from('shippingquotes')
-                .select('*')
-                .eq('user_id', session?.user.id)
-                .gt('price', 0)
-
-
-            if (error) {
-                console.error('Error fetching priced quotes:', error.message);
-                setErrorText('Error fetching priced quotes');
-                return;
-            }
-
-            setQuotes(data);
-        };
-
-        if (session) {
-            fetchPricedQuotes();
-        }
-    }, [session]);
-
-    const fetchOrders = async () => {
-        const { data, error } = await supabase
-            .from('shippingquotes')
-            .select('*')
-            .eq('user_id', session?.user.id)
-            .eq('status', 'Order')
-            .or('is_archived.is.null,is_archived.eq.false');
-
-        if (error) {
-            console.error('Error fetching orders:', error.message);
-            setErrorText('Error fetching orders');
-            return;
-        }
-
-        setQuotes(data);
-    }
-
-    const fetchDeliveredOrders = async () => {
-        const { data, error } = await supabase
-            .from('shippingquotes')
-            .select('*')
-            .eq('user_id', session?.user.id)
-            .eq('is_complete', true);
-
-        if (error) {
-            console.error('Error fetching delivered orders:', error.message);
-            setErrorText('Error fetching delivered orders');
-            return;
-        }
-
-        setQuotes(data);
-    }
-
-    useEffect(() => {
-        if (session) {
-            fetchOrders();
-            fetchDeliveredOrders();
-        }
-    }, [session]);
-
-    const NtsBrokerPicture = `${process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL}/nts_users/noah-profile.png?t=2024-12-24T23%3A54%3A10.034Z`;
-
+    }, [userProfile]);
 
     return (
         <div className='container mx-auto'>
-
-
             <div className='flex sm:flex-col-reverse xl:flex-row items-start gap-6'>
                 <div className='mt-4 flex gap-2 justify-start items-start'>
                     <div className="p-8 bg-gray-100 shadow rounded-lg max-w-lg max-h-96 overflow-auto">

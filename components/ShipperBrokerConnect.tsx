@@ -3,7 +3,8 @@ import { supabase } from '@lib/initSupabase';
 import { Session } from '@supabase/auth-helpers-react';
 import { Database } from '@lib/database.types';
 import { useProfilesUser } from '@/context/ProfilesUserContext';
-import { NtsUsersProvider } from '@/context/NtsUsersContext';
+import FloatingChatWidget from '@/components/FloatingChatWidget';
+import { useChat } from '@/context/ChatContext';
 
 interface ShipperBrokerConnectProps {
     brokerId: string;
@@ -26,8 +27,8 @@ const ShipperBrokerConnect: React.FC<ShipperBrokerConnectProps> = ({ brokerId, s
     const [assignedSalesUsers, setAssignedSalesUsers] = useState<AssignedSalesUser[]>([]);
     const { userProfile } = useProfilesUser();
     const [topic, setTopic] = useState('');
-
-
+    const [activeChatId, setActiveChatId] = useState<string | null>(null);
+    const { isChatOpen, setIsChatOpen } = useChat();
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -67,6 +68,12 @@ const ShipperBrokerConnect: React.FC<ShipperBrokerConnectProps> = ({ brokerId, s
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!brokerId || !shipperId) {
+            console.error('Invalid brokerId or shipperId');
+            return;
+        }
+
         const { data, error } = await supabase
             .from('chat_requests')
             .insert([{ broker_id: brokerId, shipper_id: shipperId, priority, topic, session: session?.access_token ?? '' }]);
@@ -124,7 +131,12 @@ const ShipperBrokerConnect: React.FC<ShipperBrokerConnectProps> = ({ brokerId, s
                         )}
                         {isBrokerAvailable ? (
                             <div className="animate-fade-in-out">
-                                {/* Live chat UI */}
+                                <FloatingChatWidget
+                                    brokerId={brokerId}
+                                    shipperId={shipperId}
+                                    session={session}
+                                    activeChatId={activeChatId}
+                                />
                             </div>
                         ) : (
                             <form onSubmit={handleSubmit} className="space-y-4">
