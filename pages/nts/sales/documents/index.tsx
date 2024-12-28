@@ -3,6 +3,7 @@ import { useSession } from '@supabase/auth-helpers-react';
 import SalesLayout from '../_components/layout/SalesLayout';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
 import Documents from '@/components/Documents';
+import withNtsUser from '@/components/hoc/withNtsUser';
 
 const DocumentsPage: React.FC = () => {
     const session = useSession();
@@ -20,4 +21,4 @@ const DocumentsPage: React.FC = () => {
     );
 };
 
-export default DocumentsPage;
+export default withNtsUser(DocumentsPage);

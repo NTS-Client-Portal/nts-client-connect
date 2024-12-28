@@ -2,6 +2,7 @@ import React from 'react';
 import ChatRequestsPage from '@/components/ChatRequestsPage';
 import SalesLayout from '../_components/layout/SalesLayout';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
+import withNtsUser from '@/components/hoc/withNtsUser';
 
 const ChatRequests: React.FC = () => {
     return (
@@ -13,4 +14,4 @@ const ChatRequests: React.FC = () => {
     );
 };
 
-export default ChatRequests;
+export default withNtsUser(ChatRequests);

@@ -2,6 +2,7 @@ import React from 'react';
 import SalesLayout from '../_components/layout/SalesLayout';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
 import DimensionSearch from '@/components/DimensionSearch';
+import withNtsUser from '@/components/hoc/withNtsUser';
 
 const EquipmentDirectoryPage: React.FC = () => {
     return (
@@ -13,4 +14,4 @@ const EquipmentDirectoryPage: React.FC = () => {
     );
 };
 
-export default EquipmentDirectoryPage;
+export default withNtsUser(EquipmentDirectoryPage);
