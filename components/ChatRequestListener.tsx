@@ -5,21 +5,13 @@ import { Database } from '@/lib/database.types';
 import FloatingChatWidget from './FloatingChatWidget';
 import { useSession } from '@supabase/auth-helpers-react';
 
-interface ChatRequest {
-    id: string;
-    broker_id: string;
-    shipper_id: string;
-    priority: string;
-    topic: string;
-    created_at: string;
-    accepted: boolean;
-}
+type ChatRequest = Database['public']['Tables']['chat_requests']['Row'];
 
 const ChatRequestListener: React.FC = () => {
     const session = useSession();
     const { userProfile } = useNtsUsers();
     const [chatRequests, setChatRequests] = useState<ChatRequest[]>([]);
-    const [activeChatId, setActiveChatId] = useState<string | null>(null);
+    const [activeChatId, setActiveChatId] = useState<number | null>(null);
     const [isMinimized, setIsMinimized] = useState(false);
 
     useEffect(() => {
@@ -27,12 +19,18 @@ const ChatRequestListener: React.FC = () => {
 
         const channel = supabase
             .channel(`chat_requests:broker_id=eq.${userProfile.id}`)
-            .on(
+            .on<ChatRequest>(
                 'postgres_changes',
-                { event: '*', schema: 'public', table: 'chat_requests' },
-                (payload) => {
+                { event: 'INSERT', schema: 'public', table: 'chat_requests' },
+                (payload: { new: ChatRequest }) => {
                     console.log('Change received!', payload);
-                    setChatRequests((prevRequests) => [...prevRequests, payload.new as ChatRequest]);
+                    setChatRequests((prevRequests) => {
+                        const existingRequest = prevRequests.find(request => request.id === payload.new.id);
+                        if (existingRequest) {
+                            return prevRequests.map(request => request.id === payload.new.id ? payload.new : request);
+                        }
+                        return [...prevRequests, payload.new];
+                    });
                 }
             )
             .subscribe();
@@ -42,7 +40,7 @@ const ChatRequestListener: React.FC = () => {
         };
     }, [userProfile]);
 
-    const handleAcceptChat = async (chatId: string) => {
+    const handleAcceptChat = async (chatId: number) => {
         setActiveChatId(chatId);
 
         // Update the chat request to indicate it has been accepted
@@ -56,7 +54,7 @@ const ChatRequestListener: React.FC = () => {
         }
     };
 
-    const handleRescheduleChat = async (chatId: string) => {
+    const handleRescheduleChat = async (chatId: number) => {
         // Implement reschedule logic here
         console.log('Reschedule chat:', chatId);
     };
@@ -92,12 +90,12 @@ const ChatRequestListener: React.FC = () => {
                     )}
                 </div>
             )}
-            {activeChatId && (
+            {activeChatId !== null && (
                 <FloatingChatWidget
                     brokerId={userProfile?.id || ''}
                     shipperId={chatRequests.find((request) => request.id === activeChatId)?.shipper_id || ''}
                     session={session}
-                    activeChatId={activeChatId}
+                    activeChatId={activeChatId.toString()}
                 />
             )}
         </div>

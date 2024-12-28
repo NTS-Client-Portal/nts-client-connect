@@ -5,7 +5,7 @@ import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import { useNtsUsers } from '@/context/NtsUsersContext';
 import Image from 'next/image';
-import { PanelLeftOpen, PanelRightClose, Workflow, Folders, NotebookTabs, Settings, MoveHorizontal, ChartArea } from 'lucide-react';
+import { PanelLeftOpen, PanelRightClose, MessageSquareMore, MessageSquareDotIcon, Folders, NotebookTabs, Settings, MoveHorizontal, ChartArea } from 'lucide-react';
 
 interface SalesSideNavProps {
     isSidebarOpen: boolean;
@@ -55,17 +55,10 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                         <h3>Welcome {userProfile?.first_name || 'User'}</h3>
                     </div>
                     <ul className='flex gap-3 flex-col flex-grow space-y-1 overflow-y-hidden'>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/nts/sales/shipper-management' ? "active" : ""}`}>
-                            <Link href="/nts/sales/shipper-management" legacyBehavior>
-                                <a className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales/shipper-management' ? "active" : ""}`}>
-                                    <span className='flex items-center flex-nowrap justify-normal gap-2'><Workflow size={'20px'} /> <span className='text-xs md:text-sm'>Shipper Management</span></span>
-                                </a>
-                            </Link>
-                        </li>
                         <li className={`w-full flex justify-normal m-0 ${router.pathname === '/nts/sales' ? "active" : ""}`}>
                             <Link href="/nts/sales" legacyBehavior>
                                 <a className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales' ? "active" : ""}`}>
-                                    <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><ChartArea size={'20px'} /> <span className='text-xs md:text-sm'>Shipper Connect</span></span>
+                                    <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><ChartArea size={'20px'} /> <span className='text-xs md:text-sm'>Shipper Profiles</span></span>
                                 </a>
                             </Link>
                         </li>
@@ -73,6 +66,13 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                             <Link href="/nts/sales/documents" legacyBehavior>
                                 <a className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales/documents' ? "active" : ""}`}>
                                     <span className='w-full flex items-center flex-nowrap justify-normal gap-2'><Folders size={'20px'} /> <span className='text-xs md:text-sm'>Documents/Photos</span></span>
+                                </a>
+                            </Link>
+                        </li>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/nts/sales/chat-requests' ? "active" : ""}`}>
+                            <Link href="/nts/sales/chat-requests" legacyBehavior>
+                                <a className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales/chat-requests' ? "active" : ""}`}>
+                                    <span className='w-full flex items-center text-sm flex-nowrap text-nowrap justify-normal gap-1'><MessageSquareMore size={'20px'} />Shipper Chats</span>
                                 </a>
                             </Link>
                         </li>

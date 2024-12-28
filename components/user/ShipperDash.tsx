@@ -165,14 +165,6 @@ const ShipperDash = () => {
                                     shipperId={userProfile.id}
                                     session={session}
                                 />
-                                {activeChatId && (
-                                    <FloatingChatWidget
-                                        brokerId={assignedSalesUsers[0]?.id || ''}
-                                        shipperId={userProfile.id}
-                                        session={session}
-                                        activeChatId={activeChatId}
-                                    />
-                                )}
                             </>
                         )}
                     </div>

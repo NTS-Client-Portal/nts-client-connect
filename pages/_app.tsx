@@ -6,7 +6,6 @@ import type { AppProps } from 'next/app';
 import '@/styles/app.css';
 import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
-import '@/styles/ChatInterface.css'; // Import the CSS file
 import { DocumentNotificationProvider } from '@/context/DocumentNotificationContext';
 import { ChatProvider } from '@/context/ChatContext';
 

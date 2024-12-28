@@ -2,9 +2,9 @@ import React, { ReactNode, useState, useEffect } from 'react';
 import UserSideNav from './UserSideNav';
 import UserTopNav from './UserTopNav';
 import { ProfilesUserProvider, useProfilesUser } from '@/context/ProfilesUserContext';
-import ShipperBrokerConnect from '@/components/ShipperBrokerConnect';
-import FloatingChatWidget from '@/components/FloatingChatWidget';
+import { NtsUsersProvider } from '@/context/NtsUsersContext';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useChat } from '@/context/ChatContext';
 
 interface UserLayoutProps {
     children: ReactNode;
@@ -20,7 +20,7 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
     const session = useSession();
     const supabase = useSupabaseClient();
     const { userProfile } = useProfilesUser();
-    const [activeChatId, setActiveChatId] = useState<string | null>(null);
+    const { activeChatId, setActiveChatId, isChatOpen, setIsChatOpen } = useChat();
 
     useEffect(() => {
         const mediaQuery = window.matchMedia('(min-width: 1024px)');
@@ -65,7 +65,7 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
         };
 
         fetchAssignedSalesUsers();
-    }, [userProfile, supabase]);
+    }, [userProfile, supabase, setActiveChatId, setIsChatOpen]);
 
     useEffect(() => {
         if (!userProfile) return;
@@ -78,6 +78,7 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
                 (payload: { new: { broker_id: string; accepted: boolean; id: string } }) => {
                     if (payload.new.broker_id && payload.new.accepted) {
                         setActiveChatId(payload.new.id);
+                        setIsChatOpen(true);
                     }
                 }
             )
@@ -86,23 +87,24 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [userProfile, supabase]);
+    }, [userProfile, supabase, setActiveChatId, setIsChatOpen]);
 
     return (
         <ProfilesUserProvider>
-            <div className="md:layout">
-                <UserSideNav
-                    isSidebarOpen={isSidebarOpen}
-                    toggleSidebar={toggleSidebar}
-                />
-                <div className="w-full fixed top-0 left-0 z-0">
-                    <UserTopNav />
+            <NtsUsersProvider>
+                <div className="md:layout">
+                    <UserSideNav
+                        isSidebarOpen={isSidebarOpen}
+                        toggleSidebar={toggleSidebar}
+                    />
+                    <div className="w-full fixed top-0 left-0 z-0">
+                        <UserTopNav />
+                    </div>
+                    <main className="ml-0 mt-32 md:mt-24 xl:ml-52 p-4">
+                        {children}
+                    </main>
                 </div>
-                <main className="ml-0 mt-32 md:mt-24 xl:ml-52 p-4">
-                    
-                    {children}
-                </main>
-            </div>
+            </NtsUsersProvider>
         </ProfilesUserProvider>
     );
 };

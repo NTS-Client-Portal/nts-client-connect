@@ -4,8 +4,8 @@ import SalesTopNav from './SalesTopNav';
 import { useSession } from '@supabase/auth-helpers-react';
 import { useNtsUsers } from '@/context/NtsUsersContext';
 import ChatRequestListener from '@components/ChatRequestListener';
-import FloatingChatWidget from '@/components/FloatingChatWidget';
 import { useChat } from '@/context/ChatContext';
+import Link from 'next/link';
 
 interface SalesLayoutProps {
     children: ReactNode;
@@ -51,14 +51,9 @@ const SalesLayout: React.FC<SalesLayoutProps> = ({ children }) => {
                 {userProfile && session && (
                     <ChatRequestListener />
                 )}
-                {isChatOpen && activeChatId && userProfile && (
-                    <FloatingChatWidget
-                        brokerId={userProfile.id}
-                        shipperId={userProfile.id}
-                        session={session}
-                        activeChatId={activeChatId}
-                    />
-                )}
+                <Link className="body-btn" href="/nts/sales/chat-requests">
+                   View All Chat Requests
+                </Link>
                 {children}
             </main>
         </div>

@@ -112,10 +112,10 @@ const FloatingChatWidget: React.FC<FloatingChatWidgetProps> = ({ brokerId, shipp
 
     const handleEndChat = async () => {
         setIsChatEnded(true);
-        const endMessage = {
+        const endMessage: Message = {
+            id: Date.now(), // or any unique identifier
             broker_id: brokerId,
             shipper_id: shipperId,
-            id: Date.now(), // or use a unique identifier
             message_body: 'Chat session has ended.',
             user_type: 'system',
             message_time: new Date().toISOString(),

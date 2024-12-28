@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import { useProfilesUser } from '@/context/ProfilesUserContext';
 import Image from 'next/image';
-import { PanelLeftOpen, PanelRightClose, Workflow, Folders, NotebookTabs, Settings, TruckIcon } from 'lucide-react';
+import { PanelLeftOpen, PanelRightClose, Workflow, MessageSquareMore, Folders, NotebookTabs, Settings, TruckIcon } from 'lucide-react';
 import { useDocumentNotification } from '@/context/DocumentNotificationContext';
 
 interface UserSideNavProps {
@@ -14,12 +14,48 @@ interface UserSideNavProps {
     className?: string;
 }
 
+interface AssignedSalesUser {
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone_number: string;
+}
+
 const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar, className = '' }) => {
     const supabase = useSupabaseClient<Database>();
     const { userProfile } = useProfilesUser();
     const { newDocumentAdded, setNewDocumentAdded } = useDocumentNotification();
     const router = useRouter();
+    const [assignedSalesUsers, setAssignedSalesUsers] = useState<AssignedSalesUser[]>([]);
+    const [ntsUserProfile, setNtsUserProfile] = useState<AssignedSalesUser | null>(null);
 
+   useEffect(() => {
+           const fetchAssignedSalesUsers = async () => {
+               if (userProfile?.company_id) {
+                   const { data, error } = await supabase
+                       .from('company_sales_users')
+                       .select(`
+                           sales_user_id,
+                           nts_users (
+                               first_name,
+                               last_name,
+                               email,
+                               phone_number
+                           )
+                       `)
+                       .eq('company_id', userProfile.company_id);
+   
+                   if (error) {
+                       console.error('Error fetching assigned sales users:', error.message);
+                   } else if (data) {
+                       setAssignedSalesUsers(data.map((item: any) => item.nts_users));
+                   }
+               }
+           };
+           fetchAssignedSalesUsers();
+    }, [userProfile, supabase]);
+
+   
     const handleLogout = async () => {
         try {
             const { error } = await supabase.auth.signOut();
@@ -65,7 +101,7 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                         <h3 className='font-normal'>Welcome {userProfile?.first_name || 'User'}</h3>
                     </span>
                     <ul className='flex flex-col flex-grow overflow-y-auto'>
-                    <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user' || router.pathname === '/' ? "active" : ""}`}>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user' || router.pathname === '/' ? "active" : ""}`}>
                             <Link href="/user" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user' || router.pathname === '/' ? "active" : ""}`}>
                                 <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><Workflow size={'20px'} /> Dashboard</span>
                             </Link>
@@ -81,14 +117,19 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                             </Link>
                         </li>
                         <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/documents' ? "active" : ""}`}>
-                    <Link href="/user/documents" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/documents' ? "active" : ""}`} onClick={() => setNewDocumentAdded(false)}>
-                        <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3 relative'>
-                            <Folders size={'20px'} />
-                            <span className='text-xs md:text-sm '>Documents/Pictures</span>
-                            {newDocumentAdded && <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full z-10"></span>}
-                        </span>
-                    </Link>
-                </li>
+                            <Link href="/user/documents" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/documents' ? "active" : ""}`} onClick={() => setNewDocumentAdded(false)}>
+                                <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3 relative'>
+                                    <Folders size={'20px'} />
+                                    <span className='text-xs md:text-sm '>Documents/Pictures</span>
+                                    {newDocumentAdded && <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full z-10"></span>}
+                                </span>
+                            </Link>
+                        </li>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/shipper-broker-connect' ? "active" : ""}`}>
+                            <Link href="/user/shipper-broker-connect" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/shipper-broker-connect' ? "active" : ""}`}>
+                                <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><MessageSquareMore size={'20px'} /> <span className='text-xs md:text-sm'>Chat with {assignedSalesUsers.map(user => user.first_name).join(', ')} </span></span>
+                            </Link>
+                        </li>
                         <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/equipment-directory' ? "active" : ""}`}>
                             <Link href="/user/equipment-directory" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/equipment-directory' ? "active" : ""}`}>
                                 <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><NotebookTabs size={'20px'} /> <span className='text-xs md:text-sm'>Equipment Directory </span></span>
