@@ -29,7 +29,7 @@ const CustomSignInForm = () => {
             if (error) {
                 setError(error.message);
             } else {
-                router.push('/dashboard');
+                router.push('/user/logistics-management');
             }
         } catch (error) {
             setError('An unexpected error occurred. Please try again.');

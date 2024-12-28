@@ -228,19 +228,6 @@ const LoginPage = () => {
       </Layout>
     );
   }
-
-
-  if (!session)
-
-    return (
-      <NtsUsersProvider>
-        <ProfilesUserProvider>
-          <UserLayout>
-            <QuoteRequest session={session} profiles={profiles} />
-          </UserLayout>
-        </ProfilesUserProvider>
-      </NtsUsersProvider>
-    );
 };
 
 export default LoginPage;
