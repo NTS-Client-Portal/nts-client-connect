@@ -813,6 +813,7 @@ export type Database = {
           id: string
           inserted_at: string | null
           last_name: string | null
+          office: string | null
           phone_number: string | null
           profile_id: string | null
           profile_picture: string | null
@@ -828,6 +829,7 @@ export type Database = {
           id: string
           inserted_at?: string | null
           last_name?: string | null
+          office?: string | null
           phone_number?: string | null
           profile_id?: string | null
           profile_picture?: string | null
@@ -843,6 +845,7 @@ export type Database = {
           id?: string
           inserted_at?: string | null
           last_name?: string | null
+          office?: string | null
           phone_number?: string | null
           profile_id?: string | null
           profile_picture?: string | null

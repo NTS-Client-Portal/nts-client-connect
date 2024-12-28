@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Database } from '@/lib/database.types';
 import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
-import { v4 as uuidv4 } from 'uuid';
 
 interface AddNtsUserFormProps {
     isOpen: boolean;
@@ -32,7 +31,7 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
         try {
             // Generate a random UUID for the id field
             const { data: { session } } = await supabase.auth.getSession();
-            const userId = session?.user?.id || uuidv4();
+            const userId = session?.user?.id;
 
             // Insert the user into the nts_users table with the specified company_id
             const { error: insertError } = await supabase.from('nts_users').insert({
@@ -41,7 +40,7 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                 first_name: newNtsUser.first_name,
                 last_name: newNtsUser.last_name,
                 phone_number: newNtsUser.phone_number,
-                address: newNtsUser.address,
+                office: newNtsUser.office,
                 id: userId,
                 company_id: 'cc0e2fd6-e5b5-4a7e-b375-7c0d28e2b45d', // Set the company_id field
                 inserted_at: new Date().toISOString(), // Set the inserted_at field
@@ -68,7 +67,7 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
         first_name: '',
         last_name: '',
         phone_number: '',
-        address: '',
+        office: '',
     };
 
     if (!isOpen) return null;
