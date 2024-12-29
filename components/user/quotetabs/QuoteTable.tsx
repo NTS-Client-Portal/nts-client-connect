@@ -47,7 +47,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [quotesState, setQuotes] = useState(quotes);
-    const rowsPerPage = 5;
+    const rowsPerPage = 10;
 
     const indexOfLastRow = currentPage * rowsPerPage;
     const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -204,15 +204,15 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                             <TableHeaderSort column="Load Details" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="Origin" sortOrder={sortConfig.column === 'origin_city' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="Destination" sortOrder={sortConfig.column === 'destination_city' ? sortConfig.order : null} onSort={handleSort} />
+                            <TableHeaderSort column="Origin/Destination" sortOrder={sortConfig.column === 'origin_city' && 'origin_destination' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                             <TableHeaderSort column="Date" sortOrder={sortConfig.column === 'due_date' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium tracking-wider"> Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                            <TableHeaderSort column="Notes" sortOrder={sortConfig.column === 'Notes' ? sortConfig.order : null} onSort={handleSort} />
+                        </th>
                         <th className="px-6 py-3 text-left text-xs font-medium tracking-wider">
                             <TableHeaderSort column="Price" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
@@ -227,7 +227,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                     handleRowClick(quote.id);
                                     setActiveTab('quotedetails'); // Set activeTab to 'quotedetails' when row is expanded
                                 }}
-                                className={`cursor-pointer divide-x-2 divide-gray-200 border border-zinc-300 mb-4 w-max ${index % 2 === 0 ? 'bg-white h-fit w-full' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}
+                                className={`cursor-pointer divide-x-2 divide-gray-200 border border-zinc-300 mb-4 w-max ${index % 2 === 0 ? 'bg-white h-fit w-full' : 'bg-gray-100'} hover:bg-gray-200 hover:divide-zinc-300 transition-colors duration-200`}
                             >
                                 <td className="px-6 py-3 w-[30px] whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200">
                                     {quote.id}
@@ -274,10 +274,20 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                         </div>
                                     </div>
                                 </td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.origin_city}, {quote.origin_state} {quote.origin_zip}</td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.destination_city}, {quote.destination_state} {quote.destination_zip}</td>
+                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
+                                    <a
+                                        href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${quote.origin_city}, ${quote.origin_state} ${quote.origin_zip}`)}&destination=${encodeURIComponent(`${quote.destination_city}, ${quote.destination_state} ${quote.destination_zip}`)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-500 hover:underline"
+                                    >
+                                        {quote.origin_city}, {quote.origin_state} {quote.origin_zip} / <br />
+                                        {quote.destination_city}, {quote.destination_state} {quote.destination_zip}
+                                    </a>
+                                </td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.due_date}</td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.status}</td>
+                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.notes}</td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
                                     {isAdmin ? (
                                         showPriceInput === quote.id ? (

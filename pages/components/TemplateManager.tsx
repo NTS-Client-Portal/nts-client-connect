@@ -2,11 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/initSupabase';
 import TemplateList from './TemplateList';
 import Modal from './Modal';
-import dynamic from 'next/dynamic';
-import 'react-quill/dist/quill.snow.css';
 import { generateAndUploadPDF, replaceShortcodes } from '@/components/GeneratePDF';
-
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
+import CKEditorComponent from './CKEditorComponent';
 
 export interface Template {
     id: string;
@@ -25,7 +22,7 @@ const TemplateManager: React.FC = () => {
     const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
-    const [context, setContext] = useState('quote'); // Add state for context
+    const [context, setContext] = useState('Quote'); // Add state for context
     const [isHtmlView, setIsHtmlView] = useState(false); // Add state for HTML view toggle
     const [isModalOpen, setIsModalOpen] = useState(false); // Add state for modal
 
@@ -139,7 +136,7 @@ const TemplateManager: React.FC = () => {
                 setSelectedTemplate(null);
                 setTitle('');
                 setContent('');
-                setContext('quote'); // Reset context state
+                setContext('Order'); // Reset context state
             }
         } else {
             const { error: pdfError } = await supabase
@@ -156,7 +153,7 @@ const TemplateManager: React.FC = () => {
                 fetchTemplates();
                 setTitle('');
                 setContent('');
-                setContext('quote'); // Reset context state
+                setContext('Order'); // Reset context state
             }
         }
     };
@@ -201,6 +198,46 @@ const TemplateManager: React.FC = () => {
     return (
         <div className='h-full w-full bg-ntsBlue/10 p-8'>
             <h1 className="text-2xl font-bold mb-4">Template Manager</h1>
+            <div className='grid grid-cols-3 gap-8 mt-8 justify-items-center'>
+                <TemplateList
+                    templates={templates}
+                    context="Quote"
+                    handleEditTemplate={handleEditTemplate}
+                    handleDeleteTemplate={handleDeleteTemplate}
+                    handleViewTemplate={handleViewTemplate}
+                />
+                <TemplateList
+                    templates={templates}
+                    context="Order"
+                    handleEditTemplate={handleEditTemplate}
+                    handleDeleteTemplate={handleDeleteTemplate}
+                    handleViewTemplate={handleViewTemplate}
+                />
+            </div>
+
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selectedTemplate?.title}>
+                <div dangerouslySetInnerHTML={{
+                    __html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                * { margin: 0; padding: 0; text-indent: 0; }
+                p { color: black; font-family: "Times New Roman", serif; font-size: 10pt; margin: 0pt; }
+                table { border: 1px solid black; border-collapse: collapse; width: 100%; }
+                td, th { border: 1px solid black; padding: 8px; text-align: left; }
+            </style>
+        </head>
+        <body style="margin: 0; padding: 0;">
+            ${selectedTemplate?.content || ''}
+        </body>
+        </html>
+    `,
+                }} />
+
+            </Modal>
             <div className='flex gap-12'>
                 <div className='w-1/2'>
                     <div className="mb-4">
@@ -210,62 +247,57 @@ const TemplateManager: React.FC = () => {
                             onChange={(e) => setContext(e.target.value)}
                             className="mt-1 block w-full rounded-md border border-zinc-900/30 shadow-md bg-white focus:border-ntsLightBlue focus:ring focus:ring-ntsLightBlue focus:ring-opacity-50"
                         >
-                            <option value="quote">Quote Update</option>
-                            <option value="order">Order Completion</option>
+                            <option value="Quote">Quote Update</option>
+                            <option value="Order">Order Completion</option>
                             <option value="shipment">Dispatch Notification</option>
                             <option value="bol">BOL</option>
                             <option value="invoice">Invoice Sent</option>
                             <option value="payment">Payment Received</option>
                         </select>
                     </div>
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700">Title</label>
+                    <div className="mb-1">
+                        <label className="block text-lg font-semibold text-gray-700">Title</label>
                         <input
                             type="text"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            className="mt-1 block w-full rounded-md border border-zinc-900/30 shadow-md focus:border-ntsLightBlue focus:ring focus:ring-ntsLightBlue focus:ring-opacity-50"
+                            className="mt-1 block w-full py-1 rounded-md border border-zinc-900/30 shadow-md focus:border-ntsLightBlue focus:ring focus:ring-ntsLightBlue focus:ring-opacity-50"
                         />
                     </div>
-                    <div className="border-none h-96 bg-white px-4 shadow-md rounded-md">
-                        <label className="block text-sm font-medium text-gray-700">Content</label>
+                    <div className="border-none h-full px-4 rounded-md">
+                        <div className="flex justify-between items-center h-fit">
+                            <button
+                                onClick={handleSaveTemplate}
+                                className="py-2 px-4 mt-4 rounded-md text-sm font-medium text-white bg-ntsLightBlue hover:bg-ntsLightBlue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ntsLightBlue"
+                            >
+                                {selectedTemplate ? 'Update Template' : 'Create Template'}
+                            </button>
 
-                        <button
-                            onClick={() => setIsHtmlView(!isHtmlView)}
-                            className="py-1 px-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-ntsLightBlue hover:bg-ntsLightBlue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ntsLightBlue"
-                        >
-                            {isHtmlView ? 'Switch to Editor' : 'Switch to HTML'}
-                        </button>
+                            <label className="block text-lg font-semibold text-gray-700">Content</label>
+
+                            <button
+                                onClick={() => setIsHtmlView(!isHtmlView)}
+                                className="py-1 px-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-ntsLightBlue hover:bg-ntsLightBlue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ntsLightBlue"
+                            >
+                                {isHtmlView ? 'Switch to Editor' : 'Switch to HTML'}
+                            </button>
+                        </div>
 
                         {isHtmlView ? (
                             <textarea
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
-                                className="mt-1 block w-full h-64 bg-white border border-zinc-600 focus:border-ntsLightBlue focus:ring focus:ring-ntsLightBlue focus:ring-opacity-50"
+                                className="mt-1 block p-2 w-full h-full bg-white border border-zinc-600 focus:border-ntsLightBlue focus:ring focus:ring-ntsLightBlue focus:ring-opacity-50"
                             />
                         ) : (
-                            <ReactQuill
-                                value={content}
-                                onChange={setContent}
-                                className="mt-1 w-full h-64 bg-white focus:border-ntsLightBlue focus:ring focus:ring-ntsLightBlue focus:ring-opacity-50"
+                            <CKEditorComponent
+                                content={content}
+                                setContent={setContent}
                             />
                         )}
 
                     </div>
-                    <button
-                        onClick={handleSaveTemplate}
-                        className="py-2 px-4 mt-4 rounded-md text-sm font-medium text-white bg-ntsLightBlue hover:bg-ntsLightBlue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ntsLightBlue"
-                    >
-                        {selectedTemplate ? 'Update Template' : 'Create Template'}
-                    </button>
-                    {selectedTemplate?.type === 'email' && (
-                        <button
-                            onClick={handleSendEmail}
-                            className="py-2 px-4 mt-4 rounded-md text-sm font-medium text-white bg-ntsLightBlue hover:bg-ntsLightBlue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ntsLightBlue"
-                        >
-                            Send Email
-                        </button>
-                    )}
+
                 </div>
                 <div className="mt-8 border border-zinc-900/30 p-4 bg-white shadow-md rounded-md w-fit">
                     <h2 className="text-xl font-bold mb-4">Shortcodes Legend</h2>
@@ -293,55 +325,6 @@ const TemplateManager: React.FC = () => {
                     </ul>
                 </div>
             </div>
-
-            <div className='grid grid-cols-3 gap-8 mt-8 justify-items-center'>
-                <TemplateList
-                    templates={templates}
-                    context="quote"
-                    handleEditTemplate={handleEditTemplate}
-                    handleDeleteTemplate={handleDeleteTemplate}
-                    handleViewTemplate={handleViewTemplate}
-                />
-                <TemplateList
-                    templates={templates}
-                    context="order"
-                    handleEditTemplate={handleEditTemplate}
-                    handleDeleteTemplate={handleDeleteTemplate}
-                    handleViewTemplate={handleViewTemplate}
-                />
-                <TemplateList
-                    templates={templates}
-                    context="shipment"
-                    handleEditTemplate={handleEditTemplate}
-                    handleDeleteTemplate={handleDeleteTemplate}
-                    handleViewTemplate={handleViewTemplate}
-                />
-                <TemplateList
-                    templates={templates}
-                    context="bol"
-                    handleEditTemplate={handleEditTemplate}
-                    handleDeleteTemplate={handleDeleteTemplate}
-                    handleViewTemplate={handleViewTemplate}
-                />
-                <TemplateList
-                    templates={templates}
-                    context="invoice"
-                    handleEditTemplate={handleEditTemplate}
-                    handleDeleteTemplate={handleDeleteTemplate}
-                    handleViewTemplate={handleViewTemplate}
-                />
-                <TemplateList
-                    templates={templates}
-                    context="payment"
-                    handleEditTemplate={handleEditTemplate}
-                    handleDeleteTemplate={handleDeleteTemplate}
-                    handleViewTemplate={handleViewTemplate}
-                />
-            </div>
-
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selectedTemplate?.title}>
-                <div dangerouslySetInnerHTML={{ __html: selectedTemplate?.content || '' }} />
-            </Modal>
         </div>
     );
 };

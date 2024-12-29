@@ -107,7 +107,7 @@
 }
 
 /*
-! tailwindcss v3.4.16 | MIT License | https://tailwindcss.com
+! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com
 */
 
 /*
@@ -687,6 +687,10 @@ body:is(.dark *) {
   visibility: visible;
 }
 
+.collapse {
+  visibility: collapse;
+}
+
 .static {
   position: static;
 }
@@ -1078,10 +1082,6 @@ body:is(.dark *) {
   height: 1.5rem;
 }
 
-.h-64 {
-  height: 16rem;
-}
-
 .h-8 {
   height: 2rem;
 }
@@ -1328,6 +1328,10 @@ body:is(.dark *) {
 
 .flex-grow {
   flex-grow: 1;
+}
+
+.border-collapse {
+  border-collapse: collapse;
 }
 
 .-translate-x-1\/2 {
@@ -3416,6 +3420,31 @@ main:is(.dark *) {
   margin-bottom: 6px;
 }
 
+@media print {
+  body {
+    margin: 0 !important;
+  }
+}
+
+.main-container {
+  font-family: 'Lato';
+  width: -moz-fit-content;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ck-content {
+  font-family: 'Lato';
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.editor-container_classic-editor .editor-container__editor {
+  min-width: 795px;
+  max-width: 795px;
+}
+
 @media (min-width: 768px) {
   .md\:container {
     width: 100%;
@@ -3505,6 +3534,11 @@ main:is(.dark *) {
 .placeholder\:text-zinc-900::placeholder {
   --tw-text-opacity: 1;
   color: rgb(24 24 27 / var(--tw-text-opacity, 1));
+}
+
+.hover\:divide-zinc-300:hover > :not([hidden]) ~ :not([hidden]) {
+  --tw-divide-opacity: 1;
+  border-color: rgb(212 212 216 / var(--tw-divide-opacity, 1));
 }
 
 .hover\:border-amber-300:hover {
