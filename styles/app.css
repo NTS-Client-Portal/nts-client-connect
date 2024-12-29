@@ -1132,6 +1132,22 @@ body:is(.dark *) {
   height: 100vh;
 }
 
+.h-3\/4 {
+  height: 75%;
+}
+
+.h-4\/5 {
+  height: 80%;
+}
+
+.h-1\/2 {
+  height: 50%;
+}
+
+.h-1\/4 {
+  height: 25%;
+}
+
 .max-h-40 {
   max-height: 10rem;
 }
@@ -1147,6 +1163,11 @@ body:is(.dark *) {
 .max-h-max {
   max-height: -moz-max-content;
   max-height: max-content;
+}
+
+.max-h-fit {
+  max-height: -moz-fit-content;
+  max-height: fit-content;
 }
 
 .min-h-\[80px\] {
@@ -1316,6 +1337,11 @@ body:is(.dark *) {
 
 .max-w-sm {
   max-width: 24rem;
+}
+
+.max-w-fit {
+  max-width: -moz-fit-content;
+  max-width: fit-content;
 }
 
 .flex-1 {
@@ -2100,6 +2126,14 @@ body:is(.dark *) {
 
 .p-8 {
   padding: 2rem;
+}
+
+.p-12 {
+  padding: 3rem;
+}
+
+.p-9 {
+  padding: 2.25rem;
 }
 
 .px-1 {

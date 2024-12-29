@@ -3,7 +3,9 @@ import { supabase } from '@/lib/initSupabase';
 import TemplateList from './TemplateList';
 import Modal from './Modal';
 import { generateAndUploadPDF, replaceShortcodes } from '@/components/GeneratePDF';
-import CKEditorComponent from './CKEditorComponent';
+import dynamic from 'next/dynamic';
+
+const CKEditorComponent = dynamic(() => import('./CKEditorComponent'), { ssr: false });
 
 export interface Template {
     id: string;
@@ -22,7 +24,7 @@ const TemplateManager: React.FC = () => {
     const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
-    const [context, setContext] = useState('Quote'); // Add state for context
+    const [context, setContext] = useState('quote'); // Add state for context
     const [isHtmlView, setIsHtmlView] = useState(false); // Add state for HTML view toggle
     const [isModalOpen, setIsModalOpen] = useState(false); // Add state for modal
 
@@ -136,7 +138,7 @@ const TemplateManager: React.FC = () => {
                 setSelectedTemplate(null);
                 setTitle('');
                 setContent('');
-                setContext('Order'); // Reset context state
+                setContext('quote'); // Reset context state
             }
         } else {
             const { error: pdfError } = await supabase
@@ -153,7 +155,7 @@ const TemplateManager: React.FC = () => {
                 fetchTemplates();
                 setTitle('');
                 setContent('');
-                setContext('Order'); // Reset context state
+                setContext('quote'); // Reset context state
             }
         }
     };
@@ -201,14 +203,42 @@ const TemplateManager: React.FC = () => {
             <div className='grid grid-cols-3 gap-8 mt-8 justify-items-center'>
                 <TemplateList
                     templates={templates}
-                    context="Quote"
+                    context="quote"
                     handleEditTemplate={handleEditTemplate}
                     handleDeleteTemplate={handleDeleteTemplate}
                     handleViewTemplate={handleViewTemplate}
                 />
                 <TemplateList
                     templates={templates}
-                    context="Order"
+                    context="order"
+                    handleEditTemplate={handleEditTemplate}
+                    handleDeleteTemplate={handleDeleteTemplate}
+                    handleViewTemplate={handleViewTemplate}
+                />
+                <TemplateList
+                    templates={templates}
+                    context="shipment"
+                    handleEditTemplate={handleEditTemplate}
+                    handleDeleteTemplate={handleDeleteTemplate}
+                    handleViewTemplate={handleViewTemplate}
+                />
+                <TemplateList
+                    templates={templates}
+                    context="bol"
+                    handleEditTemplate={handleEditTemplate}
+                    handleDeleteTemplate={handleDeleteTemplate}
+                    handleViewTemplate={handleViewTemplate}
+                />
+                <TemplateList
+                    templates={templates}
+                    context="invoice"
+                    handleEditTemplate={handleEditTemplate}
+                    handleDeleteTemplate={handleDeleteTemplate}
+                    handleViewTemplate={handleViewTemplate}
+                />
+                <TemplateList
+                    templates={templates}
+                    context="payment"
                     handleEditTemplate={handleEditTemplate}
                     handleDeleteTemplate={handleDeleteTemplate}
                     handleViewTemplate={handleViewTemplate}
@@ -216,28 +246,9 @@ const TemplateManager: React.FC = () => {
             </div>
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selectedTemplate?.title}>
-                <div dangerouslySetInnerHTML={{
-                    __html: `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-                * { margin: 0; padding: 0; text-indent: 0; }
-                p { color: black; font-family: "Times New Roman", serif; font-size: 10pt; margin: 0pt; }
-                table { border: 1px solid black; border-collapse: collapse; width: 100%; }
-                td, th { border: 1px solid black; padding: 8px; text-align: left; }
-            </style>
-        </head>
-        <body style="margin: 0; padding: 0;">
-            ${selectedTemplate?.content || ''}
-        </body>
-        </html>
-    `,
-                }} />
-
+                <div dangerouslySetInnerHTML={{ __html: selectedTemplate?.content || '' }} />
             </Modal>
+
             <div className='flex gap-12'>
                 <div className='w-1/2'>
                     <div className="mb-4">
@@ -247,8 +258,8 @@ const TemplateManager: React.FC = () => {
                             onChange={(e) => setContext(e.target.value)}
                             className="mt-1 block w-full rounded-md border border-zinc-900/30 shadow-md bg-white focus:border-ntsLightBlue focus:ring focus:ring-ntsLightBlue focus:ring-opacity-50"
                         >
-                            <option value="Quote">Quote Update</option>
-                            <option value="Order">Order Completion</option>
+                            <option value="quote">Quote Update</option>
+                            <option value="order">Order Completion</option>
                             <option value="shipment">Dispatch Notification</option>
                             <option value="bol">BOL</option>
                             <option value="invoice">Invoice Sent</option>
@@ -290,12 +301,8 @@ const TemplateManager: React.FC = () => {
                                 className="mt-1 block p-2 w-full h-full bg-white border border-zinc-600 focus:border-ntsLightBlue focus:ring focus:ring-ntsLightBlue focus:ring-opacity-50"
                             />
                         ) : (
-                            <CKEditorComponent
-                                content={content}
-                                setContent={setContent}
-                            />
+                            <CKEditorComponent content={content} setContent={setContent} />
                         )}
-
                     </div>
 
                 </div>

@@ -52,7 +52,7 @@
     "lib/types.ts",
     "lib/utils.ts",
     "lib/updateUserRole.mjs",
-    "scripts/updateRoleScript.mjs", "lib/assignBroker.mjs", "lib/sgEmail.js"],
+    "scripts/updateRoleScript.mjs", "lib/assignBroker.mjs", "lib/sgEmail.js", "pages/components/CKEditorComponent.tsx"],
   "exclude": [
     "node_modules"
   ]
