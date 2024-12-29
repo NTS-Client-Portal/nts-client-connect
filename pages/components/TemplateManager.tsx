@@ -25,7 +25,6 @@ const TemplateManager: React.FC = () => {
     const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
-    const [type, setType] = useState('pdf');
     const [context, setContext] = useState('quote'); // Add state for context
     const [isHtmlView, setIsHtmlView] = useState(false); // Add state for HTML view toggle
     const [isModalOpen, setIsModalOpen] = useState(false); // Add state for modal
@@ -102,7 +101,6 @@ const TemplateManager: React.FC = () => {
         setSelectedTemplate(template);
         setTitle(template.title);
         setContent(template.content);
-        setType(template.type);
         setContext(template.context); // Set context state
     };
 
@@ -120,34 +118,44 @@ const TemplateManager: React.FC = () => {
     };
 
     const handleSaveTemplate = async () => {
+        const pdfTemplate = { title, content, type: 'pdf', context };
+        const emailTemplate = { title, content, type: 'email', context };
+
         if (selectedTemplate) {
-            const { error } = await supabase
+            const { error: pdfError } = await supabase
                 .from('templates')
-                .update({ title, content, type, context }) // Include context
+                .update(pdfTemplate)
                 .eq('id', selectedTemplate.id);
 
-            if (error) {
-                console.error('Error updating template:', error.message);
+            const { error: emailError } = await supabase
+                .from('templates')
+                .update(emailTemplate)
+                .eq('id', selectedTemplate.id);
+
+            if (pdfError || emailError) {
+                console.error('Error updating template:', pdfError?.message || emailError?.message);
             } else {
                 fetchTemplates();
                 setSelectedTemplate(null);
                 setTitle('');
                 setContent('');
-                setType('pdf');
                 setContext('quote'); // Reset context state
             }
         } else {
-            const { error } = await supabase
+            const { error: pdfError } = await supabase
                 .from('templates')
-                .insert({ title, content, type, context }); // Include context
+                .insert(pdfTemplate);
 
-            if (error) {
-                console.error('Error creating template:', error.message);
+            const { error: emailError } = await supabase
+                .from('templates')
+                .insert(emailTemplate);
+
+            if (pdfError || emailError) {
+                console.error('Error creating template:', pdfError?.message || emailError?.message);
             } else {
                 fetchTemplates();
                 setTitle('');
                 setContent('');
-                setType('pdf');
                 setContext('quote'); // Reset context state
             }
         }
@@ -195,17 +203,6 @@ const TemplateManager: React.FC = () => {
             <h1 className="text-2xl font-bold mb-4">Template Manager</h1>
             <div className='flex gap-12'>
                 <div className='w-1/2'>
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700">Type</label>
-                        <select
-                            value={type}
-                            onChange={(e) => setType(e.target.value)}
-                            className="mt-1 block w-full rounded-md border border-zinc-900/30 shadow-md bg-white focus:border-ntsLightBlue focus:ring focus:ring-ntsLightBlue focus:ring-opacity-50"
-                        >
-                            <option value="pdf">PDF</option>
-                            <option value="email">Email</option>
-                        </select>
-                    </div>
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">Context</label>
                         <select
@@ -261,7 +258,7 @@ const TemplateManager: React.FC = () => {
                     >
                         {selectedTemplate ? 'Update Template' : 'Create Template'}
                     </button>
-                    {type === 'email' && (
+                    {selectedTemplate?.type === 'email' && (
                         <button
                             onClick={handleSendEmail}
                             className="py-2 px-4 mt-4 rounded-md text-sm font-medium text-white bg-ntsLightBlue hover:bg-ntsLightBlue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ntsLightBlue"

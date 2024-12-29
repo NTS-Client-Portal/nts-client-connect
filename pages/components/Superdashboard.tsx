@@ -203,7 +203,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                                         <select
                                             value={selectedCompanyId || ''}
                                             onChange={(e) => setSelectedCompanyId(e.target.value)}
-                                            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full px-3 bg-white py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         >
                                             <option value="">Select a company</option>
                                             {companies.map((company) => (
@@ -218,7 +218,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                                         <select
                                             value={selectedSalesUserId || ''}
                                             onChange={(e) => setSelectedSalesUserId(e.target.value)}
-                                            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         >
                                             <option value="">Select a sales user</option>
                                             {ntsUsers
@@ -232,7 +232,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                                     </div>
                                     <button
                                         onClick={handleAssignSalesUser}
-                                        className="body-btn text-white transition duration-200"
+                                        className="body-btn shadow-md border-none text-white transition duration-200"
                                     >
                                         Assign NTS Sales User
                                     </button>

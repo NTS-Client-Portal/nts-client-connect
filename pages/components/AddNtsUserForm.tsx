@@ -89,7 +89,7 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                                             onChange={(e) =>
                                                 setNewNtsUser({ ...newNtsUser, [key]: e.target.value })
                                             }
-                                            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full px-3 bg-white py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         >
                                             <option value="">Select a role</option>
                                             <option value="sales">Sales</option>
@@ -104,7 +104,7 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                                             onChange={(e) =>
                                                 setNewNtsUser({ ...newNtsUser, [key]: e.target.value })
                                             }
-                                            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         />
                                     )}
                                 </div>

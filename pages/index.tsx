@@ -87,7 +87,7 @@ const LoginPage = () => {
       if (event === 'PASSWORD_RECOVERY') {
         router.push(`/reset-password?access_token=${session?.access_token}`);
       } else if (event === 'SIGNED_IN') {
-        router.push('/user');
+        router.push('/user/logistics-management');
       }
     });
 
@@ -222,6 +222,8 @@ const LoginPage = () => {
       </Layout>
     );
   }
+
+  return null;
 };
 
 export default LoginPage;
