@@ -74,7 +74,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
         setUpdatedQuote(quote);
     }, [quote]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         if (updatedQuote) {
             setUpdatedQuote({
                 ...updatedQuote,
@@ -194,6 +194,24 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 onChange={handleChange}
                                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
                             />
+                        </div>
+                        <div className='mb-4'>
+                            <label className="block text-sm font-medium text-gray-700">Pickup Date</label>
+                            <input
+                                type="date"
+                                name="due_date"
+                                value={updatedQuote.due_date || ''}
+                                onChange={handleChange}
+                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                            />
+                        </div>
+                        <div className='mb-4'>
+                            <label className='block text-sm font-medium text-gray-700'>Notes</label>
+                            <textarea
+                                name='notes'
+                                value={updatedQuote.notes || ''}
+                                onChange={handleChange}
+                                className='mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm' />
                         </div>
                     </>
                 );
@@ -326,7 +344,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="flex gap-2 bg-white p-4 rounded shadow-lg w-fit">
                 <form className='border border-r px-2 ' onSubmit={handleSubmit}>
-                <h2 className="text-xl font-bold mb-4">Edit Quote</h2>
+                    <h2 className="text-xl font-bold mb-4">Edit Quote</h2>
                     <div className='flex gap-2'>
                         <div className="mb-4">
                             <label className="block text-sm font-medium text-gray-700">Origin Zipcode</label>
