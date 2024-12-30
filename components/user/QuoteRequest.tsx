@@ -251,11 +251,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                 router.push(`/user/logistics-management?tab=${tab}`, undefined, { shallow: true });
             }
         } else if (ntsUser) {
-            if (tab === 'orders') {
-                router.push(`/companies/${companyId}`, undefined, { shallow: true });
-            } else {
-                router.push(`/companies/${companyId}`, undefined, { shallow: true });
-            }
+            router.push(`/companies/${companyId}`, undefined, { shallow: true });
         }
     };
 
