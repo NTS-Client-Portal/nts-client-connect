@@ -13,6 +13,8 @@ interface OrderTableProps {
     handleEditClick: (order: Database['public']['Tables']['shippingquotes']['Row']) => void;
     isAdmin: boolean;
     handleMarkAsComplete: (id: number) => React.MouseEventHandler<HTMLButtonElement>;
+    searchTerm: string;
+    searchColumn: string;
 }
 
 const OrderTable: React.FC<OrderTableProps> = ({
@@ -25,6 +27,8 @@ const OrderTable: React.FC<OrderTableProps> = ({
     handleEditClick,
     isAdmin,
     handleMarkAsComplete,
+    searchTerm,
+    searchColumn,
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [activeTab, setActiveTab] = useState<'orderdetails' | 'editHistory'>('orderdetails');
@@ -32,16 +36,6 @@ const OrderTable: React.FC<OrderTableProps> = ({
 
     const indexOfLastRow = currentPage * rowsPerPage;
     const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-    const currentRows = orders.slice(indexOfFirstRow, indexOfLastRow);
-
-    const totalPages = Math.ceil(orders.length / rowsPerPage);
-
-    const handlePageChange = (pageNumber: number) => {
-        setCurrentPage(pageNumber);
-    };
-
-    const [searchTerm, setSearchTerm] = useState('');
-    const [searchColumn, setSearchColumn] = useState('id');
 
     const filteredOrders = useMemo(() => {
         return orders.filter((order) => {
@@ -50,14 +44,21 @@ const OrderTable: React.FC<OrderTableProps> = ({
         });
     }, [searchTerm, searchColumn, orders]);
 
-    const TableHeaderSort = ({ column, sortOrder, onSort }) => {
-        const handleSort = () => {
+    const currentRows = filteredOrders.slice(indexOfFirstRow, indexOfLastRow);
+    const totalPages = Math.ceil(filteredOrders.length / rowsPerPage);
+
+    const handlePageChange = (pageNumber: number) => {
+        setCurrentPage(pageNumber);
+    };
+
+    const TableHeaderSort: React.FC<{ column: string; sortOrder: string | null; onSort: (column: string, order: string) => void }> = ({ column, sortOrder, onSort }) => {
+        const handleSortClick = () => {
             const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
             onSort(column, newOrder);
         };
 
         return (
-            <button onClick={handleSort} className="flex items-center">
+            <button onClick={handleSortClick} className="flex items-center">
                 {column}
                 {sortOrder === 'asc' ? (
                     <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -122,29 +123,6 @@ const OrderTable: React.FC<OrderTableProps> = ({
 
     return (
         <div className='w-full'>
-            <div className="flex justify-start gap-4 my-4 ml-4">
-                <div className="flex items-center">
-                    <label className="mr-2">Search by:</label>
-                    <select
-                        value={searchColumn}
-                        onChange={(e) => setSearchColumn(e.target.value)}
-                        className="border border-gray-300 rounded-md shadow-sm"
-                    >
-                        <option value="id">ID</option>
-                        <option value="freight_type">Freight Type</option>
-                        <option value="origin_city">Origin City</option>
-                        <option value="destination_city">Destination City</option>
-                        <option value="due_date">Shipping Date</option>
-                    </select>
-                </div>
-                <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search..."
-                    className="border border-gray-300 pl-2 shadow-sm"
-                />
-            </div>
             <table className="min-w-full divide-y divide-zinc-200 ">
                 <thead className="bg-ntsBlue border-2 border-t-orange-500 static top-0 w-full text-white">
                     <tr >
@@ -156,9 +134,6 @@ const OrderTable: React.FC<OrderTableProps> = ({
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                             <TableHeaderSort column="Origin" sortOrder={sortConfig.column === 'origin_city' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="Destination" sortOrder={sortConfig.column === 'destination_city' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                             <TableHeaderSort column="Pickup Earliest/Latest" sortOrder={sortConfig.column === 'pickup_date_range' ? sortConfig.order : null} onSort={handleSort} />
@@ -224,10 +199,23 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                         </div>
                                     </div>
                                 </td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{order.origin_street} <br />{order.origin_city}, {order.origin_state}</td>
+                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
+                                    <a
+                                        href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${order.origin_city}, ${order.origin_state} ${order.origin_zip}`)}&destination=${encodeURIComponent(`${order.destination_city}, ${order.destination_state} ${order.destination_zip}`)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-500 hover:underline"
+                                    >
+                                        {order.origin_city}, {order.origin_state} {order.origin_zip} / <br />
+                                        {order.destination_city}, {order.destination_state} {order.destination_zip}
+                                        <br />[map it]
+                                    </a>
+                                </td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{order.destination_street}<br /> {order.destination_city}, {order.destination_state}</td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{order.earliest_pickup_date} - {order.latest_pickup_date}</td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{order.status}</td>
+                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
+                                    <strong>Earliest: </strong>{order.earliest_pickup_date} <br />
+                                    <strong>Latest: </strong>{order.latest_pickup_date}
+                                </td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
                                     {order.price ? `$${order.price}` : 'Pending'}
                                 </td>

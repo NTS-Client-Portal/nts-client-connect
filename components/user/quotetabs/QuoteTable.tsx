@@ -145,13 +145,13 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
     };
 
     const TableHeaderSort: React.FC<{ column: string; sortOrder: string | null; onSort: (column: string, order: string) => void }> = ({ column, sortOrder, onSort }) => {
-        const handleSort = () => {
+        const handleSortClick = () => {
             const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
             onSort(column, newOrder);
         };
 
         return (
-            <button onClick={handleSort} className="flex items-center">
+            <button onClick={handleSortClick} className="flex items-center">
                 {column}
                 {sortOrder === 'asc' ? (
                     <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -169,6 +169,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
             </button>
         );
     };
+
     return (
         <div className='w-full'>
             <div className="flex justify-start gap-4 my-4 ml-4">
@@ -181,8 +182,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                     >
                         <option value="id">ID</option>
                         <option value="freight_type">Load Details</option>
-                        <option value="origin_city">Origin</option>
-                        <option value="destination_city">Destination</option>
+                        <option value="origin_destination">Origin/Destination</option>
                         <option value="due_date">Date</option>
                     </select>
                 </div>
@@ -198,40 +198,38 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                 <thead className="bg-ntsBlue border-2 border-t-orange-500 text-zinc-50  top-0 w-full">
                     <tr>
                         <th className="px-6 py-3 text-left text-xs text-nowrap font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="Quote ID" sortOrder={sortConfig.column === 'id' ? sortConfig.order : 'desc'} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="Load Details" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="Origin/Destination" sortOrder={sortConfig.column === 'origin_city' && 'origin_destination' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="Date" sortOrder={sortConfig.column === 'due_date' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium tracking-wider"> Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="Notes" sortOrder={sortConfig.column === 'Notes' ? sortConfig.order : null} onSort={handleSort} />
+                            <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium tracking-wider">
-                            <TableHeaderSort column="Price" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
+                            Notes
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                            <TableHeaderSort column="freight_type" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                            <TableHeaderSort column="origin_destination" sortOrder={sortConfig.column === 'origin_destination' ? sortConfig.order : null} onSort={handleSort} />
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                            <TableHeaderSort column="due_date" sortOrder={sortConfig.column === 'due_date' ? sortConfig.order : null} onSort={handleSort} />
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium tracking-wider"> Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium tracking-wider">
+                            <TableHeaderSort column="price" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-2 divide-gray-200">
-                    {currentRows.map((quote, index) => (
+                <tbody className="bg-white divide-y divide-gray-200">
+                    {quotes.map((quote, index) => (
                         <React.Fragment key={quote.id}>
                             <tr
-                                onClick={() => {
-                                    handleRowClick(quote.id);
-                                    setActiveTab('quotedetails'); // Set activeTab to 'quotedetails' when row is expanded
-                                }}
-                                className={`cursor-pointer divide-x-2 divide-gray-200 border border-zinc-300 mb-4 w-max ${index % 2 === 0 ? 'bg-white h-fit w-full' : 'bg-gray-100'} hover:bg-gray-200 hover:divide-zinc-300 transition-colors duration-200`}
+                                onClick={() => handleRowClick(quote.id)}
+                                className={`cursor-pointer mb-4 w-max ${index % 2 === 0 ? 'bg-white h-fit w-full' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}
                             >
                                 <td className="px-6 py-3 w-[30px] whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200">
                                     {quote.id}
                                 </td>
+                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.notes}</td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200">
                                     <div className=''>
                                         {Array.isArray(quote.shipment_items) ? quote.shipment_items.map((item: any, index) => (
@@ -246,7 +244,6 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                     <span className='flex flex-col gap-0 w-min'>
                                                         <span className='font-semibold text-sm text-gray-700 p-0 w-min'>Shipment Item {index + 1}:</span>
                                                         <span className='text-base text-zinc-900 p-0 w-min'>{`${item.year} ${item.make} ${item.model}`}</span>
-                                                        <span>{`${item.length} x ${item.width} x ${item.height}, ${item.weight}`}</span>
                                                     </span>
                                                 )}
                                             </React.Fragment>
@@ -262,15 +259,15 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                     {quote.year && quote.make && quote.model && (
                                                         <>
                                                             <span className='font-semibold text-sm text-gray-700 p-0 text-start w-min'>Shipment Item:</span><br />
-                                                            <span className='text-normal text-zinc-900 text-start w-min'>{`${quote.year} ${quote.make} ${quote.model}`}<br />{`${quote.length} x ${quote.width} x ${quote.height}, ${quote.weight} lbs`}</span>
+                                                            <span className='text-normal text-zinc-900 text-start w-min'>{`${quote.year} ${quote.make} ${quote.model}`}</span>
                                                         </>
                                                     )}
                                                 </div>
                                             </>
                                         )}
                                         <div className='text-start pt-1 w-min'>
-                                            <span className='font-semibold text-sm text-gray-700 text-start w-min'>Freight Type:</span>
-                                            <span className='text-xs text-zinc-900 text-start px-1 w-min'>{freightTypeMapping[quote.freight_type] || (quote.freight_type ? quote.freight_type.toUpperCase() : 'N/A')}</span>
+                                            <span className='font-semibold text-xs text-gray-700 text-start w-min'>Freight Type:</span>
+                                            <span className='text-xs text-zinc-900 text-start px-1 w-min'>{quote.freight_type}</span>
                                         </div>
                                     </div>
                                 </td>
@@ -287,7 +284,6 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                 </td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.due_date}</td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.status}</td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.notes}</td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
                                     {isAdmin ? (
                                         showPriceInput === quote.id ? (

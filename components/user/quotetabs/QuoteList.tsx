@@ -72,27 +72,23 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
     }, [supabase]);
 
     useEffect(() => {
-        const sorted = [...quotes].sort((a, b) => {
-            if (a[sortConfig.column] < b[sortConfig.column]) {
-                return sortConfig.order === 'asc' ? -1 : 1;
-            }
-            if (a[sortConfig.column] > b[sortConfig.column]) {
-                return sortConfig.order === 'asc' ? 1 : -1;
-            }
-            return 0;
-        });
+        const filteredAndSorted = quotes
+            .filter((quote) => {
+                const value = quote[searchColumn]?.toString().toLowerCase() || '';
+                return value.includes(searchTerm.toLowerCase());
+            })
+            .sort((a, b) => {
+                if (a[sortConfig.column] < b[sortConfig.column]) {
+                    return sortConfig.order === 'asc' ? -1 : 1;
+                }
+                if (a[sortConfig.column] > b[sortConfig.column]) {
+                    return sortConfig.order === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
 
-        setSortedQuotes(sorted);
-    }, [quotes, sortConfig]);
-
-    useEffect(() => {
-        const filtered = quotes.filter((quote) => {
-            const value = quote[searchColumn]?.toString().toLowerCase() || '';
-            return value.includes(searchTerm.toLowerCase());
-        });
-
-        setSortedQuotes(filtered);
-    }, [searchTerm, searchColumn, quotes]);
+        setSortedQuotes(filteredAndSorted);
+    }, [quotes, sortConfig, searchTerm, searchColumn]);
 
     const handleSort = (column: string, order: string) => {
         setSortConfig({ column, order });

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Calendar, momentLocalizer, Event } from 'react-big-calendar';
+import { Calendar, momentLocalizer, Event as BigCalendarEvent } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { supabase } from '@/lib/initSupabase';
 import { Database } from '@/lib/database.types';
+import { useRouter } from 'next/router';
 
 type ShippingCalendarProps = {
     // Add props here if needed
@@ -13,10 +14,13 @@ type Schedule = Database['public']['Tables']['shippingquotes']['Row'];
 
 const localizer = momentLocalizer(moment);
 
+type Event = BigCalendarEvent & { id: string };
+
 const ShippingCalendar: React.FC<ShippingCalendarProps> = () => {
     const [schedules, setSchedules] = useState<Schedule[]>([]);
     const [events, setEvents] = useState<Event[]>([]);
     const [errorText, setErrorText] = useState<string>('');
+    const router = useRouter();
 
     useEffect(() => {
         const fetchSchedules = async () => {
@@ -50,7 +54,7 @@ const ShippingCalendar: React.FC<ShippingCalendarProps> = () => {
     useEffect(() => {
         // Convert schedules to events for the calendar
         const calendarEvents = schedules.map(schedule => ({
-            id: schedule.id,
+            id: schedule.id.toString(),
             title: `Order ${schedule.id}`,
             start: new Date(schedule.earliest_pickup_date),
             end: new Date(schedule.latest_pickup_date),
@@ -58,6 +62,10 @@ const ShippingCalendar: React.FC<ShippingCalendarProps> = () => {
 
         setEvents(calendarEvents);
     }, [schedules]);
+
+    const handleSelectEvent = (event: Event) => {
+        router.push(`/user/logistics-management?tab=orders&searchTerm=${event.id}&searchColumn=id`);
+    };
 
     return (
         <div>
@@ -69,6 +77,7 @@ const ShippingCalendar: React.FC<ShippingCalendarProps> = () => {
                 startAccessor="start"
                 endAccessor="end"
                 style={{ height: 500 }}
+                onSelectEvent={handleSelectEvent}
             />
         </div>
     );

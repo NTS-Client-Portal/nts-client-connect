@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/router';
 import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import QuoteForm from './QuoteForm';
@@ -27,11 +28,15 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [] }) =
     const [editHistory, setEditHistory] = useState<Database['public']['Tables']['edit_history']['Row'][]>([]);
     const [errorText, setErrorText] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [activeTab, setActiveTab] = useState('requests');
+    const router = useRouter();
+    const { tab, searchTerm: searchTermParam, searchColumn: searchColumnParam } = router.query;
+    const [activeTab, setActiveTab] = useState<string>(tab as string || 'requests');
     const [isMobile, setIsMobile] = useState<boolean>(false);
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
     const [companyId, setCompanyId] = useState<string | null>(null);
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState<string>(searchTermParam as string || '');
+    const [searchColumn, setSearchColumn] = useState<string>(searchColumnParam as string || 'id');
 
     const fetchUserProfile = useCallback(async () => {
         if (!session?.user?.id) return;
@@ -130,6 +135,20 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [] }) =
         fetchUserRole();
     }, [session, supabase]);
 
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchTermParam = urlParams.get('searchTerm');
+        const searchColumnParam = urlParams.get('searchColumn');
+
+        if (searchTermParam) {
+            setSearchTerm(searchTermParam);
+        }
+
+        if (searchColumnParam) {
+            setSearchColumn(searchColumnParam);
+        }
+    }, [router.query]);
+
     const addQuote = async (quote: Partial<Database['public']['Tables']['shippingquotes']['Insert'] & { containerLength?: number | null; containerType?: string | null; contentsDescription?: string | null; selectedOption?: string | null; }>) => {
         if (!session?.user?.id) return;
 
@@ -223,6 +242,15 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [] }) =
         return `${day}/${month}/${year}`;
     };
 
+    const handleTabChange = (tab: string) => {
+        setActiveTab(tab);
+        if (tab === 'orders') {
+            router.push(`/user/logistics-management?tab=orders&searchTerm=${searchTerm}&searchColumn=${searchColumn}`, undefined, { shallow: true });
+        } else {
+            router.push(`/user/logistics-management?tab=${tab}`, undefined, { shallow: true });
+        }
+    };
+
     return (
         <div className="w-full h-full overflow-auto">
             <div className="w-full">
@@ -269,7 +297,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [] }) =
                     <select
                         className="w-full p-2 border border-gray-300 rounded-md"
                         value={activeTab}
-                        onChange={(e) => setActiveTab(e.target.value)}
+                        onChange={(e) => handleTabChange(e.target.value)}
                     >
                         <option value="requests">Shipping Requests</option>
                         <option value="orders">Shipping Orders</option>
@@ -283,31 +311,31 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [] }) =
                 <div className="flex gap-1 border-b border-gray-300">
                     <button
                         className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'requests' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
-                        onClick={() => setActiveTab('requests')}
+                        onClick={() => handleTabChange('requests')}
                     >
                         Shipping Requests
                     </button>
                     <button
                         className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'orders' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
-                        onClick={() => setActiveTab('orders')}
+                        onClick={() => handleTabChange('orders')}
                     >
                         Shipping Orders
                     </button>
                     <button
                         className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'delivered' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
-                        onClick={() => setActiveTab('delivered')}
+                        onClick={() => handleTabChange('delivered')}
                     >
                         Completed Orders
                     </button>
                     <button
                         className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'archived' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
-                        onClick={() => setActiveTab('archived')}
+                        onClick={() => handleTabChange('archived')}
                     >
                         Archived
                     </button>
                     <button
                         className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'rejected' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
-                        onClick={() => setActiveTab('rejected')}
+                        onClick={() => handleTabChange('rejected')}
                     >
                         Rejected RFQ&apos;
                     </button>
@@ -327,6 +355,8 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [] }) =
                         fetchQuotes={fetchQuotes}
                         isAdmin={isAdmin} // Pass isAdmin state
                         selectedUserId={selectedUserId} // Pass selectedUserId
+                        searchTerm={searchTerm}
+                        searchColumn={searchColumn}
                     />
                 )}
                 {activeTab === 'delivered' && (

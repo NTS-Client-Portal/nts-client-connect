@@ -5,6 +5,7 @@ import { supabase } from '@/lib/initSupabase';
 import Modal from '@/components/ui/Modal';
 import OrderTable from './OrderTable';
 import { generatePDF, uploadPDFToSupabase, insertDocumentRecord } from '@/components/GeneratePDF';
+import { useRouter } from 'next/router';
 
 type ShippingQuotesRow = Database['public']['Tables']['shippingquotes']['Row'];
 
@@ -13,19 +14,23 @@ interface OrderListProps {
     selectedUserId: string;
     fetchQuotes: () => void;
     isAdmin: boolean;
+    searchTerm: string;
+    searchColumn: string;
 }
 
-const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
+const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, searchTerm, searchColumn }) => {
     const [quotes, setQuotes] = useState<ShippingQuotesRow[]>([]);
     const [sortConfig, setSortConfig] = useState<{ column: string; order: 'asc' | 'desc' }>({ column: '', order: 'asc' });
     const [errorText, setErrorText] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [expandedRow, setExpandedRow] = useState<number | null>(null);
+    const [sortedQuotes, setSortedQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
     const [selectedQuoteId, setSelectedQuoteId] = useState<number | null>(null);
     const [cancellationReason, setCancellationReason] = useState<string>('');
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const [editData, setEditData] = useState<Partial<ShippingQuotesRow>>({});
     const [isNtsUser, setIsNtsUser] = useState(false);
+    const router = useRouter();
 
     const fetchOrdersForNtsUsers = useCallback(async (userId: string) => {
         const { data: companySalesUsers, error: companySalesUsersError } = await supabase
@@ -133,6 +138,38 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
 
         checkUserType();
     }, [session, fetchQuotes, fetchOrdersForNtsUsers, fetchQuotesForCompany]);
+
+    useEffect(() => {
+        const filteredAndSorted = quotes
+            .filter((quote) => {
+                const value = quote[searchColumn]?.toString().toLowerCase() || '';
+                return value.includes(searchTerm.toLowerCase());
+            })
+            .sort((a, b) => {
+                if (a[sortConfig.column] < b[sortConfig.column]) {
+                    return sortConfig.order === 'asc' ? -1 : 1;
+                }
+                if (a[sortConfig.column] > b[sortConfig.column]) {
+                    return sortConfig.order === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+
+        setSortedQuotes(filteredAndSorted);
+    }, [quotes, sortConfig, searchTerm, searchColumn]);
+
+    const handleSort = (column: string, order: string) => {
+        setSortConfig({ column, order: order as 'asc' | 'desc' });
+    };
+
+    useEffect(() => {
+        if (searchTerm) {
+            const orderId = parseInt(searchTerm, 10);
+            if (!isNaN(orderId)) {
+                setExpandedRow(orderId);
+            }
+        }
+    }, [searchTerm]);
 
     const handleRowClick = (id: number) => {
         setExpandedRow(expandedRow === id ? null : id);
@@ -289,15 +326,14 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
                     handleEditClick={handleEditQuote}
                     isAdmin={isAdmin}
                     sortConfig={sortConfig}
-                    handleSort={(column) => {
-                        const order = sortConfig.column === column && sortConfig.order === 'asc' ? 'desc' : 'asc';
-                        setSortConfig({ column, order });
-                    }}
+                    handleSort={handleSort}
                     orders={quotes}
                     expandedRow={expandedRow}
                     handleRowClick={handleRowClick}
                     archiveOrder={archiveOrder}
                     handleMarkAsComplete={(id) => () => handleMarkAsComplete(id)}
+                    searchTerm={searchTerm}
+                    searchColumn={searchColumn}
                 />
             </div>
             <div className="block md:hidden">

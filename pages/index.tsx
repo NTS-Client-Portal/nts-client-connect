@@ -13,6 +13,7 @@ import QuoteRequest from '@/components/user/QuoteRequest';
 import UserLayout from '@/pages/components/UserLayout';
 import Image from 'next/image';
 
+
 interface UserProfile {
   id: string;
   email: string;
@@ -32,6 +33,11 @@ interface UserProfile {
 }
 
 const LoginPage = () => {
+  // or true, depending on your logic
+  const company = { id: 'company-id' };
+  const profiles = [];
+  const ntsUsers = [];
+  const isAdmin = false;
   const session = useSession();
   const supabase = useSupabaseClient();
   const router = useRouter();
@@ -87,7 +93,7 @@ const LoginPage = () => {
       if (event === 'PASSWORD_RECOVERY') {
         router.push(`/reset-password?access_token=${session?.access_token}`);
       } else if (event === 'SIGNED_IN') {
-        router.push('/user/logistics-management');
+        router.push('/user');
       }
     });
 
@@ -222,8 +228,6 @@ const LoginPage = () => {
       </Layout>
     );
   }
-
-  return null;
 };
 
 export default LoginPage;
