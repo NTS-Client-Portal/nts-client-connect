@@ -298,25 +298,43 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, searchTerm, sea
         }
     };
 
-    async function handleStatusChange(e: React.ChangeEvent<HTMLSelectElement>, id: number): Promise<void> {
-        const newStatus = e.target.value;
+    const handleGeneratePDF = async (quoteId: number) => {
         try {
-            const { error } = await supabase
-                .from('shippingquotes')
-                .update({ status: newStatus })
-                .eq('id', id);
+            const quote = quotes.find(q => q.id === quoteId);
+            if (quote) {
+                // Fetch the template for order completion
+                const { data: templateData, error: templateError } = await supabase
+                    .from('templates')
+                    .select('content, title')
+                    .eq('title', 'Order Completion')
+                    .single();
 
-            if (error) {
-                console.error('Error updating status:', error);
-                return;
+                if (templateError) {
+                    console.error('Error fetching template:', templateError.message);
+                    return;
+                }
+
+                // Generate PDF and upload to Supabase
+                const pdf = await generatePDF(quote, templateData.content);
+                const fileName = `${templateData.title.replace(/\s+/g, '_')}_for_Quote_${quote.id}.pdf`;
+                const filePath = await uploadPDFToSupabase(pdf, fileName);
+                await insertDocumentRecord(filePath, quote, templateData.title);
+
+                // Create a notification for the user
+                const notificationMessage = `Quote ID ${quote.id} was delivered. <a class="text-ntsLightBlue underline font-semibold" href="/user/documents">View Quote</a>`;
+                await supabase
+                    .from('notifications')
+                    .insert({
+                        user_id: quote.user_id,
+                        message: notificationMessage,
+                        is_read: false,
+                    });
             }
         } catch (error) {
-            console.error('Error updating status:', error);
+            console.error('Error generating PDF:', error);
+            setErrorText('Error generating PDF. Please check your internet connection and try again.');
         }
-        setQuotes((prevQuotes) =>
-            prevQuotes.map((quote) => (quote.id === id ? { ...quote, status: newStatus } : quote))
-        );
-    }
+    };
 
     return (
         <div className="w-full bg-white  shadow rounded-md max-h-max flex-grow">

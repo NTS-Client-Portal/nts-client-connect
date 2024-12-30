@@ -788,6 +788,10 @@ body:is(.dark *) {
   top: 1.25rem;
 }
 
+.end-5 {
+  inset-inline-end: 1.25rem;
+}
+
 .z-0 {
   z-index: 0;
 }
@@ -1030,6 +1034,16 @@ body:is(.dark *) {
   height: 2rem;
 }
 
+.size-3 {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.size-4 {
+  width: 1rem;
+  height: 1rem;
+}
+
 .h-1 {
   height: 0.25rem;
 }
@@ -1132,6 +1146,42 @@ body:is(.dark *) {
   height: 100vh;
 }
 
+.h-1\/4 {
+  height: 25%;
+}
+
+.h-\[180px\] {
+  height: 180px;
+}
+
+.h-\[350px\] {
+  height: 350px;
+}
+
+.h-\[550px\] {
+  height: 550px;
+}
+
+.h-1\/2 {
+  height: 50%;
+}
+
+.h-1\/5 {
+  height: 20%;
+}
+
+.h-1\/6 {
+  height: 16.666667%;
+}
+
+.h-\[90vh\] {
+  height: 90vh;
+}
+
+.h-\[95vh\] {
+  height: 95vh;
+}
+
 .max-h-40 {
   max-height: 10rem;
 }
@@ -1152,6 +1202,14 @@ body:is(.dark *) {
 .max-h-max {
   max-height: -moz-max-content;
   max-height: max-content;
+}
+
+.max-h-64 {
+  max-height: 16rem;
+}
+
+.max-h-80 {
+  max-height: 20rem;
 }
 
 .min-h-\[80px\] {
@@ -1281,6 +1339,14 @@ body:is(.dark *) {
   width: min-content;
 }
 
+.w-2\/5 {
+  width: 40%;
+}
+
+.w-3\/5 {
+  width: 60%;
+}
+
 .min-w-\[8rem\] {
   min-width: 8rem;
 }
@@ -1333,6 +1399,10 @@ body:is(.dark *) {
 
 .flex-grow {
   flex-grow: 1;
+}
+
+.origin-bottom {
+  transform-origin: bottom;
 }
 
 .-translate-x-1\/2 {
@@ -1421,8 +1491,16 @@ body:is(.dark *) {
   place-content: center;
 }
 
+.place-content-end {
+  place-content: end;
+}
+
 .place-items-start {
   place-items: start;
+}
+
+.place-items-end {
+  place-items: end;
 }
 
 .items-start {
@@ -1590,6 +1668,10 @@ body:is(.dark *) {
 
 .self-start {
   align-self: flex-start;
+}
+
+.self-end {
+  align-self: flex-end;
 }
 
 .self-center {
@@ -2071,6 +2153,11 @@ body:is(.dark *) {
      object-position: center;
 }
 
+.object-bottom {
+  -o-object-position: bottom;
+     object-position: bottom;
+}
+
 .p-0 {
   padding: 0px;
 }
@@ -2101,6 +2188,18 @@ body:is(.dark *) {
 
 .p-8 {
   padding: 2rem;
+}
+
+.p-\[1px\] {
+  padding: 1px;
+}
+
+.p-\[2px\] {
+  padding: 2px;
+}
+
+.p-\[4px\] {
+  padding: 4px;
 }
 
 .px-1 {
@@ -2281,6 +2380,14 @@ body:is(.dark *) {
 
 .text-start {
   text-align: start;
+}
+
+.align-bottom {
+  vertical-align: bottom;
+}
+
+.align-text-bottom {
+  vertical-align: text-bottom;
 }
 
 .font-mono {
@@ -4108,6 +4215,14 @@ main:is(.dark *) {
 
   .md\:mt-4 {
     margin-top: 1rem;
+  }
+
+  .md\:mb-2 {
+    margin-bottom: 0.5rem;
+  }
+
+  .md\:mb-1 {
+    margin-bottom: 0.25rem;
   }
 
   .md\:block {

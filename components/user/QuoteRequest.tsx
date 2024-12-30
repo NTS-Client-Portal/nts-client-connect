@@ -17,9 +17,10 @@ import { useNtsUsers } from '@/context/NtsUsersContext';
 interface QuoteRequestProps {
     session: Session | null;
     profiles: Database['public']['Tables']['profiles']['Row'][]; // Ensure profiles is passed as a prop
+    companyId: string; // Add companyId as a prop
 }
 
-const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [] }) => { // Add default value for profiles
+const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], companyId }) => { // Add companyId as a prop
     const supabase = useSupabaseClient<Database>();
     const { userProfile: profilesUser } = useProfilesUser(); // Use ProfilesUserContext
     const { userProfile: ntsUser } = useNtsUsers(); // Use NtsUsersContext
@@ -33,7 +34,6 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [] }) =
     const [activeTab, setActiveTab] = useState<string>(tab as string || 'requests');
     const [isMobile, setIsMobile] = useState<boolean>(false);
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
-    const [companyId, setCompanyId] = useState<string | null>(null);
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState<string>(searchTermParam as string || '');
     const [searchColumn, setSearchColumn] = useState<string>(searchColumnParam as string || 'id');
@@ -52,7 +52,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [] }) =
             return;
         }
 
-        setCompanyId(profile.company_id);
+        setSelectedUserId(profile.company_id);
     }, [session, supabase]);
 
     const fetchQuotes = useCallback(async () => {
@@ -244,10 +244,18 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [] }) =
 
     const handleTabChange = (tab: string) => {
         setActiveTab(tab);
-        if (tab === 'orders') {
-            router.push(`/user/logistics-management?tab=orders&searchTerm=${searchTerm}&searchColumn=${searchColumn}`, undefined, { shallow: true });
-        } else {
-            router.push(`/user/logistics-management?tab=${tab}`, undefined, { shallow: true });
+        if (profilesUser) {
+            if (tab === 'orders') {
+                router.push(`/user/logistics-management?tab=orders&searchTerm=${searchTerm}&searchColumn=${searchColumn}`, undefined, { shallow: true });
+            } else {
+                router.push(`/user/logistics-management?tab=${tab}`, undefined, { shallow: true });
+            }
+        } else if (ntsUser) {
+            if (tab === 'orders') {
+                router.push(`/companies/${companyId}`, undefined, { shallow: true });
+            } else {
+                router.push(`/companies/${companyId}`, undefined, { shallow: true });
+            }
         }
     };
 
