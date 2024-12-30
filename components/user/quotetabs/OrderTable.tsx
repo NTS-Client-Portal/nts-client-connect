@@ -44,8 +44,26 @@ const OrderTable: React.FC<OrderTableProps> = ({
         });
     }, [searchTerm, searchColumn, orders]);
 
-    const currentRows = filteredOrders.slice(indexOfFirstRow, indexOfLastRow);
-    const totalPages = Math.ceil(filteredOrders.length / rowsPerPage);
+    const sortedOrders = useMemo(() => {
+        const sorted = [...filteredOrders];
+        if (sortConfig.column) {
+            sorted.sort((a, b) => {
+                const aValue = a[sortConfig.column];
+                const bValue = b[sortConfig.column];
+                if (aValue < bValue) {
+                    return sortConfig.order === 'asc' ? -1 : 1;
+                }
+                if (aValue > bValue) {
+                    return sortConfig.order === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+        return sorted;
+    }, [filteredOrders, sortConfig]);
+
+    const currentRows = sortedOrders.slice(indexOfFirstRow, indexOfLastRow);
+    const totalPages = Math.ceil(sortedOrders.length / rowsPerPage);
 
     const handlePageChange = (pageNumber: number) => {
         setCurrentPage(pageNumber);
@@ -127,20 +145,20 @@ const OrderTable: React.FC<OrderTableProps> = ({
                 <thead className="bg-ntsBlue border-2 border-t-orange-500 static top-0 w-full text-white">
                     <tr >
                         <th className="px-6 py-3 text-left text-xs text-nowrap font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="Order ID" sortOrder={sortConfig.column === 'id' ? sortConfig.order : 'desc'} onSort={handleSort} />
+                            <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="Load Details" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
+                            <TableHeaderSort column="freight_type" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="Origin" sortOrder={sortConfig.column === 'origin_city' ? sortConfig.order : null} onSort={handleSort} />
+                            <TableHeaderSort column="origin_city" sortOrder={sortConfig.column === 'origin_city' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="Pickup Earliest/Latest" sortOrder={sortConfig.column === 'pickup_date_range' ? sortConfig.order : null} onSort={handleSort} />
+                            <TableHeaderSort column="pickup_date_range" sortOrder={sortConfig.column === 'pickup_date_range' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium tracking-wider"> Status</th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="Rate" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
+                            <TableHeaderSort column="price" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
                     </tr>
