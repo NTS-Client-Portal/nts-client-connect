@@ -3,7 +3,7 @@ import SalesSideNav from './SalesSideNav';
 import SalesTopNav from './SalesTopNav';
 import { useSession } from '@supabase/auth-helpers-react';
 import { useNtsUsers } from '@/context/NtsUsersContext';
-import ChatRequestListener from '@components/ChatRequestListener';
+import ChatRequestListener from '@components/chat/ChatRequestListener';
 import { useChat } from '@/context/ChatContext';
 import Link from 'next/link';
 
@@ -52,7 +52,7 @@ const SalesLayout: React.FC<SalesLayoutProps> = ({ children }) => {
                     <ChatRequestListener />
                 )}
                 <Link className="body-btn" href="/nts/sales/chat-requests">
-                   View All Chat Requests
+                    View All Chat Requests
                 </Link>
                 {children}
             </main>

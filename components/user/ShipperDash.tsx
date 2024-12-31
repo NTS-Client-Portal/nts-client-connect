@@ -5,8 +5,8 @@ import { Database } from '@/lib/database.types';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useProfilesUser } from '@/context/ProfilesUserContext';
-import ShipperBrokerConnect from '@/components/ShipperBrokerConnect';
-import FloatingChatWidget from '@/components/FloatingChatWidget';
+import ShipperBrokerConnect from '@/components/chat/ShipperBrokerConnect';
+import FloatingChatWidget from '@/components/chat/FloatingChatWidget';
 import ShippingCalendar from './ShippingCalendar';
 import { ChatProvider } from '@/context/ChatContext';
 

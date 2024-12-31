@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Session } from '@supabase/auth-helpers-react';
 import { supabase } from '@lib/initSupabase';
 import { Database } from '@/lib/database.types';
@@ -131,14 +131,24 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ brokerId, shipperId, sess
         }
     };
 
+    const messagesEndRef = useRef(null);
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+
     return (
-        <div className="container mx-auto p-4">
-            <div className="bg-white dark:bg-zinc-900 p-4 rounded-lg shadow-lg w-full h-[500px]">
+        <div className="container mx-auto p-6">
+            <div className="bg-ntsBlue/90 p-3 rounded-lg shadow-lg w-full h-[600px]">
                 <div className="chat-interface flex flex-col h-full w-full">
-                    <div className="messages flex-grow overflow-y-auto mb-2 h-full w-full">
+                    <div className="messages rounded-t-md flex-grow overflow-y-auto pb-2 border border-zinc-300 h-full w-full">
                         {messages.map((message) => (
                             <div key={message.id} className={`p-2 flex ${message.user_type === 'broker' ? 'justify-start' : 'justify-end'}`}>
-                                <div className={`i p-2 rounded-lg ${message.user_type === 'broker' ? 'bg-blue-100 w-2/3' : message.user_type === 'system' ? 'bg-red-100' : 'bg-gray-100 w-2/3'}`}>
+                                <div className={`p-2 rounded-lg ${message.user_type === 'broker' ? 'bg-blue-100 w-1/2 ml-2' : message.user_type === 'system' ? 'bg-red-100' : 'bg-gray-100 w-1/2 mr-2'}`}>
                                     <p>{message.message_body}</p>
                                     {message.user_type !== 'system' && (
                                         <p className="text-xs text-gray-500 mt-1">
@@ -148,27 +158,39 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ brokerId, shipperId, sess
                                 </div>
                             </div>
                         ))}
+                        {isChatEnded && (
+                            <div className="flex justify-center items-center w-full my-4">
+                                <div className="border-t border-gray-300 w-full text-center">
+                                    <span className="bg-white px-4 text-gray-500">Chat session has ended</span>
+                                </div>
+                            </div>
+                        )}
+                        <div ref={messagesEndRef} />
                     </div>
+
                     {!isChatEnded && (
-                        <form onSubmit={handleSendMessage} className="send-message-form flex w-full">
-                            <input
-                                type="text"
-                                value={newMessage}
-                                onChange={(e) => setNewMessage(e.target.value)}
-                                placeholder="Type a message..."
-                                className="flex-grow p-2 border border-gray-300 rounded-l-lg"
-                            />
-                            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-r-lg">
-                                Send
+                        <>
+                            <form onSubmit={handleSendMessage} className="send-message-form rounded-b-md flex w-full">
+                                <input
+                                    type="text"
+                                    value={newMessage}
+                                    onChange={(e) => setNewMessage(e.target.value)}
+                                    placeholder="Type a message..."
+                                    className="flex-grow p-2 border border-gray-300 rounded-l-lg"
+                                />
+                                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-r-lg">
+                                    Send
+                                </button>
+                            </form>
+                            <button
+                                onClick={handleEndChat}
+                                className="bg-red-500 w-fit text-white px-4 py-2 mt-2 rounded-lg"
+                            >
+                                End Chat
                             </button>
-                        </form>
+                        </>
                     )}
-                    <button
-                        onClick={handleEndChat}
-                        className="bg-red-500 w-fit text-white px-4 py-2 mt-2 rounded-lg"
-                    >
-                        End Chat
-                    </button>
+
                 </div>
             </div>
         </div>

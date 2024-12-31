@@ -231,15 +231,15 @@ const ChatRequestsPage: React.FC = () => {
                 </div>
             </div>
 
-               <div className='flex flex-col gap-2 w-full p-4 bg-white dark:bg-zinc-900 rounded-lg shadow-lg'>
+            <div className='flex flex-col w-full p-4 bg-white rounded-lg shadow-lg'>
                 <h2 className='text-2xl font-semibold underline'>Live Chat</h2>
-                    <ChatInterface
-                        brokerId={userProfile?.id || ''}
-                        shipperId={chatRequests.find((request) => request.id === activeChatId)?.shipper_id || ''}
-                        session={session}
-                        activeChatId={activeChatId?.toString() || ''}
-                    />
-               </div>
+                <ChatInterface
+                    brokerId={userProfile?.id || ''}
+                    shipperId={chatRequests.find((request) => request.id === activeChatId)?.shipper_id || ''}
+                    session={session}
+                    activeChatId={activeChatId?.toString() || ''}
+                />
+            </div>
         </div>
     );
 };

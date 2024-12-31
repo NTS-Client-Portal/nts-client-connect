@@ -124,11 +124,11 @@ const ShipperChatRequestsPage: React.FC = () => {
                     </div>
                 ))}
             </div>
-            <div className="w-3/4 p-4">
-                <h1 className="text-2xl font-bold mb-4">Chat</h1>
+            <div className="w-2/3 p-6 shadow-lg bg-zinc-50">
+                <h1 className="text-2xl font-bold mb-4">Live Chat With {assignedSalesUsers[0]?.first_name}</h1>
                 <ul>
                     {chatRequests.map((request) => (
-                        <li key={request.id} className="mb-4 p-4 bg-white dark:bg-zinc-900 rounded-lg shadow-lg">
+                        <li key={request.id} className="mb-4 p-4 bg-white rounded-lg shadow-lg">
                             <p><strong>Topic:</strong> {request.topic}</p>
                             <p><strong>Priority:</strong> {request.priority}</p>
                             <p><strong>Broker ID:</strong> {request.broker_id}</p>

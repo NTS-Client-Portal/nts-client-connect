@@ -7,7 +7,7 @@ import FeedBack from '@/components/ui/FeedBack';
 import Link from 'next/link';
 import { useSession } from '@supabase/auth-helpers-react';
 import Router from 'next/router';
-import ShipperBrokerConnect from '@components/ShipperBrokerConnect';
+import ShipperBrokerConnect from '@/components/chat/ShipperBrokerConnect';
 
 interface UserTopNavProps {
     className?: string;
