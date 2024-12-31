@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, } from 'react';
 import { Database } from '@/lib/database.types';
 import { supabase } from '@/lib/initSupabase';
 import { formatDate, freightTypeMapping } from './QuoteUtils';
+import { MoveHorizontal } from 'lucide-react';
 
 interface OrderTableProps {
     sortConfig: { column: string; order: string };
@@ -97,8 +98,6 @@ const OrderTable: React.FC<OrderTableProps> = ({
 
     function getStatusClasses(status: string): string {
         switch (status) {
-            case 'Pending':
-                return 'text-yellow-500';
             case 'In Progress':
                 return 'text-blue-500';
             case 'Dispatched':
@@ -141,26 +140,47 @@ const OrderTable: React.FC<OrderTableProps> = ({
 
     return (
         <div className='w-full'>
+            <div className="flex justify-start gap-4 my-4 ml-4">
+                <div className="flex items-center">
+                    <label className="mr-2">Search by:</label>
+                    <select
+                        value={searchColumn}
+                        onChange={(e) => (e.target.value)}
+                        className="border border-gray-300 rounded-md shadow-sm"
+                    >
+                        <option value="id">ID</option>
+                        <option value="freight_type">Load Details</option>
+                        <option value="origin_destination">Origin/Destination</option>
+                        <option value="due_date">Date</option>
+                    </select>
+                </div>
+                <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => (e.target.value)}
+                    placeholder="Search..."
+                    className="border border-gray-300 pl-2 rounded-md shadow-sm"
+                />
+            </div>
             <table className="min-w-full divide-y divide-zinc-200 ">
                 <thead className="bg-ntsBlue border-2 border-t-orange-500 static top-0 w-full text-white">
                     <tr >
-                        <th className="px-6 py-3 text-left text-xs text-nowrap font-medium uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs text-nowrap font-semibold uppercase tracking-wider">
                             <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="freight_type" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
+                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                            <TableHeaderSort column="Load Description" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="origin_city" sortOrder={sortConfig.column === 'origin_city' ? sortConfig.order : null} onSort={handleSort} />
+                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                            <TableHeaderSort column="Origin/Destination" sortOrder={sortConfig.column === 'origin_city' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="pickup_date_range" sortOrder={sortConfig.column === 'pickup_date_range' ? sortConfig.order : null} onSort={handleSort} />
+                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                            <TableHeaderSort column="Earliest/Latest Pickup" sortOrder={sortConfig.column === 'pickup_date_range' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium tracking-wider"> Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
                             <TableHeaderSort column="price" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -229,7 +249,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                         <br />[map it]
                                     </a>
                                 </td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{order.destination_street}<br /> {order.destination_city}, {order.destination_state}</td>
+
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
                                     <strong>Earliest: </strong>{order.earliest_pickup_date} <br />
                                     <strong>Latest: </strong>{order.latest_pickup_date}
@@ -237,7 +257,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
                                     {order.price ? `$${order.price}` : 'Pending'}
                                 </td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 relative z-50">
+                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200 relative z-50">
                                     <div className='flex flex-col gap-2'>
                                         <button
                                             onClick={(e) => {
@@ -258,7 +278,6 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                                     }}
                                                     className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(order.status)}`}
                                                 >
-                                                    <option value="Pending" className={getStatusClasses('Pending')}>Pending</option>
                                                     <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
                                                     <option value="Dispatched" className={getStatusClasses('Dispatched')}>Dispatched</option>
                                                     <option value="Picked Up" className={getStatusClasses('Picked Up')}>Picked Up</option>

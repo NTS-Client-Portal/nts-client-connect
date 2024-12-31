@@ -79,7 +79,7 @@ const LoginPage = () => {
             console.error('Error creating/updating user profile:', error.message);
           } else {
             setUserProfile(data[0] as UserProfile);
-            router.push('/user');
+            router.push('/user/logistics-management');
           }
         }
       }

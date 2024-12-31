@@ -14,11 +14,9 @@ interface OrderListProps {
     selectedUserId: string;
     fetchQuotes: () => void;
     isAdmin: boolean;
-    searchTerm: string;
-    searchColumn: string;
 }
 
-const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, searchTerm, searchColumn }) => {
+const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
     const [quotes, setQuotes] = useState<ShippingQuotesRow[]>([]);
     const [sortConfig, setSortConfig] = useState<{ column: string; order: 'asc' | 'desc' }>({ column: '', order: 'asc' });
     const [errorText, setErrorText] = useState<string>('');
@@ -30,6 +28,8 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, searchTerm, sea
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const [editData, setEditData] = useState<Partial<ShippingQuotesRow>>({});
     const [isNtsUser, setIsNtsUser] = useState(false);
+    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [searchColumn, setSearchColumn] = useState<string>('id');
     const router = useRouter();
 
     const fetchOrdersForNtsUsers = useCallback(async (userId: string) => {
@@ -338,6 +338,8 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, searchTerm, sea
 
     return (
         <div className="w-full bg-white  shadow rounded-md max-h-max flex-grow">
+
+
             {!!errorText && <div className="text-red-500">{errorText}</div>}
             <div className="hidden 2xl:block overflow-x-auto">
                 <OrderTable

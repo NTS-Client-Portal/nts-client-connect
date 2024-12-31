@@ -7,6 +7,7 @@ import OrderFormModal from './OrderFormModal';
 import { generatePDF, uploadPDFToSupabase, insertDocumentRecord } from '../../GeneratePDF';
 import SelectTemplate from '@/components/SelectTemplate';
 
+
 interface QuoteTableProps {
     sortConfig: { column: string; order: string };
     handleSort: (column: string, order: string) => void;
@@ -27,6 +28,7 @@ interface QuoteTableProps {
     isAdmin: boolean;
     duplicateQuote: (quote: Database['public']['Tables']['shippingquotes']['Row']) => void;
     reverseQuote: (quote: Database['public']['Tables']['shippingquotes']['Row']) => void;
+    handleRejectClick: (id: number) => void;
 }
 
 const QuoteTable: React.FC<QuoteTableProps> = ({
@@ -35,6 +37,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
     quotes,
     setActiveTab,
     activeTab,
+    handleRejectClick,
     editHistory,
     expandedRow,
     handleRowClick,
@@ -47,6 +50,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [quotesState, setQuotes] = useState(quotes);
+    const [quote, setQuote] = useState<Database['public']['Tables']['shippingquotes']['Row'] | null>(null);
     const rowsPerPage = 10;
 
     const indexOfLastRow = currentPage * rowsPerPage;
@@ -92,17 +96,11 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
 
     const getStatusClasses = (status: string) => {
         switch (status) {
-            case 'Pending':
-                return 'bg-yellow-50 text-yellow-700';
             case 'In Progress':
                 return 'bg-blue-50 text-blue-700';
-            case 'Dispatched':
-                return 'bg-purple-50 text-purple-700';
-            case 'Picked Up':
-                return 'bg-indigo-50 text-indigo-700';
-            case 'Delivered':
-                return 'bg-green-50 text-green-700';
-            case 'Completed':
+            case 'Need More Info':
+                return 'bg-amber-50 text-amber-700';
+            case 'Priced':
                 return 'bg-green-50 text-green-700';
             case 'Cancelled':
                 return 'bg-red-50 text-red-700';
@@ -169,6 +167,9 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
             </button>
         );
     };
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedQuoteId, setSelectedQuoteId] = useState<number | null>(null);
+
 
     return (
         <div className='w-full'>
@@ -194,29 +195,28 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                     className="border border-gray-300 pl-2 rounded-md shadow-sm"
                 />
             </div>
-            <table className="min-w-full divide-y divide-zinc-200">
+            <table className="min-w-full divide-zinc-200">
                 <thead className="bg-ntsBlue border-2 border-t-orange-500 text-zinc-50  top-0 w-full">
                     <tr>
-                        <th className="px-6 py-3 text-left text-xs text-nowrap font-medium uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs text-nowrap font-semibold uppercase tracking-wider">
                             <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-semibold tracking-wider">
                             Notes
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="freight_type" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
+                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                            <TableHeaderSort column="Load Details" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="origin_destination" sortOrder={sortConfig.column === 'origin_destination' ? sortConfig.order : null} onSort={handleSort} />
+                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                            <TableHeaderSort column="Origin/Destination" sortOrder={sortConfig.column === 'origin_destination' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="due_date" sortOrder={sortConfig.column === 'due_date' ? sortConfig.order : null} onSort={handleSort} />
+                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                            <TableHeaderSort column="due date" sortOrder={sortConfig.column === 'due_date' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium tracking-wider"> Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-semibold tracking-wider">
                             <TableHeaderSort column="price" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -283,7 +283,6 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                     </a>
                                 </td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.due_date}</td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.status}</td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
                                     {isAdmin ? (
                                         showPriceInput === quote.id ? (
@@ -328,43 +327,53 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                             </div>
                                         )
                                     ) : (
-                                        quote.price ? `$${quote.price}` : 'Pending'
+                                        <div>
+                                            {quote.price ? (
+                                                <>
+                                                    <div className='flex flex-col items-center justify-between'>
+                                                        <span className='text-emerald-500 font-semibold text-base underline'>{`$${quote.price}`}</span>
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <span className='flex justify-center italic text-gray-950 text-base font-normal'>Pending</span>
+                                            )}
+                                        </div>
                                     )}
                                 </td>
                                 <td className="px-6 py-3 whitespace-nowrap text-left text-sm text-gray-500 border border-gray-200">
-                                    <div className='flex flex-col justify-center text-left items-start gap-2'>
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleEditClick(quote);
-                                            }}
-                                            className="text-ntsLightBlue font-medium underline"
-                                        >
-                                            Edit Quote
-                                        </button>
-                                        {quote.price ? (
+                                    <div className='flex flex-col justify-center text-left items-start'>
+                                        <div className='flex gap-2 items-center'>
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    handleCreateOrderClick(quote.id);
+                                                    handleEditClick(quote);
                                                 }}
                                                 className="text-ntsLightBlue font-medium underline"
                                             >
-                                                Create Order
+                                                Edit Quote
                                             </button>
-                                        ) : null}
+
+                                            {quote.price ? (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleCreateOrderClick(quote.id);
+                                                    }}
+                                                    className="text-ntsLightBlue font-medium underline"
+                                                >
+                                                    Create Order
+                                                </button>
+                                            ) : null}
+                                        </div>
                                         {isAdmin ? (
                                             <>
                                                 <select
                                                     value={quote.brokers_status}
                                                     onChange={(e) => handleStatusChange(e, quote.id)}
                                                     className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(quote.brokers_status)}`}>
-                                                    <option value="Pending" className={getStatusClasses('Pending')}>Pending</option>
                                                     <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
-                                                    <option value="Dispatched" className={getStatusClasses('Dispatched')}>Dispatched</option>
-                                                    <option value="Picked Up" className={getStatusClasses('Picked Up')}>Picked Up</option>
-                                                    <option value="Delivered" className={getStatusClasses('Delivered')}>Delivered</option>
-                                                    <option value="Completed" className={getStatusClasses('Completed')}>Completed</option>
+                                                    <option value="Need More Info" className={getStatusClasses('Need More Info')}>Need More Info</option>
+                                                    <option value="Priced" className={getStatusClasses('Priced')}>Priced</option>
                                                     <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
                                                 </select>
                                                 <SelectTemplate quoteId={quote.id} />
@@ -372,6 +381,13 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                         ) : (
                                             <span><strong>Status: </strong>{quote.brokers_status ? quote.brokers_status : 'Pending'}</span>
                                         )}
+                                        {quote.price ? (
+                                            <>
+                                                <div className='flex flex-col gap-2 items-center justify-between'>
+                                                    <button onClick={() => handleRejectClick(quote.id)} className='text-red-500 underline font-light'>Reject Quote</button>
+                                                </div>
+                                            </>
+                                        ) : null}
                                     </div>
                                 </td>
                             </tr>

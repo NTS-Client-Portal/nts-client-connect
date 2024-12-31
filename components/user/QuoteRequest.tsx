@@ -7,7 +7,7 @@ import QuoteList from './quotetabs/QuoteList';
 import DeliveredList from './quotetabs/DeliveredList';
 import OrderList from './quotetabs/OrderList';
 import Archived from './quotetabs/Archived';
-import Rejected from './quotetabs/Rejected';
+import RejectedList from './quotetabs/RejectedList';
 import EditHistory from '../EditHistory'; // Adjust the import path as needed
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
 import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
@@ -378,9 +378,10 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                     />
                 )}
                 {activeTab === 'rejected' && (
-                    <Rejected
+                    <RejectedList
                         session={session}
                         selectedUserId={selectedUserId}
+                        isAdmin={isAdmin}
                     />
                 )}
             </div>

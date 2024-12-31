@@ -6,6 +6,8 @@ import EditQuoteModal from './EditQuoteModal';
 import QuoteDetailsMobile from '../mobile/QuoteDetailsMobile';
 import { freightTypeMapping, formatDate, renderAdditionalDetails } from './QuoteUtils';
 import QuoteTable from './QuoteTable';
+import RejectReasonModal from './RejectReasonModal';
+import { set } from 'react-hook-form';
 
 interface QuoteListProps {
     session: any;
@@ -22,6 +24,8 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
     const [quote, setQuote] = useState<Database['public']['Tables']['shippingquotes']['Row'] | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [quoteToEdit, setQuoteToEdit] = useState<Database['public']['Tables']['shippingquotes']['Row'] | null>(null);
+    const [isRejectedModalOpen, setIsRejectedModalOpen] = useState(false);
+    const [quotesToReject, setQuotesToReject] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
     const [expandedRow, setExpandedRow] = useState<number | null>(null);
     const [sortedQuotes, setSortedQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
     const [sortConfig, setSortConfig] = useState<{ column: string; order: string }>({ column: 'id', order: 'desc' });
@@ -46,6 +50,22 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
             setQuotes((prevQuotes) => prevQuotes.filter((quote) => quote.id !== quoteId));
         }
     };
+
+    const rejectedQuotes = async (quoteId: number) => {
+        const { error } = await supabase
+            .from('shippingquotes')
+            .update({ status: 'Rejected' })
+            .eq('id', quoteId);
+
+        if (error) {
+            console.error('Error rejecting quote:', error.message);
+            setErrorText('Error rejecting quote');
+        } else {
+            setQuotes((prevQuotes) => prevQuotes.filter((quote) => quote.id !== quoteId));
+        }
+    };
+
+
 
     const handleCreateOrderClick = (quoteId: number) => {
         const quote = quotes.find((q) => q.id === quoteId);
@@ -261,6 +281,35 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
         setIsEditModalOpen(true);
     };
 
+    const handleRejectSubmit = async (data: { notes: string; status: string; quote: Database['public']['Tables']['shippingquotes']['Row'] }) => {
+        const { quote } = data;
+        if (quote) {
+            setSelectedQuoteId(quote.id);
+            setQuote(quote);
+            setIsRejectedModalOpen(false);
+
+            const { error } = await supabase
+                .from('shippingquotes')
+                .update({ status: 'rejected', notes: data.notes })
+                .eq('id', quote.id);
+
+            if (error) {
+                console.error('Error rejecting quote:', error.message);
+            } else {
+                setQuotes((prevQuotes) => prevQuotes.filter((q) => q.id !== quote.id));
+            }
+        }
+    };
+
+    const handleRejectClick = (id: number) => {
+        const quote = quotes.find((q) => q.id === id);
+        if (quote) {
+            setQuotesToReject([quote]);
+            setQuote(quote);
+            setIsRejectedModalOpen(true);
+        }
+    };
+
     const handleEditModalSubmit = async (updatedQuote: Database['public']['Tables']['shippingquotes']['Row']) => {
         if (quoteToEdit && session?.user?.id) {
             const { data: originalQuote, error: fetchError } = await supabase
@@ -394,6 +443,12 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleModalSubmit}
                 quote={quote} />
+            <RejectReasonModal
+                isOpen={isRejectedModalOpen}
+                onClose={() => setIsRejectedModalOpen(false)}
+                onSubmit={handleRejectSubmit}
+                quote={quote}
+            />
             <EditQuoteModal
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
@@ -420,6 +475,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
                     handleCreateOrderClick={handleCreateOrderClick}
                     handleRespond={handleRespond}
                     isAdmin={isAdmin}
+                    handleRejectClick={handleRejectClick}
                 />
             </div>
             <div className="block md:hidden">
