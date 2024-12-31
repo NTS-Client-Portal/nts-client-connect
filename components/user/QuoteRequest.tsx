@@ -20,7 +20,7 @@ interface QuoteRequestProps {
     companyId: string; // Add companyId as a prop
 }
 
-const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], companyId }) => { // Add companyId as a prop
+const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], companyId }) => {
     const supabase = useSupabaseClient<Database>();
     const { userProfile: profilesUser } = useProfilesUser(); // Use ProfilesUserContext
     const { userProfile: ntsUser } = useNtsUsers(); // Use NtsUsersContext
@@ -349,16 +349,16 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                 {activeTab === 'requests' && (
                     <QuoteList
                         session={session}
-                        isAdmin={isAdmin} // Pass isAdmin state
-                        selectedUserId={selectedUserId} // Pass selectedUserId
+                        isAdmin={isAdmin}
+                        selectedUserId={selectedUserId}
                     />
                 )}
                 {activeTab === 'orders' && (
                     <OrderList
                         session={session}
                         fetchQuotes={fetchQuotes}
-                        isAdmin={isAdmin} // Pass isAdmin state
-                        selectedUserId={selectedUserId} // Pass selectedUserId
+                        isAdmin={isAdmin}
+                        selectedUserId={selectedUserId}
                     />
                 )}
                 {activeTab === 'delivered' && (

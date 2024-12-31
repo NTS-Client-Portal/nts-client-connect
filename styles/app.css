@@ -1848,11 +1848,6 @@ body:is(.dark *) {
   border-color: rgb(24 24 27 / 0.5);
 }
 
-.border-gray-500 {
-  --tw-border-opacity: 1;
-  border-color: rgb(107 114 128 / var(--tw-border-opacity, 1));
-}
-
 .border-y-zinc-300 {
   --tw-border-opacity: 1;
   border-top-color: rgb(212 212 216 / var(--tw-border-opacity, 1));
@@ -3498,6 +3493,7 @@ main:is(.dark *) {
   font-family: 'Lato';
   line-height: 1.6;
   word-break: break-word;
+  height:400px !important;
 }
 
 .editor-container_classic-editor .editor-container__editor {
