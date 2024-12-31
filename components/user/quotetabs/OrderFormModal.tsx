@@ -126,7 +126,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
                                 </div>
                             </div>
                         </div>
-                        <div className='flex gap-1 justify-between mt-4 bg-zinc-200 p-4 rounded-md'>
+                        <div className='flex flex-col gap-1 justify-between mt-4 bg-zinc-200 p-4 rounded-md'>
                             <div>
                                 <label>Destination Street Address</label>
                                 <input
@@ -139,7 +139,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
                                 />
                                 <p className='font-semibold mt-1 text-sm'> {quote.destination_city}, {quote.destination_state} {quote.destination_zip}</p>
                             </div>
-                            <div className='flex flex-col gap-1 w-2/5'>
+                            <div className='flex flex-col gap-1 w-3/5'>
                                 <div>
                                     <label>Destination Contact Name</label>
                                     <input

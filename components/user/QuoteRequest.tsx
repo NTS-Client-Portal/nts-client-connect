@@ -359,8 +359,6 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                         fetchQuotes={fetchQuotes}
                         isAdmin={isAdmin} // Pass isAdmin state
                         selectedUserId={selectedUserId} // Pass selectedUserId
-                        searchTerm={searchTerm}
-                        searchColumn={searchColumn}
                     />
                 )}
                 {activeTab === 'delivered' && (
