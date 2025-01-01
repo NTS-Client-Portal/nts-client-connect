@@ -101,10 +101,10 @@ const ShipperChatRequestsPage: React.FC = () => {
     const NtsBrokerPicture = `${process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL}/nts_users/noah-profile.png?t=2024-12-24T23%3A54%3A10.034Z`;
 
     return (
-        <div className="container mx-auto p-4 flex">
-            <div className=" p-4 bg-white dark:bg-zinc-900 rounded-lg shadow-lg">
+        <div className="md:container md:mx-auto md:p-4 flex flex-col md:flex-row items-center md:items-start gap-2">
+            <div className=" md:p-4 bg-white dark:bg-zinc-900 rounded-lg shadow-lg">
                 {assignedSalesUsers.map((user, index) => (
-                    <div key={index} className="broker-card flex text-nowrap flex-col justify-center items-center p-4 bg-white shadow rounded-lg w-fit max-h-96">
+                    <div key={index} className="broker-card flex text-nowrap flex-col justify-center items-center p-4 bg-white shadow rounded-lg w-[95vw] md:w-fit max-h-96">
                         <h2 className='text-xl underline font-bold mb-4'>Your Logistics Representative</h2>
                         <Image src={NtsBrokerPicture} alt="Profile Picture" className="avatar" width={100} height={100} />
                         <h2 className='text-xl underline font-semibold mb-4'>{user.first_name} {user.last_name}</h2>
@@ -124,11 +124,11 @@ const ShipperChatRequestsPage: React.FC = () => {
                     </div>
                 ))}
             </div>
-            <div className="w-2/3 p-6 shadow-lg bg-zinc-50">
-                <h1 className="text-2xl font-bold mb-4">Live Chat With {assignedSalesUsers[0]?.first_name}</h1>
+            <div className="w-fit md:w-2/3 pt-6 md:pt-6 mb-6 md:p-6 shadow-lg bg-zinc-50">
+                <h1 className="text-2xl font-bold mb-4 md:mb-0 text-center md:text-start">Live Chat With {assignedSalesUsers[0]?.first_name}</h1>
                 <ul>
                     {chatRequests.map((request) => (
-                        <li key={request.id} className="mb-4 p-4 bg-white rounded-lg shadow-lg">
+                        <li key={request.id} className="mb-4 md:p-4 bg-white rounded-lg shadow-lg">
                             <p><strong>Topic:</strong> {request.topic}</p>
                             <p><strong>Priority:</strong> {request.priority}</p>
                             <p><strong>Broker ID:</strong> {request.broker_id}</p>
