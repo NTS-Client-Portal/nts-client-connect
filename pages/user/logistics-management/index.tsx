@@ -20,7 +20,7 @@ const FreightRFQPage: React.FC = () => {
         <NtsUsersProvider>
             <ProfilesUserProvider>
                 <UserLayout>
-                    <QuoteRequest session={session} profiles={profiles} />
+                    <QuoteRequest session={session} profiles={profiles} companyId={company.id} />
                 </UserLayout>
             </ProfilesUserProvider>
         </NtsUsersProvider>
