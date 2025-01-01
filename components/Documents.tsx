@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
-import { FolderHeart, Folder, Menu, Star, Trash2, X } from 'lucide-react';
+import { FolderHeart, Folder, Menu, Star, Trash2, X, Download, Eye, Upload } from 'lucide-react';
 import { updateFavoriteStatus } from '@/lib/database';
 import { useDocumentNotification } from '@/context/DocumentNotificationContext';
 
@@ -227,12 +227,12 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
                             </div>
                         </div>
                         <div className="text-sm text-zinc-900 dark:text-white mb-2">{doc.description}</div>
-                        <div className="flex flex-col items-start gap-2">
-                            <button onClick={() => handleView(doc.file_url)} className="text-ntsLightBlue underline font-semibold">
-                                View
+                        <div className="flex justify-between items-start gap-2">
+                            <button onClick={() => handleView(doc.file_url)} className="text-ntsBlue border shadow-sm px-2 py-1 rounded-md flex items-center justify-start gap-1 font-semibold text-sm">
+                                <Eye className='h-4 w-auto' /> View
                             </button>
-                            <button onClick={() => handleDownload(doc.file_url, doc.file_name)} className="text-ntsLightBlue underline font-semibold">
-                                Download
+                            <button onClick={() => handleDownload(doc.file_url, doc.file_name)} className="text-ntsBlue border shadow-sm px-2 py-1 rounded-md flex items-center justify-start gap-1 font-semibold text-sm">
+                                <Download className='h-4 w-auto' />Download
                             </button>
                         </div>
                     </div>
@@ -287,21 +287,22 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
                         {activeSection === 'all' && 'All Documents'}
                         {activeSection === 'important' && 'Important'}
                     </h1>
-                    <div className="flex justify-between md:justify-normal gap-2">
-                        <button className="body-btn" onClick={handleUpload}>Upload Document</button>
+                    <div className="md:hidden flex justify-between md:justify-normal gap-2">
+                        <button className="text-NtsBlue border shadow-sm px-2 py-1 rounded-md flex items-center justify-start gap-1 font-semibold text-sm mt-1" onClick={handleUpload}>
+                            <Upload className='h-4' /> Upload Documents</button>
                         <button className="md:hidden bg-zinc-700 text-white shadow-md p-2 rounded-md" onClick={() => setSidebarOpen(!sidebarOpen)}>
                             <Menu className="h-6 w-6" />
                         </button>
                     </div>
                 </div>
 
-                <div className="flex items-center justify-between w-full md:w-1/2 mb-2">
+                <div className="flex items-center justify-between w-full mb-2">
                     <div className="">
                         <label className="mr-2">Sort by:</label>
                         <select
                             value={sortOrder}
                             onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
-                            className="rounded p-1 bg-white border border-zinc-900 shadow-md"
+                            className="rounded p-1 bg-white border shadow-md"
                         >
                             <option value="desc">Newest First</option>
                             <option value="asc">Oldest First</option>
@@ -317,7 +318,7 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
                             >
                                 Previous
                             </button>
-                            <span className="mx-2 font-semibold text-base text-ntsBlue">{currentPage} / {totalPages}</span>
+                            <span className="mx-2 font-semibold text-base text-NtsBlue">{currentPage} / {totalPages}</span>
                             <button
                                 className="text-ntsLightBlue font-semibold underline mx-1"
                                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
@@ -327,6 +328,9 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
                             </button>
                         </div>
                     )}
+
+                    <button className="text-ntsBlue border shadow-sm px-2 py-2 rounded-md flex items-center justify-start gap-1 font-semibold text-sm mt-1" onClick={handleUpload}>
+                        <Upload className='h-4' /> Upload Documents</button>
                 </div>
 
                 {/* Documents List */}
@@ -407,7 +411,7 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 

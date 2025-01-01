@@ -1330,6 +1330,10 @@ body:is(.dark *) {
   width: 98vw;
 }
 
+.w-auto {
+  width: auto;
+}
+
 .min-w-\[8rem\] {
   min-width: 8rem;
 }
@@ -1878,6 +1882,11 @@ body:is(.dark *) {
 
 .border-zinc-900\/50 {
   border-color: rgb(24 24 27 / 0.5);
+}
+
+.border-ntsBlue {
+  --tw-border-opacity: 1;
+  border-color: rgb(54 64 78 / var(--tw-border-opacity, 1));
 }
 
 .border-y-zinc-300 {
@@ -4342,6 +4351,10 @@ main:is(.dark *) {
 
   .md\:flex-row {
     flex-direction: row;
+  }
+
+  .md\:flex-row-reverse {
+    flex-direction: row-reverse;
   }
 
   .md\:flex-col {
