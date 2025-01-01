@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
-import { FolderHeart, Folder, Menu, Star, Trash2 } from 'lucide-react';
+import { FolderHeart, Folder, Menu, Star, Trash2, X } from 'lucide-react';
 import { updateFavoriteStatus } from '@/lib/database';
 import { useDocumentNotification } from '@/context/DocumentNotificationContext';
 
@@ -24,6 +24,9 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
     const [documentToDelete, setDocumentToDelete] = useState<number | null>(null); // State to store the document to be deleted
     const [isNtsUser, setIsNtsUser] = useState(false);
     const [viewFileUrl, setViewFileUrl] = useState<string | null>(null); // State to store the file URL for viewing
+    const [currentPage, setCurrentPage] = useState(1); // State to control pagination
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc'); // State to control sort order
+    const itemsPerPage = 15; // Number of items per page for desktop
 
     const { setNewDocumentAdded } = useDocumentNotification();
 
@@ -34,7 +37,8 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
         const { data, error } = await supabase
             .from('documents')
             .select('*')
-            .or(`user_id.eq.${session.user.id},nts_user_id.eq.${session.user.id}`); // Filtering documents by the authenticated user's ID or nts_user_id
+            .or(`user_id.eq.${session.user.id},nts_user_id.eq.${session.user.id}`) // Filtering documents by the authenticated user's ID or nts_user_id
+            .order('created_at', { ascending: sortOrder === 'asc' }); // Sorting by created_at
 
         if (error) {
             setError(error.message);
@@ -43,7 +47,7 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
             setImportantDocuments(data.filter(doc => doc.is_favorite));
         }
         setLoading(false);
-    }, [session, supabase]);
+    }, [session, supabase, sortOrder]);
 
     useEffect(() => {
         const checkNtsUser = async () => {
@@ -201,9 +205,15 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
     };
 
     const renderDocuments = (docs: Database['public']['Tables']['documents']['Row'][]) => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedDocs = docs.slice(startIndex, endIndex);
+
+
+
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {docs.map((doc) => (
+                {paginatedDocs.map((doc) => (
                     <div key={doc.id} className="bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md p-4 border border-zinc-400">
                         <div className="flex justify-between items-center mb-2">
                             <div className="text-sm font-extrabold text-zinc-500 dark:text-white">{doc.title}</div>
@@ -217,12 +227,12 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
                             </div>
                         </div>
                         <div className="text-sm text-zinc-900 dark:text-white mb-2">{doc.description}</div>
-                        <div className="flex gap-2">
-                            <button onClick={() => handleDownload(doc.file_url, doc.file_name)} className="btn-blue">
-                                Download
-                            </button>
-                            <button onClick={() => handleView(doc.file_url)} className="btn-blue">
+                        <div className="flex flex-col items-start gap-2">
+                            <button onClick={() => handleView(doc.file_url)} className="text-ntsLightBlue underline font-semibold">
                                 View
+                            </button>
+                            <button onClick={() => handleDownload(doc.file_url, doc.file_name)} className="text-ntsLightBlue underline font-semibold">
+                                Download
                             </button>
                         </div>
                     </div>
@@ -231,12 +241,22 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
         );
     };
 
+    const handlePageChange = (pageNumber: number) => {
+        setCurrentPage(pageNumber);
+    };
+
+    const totalPages = Math.ceil(documents.length / itemsPerPage);
 
     return (
         <div className="flex h-screen">
             {/* Sidebar */}
-            <div className={`fixed inset-y-0 left-0 transform ${sidebarOpen ? 'tranzinc-x-0' : '-tranzinc-x-full'} transition-transform duration-300 ease-in-out w-64 bg-zinc-200 dark:bg-zinc-900 dark:text-white p-4 border-r border-t border-zinc-700/20 shadow-lg z-50 md:relative md:tranzinc-x-0`}>
-                <h2 className="text-xl font-bold mb-4">Documents</h2>
+            <div className={`fixed inset-y-0 left-0 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out w-64 bg-zinc-200 dark:bg-zinc-900 dark:text-white p-4 border-r border-t border-zinc-700/20 shadow-lg z-50 md:relative md:translate-x-0 h-screen`}>
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-bold">Documents</h2>
+                    <button className="md:hidden" onClick={() => setSidebarOpen(false)}>
+                        <X className="h-6 w-6" />
+                    </button>
+                </div>
                 <ul className="space-y-2">
                     <li className='flex gap-1 items-center'>
                         <Folder />
@@ -262,43 +282,52 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
             {/* Main Content */}
             <div className="flex-1 p-4 ml-0">
                 {/* Header */}
-                <div className="flex justify-between items-center mb-4">
-                    <h1 className="text-2xl font-bold">
+                <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center mb-4">
+                    <h1 className="text-2xl text-nowrap font-bold">
                         {activeSection === 'all' && 'All Documents'}
                         {activeSection === 'important' && 'Important'}
                     </h1>
-                    <button className="btn-blue" onClick={handleUpload}>Upload Document</button>
-                    <button className="md:hidden btn-blue" onClick={() => setSidebarOpen(!sidebarOpen)}>
-                        <Menu className="h-6 w-6" />
-                    </button>
+                    <div className="flex justify-between md:justify-normal gap-2">
+                        <button className="body-btn" onClick={handleUpload}>Upload Document</button>
+                        <button className="md:hidden bg-zinc-700 text-white shadow-md p-2 rounded-md" onClick={() => setSidebarOpen(!sidebarOpen)}>
+                            <Menu className="h-6 w-6" />
+                        </button>
+                    </div>
                 </div>
 
-                {/* Upload Form */}
-                {activeSection === 'all' && (
-                    <>
-                        <h2 className='font-semibold'>Upload Documents</h2>
-                        <div className="mb-4">
-                            <input
-                                type="text"
-                                placeholder="Title"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                className="rounded w-full p-2 border border-zinc-900 mb-2"
-                            />
-                            <textarea
-                                placeholder="Description"
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                className="rounded w-full p-2 border border-zinc-900 mb-2"
-                            />
-                            <input
-                                type="file"
-                                onChange={handleFileChange}
-                                className="rounded w-full p-2 border border-zinc-900"
-                            />
+                <div className="flex items-center justify-between w-full md:w-1/2 mb-2">
+                    <div className="">
+                        <label className="mr-2">Sort by:</label>
+                        <select
+                            value={sortOrder}
+                            onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
+                            className="rounded p-1 bg-white border border-zinc-900 shadow-md"
+                        >
+                            <option value="desc">Newest First</option>
+                            <option value="asc">Oldest First</option>
+                        </select>
+                    </div>
+
+                    {totalPages > 1 && (
+                        <div className="hidden md:flex justify-center items-center mt-4 mb-2">
+                            <button
+                                className="text-ntsLightBlue font-semibold underline mx-1"
+                                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                            >
+                                Previous
+                            </button>
+                            <span className="mx-2 font-semibold text-base text-ntsBlue">{currentPage} / {totalPages}</span>
+                            <button
+                                className="text-ntsLightBlue font-semibold underline mx-1"
+                                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                            >
+                                Next
+                            </button>
                         </div>
-                    </>
-                )}
+                    )}
+                </div>
 
                 {/* Documents List */}
                 {loading ? (
@@ -318,53 +347,66 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
                         renderDocuments(importantDocuments)
                     )
                 ) : null}
+
+                {/* Pagination */}
+                <div className='flex justify-center'>
+                    {Array.from({ length: totalPages }, (_, index) => (
+                        <button
+                            key={index}
+                            onClick={() => handlePageChange(index + 1)}
+                            className={`px-4 py-2 mx-1 mt-4 mb-8 rounded ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                        >
+                            {index + 1}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Delete Confirmation Modal */}
+                {isModalOpen && (
+                    <div className="fixed inset-0 flex items-center justify-center z-50">
+                        <div className="fixed inset-0 bg-black opacity-50"></div>
+                        <div className="bg-white rounded-lg shadow-lg p-6 z-50">
+                            <h2 className="text-xl font-bold mb-4">Delete Document</h2>
+                            <p className="mb-4">Are you sure you want to delete this document?</p>
+                            <div className="flex justify-end">
+                                <button
+                                    className="bg-zinc-300 text-zinc-700 px-4 py-2 rounded mr-2"
+                                    onClick={() => setIsModalOpen(false)}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    className="bg-red-600 text-white px-4 py-2 rounded"
+                                    onClick={handleDelete}
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* View File Modal */}
+                {viewFileUrl && (
+                    <div className="fixed inset-0 flex items-center justify-center z-50">
+                        <div className="fixed inset-0 bg-black opacity-50"></div>
+                        <div className="bg-white rounded-lg shadow-lg p-6 z-50 max-w-3xl w-full">
+                            <h2 className="text-xl font-bold mb-4">View Document</h2>
+                            <div className="mb-4">
+                                <iframe src={viewFileUrl} className="w-full h-96" />
+                            </div>
+                            <div className="flex justify-end">
+                                <button
+                                    className="bg-zinc-300 text-zinc-700 px-4 py-2 rounded"
+                                    onClick={() => setViewFileUrl(null)}
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
-
-            {/* Delete Confirmation Modal */}
-            {isModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center z-50">
-                    <div className="fixed inset-0 bg-black opacity-50"></div>
-                    <div className="bg-white rounded-lg shadow-lg p-6 z-50">
-                        <h2 className="text-xl font-bold mb-4">Delete Document</h2>
-                        <p className="mb-4">Are you sure you want to delete this document?</p>
-                        <div className="flex justify-end">
-                            <button
-                                className="bg-zinc-300 text-zinc-700 px-4 py-2 rounded mr-2"
-                                onClick={() => setIsModalOpen(false)}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                className="bg-red-600 text-white px-4 py-2 rounded"
-                                onClick={handleDelete}
-                            >
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* View File Modal */}
-            {viewFileUrl && (
-                <div className="fixed inset-0 flex items-center justify-center z-50">
-                    <div className="fixed inset-0 bg-black opacity-50"></div>
-                    <div className="bg-white rounded-lg shadow-lg p-6 z-50 max-w-3xl w-full">
-                        <h2 className="text-xl font-bold mb-4">View Document</h2>
-                        <div className="mb-4">
-                            <iframe src={viewFileUrl} className="w-full h-96" />
-                        </div>
-                        <div className="flex justify-end">
-                            <button
-                                className="bg-zinc-300 text-zinc-700 px-4 py-2 rounded"
-                                onClick={() => setViewFileUrl(null)}
-                            >
-                                Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
