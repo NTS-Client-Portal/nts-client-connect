@@ -48,8 +48,8 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
 
     return (
         <div className="flex flex-col gap-3">
-            <div className='flex gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Year
+            <div className='flex flex-col md:flex-row gap-2'>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Year
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
@@ -61,7 +61,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                         }}
                     />
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Make
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Make
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
@@ -73,7 +73,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                         }}
                     />
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Model
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Model
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
@@ -87,8 +87,8 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                 </label>
             </div>
 
-            <div className='flex gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Length
+            <div className='flex flex-col md:flex-row gap-2'>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Length
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
@@ -100,7 +100,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                         }}
                     />
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Width
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Width
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
@@ -112,7 +112,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                         }}
                     />
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Height
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Height
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
@@ -124,7 +124,10 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                         }}
                     />
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Weight
+            </div>
+
+            <div className='flex flex-col md:flex-row gap-2'>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Weight
                     <div className="flex items-center">
                         <input
                             className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
@@ -149,8 +152,9 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                     </div>
                 </label>
             </div>
-            <div className='flex gap-2 justify-evenly'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Equipment Condition
+
+            <div className='flex flex-col md:flex-row gap-2'>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Equipment Condition
                     <select
                         className="rounded bg-white w-full py-1.5 px-1 border border-zinc-900/30 shadow-md"
                         value={operationalCondition === null ? '' : operationalCondition ? 'operable' : 'inoperable'}
@@ -165,7 +169,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                     </select>
                 </label>
 
-                <label className='text-zinc-900 font-medium'>Coming from an auction/dealer?
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Coming from an auction/dealer?
                     <select
                         className="rounded w-full bg-white px-1 py-1.5 border border-zinc-900/30 shadow-md"
                         value={isAuction === null ? '' : isAuction ? 'yes' : 'no'}
@@ -180,37 +184,9 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                     </select>
                 </label>
             </div>
-            <div className='w-full'>
-                {/* <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Tarping
-                    <div className="flex items-center">
-                        <input
-                            type="radio"
-                            id="tarpingYes"
-                            name="tarping"
-                            value="yes"
-                            checked={tarping === true}
-                            onChange={() => {
-                                setErrorText('');
-                                setTarping(true);
-                            }}
-                        />
-                        <label htmlFor="tarpingYes" className="ml-2">Yes</label>
-                        <input
-                            type="radio"
-                            id="tarpingNo"
-                            name="tarping"
-                            value="no"
-                            checked={tarping === false}
-                            onChange={() => {
-                                setErrorText('');
-                                setTarping(false);
-                            }}
-                            className="ml-4"
-                        />
-                        <label htmlFor="tarpingNo" className="ml-2">No</label>
-                    </div>
-                </label> */}
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Loading/Unloading Requirements
+
+            <div className='flex flex-col gap-2'>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Loading/Unloading Requirements
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
@@ -222,46 +198,44 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                         }}
                     />
                 </label>
-
             </div>
+
             {isAuction && (
-                <>
-                    <div className='flex gap-2 flex-nowrap w-fit'>
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Auction/Dealer Name
-                            <input
-                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                value={auction}
-                                onChange={(e) => {
-                                    setErrorText('');
-                                    setAuction(e.target.value);
-                                }}
-                            />
-                        </label>
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Buyer Number
-                            <input
-                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                value={buyerNumber}
-                                onChange={(e) => {
-                                    setErrorText('');
-                                    setBuyerNumber(e.target.value);
-                                }}
-                            />
-                        </label>
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Lot Number
-                            <input
-                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                value={lotNumber}
-                                onChange={(e) => {
-                                    setErrorText('');
-                                    setLotNumber(e.target.value);
-                                }}
-                            />
-                        </label>
-                    </div>
-                </>
+                <div className='flex flex-col md:flex-row gap-2'>
+                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Auction/Dealer Name
+                        <input
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                            type="text"
+                            value={auction}
+                            onChange={(e) => {
+                                setErrorText('');
+                                setAuction(e.target.value);
+                            }}
+                        />
+                    </label>
+                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Buyer Number
+                        <input
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                            type="text"
+                            value={buyerNumber}
+                            onChange={(e) => {
+                                setErrorText('');
+                                setBuyerNumber(e.target.value);
+                            }}
+                        />
+                    </label>
+                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Lot Number
+                        <input
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                            type="text"
+                            value={lotNumber}
+                            onChange={(e) => {
+                                setErrorText('');
+                                setLotNumber(e.target.value);
+                            }}
+                        />
+                    </label>
+                </div>
             )}
         </div>
     );

@@ -33,9 +33,8 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
 
     return (
         <div className="flex flex-col gap-3">
-            <div className='flex gap-2'>
-
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Year
+            <div className='flex flex-col md:flex-row gap-2'>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Year
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="number"
@@ -47,7 +46,7 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
                         }}
                     />
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Make
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Make
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         placeholder='Winnebago, Fleetwood, etc.'
@@ -59,7 +58,7 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
                         }}
                     />
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Model
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Model
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
@@ -71,7 +70,10 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
                         }}
                     />
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Class Type
+            </div>
+
+            <div className='flex flex-col md:flex-row gap-2'>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Class Type
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
@@ -83,10 +85,7 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
                         }}
                     />
                 </label>
-
-            </div>
-            <div className='flex gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Hitch Type (if applicable)
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Hitch Type (if applicable)
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
@@ -98,8 +97,10 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
                         }}
                     />
                 </label>
+            </div>
 
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>VIN
+            <div className='flex flex-col md:flex-row gap-2'>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>VIN
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
@@ -111,8 +112,7 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
                         }}
                     />
                 </label>
-
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Vehicle Condition
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Vehicle Condition
                     <select
                         className="rounded bg-white w-full py-1.5 px-1 border border-zinc-900/30 shadow-md"
                         value={roadworthy === null ? '' : roadworthy ? 'operable' : 'inoperable'}
@@ -126,7 +126,6 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
                         <option value="inoperable">Inoperable</option>
                     </select>
                 </label>
-
             </div>
         </div>
     );

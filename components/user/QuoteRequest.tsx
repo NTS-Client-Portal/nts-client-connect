@@ -264,6 +264,21 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                         {ntsUser ? 'Create Shipping Quote for Customer' : profilesUser ? 'Request a Shipping Estimate' : 'Request a Shipping Estimate'}
                     </button>
                 </div>
+                <div className="flex justify-center mb-4 relative z-0">
+                <label className="mr-2">Select User:</label>
+                <select
+                    value={selectedUserId || ''}
+                    onChange={(e) => setSelectedUserId(e.target.value)}
+                    className="border relative z-0 border-gray-300 rounded-md shadow-sm"
+                >
+                    <option value="">All Users</option>
+                    {profiles.map((profile) => (
+                        <option key={profile.id} value={profile.id}>
+                            {profile.first_name} {profile.last_name}
+                        </option>
+                    ))}
+                </select>
+            </div>
                 <NtsUsersProvider>
                     <ProfilesUserProvider>
                         <QuoteForm
@@ -281,25 +296,11 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                     </ProfilesUserProvider>
                 </NtsUsersProvider>
             </div>
-            <div className="flex justify-center mb-4">
-                <label className="mr-2">Select User:</label>
-                <select
-                    value={selectedUserId || ''}
-                    onChange={(e) => setSelectedUserId(e.target.value)}
-                    className="border border-gray-300 rounded-md shadow-sm"
-                >
-                    <option value="">All Users</option>
-                    {profiles.map((profile) => (
-                        <option key={profile.id} value={profile.id}>
-                            {profile.first_name} {profile.last_name}
-                        </option>
-                    ))}
-                </select>
-            </div>
+ 
             {isMobile ? (
                 <div className="relative z-0">
                     <select
-                        className="w-full p-2 border border-gray-300 rounded-md"
+                        className="w-full p-2 border border-gray-300 rounded-md relative z-0"
                         value={activeTab}
                         onChange={(e) => handleTabChange(e.target.value)}
                     >
@@ -312,7 +313,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                     </select>
                 </div>
             ) : (
-                <div className="flex gap-1 border-b border-gray-300">
+                <div className="flex gap-1 relative z-0 border-b border-gray-300">
                     <button
                         className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'requests' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
                         onClick={() => handleTabChange('requests')}

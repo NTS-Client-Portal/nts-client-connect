@@ -37,12 +37,12 @@ const FreightForm: React.FC<FreightFormProps> = ({
         };
 
         setFormData(formData);
-    }, [loadDescription, length, height, weight, weightUnit, freightClass, loadingAssistance, packagingType, weightPerPalletUnit, dockNoDock, setFormData]);
+    }, [loadDescription, length, height, width, weight, weightUnit, freightClass, loadingAssistance, packagingType, weightPerPalletUnit, dockNoDock, setFormData]);
 
     return (
-        <div className="grid grid-cols-2 my-4">
-            <div className='flex flex-col gap-2 w-2/3'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Length
+        <div className="flex flex-col gap-3">
+            <div className='flex flex-col md:flex-row gap-2'>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Length
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
@@ -54,7 +54,7 @@ const FreightForm: React.FC<FreightFormProps> = ({
                         }}
                     />
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Width
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Width
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
@@ -66,7 +66,7 @@ const FreightForm: React.FC<FreightFormProps> = ({
                         }}
                     />
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Height
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Height
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
@@ -78,7 +78,10 @@ const FreightForm: React.FC<FreightFormProps> = ({
                         }}
                     />
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Weight Per Pallet
+            </div>
+
+            <div className='flex flex-col md:flex-row gap-2'>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Weight Per Pallet
                     <div className="flex items-center">
                         <input
                             className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
@@ -102,7 +105,7 @@ const FreightForm: React.FC<FreightFormProps> = ({
                         </select>
                     </div>
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Freight Class
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Freight Class
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
@@ -115,8 +118,9 @@ const FreightForm: React.FC<FreightFormProps> = ({
                     />
                 </label>
             </div>
-            <div className='flex flex-col gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Lift Gate
+
+            <div className='flex flex-col md:flex-row gap-2'>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Lift Gate
                     <select
                         className="rounded bg-white w-full p-1 border border-zinc-900/30 shadow-md text-zinc-600"
                         value={loadingAssistance}
@@ -131,7 +135,7 @@ const FreightForm: React.FC<FreightFormProps> = ({
                         <option value="Both Origin and Destination">Both Origin and Destination</option>
                     </select>
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Dock / No Dock
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Dock / No Dock
                     <select
                         className="rounded bg-white w-full p-1 border border-zinc-900/30 shadow-md text-zinc-600"
                         value={dockNoDock}
@@ -146,7 +150,10 @@ const FreightForm: React.FC<FreightFormProps> = ({
                         <option value="Both Origin and Destination">Both Origin and Destination</option>
                     </select>
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Packaging Type
+            </div>
+
+            <div className='flex flex-col md:flex-row gap-2'>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Packaging Type
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         placeholder='e.g. pallet, skid, crate, etc.'
@@ -158,7 +165,7 @@ const FreightForm: React.FC<FreightFormProps> = ({
                         }}
                     />
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Freight Item/Description
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Freight Item/Description
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
@@ -170,7 +177,6 @@ const FreightForm: React.FC<FreightFormProps> = ({
                         }}
                     />
                 </label>
-
             </div>
         </div>
     );

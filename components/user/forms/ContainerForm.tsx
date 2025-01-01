@@ -23,8 +23,6 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
     const [originType, setOriginType] = useState<string | null>(null);
     const [originTypeDescription, setOriginTypeDescription] = useState<string | null>(null);
 
-
-
     useEffect(() => {
         const formData = {
             container_length: containerLength,
@@ -46,13 +44,13 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
 
     return (
         <div className="flex flex-col gap-3">
-            <div className='flex gap-2'>
-                <div className='flex flex-col w-1/2'>
+            <div className='flex flex-col md:flex-row gap-2'>
+                <div className='flex flex-col w-full'>
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Container Length
                         <input
                             className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                             type="number"
-                            placeholder='20&apos; '
+                            placeholder="20&apos;"
                             value={containerLength || ''}
                             onChange={(e) => {
                                 setErrorText('');
@@ -61,12 +59,12 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
                         />
                     </label>
                 </div>
-                <div className='flex flex-col w-1/2'>
+                <div className='flex flex-col w-full'>
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Container Type
                         <input
                             className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                             type="text"
-                            placeholder='Standard, 40&apos; High Cube, Flat Rack etc.'
+                            placeholder="Standard, 40&apos; High Cube, Flat Rack etc."
                             value={containerType || ''}
                             onChange={(e) => {
                                 setErrorText('');
@@ -76,11 +74,11 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
                     </label>
                 </div>
             </div>
-            <div className='flex gap-2 w-full'>
-                <div className='flex flex-col gap-2 w-1/2'>
+            <div className='flex flex-col md:flex-row gap-2'>
+                <div className='flex flex-col w-full '>
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Origin Type
                         <select
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                            className="rounded dark:text-zinc-800 w-full p-1 mb-2 border border-zinc-900/30 shadow-md"
                             value={originType || ''}
                             onChange={(e) => {
                                 setErrorText('');
@@ -113,7 +111,7 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
                         <input
                             className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                             type="text"
-                            placeholder='soft ground, concrete, muddy, etc.'
+                            placeholder="soft ground, concrete, muddy, etc."
                             value={originSurfaceType || ''}
                             onChange={(e) => {
                                 setErrorText('');
@@ -122,10 +120,10 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
                         />
                     </label>
                 </div>
-                <div className='flex flex-col gap-2 w-1/2'>
+                <div className='flex flex-col w-full'>
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Destination Type
                         <select
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                            className="rounded dark:text-zinc-800 w-full mb-1 p-1 border border-zinc-900/30 shadow-md"
                             value={destinationType || ''}
                             onChange={(e) => {
                                 setErrorText('');
@@ -154,11 +152,11 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
                             />
                         </label>
                     )}
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Ground Condition at Destination
+                    <label className='text-zinc-900 dark:text-zinc-100 mt-1 font-medium'>Ground Condition at Destination
                         <input
                             className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                             type="text"
-                            placeholder='soft ground, concrete, muddy, etc.'
+                            placeholder="soft ground, concrete, muddy, etc."
                             value={destinationSurfaceType || ''}
                             onChange={(e) => {
                                 setErrorText('');
@@ -168,25 +166,25 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
                     </label>
                 </div>
             </div>
-            <div className='flex gap-2 items-center justify-between w-full'>
-                <div className='flex flex-col gap-2 w-1/2'>
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Loading/Unloading Assistance</label>
-                    <select
-                        className="rounded bg-white p-1 border border-zinc-900/30 shadow-md text-zinc-600"
-                        value={loadingAssistance}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setLoadingAssistance(e.target.value);
-                        }}
-                    >
-                        <option value="">Select...</option>
-                        <option value="At Origin">At Origin</option>
-                        <option value="At Destination">At Destination</option>
-                        <option value="Both Origin and Destination">Both Origin and Destination</option>
-                    </select>
+            <div className='flex flex-col md:flex-row gap-2'>
+                <div className='flex flex-col w-full'>
+                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Loading/Unloading Assistance
+                        <select
+                            className="rounded bg-white p-1 border border-zinc-900/30 shadow-md text-zinc-600"
+                            value={loadingAssistance}
+                            onChange={(e) => {
+                                setErrorText('');
+                                setLoadingAssistance(e.target.value);
+                            }}
+                        >
+                            <option value="">Select...</option>
+                            <option value="At Origin">At Origin</option>
+                            <option value="At Destination">At Destination</option>
+                            <option value="Both Origin and Destination">Both Origin and Destination</option>
+                        </select>
+                    </label>
                 </div>
-
-                <div className="md:pr-24">
+                <div className='flex flex-col w-full'>
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Is the container empty?
                         <div className="flex items-center">
                             <input
@@ -219,29 +217,33 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
                 </div>
             </div>
             {!isLoaded && (
-                <div className='flex gap-2'>
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Contents Description
-                        <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                            type="text"
-                            value={contentsDescription || ''}
-                            onChange={(e) => {
-                                setErrorText('');
-                                setContentsDescription(e.target.value);
-                            }}
-                        />
-                    </label>
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Container Contents Value
-                        <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                            type="text"
-                            value={goodsValue || ''}
-                            onChange={(e) => {
-                                setErrorText('');
-                                setGoodsValue(e.target.value);
-                            }}
-                        />
-                    </label>
+                <div className='flex flex-col md:flex-row gap-2'>
+                    <div className='flex flex-col w-full'>
+                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Contents Description
+                            <input
+                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                                type="text"
+                                value={contentsDescription || ''}
+                                onChange={(e) => {
+                                    setErrorText('');
+                                    setContentsDescription(e.target.value);
+                                }}
+                            />
+                        </label>
+                    </div>
+                    <div className='flex flex-col w-full'>
+                        <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Container Contents Value
+                            <input
+                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                                type="text"
+                                value={goodsValue || ''}
+                                onChange={(e) => {
+                                    setErrorText('');
+                                    setGoodsValue(e.target.value);
+                                }}
+                            />
+                        </label>
+                    </div>
                 </div>
             )}
         </div>

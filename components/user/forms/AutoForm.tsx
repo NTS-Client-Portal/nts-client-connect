@@ -24,7 +24,7 @@ const AutoForm: React.FC<AutoFormProps> = ({
 
     useEffect(() => {
         setFormData(items);
-    }, [items]);
+    }, [items, setFormData]);
 
     useEffect(() => {
         if (items.some(item => item.make)) {
@@ -100,10 +100,10 @@ const AutoForm: React.FC<AutoFormProps> = ({
     };
 
     return (
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-3">
             {items.map((item, index) => (
-                <div key={index} className="border p-3 rounded">
-                    <div className="flex justify-between items-center">
+                <div key={index} className="border p-3 rounded-md shadow-md">
+                    <div className="flex justify-between items-center mb-3">
                         <h3 className="text-lg font-medium">Vehicle Description {index > 0 ? index + 1 : ''}</h3>
                         {index > 0 && (
                             <button
@@ -115,28 +115,28 @@ const AutoForm: React.FC<AutoFormProps> = ({
                             </button>
                         )}
                     </div>
-                    <div className='flex gap-3'>
-                        <div className="flex flex-col w-1/4">
-                            <label className='text-zinc-900 font-medium'>Year</label>
+                    <div className='flex flex-col md:flex-row gap-2'>
+                        <div className="flex flex-col w-full md:w-1/4">
+                            <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Year</label>
                             <input
-                                className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md/30 shadow-md"
+                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                                 type="text"
                                 placeholder='e.g. 2020'
                                 value={item.year}
                                 onChange={(e) => { handleChange(index, 'year', e.target.value); setErrorText(''); }}
                             />
                         </div>
-                        <div className='flex flex-col w-1/3 relative'>
-                            <label className='text-zinc-900 font-medium'>Make</label>
+                        <div className='flex flex-col w-full md:w-1/3 relative'>
+                            <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Make</label>
                             <input
-                                className="rounded bg-white w-full p-1 py-1.5 border border-zinc-900/30 shadow-md/30 shadow-md"
+                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                                 value={item.make}
                                 placeholder='Toyota'
                                 onChange={(e) => { handleMakeInputChange(index, e.target.value); setErrorText(''); }}
                                 onKeyDown={(e) => handleKeyDown(e, index, 'make')}
                             />
                             {showMakeDropdown && filteredMakes.length > 0 && (
-                                <ul className="relative z-10 bg-white border border-zinc-900/30 shadow-md w-full max-h-40 overflow-y-auto">
+                                <ul className="absolute z-10 bg-white border border-zinc-900/30 shadow-md w-full max-h-40 overflow-y-auto">
                                     {filteredMakes.map((make, i) => (
                                         <li
                                             key={make}
@@ -149,17 +149,17 @@ const AutoForm: React.FC<AutoFormProps> = ({
                                 </ul>
                             )}
                         </div>
-                        <div className='flex flex-col w-1/3 relative'>
+                        <div className='flex flex-col w-full md:w-1/3 relative'>
                             <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Model</label>
                             <input
-                                className="rounded bg-white w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
+                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                                 value={item.model}
                                 placeholder='RAV4'
                                 onChange={(e) => { handleModelInputChange(index, e.target.value); setErrorText(''); }}
                                 onKeyDown={(e) => handleKeyDown(e, index, 'model')}
                             />
                             {showModelDropdown && filteredModels.length > 0 && (
-                                <ul className="relative z-10 bg-white border border-zinc-900/30 shadow-md w-full max-h-40 overflow-y-auto">
+                                <ul className="absolute z-10 bg-white border border-zinc-900/30 shadow-md w-full max-h-40 overflow-y-auto">
                                     {filteredModels.map((model, i) => (
                                         <li
                                             key={model.Model_ID}
@@ -173,8 +173,8 @@ const AutoForm: React.FC<AutoFormProps> = ({
                             )}
                         </div>
                     </div>
-                    <div className='flex gap-2 mt-3'>
-                        <div className='flex flex-col w-1/2'>
+                    <div className='flex flex-col md:flex-row gap-2 mt-3'>
+                        <div className='flex flex-col w-full md:w-1/2'>
                             <label className='text-zinc-900 dark:text-zinc-100 font-medium'>VIN #</label>
                             <input
                                 className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
@@ -184,10 +184,10 @@ const AutoForm: React.FC<AutoFormProps> = ({
                                 onChange={(e) => { handleChange(index, 'vin', e.target.value); setErrorText(''); }}
                             />
                         </div>
-                        <div className='flex flex-col w-1/4'>
-                            <label className='text-zinc-900 text-nowrap dark:text-zinc-100 font-medium'>Vehicle Condition</label>
+                        <div className='flex flex-col w-full md:w-1/4'>
+                            <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Vehicle Condition</label>
                             <select
-                                className="rounded bg-white w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
+                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                                 value={item.operationalCondition || ''}
                                 onChange={(e) => handleChange(index, 'operationalCondition', e.target.value)}
                             >
@@ -196,10 +196,10 @@ const AutoForm: React.FC<AutoFormProps> = ({
                                 <option value="inoperable">Inoperable</option>
                             </select>
                         </div>
-                        <div className='flex flex-col w-1/3'>
-                            <label className='text-zinc-900 text-nowrap font-medium'>Auction/Dealer Pickup?</label>
+                        <div className='flex flex-col w-full md:w-1/3'>
+                            <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Auction/Dealer Pickup?</label>
                             <select
-                                className='rounded bg-white w-full p-1 py-1.5 border border-zinc-900/30 shadow-md'
+                                className='rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md'
                                 value={item.isAuction === null ? '' : item.isAuction ? 'yes' : 'no'}
                                 onChange={(e) => {
                                     setErrorText('');
@@ -207,8 +207,8 @@ const AutoForm: React.FC<AutoFormProps> = ({
                                 }}
                             >
                                 <option value="">Select...</option>
-                                <option value="true">Yes</option>
-                                <option value="false">No</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
                             </select>
                         </div>
                     </div>
