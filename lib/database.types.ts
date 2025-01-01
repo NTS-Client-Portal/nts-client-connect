@@ -53,6 +53,137 @@ export type Database = {
           },
         ]
       }
+      cd_data: {
+        Row: {
+          additional_info: string | null
+          available_date: string
+          desired_delivery_date: string | null
+          destination_city: string
+          destination_geocode_latitude: number | null
+          destination_geocode_longitude: number | null
+          destination_metro_area: string | null
+          destination_state: string
+          destination_zip: string
+          distance: number | null
+          external_id: string | null
+          has_in_op_vehicle: boolean
+          id: string
+          origin_city: string
+          origin_geocode_latitude: number | null
+          origin_geocode_longitude: number | null
+          origin_metro_area: string | null
+          origin_state: string
+          origin_zip: string
+          partner_reference_id: string | null
+          price_balance_amount: number | null
+          price_balance_balance_payment_method:
+            | Database["public"]["Enums"]["balance_payment_method_enum"]
+            | null
+          price_balance_balance_payment_terms_begin_on:
+            | Database["public"]["Enums"]["balance_payment_terms_begin_on_enum"]
+            | null
+          price_balance_payment_time:
+            | Database["public"]["Enums"]["balance_payment_time_enum"]
+            | null
+          price_cod_amount: number
+          price_cod_payment_location: Database["public"]["Enums"]["cod_payment_location_enum"]
+          price_cod_payment_method: Database["public"]["Enums"]["cod_payment_method_enum"]
+          price_total: number
+          shipper_id: string
+          shipper_order_id: string | null
+          shippingquote_id: number | null
+          trailer_type: Database["public"]["Enums"]["trailer_type_enum"]
+        }
+        Insert: {
+          additional_info?: string | null
+          available_date: string
+          desired_delivery_date?: string | null
+          destination_city: string
+          destination_geocode_latitude?: number | null
+          destination_geocode_longitude?: number | null
+          destination_metro_area?: string | null
+          destination_state: string
+          destination_zip: string
+          distance?: number | null
+          external_id?: string | null
+          has_in_op_vehicle: boolean
+          id?: string
+          origin_city: string
+          origin_geocode_latitude?: number | null
+          origin_geocode_longitude?: number | null
+          origin_metro_area?: string | null
+          origin_state: string
+          origin_zip: string
+          partner_reference_id?: string | null
+          price_balance_amount?: number | null
+          price_balance_balance_payment_method?:
+            | Database["public"]["Enums"]["balance_payment_method_enum"]
+            | null
+          price_balance_balance_payment_terms_begin_on?:
+            | Database["public"]["Enums"]["balance_payment_terms_begin_on_enum"]
+            | null
+          price_balance_payment_time?:
+            | Database["public"]["Enums"]["balance_payment_time_enum"]
+            | null
+          price_cod_amount: number
+          price_cod_payment_location: Database["public"]["Enums"]["cod_payment_location_enum"]
+          price_cod_payment_method: Database["public"]["Enums"]["cod_payment_method_enum"]
+          price_total: number
+          shipper_id: string
+          shipper_order_id?: string | null
+          shippingquote_id?: number | null
+          trailer_type: Database["public"]["Enums"]["trailer_type_enum"]
+        }
+        Update: {
+          additional_info?: string | null
+          available_date?: string
+          desired_delivery_date?: string | null
+          destination_city?: string
+          destination_geocode_latitude?: number | null
+          destination_geocode_longitude?: number | null
+          destination_metro_area?: string | null
+          destination_state?: string
+          destination_zip?: string
+          distance?: number | null
+          external_id?: string | null
+          has_in_op_vehicle?: boolean
+          id?: string
+          origin_city?: string
+          origin_geocode_latitude?: number | null
+          origin_geocode_longitude?: number | null
+          origin_metro_area?: string | null
+          origin_state?: string
+          origin_zip?: string
+          partner_reference_id?: string | null
+          price_balance_amount?: number | null
+          price_balance_balance_payment_method?:
+            | Database["public"]["Enums"]["balance_payment_method_enum"]
+            | null
+          price_balance_balance_payment_terms_begin_on?:
+            | Database["public"]["Enums"]["balance_payment_terms_begin_on_enum"]
+            | null
+          price_balance_payment_time?:
+            | Database["public"]["Enums"]["balance_payment_time_enum"]
+            | null
+          price_cod_amount?: number
+          price_cod_payment_location?: Database["public"]["Enums"]["cod_payment_location_enum"]
+          price_cod_payment_method?: Database["public"]["Enums"]["cod_payment_method_enum"]
+          price_total?: number
+          shipper_id?: string
+          shipper_order_id?: string | null
+          shippingquote_id?: number | null
+          trailer_type?: Database["public"]["Enums"]["trailer_type_enum"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cd_data_shippingquote_id_fkey"
+            columns: ["shippingquote_id"]
+            isOneToOne: false
+            referencedRelation: "shippingquotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_requests: {
         Row: {
           accepted: boolean | null
@@ -1659,6 +1790,83 @@ export type Database = {
           },
         ]
       }
+      vehicles: {
+        Row: {
+          additional_info: string | null
+          cd_data_id: string | null
+          color: string | null
+          external_vehicle_id: string | null
+          id: string
+          license_plate: string | null
+          license_plate_state: string | null
+          lot_number: string | null
+          make: string | null
+          model: string | null
+          qty: number
+          shipping_specs_height: number | null
+          shipping_specs_length: number | null
+          shipping_specs_weight: number | null
+          shipping_specs_width: number | null
+          vehicle_type: Database["public"]["Enums"]["vehicle_type_enum"]
+          vehicle_type_other: string | null
+          vin: string | null
+          wide_load: boolean | null
+          year: string | null
+        }
+        Insert: {
+          additional_info?: string | null
+          cd_data_id?: string | null
+          color?: string | null
+          external_vehicle_id?: string | null
+          id?: string
+          license_plate?: string | null
+          license_plate_state?: string | null
+          lot_number?: string | null
+          make?: string | null
+          model?: string | null
+          qty: number
+          shipping_specs_height?: number | null
+          shipping_specs_length?: number | null
+          shipping_specs_weight?: number | null
+          shipping_specs_width?: number | null
+          vehicle_type: Database["public"]["Enums"]["vehicle_type_enum"]
+          vehicle_type_other?: string | null
+          vin?: string | null
+          wide_load?: boolean | null
+          year?: string | null
+        }
+        Update: {
+          additional_info?: string | null
+          cd_data_id?: string | null
+          color?: string | null
+          external_vehicle_id?: string | null
+          id?: string
+          license_plate?: string | null
+          license_plate_state?: string | null
+          lot_number?: string | null
+          make?: string | null
+          model?: string | null
+          qty?: number
+          shipping_specs_height?: number | null
+          shipping_specs_length?: number | null
+          shipping_specs_weight?: number | null
+          shipping_specs_width?: number | null
+          vehicle_type?: Database["public"]["Enums"]["vehicle_type_enum"]
+          vehicle_type_other?: string | null
+          vin?: string | null
+          wide_load?: boolean | null
+          year?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicles_cd_data_id_fkey"
+            columns: ["cd_data_id"]
+            isOneToOne: false
+            referencedRelation: "cd_data"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vendors: {
         Row: {
           businesscity: string | null
@@ -1712,7 +1920,38 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      balance_payment_method_enum:
+        | "CASH"
+        | "CERTIFIED_FUNDS"
+        | "COMCHEK"
+        | "COMPANY_CHECK"
+      balance_payment_terms_begin_on_enum:
+        | "PICKUP"
+        | "DELIVERY"
+        | "RECEIVING_SIGNED_BOL"
+      balance_payment_time_enum:
+        | "IMMEDIATELY"
+        | "TWO_BUSINESS_DAYS"
+        | "FIVE_BUSINESS_DAYS"
+        | "TEN_BUSINESS_DAYS"
+        | "FIFTEEN_BUSINES_DAYS"
+        | "THIRTY_BUSINESS_DAYS"
+      cod_payment_location_enum: "PICKUP" | "DELIVERY"
+      cod_payment_method_enum: "CASH_CERTIFIED_FUNDS" | "CHECK"
+      trailer_type_enum: "OPEN" | "ENCLOSED" | "DRIVEAWAY"
+      vehicle_type_enum:
+        | "ATV"
+        | "BOAT"
+        | "CAR"
+        | "HEAVY_EQUIPMENT"
+        | "LARGE_YACHT"
+        | "MOTORCYCLE"
+        | "PICKUP"
+        | "RV"
+        | "SUV"
+        | "TRAVEL_TRAILER"
+        | "VAN"
+        | "OTHER"
     }
     CompositeTypes: {
       [_ in never]: never

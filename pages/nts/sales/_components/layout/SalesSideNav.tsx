@@ -5,7 +5,7 @@ import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import { useNtsUsers } from '@/context/NtsUsersContext';
 import Image from 'next/image';
-import { PanelLeftOpen, PanelRightClose, MessageSquareMore, MessageSquareDotIcon, Folders, NotebookTabs, Settings, MoveHorizontal, ChartArea } from 'lucide-react';
+import { PanelLeftOpen, PanelRightClose, MessageSquareMore, ChevronRightCircle, Folders, NotebookTabs, Settings, MoveHorizontal, ChartArea } from 'lucide-react';
 
 interface SalesSideNavProps {
     isSidebarOpen: boolean;
@@ -72,7 +72,14 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                         <li className={`w-full flex justify-normal m-0 ${router.pathname === '/nts/sales/chat-requests' ? "active" : ""}`}>
                             <Link href="/nts/sales/chat-requests" legacyBehavior>
                                 <a className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales/chat-requests' ? "active" : ""}`}>
-                                    <span className='w-full flex items-center text-sm flex-nowrap text-nowrap justify-normal gap-1'><MessageSquareMore size={'20px'} />Shipper Chats</span>
+                                    <span className='w-full flex items-center text-sm flex-nowrap text-nowrap justify-normal gap-1'><MessageSquareMore size={'20px'} />Shipper Connect</span>
+                                </a>
+                            </Link>
+                        </li>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/nts/sales/central-connect' ? "active" : ""}`}>
+                            <Link href="/nts/sales/central-connect" legacyBehavior>
+                                <a className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales/central-connect' ? "active" : ""}`}>
+                                    <span className='w-full flex items-center text-sm flex-nowrap text-nowrap justify-normal gap-1'><ChevronRightCircle size={'20px'} />CD Connect</span>
                                 </a>
                             </Link>
                         </li>
