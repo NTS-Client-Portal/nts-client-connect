@@ -106,64 +106,54 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
 
     return (
         <>
-            <nav className={`md:hidden w-full max-h-max bg-white flex flex-col md:flex-row gap-1 justify-end px-4 z-20 py-1 drop-shadow ${className}`}>
-                <div className='flex gap-6 items-center z-20 justify-between mr-4'>
+            <nav className={`md:hidden w-full max-h-max bg-white flex flex-col md:flex-row gap-1 justify-end px-4 relative z-50 py-1 drop-shadow ${className}`}>
+                <div className='flex gap-2 items-center relative z-50 justify-between mr-4'>
                     <ul className='flex gap-2 items-center justify-end w-full'>
+
                         <li>
                             <NotificationBell session={session} />
                         </li>
                     </ul>
-                    <ul className='relative'>
+                    <ul className='relative z-50'>
                         <li>
                             <Image
                                 src={profilePictureUrl}
                                 alt='profile-img'
-                                className='rounded-full shadow-md cursor-pointer '
-                                width={34}
-                                height={34}
+                                className='rounded-full shadow-lg mr-1 cursor-pointer '
+                                width={48}
+                                height={48}
                                 onClick={toggleDropdown}
                             />
                             {dropdownOpen && (
-                                <div className="absolute right-0 mt-2 z-50 w-fit text-xs bg-white border border-gray-200 rounded shadow-lg">
+                                <div className="absolute right-0 mt-1 md:mt-2 z-50 w-fit text-sm bg-white border border-gray-200 rounded shadow-lg">
                                     <div className="p-4">
-                                        <p><strong>{userProfile?.first_name} {userProfile?.last_name}</strong></p>
-                                        <p>{userProfile?.email}</p>
-                                        <p>{userProfile?.phone_number}</p>
+                                        <span className="text-sm">Assigned Representative:</span>
+                                        {assignedSalesUsers.map((user, index) => (
+                                            <div key={index} className="font-bold text-xs">
+                                                {user.first_name} {user.last_name} - {user.phone_number} <br /> {user.email}
+                                            </div>
+                                        ))}
                                     </div>
                                     <div className="border-t border-gray-200">
-                                        <Link href="/user/settings" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                                        <Link href="/user/settings" className="block px-2 py-2 border-b border-gray-200 font-semibold text-gray-800 hover:bg-gray-100">
                                             User Settings
                                         </Link>
-                                        <Link href="/user/settings" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                                        <Link href="/user/settings" className="block px-2 py-2 border-b border-gray-200 font-semibold text-gray-800 hover:bg-gray-100">
                                             Security Settings
                                         </Link>
                                         <button
                                             onClick={handleLogout}
-                                            className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100"
+                                            className="block w-full text-left font-semibold px-2 border-b border-gray-200 py-2 text-gray-800 hover:bg-gray-100"
                                         >
                                             Logout
                                         </button>
+                                        <span className='flex justify-center items-center my-2'> <FeedBack /></span>
                                     </div>
                                 </div>
                             )}
                         </li>
                     </ul>
-                </div>
-                <div className='flex justify-between gap-2'>
-                    <FeedBack />
-                    {/* <DarkModeToggle /> */}
-                    <span>
-                        {assignedSalesUsers.length > 0 && (
-                            <div className="flex flex-col items-start">
-                                <span className="text-sm">Assigned Representative:</span>
-                                {assignedSalesUsers.map((user, index) => (
-                                    <div key={index} className="font-bold text-xs">
-                                        {user.first_name} {user.last_name} - {user.phone_number} <br /> {user.email}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </span>
+
                 </div>
             </nav>
             <nav className={`hidden w-full bg-white z-20 md:flex flex-col md:flex-row gap-1 justify-between px-4 py-2 drop-shadow ${className}`}>
@@ -175,21 +165,9 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                 </ul>
                 <ul className='w-full flex gap-2 md:gap-4 items-start z-20 justify-end mr-12'>
                     <li>
-                        {assignedSalesUsers.length > 0 && (
-                            <div className="flex flex-col items-start">
-                                <span className="text-sm">Assigned Sales User:</span>
-                                {assignedSalesUsers.map((user, index) => (
-                                    <div key={index} className="font-bold text-sm">
-                                        {user.first_name} {user.last_name} - ({user.phone_number}) <br /> {user.email}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </li>
-                    <li>
                         <NotificationBell session={session} />
                     </li>
-                    <li className='relative z-50'>
+                    <li className='relative right-0 z-50'>
                         <Image
                             src={profilePictureUrl}
                             alt='profile-img'
@@ -201,9 +179,12 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                         {dropdownOpen && (
                             <div className="absolute right-0 mt-2 w-fit text-sm bg-white border border-gray-200 rounded shadow-lg">
                                 <div className="p-4">
-                                    <p><strong>{userProfile?.first_name} {userProfile?.last_name}</strong></p>
-                                    <p>{userProfile?.email}</p>
-                                    <p>{userProfile?.phone_number}</p>
+                                    <span className="text-sm font-bold">Assigned Representative:</span>
+                                    {assignedSalesUsers.map((user, index) => (
+                                        <div key={index} className="font-medium text-sm">
+                                            {user.first_name} {user.last_name} - ({user.phone_number}) <br /> {user.email}
+                                        </div>
+                                    ))}
                                 </div>
                                 <div className="border-t border-gray-200">
                                     <Link href="/user/settings" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">

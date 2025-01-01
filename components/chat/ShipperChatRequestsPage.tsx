@@ -105,12 +105,12 @@ const ShipperChatRequestsPage: React.FC = () => {
             <div className=" md:p-4 bg-white dark:bg-zinc-900 rounded-lg shadow-lg">
                 {assignedSalesUsers.map((user, index) => (
                     <div key={index} className="broker-card flex text-nowrap flex-col justify-center items-center p-4 bg-white shadow rounded-lg w-[95vw] md:w-fit max-h-96">
-                        <h2 className='text-xl underline font-bold mb-4'>Your Logistics Representative</h2>
+                        <h2 className='md:text-xl underline font-bold mb-4'>Your Logistics Representative</h2>
                         <Image src={NtsBrokerPicture} alt="Profile Picture" className="avatar" width={100} height={100} />
-                        <h2 className='text-xl underline font-semibold mb-4'>{user.first_name} {user.last_name}</h2>
-                        <span className="flex flex-col gap-1 justify-start items-start">
-                            <p><strong>Phone: </strong>{user.phone_number}</p>
-                            <p><strong>Email:</strong> {user.email}</p>
+                        <h2 className='text-base md:text-xl underline font-semibold mb-4'>{(user.first_name)} {user.last_name}</h2>
+                        <span className="flex flex-col-reverse md:flex-col gap-1 justify-center md:justify-start items-center md:items-start text-sm md:text-base font-semibold">
+                            <p>{user.phone_number}</p>
+                            <p>{(user.email).charAt(0).toUpperCase() + (user.email).slice(1)}</p>
                         </span>
                         {userProfile && session && (
                             <>
@@ -124,7 +124,7 @@ const ShipperChatRequestsPage: React.FC = () => {
                     </div>
                 ))}
             </div>
-            <div className="w-fit md:w-2/3 pt-6 md:pt-6 mb-6 md:p-6 shadow-lg bg-zinc-50">
+            <div className="w-[98vw] md:w-2/3 pt-6 md:pt-6 mb-6 md:p-6 shadow-lg bg-zinc-50">
                 <h1 className="text-2xl font-bold mb-4 md:mb-0 text-center md:text-start">Live Chat With {assignedSalesUsers[0]?.first_name}</h1>
                 <ul>
                     {chatRequests.map((request) => (
