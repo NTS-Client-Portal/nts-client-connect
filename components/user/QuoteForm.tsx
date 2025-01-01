@@ -146,6 +146,32 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                 setErrorText('');
                 fetchQuotes();
                 onClose();
+
+                // Fetch the broker's user ID
+                const { data: brokerData, error: brokerError } = await supabase
+                    .from('company_sales_users')
+                    .select('sales_user_id')
+                    .eq('company_id', companyId)
+                    .single();
+
+                if (brokerError) {
+                    console.error('Error fetching broker user ID:', brokerError.message);
+                } else if (brokerData) {
+                    const brokerUserId = brokerData.sales_user_id;
+
+                    // Send notification to the broker
+                    const notificationMessage = `A new quote has been submitted by ${assignedSalesUser}`;
+                    const { error: notificationError } = await supabase
+                        .from('notifications')
+                        .insert({
+                            user_id: brokerUserId,
+                            message: notificationMessage,
+                        });
+
+                    if (notificationError) {
+                        console.error('Error sending notification to broker:', notificationError.message);
+                    }
+                }
             }
 
             if (saveToInventory) {
@@ -180,6 +206,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
     };
 
     if (!isOpen) return null;
+
 
     return (
         <div className="fixed z-50 inset-0 bg-zinc-600 bg-opacity-50 flex justify-center  h-fit-content items-center">
@@ -283,7 +310,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                     <div className='flex justify-center'>
                         <div className='flex gap-2 w-full justify-around'>
                             <button type="submit" className="body-btn w-2/3 place-self-center">
-                                {ntsUser ? 'Create Shipping Quote for Customer' : 'Request a Shipping Estimate'}
+                                {ntsUser ? 'Create Shipping Quote for Customer' : profilesUser ? 'Request a Shipping Estimate' : 'Request a Shipping Estimate'}
                             </button>
                             <button onClick={onClose} className="cancel-btn mt-4 w-1/4 place-self-center">
                                 Close

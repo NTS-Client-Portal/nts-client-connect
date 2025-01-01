@@ -905,6 +905,7 @@ export type Database = {
           id: number
           is_read: boolean | null
           message: string | null
+          nts_user_id: string | null
           user_id: string | null
         }
         Insert: {
@@ -913,6 +914,7 @@ export type Database = {
           id?: number
           is_read?: boolean | null
           message?: string | null
+          nts_user_id?: string | null
           user_id?: string | null
         }
         Update: {
@@ -921,9 +923,17 @@ export type Database = {
           id?: number
           is_read?: boolean | null
           message?: string | null
+          nts_user_id?: string | null
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "notifications_nts_user_id_fkey"
+            columns: ["nts_user_id"]
+            isOneToOne: false
+            referencedRelation: "nts_users"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "notifications_user_id_fkey"
             columns: ["user_id"]

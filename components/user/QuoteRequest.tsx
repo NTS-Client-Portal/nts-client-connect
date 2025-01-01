@@ -265,20 +265,20 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                     </button>
                 </div>
                 <div className="flex justify-center mb-4 relative z-0">
-                <label className="mr-2">Select User:</label>
-                <select
-                    value={selectedUserId || ''}
-                    onChange={(e) => setSelectedUserId(e.target.value)}
-                    className="border relative z-0 border-gray-300 rounded-md shadow-sm"
-                >
-                    <option value="">All Users</option>
-                    {profiles.map((profile) => (
-                        <option key={profile.id} value={profile.id}>
-                            {profile.first_name} {profile.last_name}
-                        </option>
-                    ))}
-                </select>
-            </div>
+                    <label className="mr-2">Select User:</label>
+                    <select
+                        value={selectedUserId || ''}
+                        onChange={(e) => setSelectedUserId(e.target.value)}
+                        className="border relative z-0 border-gray-300 rounded-md shadow-sm"
+                    >
+                        <option value="">All Users</option>
+                        {profiles.map((profile) => (
+                            <option key={profile.id} value={profile.id}>
+                                {profile.first_name} {profile.last_name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
                 <NtsUsersProvider>
                     <ProfilesUserProvider>
                         <QuoteForm
@@ -296,7 +296,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                     </ProfilesUserProvider>
                 </NtsUsersProvider>
             </div>
- 
+
             {isMobile ? (
                 <div className="relative z-0">
                     <select

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@lib/initSupabase';
 import { Database } from '@lib/database.types';
 import { MoveHorizontal } from 'lucide-react';
+import { generateAndUploadPDF } from '@/components/GeneratePDF';
 
 interface OrderFormModalProps {
     isOpen: boolean;
@@ -33,10 +34,33 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
     const [latestPickupDate, setLatestPickupDate] = useState('');
     const [isAgreed, setIsAgreed] = useState(false);
     const [notes, setNotes] = useState('');
+    const [templateContent, setTemplateContent] = useState<string | null>(null);
+    const [templateTitle, setTemplateTitle] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchTemplate = async () => {
+            const { data, error } = await supabase
+                .from('templates')
+                .select('*')
+                .eq('context', 'order')
+                .single();
+
+            if (error) {
+                console.error('Error fetching template:', error.message);
+                setTemplateContent(null);
+                setTemplateTitle(null);
+            } else {
+                setTemplateContent(data.content);
+                setTemplateTitle(data.title);
+            }
+        };
+
+        fetchTemplate();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit({
+        const orderData = {
             originStreet,
             originName,
             originPhone,
@@ -48,7 +72,9 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
             notes,
             status: 'Order',
             quote
-        });
+        };
+
+        onSubmit(orderData);
 
         // Update the shipping quote with the new order details
         const { error } = await supabase
@@ -69,6 +95,46 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
 
         if (error) {
             console.error('Error updating shipping quote:', error.message);
+        } else {
+            // Generate and upload PDF
+            const templateContent = `
+                <h1>Order Confirmation</h1>
+                <p><strong>Quote ID:</strong> {quote.id}</p>
+                <p><strong>Origin:</strong> {quote.origin_city}, {quote.origin_state} {quote.origin_zip}</p>
+                <p><strong>Destination:</strong> {quote.destination_city}, {quote.destination_state} {quote.destination_zip}</p>
+                <p><strong>Freight:</strong> {quote.year} {quote.make} {quote.model}</p>
+                <p><strong>Dimensions:</strong> {quote.length}' x {quote.width}' x {quote.height}' {quote.weight} lbs</p>
+                <p><strong>Earliest Pickup Date:</strong> {earliestPickupDate}</p>
+                <p><strong>Latest Pickup Date:</strong> {latestPickupDate}</p>
+                <p><strong>Notes:</strong> {notes}</p>
+            `;
+            const content = templateContent;
+            const title = templateTitle || 'Order Confirmation';
+            await generateAndUploadPDF(quote, content, title);
+
+            // Send notifications
+            const notificationMessage = `A new order has been submitted for Quote ID: ${quote.id}`;
+            const { error: profileNotificationError } = await supabase
+                .from('notifications')
+                .insert({
+                    user_id: quote.user_id,
+                    message: notificationMessage,
+                });
+
+            if (profileNotificationError) {
+                console.error('Error sending notification to profile user:', profileNotificationError.message);
+            }
+
+            const { error: ntsUserNotificationError } = await supabase
+                .from('notifications')
+                .insert({
+                    nts_user_id: quote.user_id,
+                    message: notificationMessage,
+                });
+
+            if (ntsUserNotificationError) {
+                console.error('Error sending notification to NTS user:', ntsUserNotificationError.message);
+            }
         }
 
         onClose();
