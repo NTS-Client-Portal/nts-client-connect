@@ -1,5 +1,5 @@
 import React from 'react';
-import ChatRequestsPage from '@/components/ChatRequestsPage';
+import ChatRequestsPage from '@/components/chat/ChatRequestsPage';
 import SalesLayout from '../_components/layout/SalesLayout';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
 import withNtsUser from '@/components/hoc/withNtsUser';
