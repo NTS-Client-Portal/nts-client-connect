@@ -339,7 +339,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                         Archived
                     </button>
                     <button
-                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'rejected' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
+                        className={`w-full px-12 py-2 -mb-px text-xs font-medium text-center border rounded-t-md ${activeTab === 'rejected' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
                         onClick={() => handleTabChange('rejected')}
                     >
                         Rejected RFQ&apos;

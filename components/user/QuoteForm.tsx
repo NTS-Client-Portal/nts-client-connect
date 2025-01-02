@@ -210,7 +210,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
 
     return (
         <div className="fixed z-50 inset-0 bg-zinc-600 bg-opacity-50 flex justify-center  h-fit-content items-center  ">
-            <div className="border-2 bg-ntsBlue border-t-orange-500 border-x-0 border-b-0 drop-shadow-xl pt-2 rounded w-sm max-w-[95vw] overflow-y-auto relative  z-50">
+            <div className="border-2 bg-ntsBlue border-t-orange-500 border-x-0 border-b-0 drop-shadow-xl pt-2 rounded w-sm w-[95vw] md:w-1/2 md:max-w-none overflow-y-auto relative  z-50">
                 <h2 className="text-xl text-white font-semibold pl-4 mb-2">{ntsUser ? 'Create Shipping Quote for Customer' : profilesUser ? 'Request a Shipping Estimate' : 'Request a Shipping Estimate'}</h2>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3 bg-white relative z-50 p-4 ">
                     <label className='dark:text-zinc-100 font-medium'>Select Inventory Item
@@ -309,8 +309,8 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
 
                     <div className='flex justify-center'>
                         <div className='flex gap-2 w-full justify-around'>
-                            <button type="submit" className="body-btn w-2/3 place-self-center">
-                                {ntsUser ? 'Create Shipping Quote for Customer' : profilesUser ? 'Request a Shipping Estimate' : 'Request a Shipping Estimate'}
+                            <button type="submit" className="body-btn w-2/3 text-sm place-self-center">
+                                {ntsUser ? 'Create Quote for Customer' : profilesUser ? 'Request a Shipping Estimate' : 'Request a Shipping Estimate'}
                             </button>
                             <button onClick={onClose} className="cancel-btn mt-4 w-1/4 place-self-center">
                                 Close
