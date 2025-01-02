@@ -40,6 +40,9 @@ interface ShippingQuote {
   destination_state: string | null;
   due_date: string | null;
   status: string | null;
+  year: string | null;
+  make: string | null;
+  model: string | null;
 }
 
 const Crm: React.FC = () => {
@@ -104,7 +107,8 @@ const Crm: React.FC = () => {
         const { data: shippingQuotesData, error: shippingQuotesError } = await supabase
           .from('shippingquotes')
           .select('*')
-          .in('company_id', companyIds);
+          .in('company_id', companyIds)
+          .is('price', null); // Fetch quotes that do not have a price
 
         if (shippingQuotesError) {
           console.error('Error fetching shipping quotes:', shippingQuotesError.message);
@@ -162,7 +166,7 @@ const Crm: React.FC = () => {
           className="border border-gray-300 pl-2 rounded-md shadow-sm"
         />
       </div>
-      <div className="overflow-x-auto">
+      <div className="hidden md:block overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-300">
           <thead className='bg-ntsBlue text-white'>
             <tr className='divide-x-2'>
@@ -192,7 +196,7 @@ const Crm: React.FC = () => {
                   <ul className="list-inside">
                     {getShippingQuotesForCompany(company.id).map(quote => (
                       <li key={quote.id}>
-                        {quote.origin_city}, {quote.origin_state} to {quote.destination_city}, {quote.destination_state} - Due: {quote.due_date} - Status: {quote.status}
+                        <span className='text-emerald-500'>New Quote</span> - Quote #{quote.id} <br /> <strong>Origin/Destination </strong>- {quote.origin_state} -  {quote.origin_city}, {quote.destination_city}, {quote.destination_state} <br /> <strong>Load Details </strong>- {quote.make} {quote.model} <br />
                       </li>
                     ))}
                   </ul>
@@ -201,6 +205,37 @@ const Crm: React.FC = () => {
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="md:hidden">
+        {filteredCompanies.map(company => (
+          <div key={company.id} className="bg-white shadow rounded-md mb-4 p-4 border border-gray-300">
+            <div className="mb-2">
+              <Link className="text-blue-500 hover:underline" href={`/companies/${company.id}`} legacyBehavior>
+                <h2 className="text-lg font-bold">{company.company_name}</h2>
+              </Link>
+            </div>
+            <div className="mb-2">
+              <h3 className="font-semibold">Company Users</h3>
+              <ul className="list-inside">
+                {getProfilesForCompany(company.id).map(profile => (
+                  <li key={profile.id}>
+                    {profile.first_name} {profile.last_name} - {profile.email}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold">Shipping Quotes</h3>
+              <ul className="list-inside">
+                {getShippingQuotesForCompany(company.id).map(quote => (
+                  <li key={quote.id}>
+                    <span className='text-emerald-500'>New Quote</span> - Quote #{quote.id} <br /> <strong>Origin/Destination </strong>- {quote.origin_state} -  {quote.origin_city}, {quote.destination_city}, {quote.destination_state} <br /> <strong>Load Details </strong>- {quote.make} {quote.model} <br />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -68,16 +68,17 @@ const ShippingCalendar: React.FC<ShippingCalendarProps> = () => {
     };
 
     return (
-        <div>
-            <h1 className='text-zinc-900 font-semibold text-xl'>Shipping Calendar</h1>
+        <div className="px-4">
+            <h1 className='text-zinc-900 font-semibold text-xl text-center md:text-normal mb-4'>Shipping Calendar</h1>
             {errorText && <p className="error">{errorText}</p>}
             <Calendar
                 localizer={localizer}
                 events={events}
                 startAccessor="start"
                 endAccessor="end"
-                style={{ height: 500 }}
+                style={{ height: '75vh' }}
                 onSelectEvent={handleSelectEvent}
+                className="sm:rounded-lg shadow-lg"
             />
         </div>
     );

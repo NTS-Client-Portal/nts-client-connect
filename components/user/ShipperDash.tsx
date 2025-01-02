@@ -115,9 +115,9 @@ const ShipperDash = () => {
 
     return (
         <div className='container mx-auto'>
-            <div className='flex sm:flex-col-reverse xl:flex-row items-start gap-6'>
-                <div className='mt-4 flex gap-2 justify-start items-start'>
-                    <div className="p-8 bg-gray-100 shadow rounded-lg max-w-lg max-h-96 overflow-auto">
+            <div className='flex flex-col-reverse xl:flex-row items-center md:items-start gap-6'>
+                <div className='mt-4 flex flex-col-reverse md:flex-row gap-4 justify-start items-start'>
+                    <div className="p-8 bg-gray-100 shadow rounded-lg max-w-lg max-h-96 overflow-auto w-full md:w-auto">
                         <h2 className="text-xl font-bold mb-2">Active Orders</h2>
                         <div className='mb-4'>
                             <Link className="text-ntsLightBlue font-semibold underline" href={`/user`}>
@@ -125,32 +125,29 @@ const ShipperDash = () => {
                             </Link>
                         </div>
                         <div>
-                            <div>
-                                <h3 className="text-lg font-semibold"></h3>
-                                <div className='mb-2 w-full'>
-                                    <ul className='flex flex-col gap-2'>
-                                        {quotes.filter(quote => quote.status === 'Order').length > 0 ? (
-                                            quotes.filter(quote => quote.status === 'Order').map((quote) => (
-                                                <li key={quote.id} className="mb-2 flex flex-col gap-1">
-                                                    <p><strong>ID:</strong> {quote.id} <strong>Status:</strong> {quote.status}</p>
-                                                    <p>{quote.make && quote.model ? (`${quote.make} ${quote.model}`
-                                                    ) : quote.container_type ? (`${quote.container_length} ${quote.container_type}`) : ("N/A")}
-                                                    </p>
-                                                </li>
-                                            ))
-                                        ) : (
-                                            <p>No Active Orders</p>
-                                        )}
-                                    </ul>
-                                </div>
+                            <div className='mb-2 flex justify-center w-full'>
+                                <ul className='flex flex-col items-start gap-2'>
+                                    {quotes.filter(quote => quote.status === 'Order').length > 0 ? (
+                                        quotes.filter(quote => quote.status === 'Order').map((quote) => (
+                                            <li key={quote.id} className="mb-2 flex flex-col gap-1">
+                                                <p><strong>ID:</strong> {quote.id} <strong>Status:</strong> {quote.status}</p>
+                                                <p>{quote.make && quote.model ? (`${quote.make} ${quote.model}`
+                                                ) : quote.container_type ? (`${quote.container_length} ${quote.container_type}`) : ("N/A")}
+                                                </p>
+                                            </li>
+                                        ))
+                                    ) : (
+                                        <p>No Active Orders</p>
+                                    )}
+                                </ul>
                             </div>
                         </div>
                     </div>
-                    <ShippingCalendar />
+                    <div className='px-4 w-full md:w-auto'><ShippingCalendar /></div>
                 </div>
 
                 {assignedSalesUsers.map((user, index) => (
-                    <div key={index} className="broker-card flex text-nowrap flex-col justify-center items-center p-4 bg-white shadow rounded-lg w-fit max-h-96">
+                    <div key={index} className="broker-card flex text-nowrap flex-col justify-center items-center p-4 bg-white shadow rounded-lg w-[97vw] md:w-fit max-h-96">
                         <h2 className='text-xl underline font-bold mb-4'>Your Logistics Representative</h2>
                         <Image src={NtsBrokerPicture} alt="Profile Picture" className="avatar" width={100} height={100} />
                         <h2 className='text-xl underline font-semibold mb-4'>{user.first_name} {user.last_name}</h2>
