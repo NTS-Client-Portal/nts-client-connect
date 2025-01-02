@@ -4,9 +4,9 @@ import Link from 'next/link';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import { v4 as uuidv4 } from 'uuid'; // Import uuidv4
-import { assignSalesUser } from '@/lib/assignSalesUser'; // Import the assignSalesUser function
-import InviteUserForm from '@/components/user/InviteUserForm'; // Import InviteUserForm
+import { v4 as uuidv4 } from 'uuid';
+import { assignSalesUser } from '@/lib/assignSalesUser';
+import InviteUserForm from '@/components/user/InviteUserForm';
 
 export default function SignUpPage() {
     const supabase = useSupabaseClient();
@@ -18,13 +18,15 @@ export default function SignUpPage() {
     const [lastName, setLastName] = useState('');
     const [companyName, setCompanyName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [industry, setIndustry] = useState(''); // Add industry state
+    const [industry, setIndustry] = useState('');
+    const [otp, setOtp] = useState('');
+    const [generatedOtp, setGeneratedOtp] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
-    const [userType, setUserType] = useState('company'); // Add userType state
-    const [currentStep, setCurrentStep] = useState(1); // Add currentStep state
-    const [companyId, setCompanyId] = useState<string | null>(null); // Add companyId state
+    const [userType, setUserType] = useState('company');
+    const [currentStep, setCurrentStep] = useState(1);
+    const [companyId, setCompanyId] = useState<string | null>(null);
 
     const validatePassword = (password: string): boolean => {
         const hasLowercase = /[a-z]/.test(password);
@@ -33,7 +35,20 @@ export default function SignUpPage() {
         return hasLowercase && hasUppercase && hasDigit;
     };
 
-    const handleSignUp = async (e: React.FormEvent) => {
+    const generateOtp = () => {
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        setGeneratedOtp(otp);
+        return otp;
+    };
+
+    const sendOtpEmail = async (email: string, otp: string) => {
+        // Use a third-party email service to send the OTP email
+        // For example, using SendGrid, Mailgun, etc.
+        // This is a placeholder function and should be replaced with actual email sending logic
+        console.log(`Sending OTP ${otp} to email ${email}`);
+    };
+
+    const handleSendOtp = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
@@ -51,8 +66,30 @@ export default function SignUpPage() {
         }
 
         try {
-            // Sign up the user in the auth.users table
-            const { data, error } = await supabase.auth.signUp({
+            const otp = generateOtp();
+            await sendOtpEmail(email, otp);
+
+            setCurrentStep(2); // Move to the OTP verification step
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleVerifyOtp = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+
+        if (otp !== generatedOtp) {
+            setError('Invalid OTP');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const { error } = await supabase.auth.signUp({
                 email,
                 password,
             });
@@ -65,7 +102,7 @@ export default function SignUpPage() {
             await handleCompleteProfile();
 
             setSuccess(true);
-            setCurrentStep(2); // Move to the next step
+            setCurrentStep(3); // Move to the next step
         } catch (error) {
             setError(error.message);
         } finally {
@@ -75,7 +112,6 @@ export default function SignUpPage() {
 
     const handleCompleteProfile = async () => {
         try {
-            // Ensure the company exists or create a new one
             let companyId: string;
             if (userType === 'company' && companyName) {
                 const { data: existingCompany, error: companyError } = await supabase
@@ -91,7 +127,6 @@ export default function SignUpPage() {
                 if (existingCompany) {
                     companyId = existingCompany.id;
 
-                    // Update the existing company with missing fields
                     const updates = {} as Partial<{
                         assigned_sales_user: string;
                         assigned_at: string;
@@ -101,10 +136,9 @@ export default function SignUpPage() {
                     if (!existingCompany.assigned_sales_user) updates.assigned_sales_user = '2b5928cc-4f66-4be4-8d76-4eb91c55db00';
                     if (!existingCompany.assigned_at) updates.assigned_at = new Date().toISOString();
                     if (!existingCompany.company_name) updates.company_name = companyName;
-                    if (!existingCompany.company_size) updates.company_size = '1-10'; // Force default company size
+                    if (!existingCompany.company_size) updates.company_size = '1-10';
 
                     if (Object.keys(updates).length > 0) {
-                        console.log(`Updating existing company: ${companyName} with ID: ${companyId} with updates:`, updates);
                         const { error: updateCompanyError } = await supabase
                             .from('companies')
                             .update(updates)
@@ -113,20 +147,18 @@ export default function SignUpPage() {
                         if (updateCompanyError) {
                             throw new Error(updateCompanyError.message);
                         }
-
-                        console.log(`Updated existing company: ${companyName} with ID: ${companyId} in companies table`);
                     }
                 } else {
-                    companyId = uuidv4(); // Generate a unique ID for the new company
-                    const assignedSalesUserId = '2b5928cc-4f66-4be4-8d76-4eb91c55db00'; // Default assigned sales user ID
-                    const assignedAt = new Date().toISOString(); // Current timestamp
+                    companyId = uuidv4();
+                    const assignedSalesUserId = '2b5928cc-4f66-4be4-8d76-4eb91c55db00';
+                    const assignedAt = new Date().toISOString();
                     const { data: newCompany, error: newCompanyError } = await supabase
                         .from('companies')
                         .insert({
                             id: companyId,
                             name: companyName,
-                            company_name: companyName, // Ensure company_name is set
-                            company_size: '1-10', // Force default company size
+                            company_name: companyName,
+                            company_size: '1-10',
                             assigned_sales_user: assignedSalesUserId,
                             assigned_at: assignedAt,
                             industry,
@@ -138,39 +170,33 @@ export default function SignUpPage() {
                         throw new Error(newCompanyError.message);
                     }
 
-                    console.log('New company created:', newCompany);
-
-                    // Assign a sales user to the new company
                     await assignSalesUser(companyId);
                 }
             } else {
                 companyId = uuidv4();
             }
 
-            setCompanyId(companyId); // Set the companyId state
+            setCompanyId(companyId);
 
-            // Insert the profile into the profiles table
-            const profileId = uuidv4(); // Generate a unique ID for the profile
+            const profileId = uuidv4();
             const { error } = await supabase
                 .from('profiles')
                 .insert({
-                    id: profileId, // Use the generated UUID
-                    email: email, // Use the email fetched from auth.users
+                    id: profileId,
+                    email: email,
                     first_name: firstName,
                     last_name: lastName,
                     company_name: companyName || `${firstName} ${lastName}`,
-                    phone_number: phoneNumber, // Include phone number
+                    phone_number: phoneNumber,
                     company_id: companyId,
-                    profile_complete: true, // Set profile_complete to true
-                    team_role: 'manager', // Set team_role to manager
-                    industry, // Include industry
+                    profile_complete: true,
+                    team_role: 'manager',
+                    industry,
                 });
 
             if (error) {
                 throw new Error(error.message);
             }
-
-            console.log('Profile created successfully');
 
             setSuccess(true);
         } catch (error) {
@@ -223,7 +249,7 @@ export default function SignUpPage() {
                                 ) : (
                                     <>
                                         {currentStep === 1 && (
-                                            <form className="mt-4" onSubmit={handleSignUp}>
+                                            <form className="mt-4" onSubmit={handleSendOtp}>
                                                 <div className="mb-4">
                                                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Are you signing up as a company or an individual?</label>
                                                     <div className="flex gap-2 mt-2">
@@ -347,11 +373,32 @@ export default function SignUpPage() {
                                                     className="w-full body-btn mt-12"
                                                     disabled={loading}
                                                 >
-                                                    {loading ? 'Signing Up...' : 'Sign Up'}
+                                                    {loading ? 'Sending OTP...' : 'Send OTP'}
                                                 </button>
                                             </form>
                                         )}
-                                        {currentStep === 2 && companyId && (
+                                        {currentStep === 2 && (
+                                            <form className="mt-4" onSubmit={handleVerifyOtp}>
+                                                <label htmlFor="otp" className="mt-4">Enter OTP</label>
+                                                <input
+                                                    type="text"
+                                                    id="otp"
+                                                    value={otp}
+                                                    onChange={(e) => setOtp(e.target.value)}
+                                                    required
+                                                    className="w-full p-2 mb-6 border rounded"
+                                                    disabled={loading}
+                                                />
+                                                <button
+                                                    type="submit"
+                                                    className="w-full body-btn mt-12"
+                                                    disabled={loading}
+                                                >
+                                                    {loading ? 'Verifying OTP...' : 'Verify OTP'}
+                                                </button>
+                                            </form>
+                                        )}
+                                        {currentStep === 3 && companyId && (
                                             <InviteUserForm companyId={companyId} />
                                         )}
                                     </>

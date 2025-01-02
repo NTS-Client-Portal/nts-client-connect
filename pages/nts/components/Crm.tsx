@@ -167,7 +167,6 @@ const Crm: React.FC = () => {
           <thead className='bg-ntsBlue text-white'>
             <tr className='divide-x-2'>
               <th className="text-start px-4 py-2 border-b">Company Name</th>
-              <th className="text-start px-4 py-2 border-b">Company Size</th>
               <th className="text-start px-4 py-2 border-b">Company Users</th>
               <th className="text-start px-4 py-2 border-b">Shipping Quotes</th>
             </tr>
@@ -180,9 +179,8 @@ const Crm: React.FC = () => {
                     {company.company_name}
                   </Link>
                 </td>
-                <td className="px-4 py-2 border-b">{company.company_size}</td>
                 <td className="px-4 py-2 border-b">
-                  <ul className="list-disc list-inside">
+                  <ul className="list-inside">
                     {getProfilesForCompany(company.id).map(profile => (
                       <li key={profile.id}>
                         {profile.first_name} {profile.last_name} - {profile.email}
@@ -191,7 +189,7 @@ const Crm: React.FC = () => {
                   </ul>
                 </td>
                 <td className="px-4 py-2 border-b">
-                  <ul className="list-disc list-inside">
+                  <ul className="list-inside">
                     {getShippingQuotesForCompany(company.id).map(quote => (
                       <li key={quote.id}>
                         {quote.origin_city}, {quote.origin_state} to {quote.destination_city}, {quote.destination_state} - Due: {quote.due_date} - Status: {quote.status}
