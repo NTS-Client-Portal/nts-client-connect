@@ -29,7 +29,7 @@ export const NtsUsersProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 const { data, error } = await supabase
                     .from('nts_users')
                     .select('*')
-                    .eq('auth_uid', session.user.id)
+                    .eq('id', session.user.id)
                     .single();
 
                 if (error) {

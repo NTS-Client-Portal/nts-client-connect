@@ -2,7 +2,8 @@
     "workbench.editor.wrapTabs": true,
     "tailwindCSS.emmetCompletions": true,
     "editor.formatOnSave": false,
-    "editor.formatOnType": true,
-    "editor.formatOnPaste": true,
+    "editor.formatOnType": false,
+    "editor.formatOnPaste": false,
+    "editor.formatOnSave": true,
     "eslint.enable": true
-}
+  }

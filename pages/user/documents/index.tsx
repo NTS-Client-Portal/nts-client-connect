@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
-import Documents from '@/components/Documents';
+import Documents from '@/components/user/Documents';
 import UserLayout from '@/pages/components/UserLayout';
 import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
 import withProfileCheck from '@/components/hoc/withProfileCheck';
@@ -21,4 +21,4 @@ const UserDocumentsPage: React.FC = () => {
     );
 };
 
-export default (UserDocumentsPage);
+export default UserDocumentsPage;

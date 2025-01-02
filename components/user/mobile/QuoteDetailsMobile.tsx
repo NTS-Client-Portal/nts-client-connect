@@ -113,7 +113,7 @@ const QuoteDetailsMobile: React.FC<QuoteDetailsMobileProps> = ({
                         </select>
                     </div>
                     <div className='flex items-center justify-center w-full'>
-                        <button onClick={() => handleSort(sortConfig.column)} className="border w-full border-gray-300 rounded-md shadow-sm px-2 w-3/4">
+                        <button onClick={() => handleSort(sortConfig.column)} className="border border-gray-300 rounded-md shadow-sm px-2 w-3/4">
                             {sortConfig.order === 'asc' ? 'Asc' : 'Desc'}
                         </button>
                     </div>
