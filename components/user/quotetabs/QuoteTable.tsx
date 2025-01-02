@@ -125,11 +125,17 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
         }
     };
 
-    const handlePriceSubmit = async (e: React.FormEvent, quoteId: number) => {
+    const [depositInput, setDepositInput] = useState('');
+
+    const handlePriceSubmit = async (e, quoteId) => {
         e.preventDefault();
+        const price = parseFloat(priceInput);
+        const deposit = parseFloat(depositInput);
+        const totalPrice = price + deposit;
+
         const { error } = await supabase
             .from('shippingquotes')
-            .update({ price: parseFloat(priceInput) })
+            .update({ price, deposit, total_price: totalPrice })
             .eq('id', quoteId);
 
         if (error) {
@@ -138,6 +144,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
             fetchQuotes();
             setShowPriceInput(null);
             setPriceInput('');
+            setDepositInput('');
         }
     };
 
@@ -286,23 +293,38 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                     </a>
                                 </td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.due_date}</td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
+                                <td>
                                     {isAdmin ? (
                                         showPriceInput === quote.id ? (
                                             <form onSubmit={(e) => handlePriceSubmit(e, quote.id)}>
-                                                <input
-                                                    type="number"
-                                                    value={priceInput}
-                                                    onChange={(e) => setPriceInput(e.target.value)}
-                                                    placeholder="Enter price"
-                                                    className="border border-gray-300 rounded-md p-1"
-                                                />
-                                                <button type="submit" className="ml-2 text-ntsLightBlue font-medium underline">
+                                                <div className='flex flex-col items-center gap-1'>
+                                                    <span className='flex flex-col'>
+                                                        <label className='text-sm font-semibold text-ntsBlue'>Carrier Pay:</label>
+                                                            <input
+                                                                type="number"
+                                                                value={priceInput}
+                                                                onChange={(e) => setPriceInput(e.target.value)}
+                                                                placeholder="Enter price"
+                                                                className="border border-gray-300 rounded-md p-1"
+                                                            />
+                                                    </span>
+                                                    <span className='flex flex-col'>
+                                                        <label className='text-sm font-semibold text-emerald-600'>Deposit:</label>
+                                                        <input
+                                                            type="number"
+                                                            value={depositInput}
+                                                            onChange={(e) => setDepositInput(e.target.value)}
+                                                            placeholder="Enter deposit"
+                                                            className="border border-gray-300 rounded-md p-1"
+                                                        />
+                                                    </span>
+                                                </div>
+                                                <button type="submit" className="ml-2 text-ntsLightBlue text-sm font-semibold underline">
                                                     Submit
                                                 </button>
                                             </form>
                                         ) : (
-                                            <div>
+                                            <div className='flex justify-center gap-1'>
                                                 {quote.price ? (
                                                     <>
                                                         <span>{`$${quote.price}`}</span>

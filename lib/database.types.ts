@@ -1501,6 +1501,7 @@ export type Database = {
           contents_description: string | null
           cradle: boolean | null
           created_at: string | null
+          deposit: number | null
           destination_city: string | null
           destination_state: string | null
           destination_street: string | null
@@ -1579,6 +1580,7 @@ export type Database = {
           contents_description?: string | null
           cradle?: boolean | null
           created_at?: string | null
+          deposit?: number | null
           destination_city?: string | null
           destination_state?: string | null
           destination_street?: string | null
@@ -1657,6 +1659,7 @@ export type Database = {
           contents_description?: string | null
           cradle?: boolean | null
           created_at?: string | null
+          deposit?: number | null
           destination_city?: string | null
           destination_state?: string | null
           destination_street?: string | null

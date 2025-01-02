@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useNtsUsers } from '@/context/NtsUsersContext';
 import { Database } from '@/lib/database.types';
+import { Mail, PhoneForwarded } from 'lucide-react'
 
 interface Profile {
   address: string | null;
@@ -187,7 +188,15 @@ const Crm: React.FC = () => {
                   <ul className="list-inside">
                     {getProfilesForCompany(company.id).map(profile => (
                       <li key={profile.id}>
-                        {profile.first_name} {profile.last_name} - {profile.email}
+                        <div className='grid grid-cols-2 pb-2 border-b border-b-gray-200 pt-1 px-2'>
+                          <div className='font-medium'>  {profile.first_name} {profile.last_name}</div>
+                          <div className='flex flex-col gap-1 mt-1'>
+                            <a className='text-ntsLightBlue underline cursor-auto flex gap-1 items-center' href={`mailto:${profile.email}`}>
+                              <Mail /> Email {profile.first_name}</a>
+                            <a className='text-ntsLightBlue underline cursor-auto flex gap-1 items-center' href={`tel:${profile.phone_number}`}>
+                              <PhoneForwarded /> Call {profile.first_name}</a>
+                          </div>
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -219,7 +228,15 @@ const Crm: React.FC = () => {
               <ul className="list-inside">
                 {getProfilesForCompany(company.id).map(profile => (
                   <li key={profile.id}>
-                    {profile.first_name} {profile.last_name} - {profile.email}
+                    <div className='grid grid-cols-2 place-items-center py-2 border shadow-sm'>
+                    <div className='font-medium'>  {profile.first_name} {profile.last_name}</div>
+                      <div className='flex flex-col gap-1 mt-1'>
+                        <a className='text-ntsLightBlue underline cursor-auto flex gap-1 items-center' href={`mailto:${profile.email}`}>
+                          <Mail /> Email {profile.first_name}</a>
+                        <a className='text-ntsLightBlue underline cursor-auto flex gap-1 items-center' href={`tel:${profile.phone_number}`}>
+                          <PhoneForwarded /> Call {profile.first_name}</a>
+                      </div>
+                    </div>
                   </li>
                 ))}
               </ul>

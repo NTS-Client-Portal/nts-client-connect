@@ -113,15 +113,14 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                         <li>
                             <NotificationBell session={session} />
                         </li>
-                    </ul>
-                    <ul className='relative z-50'>
+        
                         <li>
                             <Image
                                 src={profilePictureUrl}
                                 alt='profile-img'
                                 className='rounded-full shadow-lg mr-1 cursor-pointer '
-                                width={48}
-                                height={48}
+                                width={44}
+                                height={44}
                                 onClick={toggleDropdown}
                             />
                             {dropdownOpen && (
