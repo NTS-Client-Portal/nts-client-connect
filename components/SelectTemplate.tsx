@@ -94,15 +94,15 @@ const SelectTemplate: React.FC<SelectTemplateProps> = ({ quoteId }) => {
     };
 
     return (
-        <div className="flex items-center">
+        <div className="">
             <select
                 value={selectedTemplate}
                 onChange={handleTemplateChange}
-                className="border border-gray-300 rounded-md p-1"
+                className="border border-gray-300 w-3/4 text-wrap rounded-md p-1"
             >
                 <option value="">Select Template</option>
                 {templates.map((template) => (
-                    <option key={template.id} value={template.id}>
+                    <option className='text-wrap text-xs' key={template.id} value={template.id}>
                         {template.title}
                     </option>
                 ))}

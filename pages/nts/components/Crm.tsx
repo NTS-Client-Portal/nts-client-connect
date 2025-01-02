@@ -178,8 +178,8 @@ const Crm: React.FC = () => {
           <tbody>
             {filteredCompanies.map(company => (
               <tr key={company.id} className="hover:bg-gray-100 divide-x-2">
-                <td className="px-4 py-2 border-b">
-                  <Link className="text-blue-500 hover:underline" href={`/companies/${company.id}`} legacyBehavior>
+                <td className="px-4 text-blue-500 hover:underline py-2 border-b">
+                  <Link className="text-blue-500 hover:underline cursor-auto" href={`/companies/${company.id}`} legacyBehavior>
                     {company.company_name}
                   </Link>
                 </td>

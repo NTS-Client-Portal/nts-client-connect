@@ -125,7 +125,6 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
         }
     };
 
-
     const handlePriceSubmit = async (e: React.FormEvent, quoteId: number) => {
         e.preventDefault();
         const { error } = await supabase
@@ -167,8 +166,10 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
             </button>
         );
     };
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedQuoteId, setSelectedQuoteId] = useState<number | null>(null);
+
 
 
     return (
@@ -195,8 +196,8 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                     className="border border-gray-300 pl-2 rounded-md shadow-sm"
                 />
             </div>
-            <table className="min-w-full divide-zinc-200">
-                <thead className="bg-ntsBlue border-2 border-t-orange-500 text-zinc-50  top-0 w-full">
+            <table className="min-w-full place-content-center divide-zinc-200">
+                <thead className="bg-ntsBlue border-2 border-t-orange-500 text-zinc-50  top-0 w-fit">
                     <tr>
                         <th className="px-6 py-3 text-left text-xs text-nowrap font-semibold uppercase tracking-wider">
                             <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
@@ -219,14 +220,16 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                         <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white divide-y divide-gray-200 w-fit">
                     {quotes.map((quote, index) => (
                         <React.Fragment key={quote.id}>
                             <tr
-                                onClick={() => handleRowClick(quote.id)}
                                 className={`cursor-pointer mb-4 w-max ${index % 2 === 0 ? 'bg-white h-fit w-full' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}
                             >
-                                <td className="px-6 py-3 w-[30px] whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200">
+                                <td
+                                    onClick={() => handleRowClick(quote.id)}
+                                    className="px-6 py-3 w-[30px] whitespace-nowrap text-sm font-medium text-ntsLightBlue underline border border-gray-200"
+                                >
                                     {quote.id}
                                 </td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.notes}</td>
@@ -276,10 +279,10 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                         href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${quote.origin_city}, ${quote.origin_state} ${quote.origin_zip}`)}&destination=${encodeURIComponent(`${quote.destination_city}, ${quote.destination_state} ${quote.destination_zip}`)}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-blue-500 hover:underline"
+                                        className="text-blue-500 underline"
                                     >
                                         {quote.origin_city}, {quote.origin_state} {quote.origin_zip} / <br />
-                                        {quote.destination_city}, {quote.destination_state} {quote.destination_zip}
+                                        {quote.destination_city}, {quote.destination_state} {quote.destination_zip} <br /> [Map It]
                                     </a>
                                 </td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.due_date}</td>
@@ -340,19 +343,9 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                         </div>
                                     )}
                                 </td>
-                                <td className="px-6 py-3 whitespace-nowrap text-left text-sm text-gray-500 border border-gray-200">
-                                    <div className='flex flex-col justify-center text-left items-start'>
+                                <td className="pl-3 py-3 whitespace-nowrap text-left text-sm text-gray-500 border border-gray-200 w-80">
+                                    <div className='flex flex-col gap-1 justify-start text-left items-start'>
                                         <div className='flex gap-2 items-center'>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleEditClick(quote);
-                                                }}
-                                                className="text-ntsLightBlue font-medium underline"
-                                            >
-                                                Edit Quote
-                                            </button>
-
                                             {quote.price ? (
                                                 <button
                                                     onClick={(e) => {
@@ -364,6 +357,16 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                     Create Order
                                                 </button>
                                             ) : null}
+
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleEditClick(quote);
+                                                }}
+                                                className="text-ntsLightBlue font-medium underline"
+                                            >
+                                                Edit Quote
+                                            </button>
                                         </div>
                                         {isAdmin ? (
                                             <>
