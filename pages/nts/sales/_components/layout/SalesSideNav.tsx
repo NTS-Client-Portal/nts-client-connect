@@ -41,7 +41,7 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
     return (
         <>
             <div>
-                <div className="md:hidden">
+                <div className="xl:hidden">
                     <button
                         className="fixed z-50 top-1 left-0 p-2 drop-shadow-lg rounded-full"
                         onClick={toggleSidebar}

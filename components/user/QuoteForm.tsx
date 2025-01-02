@@ -209,10 +209,10 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
 
 
     return (
-        <div className="fixed z-50 inset-0 bg-zinc-600 bg-opacity-50 flex justify-center  h-fit-content items-center">
-            <div className="bg-ntsBlue border-2 border-t-orange-500 border-x-0 border-b-0 drop-shadow-xl pt-2 rounded w-full h-[95vh] md:h-xl md:max-h-lg overflow-y-auto max-w-3xl relative z-50">
+        <div className="fixed z-50 inset-0 bg-zinc-600 bg-opacity-50 flex justify-center  h-fit-content items-center  ">
+            <div className="border-2 bg-ntsBlue border-t-orange-500 border-x-0 border-b-0 drop-shadow-xl pt-2 rounded w-sm max-w-[95vw] overflow-y-auto relative  z-50">
                 <h2 className="text-xl text-white font-semibold pl-4 mb-2">{ntsUser ? 'Create Shipping Quote for Customer' : profilesUser ? 'Request a Shipping Estimate' : 'Request a Shipping Estimate'}</h2>
-                <form onSubmit={handleSubmit} className="flex flex-col gap-3 bg-white relative z-50 p-4">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-3 bg-white relative z-50 p-4 ">
                     <label className='dark:text-zinc-100 font-medium'>Select Inventory Item
                         <select
                             className="rounded text-zinc-800 bg-white w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
