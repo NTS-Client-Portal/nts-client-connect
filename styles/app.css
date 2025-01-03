@@ -995,6 +995,10 @@ body:is(.dark *) {
   margin-top: auto;
 }
 
+.mt-10 {
+  margin-top: 2.5rem;
+}
+
 .block {
   display: block;
 }
@@ -1147,6 +1151,18 @@ body:is(.dark *) {
 
 .h-screen {
   height: 100vh;
+}
+
+.h-\[90vh\] {
+  height: 90vh;
+}
+
+.h-2\/3 {
+  height: 66.666667%;
+}
+
+.h-3\/4 {
+  height: 75%;
 }
 
 .max-h-40 {
@@ -4287,6 +4303,10 @@ main:is(.dark *) {
 
   .md\:h-full {
     height: 100%;
+  }
+
+  .md\:h-4\/5 {
+    height: 80%;
   }
 
   .md\:w-1\/2 {

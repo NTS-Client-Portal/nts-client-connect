@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ShippingQuote } from '@/lib/schema';
 import EditHistory from '../../EditHistory';
+import axios from 'axios';
 
 interface EditQuoteModalProps {
     isOpen: boolean;
@@ -12,11 +13,14 @@ interface EditQuoteModalProps {
 const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubmit, quote }) => {
     const [updatedQuote, setUpdatedQuote] = useState<ShippingQuote | null>(quote);
     const [originZip, setOriginZip] = useState('');
+    const [originInput, setOriginInput] = useState('');
     const [originCity, setOriginCity] = useState('');
     const [originState, setOriginState] = useState('');
     const [destinationZip, setDestinationZip] = useState('');
     const [destinationCity, setDestinationCity] = useState('');
     const [destinationState, setDestinationState] = useState('');
+    const [errorText, setErrorText] = useState<string>('');
+    const [destinationInput, setDestinationInput] = useState('');
 
     useEffect(() => {
         if (quote) {
@@ -30,41 +34,39 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
         }
     }, [quote]);
 
-    const handleZipCodeBlur = async (type: 'origin' | 'destination') => {
-        const zipCode = type === 'origin' ? originZip : destinationZip;
-        if (zipCode.length === 5) {
+    const handleZipCodeBlur = async () => {
+        if (originInput.match(/^\d{5}$/)) {
+            // Input is a zip code
             try {
-                const response = await fetch(`https://api.zippopotam.us/us/${zipCode}`);
-                if (response.ok) {
-                    const data = await response.json();
+                const response = await axios.get(`https://api.zippopotam.us/us/${originInput}`);
+                if (response.status === 200) {
+                    const data = response.data;
                     const city = data.places[0]['place name'];
                     const state = data.places[0]['state abbreviation'];
-                    if (type === 'origin') {
-                        setOriginCity(city);
-                        setOriginState(state);
-                        setUpdatedQuote((prev) => prev ? { ...prev, origin_city: city, origin_state: state } : null);
-                    } else {
-                        setDestinationCity(city);
-                        setDestinationState(state);
-                        setUpdatedQuote((prev) => prev ? { ...prev, destination_city: city, destination_state: state } : null);
-                    }
-                } else {
-                    if (type === 'origin') {
-                        setOriginCity('');
-                        setOriginState('');
-                    } else {
-                        setDestinationCity('');
-                        setDestinationState('');
-                    }
+                    setOriginCity(city);
+                    setOriginState(state);
+                    setOriginZip(originInput);
+                    setOriginInput(`${city}, ${state} ${originInput}`);
                 }
             } catch (error) {
                 console.error('Error fetching city and state:', error);
-                if (type === 'origin') {
-                    setOriginCity('');
-                    setOriginState('');
-                } else {
-                    setDestinationCity('');
-                    setDestinationState('');
+            }
+        } else {
+            // Input is a city and state
+            const [city, state] = originInput.split(',').map((str) => str.trim());
+            if (city && state) {
+                try {
+                    const response = await axios.get(`https://api.zippopotam.us/us/${state}/${city}`);
+                    if (response.status === 200) {
+                        const data = response.data;
+                        const zip = data.places[0]['post code'];
+                        setOriginCity(city);
+                        setOriginState(state);
+                        setOriginZip(zip);
+                        setOriginInput(`${city}, ${state} ${zip}`);
+                    }
+                } catch (error) {
+                    console.error('Error fetching zip code:', error);
                 }
             }
         }
@@ -97,7 +99,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
             case 'equipment':
                 return (
                     <>
-                        <div className='flex gap-3'>
+                        <div className='flex gap-3 mt-2'>
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">Year</label>
                                 <input
@@ -105,7 +107,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                     name="year"
                                     value={updatedQuote.year || ''}
                                     onChange={handleChange}
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                                 />
                             </div>
                             <div className="mb-4">
@@ -115,7 +117,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                     name="make"
                                     value={updatedQuote.make || ''}
                                     onChange={handleChange}
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                                 />
                             </div>
                             <div className="mb-4">
@@ -125,7 +127,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                     name="model"
                                     value={updatedQuote.model || ''}
                                     onChange={handleChange}
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                                 />
                             </div>
                         </div>
@@ -135,7 +137,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 name="operational_condition"
                                 value={updatedQuote.operational_condition === null ? '' : updatedQuote.operational_condition ? 'operable' : 'inoperable'}
                                 onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'operable' ? 'true' : 'false' } })}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                             >
                                 <option value="">Select...</option>
                                 <option value="operable">Operable</option>
@@ -149,7 +151,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 name="loading_unloading_requirements"
                                 value={updatedQuote.loading_unloading_requirements || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                             />
                         </div>
                         <div className="mb-4">
@@ -158,42 +160,44 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 name="tarping"
                                 value={updatedQuote.tarping === null ? '' : updatedQuote.tarping ? 'yes' : 'no'}
                                 onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'yes' ? 'true' : 'false' } })}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                             >
                                 <option value="">Select...</option>
                                 <option value="yes">Yes</option>
                                 <option value="no">No</option>
                             </select>
                         </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Auction</label>
-                            <input
-                                type="text"
-                                name="auction"
-                                value={updatedQuote.auction || ''}
-                                onChange={handleChange}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Buyer Number</label>
-                            <input
-                                type="text"
-                                name="buyer_number"
-                                value={updatedQuote.buyer_number || ''}
-                                onChange={handleChange}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Lot Number</label>
-                            <input
-                                type="text"
-                                name="lot_number"
-                                value={updatedQuote.lot_number || ''}
-                                onChange={handleChange}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
-                            />
+                        <div className='flex gap-3 items-center'>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">Auction</label>
+                                <input
+                                    type="text"
+                                    name="auction"
+                                    value={updatedQuote.auction || ''}
+                                    onChange={handleChange}
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">Buyer Number</label>
+                                <input
+                                    type="text"
+                                    name="buyer_number"
+                                    value={updatedQuote.buyer_number || ''}
+                                    onChange={handleChange}
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">Lot Number</label>
+                                <input
+                                    type="text"
+                                    name="lot_number"
+                                    value={updatedQuote.lot_number || ''}
+                                    onChange={handleChange}
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                />
+                            </div>
                         </div>
                         <div className='mb-4'>
                             <label className="block text-sm font-medium text-gray-700">Pickup Date</label>
@@ -202,7 +206,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 name="due_date"
                                 value={updatedQuote.due_date || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                             />
                         </div>
                         <div className='mb-4'>
@@ -225,7 +229,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 name="container_length"
                                 value={updatedQuote.container_length || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                             />
                         </div>
                         <div className="mb-4">
@@ -235,7 +239,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 name="container_type"
                                 value={updatedQuote.container_type || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                             />
                         </div>
                         <div className="mb-4">
@@ -245,7 +249,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 name="contents_description"
                                 value={updatedQuote.contents_description || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                             />
                         </div>
                         <div className="mb-4">
@@ -255,7 +259,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 name="destination_surface_type"
                                 value={updatedQuote.destination_surface_type || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                             />
                         </div>
                         <div className="mb-4">
@@ -264,7 +268,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 name="destination_type"
                                 value={updatedQuote.destination_type === null ? '' : updatedQuote.destination_type ? 'Business' : 'Residential'}
                                 onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'Business' ? 'true' : 'false' } })}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                             >
                                 <option value="">Select...</option>
                                 <option value="Business">Business</option>
@@ -278,7 +282,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 name="goods_value"
                                 value={updatedQuote.goods_value || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                             />
                         </div>
                         <div className="mb-4">
@@ -287,7 +291,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 name="is_loaded"
                                 value={updatedQuote.is_loaded === null ? '' : updatedQuote.is_loaded ? 'yes' : 'no'}
                                 onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'yes' ? 'true' : 'false' } })}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                             >
                                 <option value="">Select...</option>
                                 <option value="yes">Yes</option>
@@ -300,7 +304,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 name="loading_by"
                                 value={updatedQuote.loading_by === null ? '' : updatedQuote.loading_by ? 'yes' : 'no'}
                                 onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'yes' ? 'true' : 'false' } })}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                             >
                                 <option value="">Select...</option>
                                 <option value="yes">Yes</option>
@@ -314,7 +318,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 name="origin_surface_type"
                                 value={updatedQuote.origin_surface_type || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                             />
                         </div>
                         <div className="mb-4">
@@ -323,7 +327,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 name="origin_type"
                                 value={updatedQuote.origin_type === null ? '' : updatedQuote.origin_type ? 'Business' : 'Residential'}
                                 onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'Business' ? 'true' : 'false' } })}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                             >
                                 <option value="">Select...</option>
                                 <option value="Business">Business</option>
@@ -341,98 +345,44 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
     if (!isOpen || !updatedQuote) return null;
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="flex gap-2 bg-white p-4 rounded shadow-lg w-fit">
-                <form className='border border-r px-2 ' onSubmit={handleSubmit}>
+        <div className="fixed inset-0 flex overflow-y-auto  items-center justify-center bg-black bg-opacity-50">
+            <div className="relative z-50 flex mt-10 md:mt-0 gap-2 bg-white h-[90vh] md:h-4/5 overflow-y-auto p-4 rounded shadow-lg w-[98vw] md:w-fit">
+                <form className='border-r px-2 ' onSubmit={handleSubmit}>
                     <h2 className="text-xl font-bold mb-4">Edit Quote</h2>
-                    <div className='flex gap-2'>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Origin Zipcode</label>
+                    <div className='flex flex-col md:flex-row gap-2 w-full'>
+                        <div className='flex flex-col items-start'>
+                            <label className='text-zinc-900 font-medium'>Origin</label>
                             <input
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                                 type="text"
-                                name="origin_zip"
-                                value={originZip}
-                                onChange={(e) => {
-                                    setOriginZip(e.target.value);
-                                    handleChange(e);
-                                }}
-                                onBlur={() => handleZipCodeBlur('origin')}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                                placeholder='Zip or City, State'
+                                value={originInput}
+                                onChange={(e) => setOriginInput(e.target.value)}
+                                onBlur={handleZipCodeBlur}
                             />
+
+                            <input type="hidden" value={originCity} />
+                            <input type="hidden" value={originState} />
+                            <input type="hidden" value={originZip} />
                         </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Destination Zipcode</label>
+                        <div className='flex flex-col items-start'>
+                            <label className='text-zinc-900 font-medium'>Destination</label>
                             <input
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                                 type="text"
-                                name="destination_zip"
-                                value={destinationZip}
-                                onChange={(e) => {
-                                    setDestinationZip(e.target.value);
-                                    handleChange(e);
-                                }}
-                                onBlur={() => handleZipCodeBlur('destination')}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                                placeholder='Zip or City, State'
+                                value={destinationInput}
+                                onChange={(e) => setDestinationInput(e.target.value)}
+                                onBlur={handleZipCodeBlur}
                             />
-                        </div>
-                    </div>
-                    <div className='flex gap-2'>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Origin City</label>
-                            <input
-                                type="text"
-                                name="origin_city"
-                                value={originCity}
-                                onChange={(e) => {
-                                    setOriginCity(e.target.value);
-                                    handleChange(e);
-                                }}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Origin State</label>
-                            <input
-                                type="text"
-                                name="origin_state"
-                                value={originState}
-                                onChange={(e) => {
-                                    setOriginState(e.target.value);
-                                    handleChange(e);
-                                }}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
-                            />
-                        </div>
-                    </div>
-                    <div className='flex gap-2'>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Destination City</label>
-                            <input
-                                type="text"
-                                name="destination_city"
-                                value={destinationCity}
-                                onChange={(e) => {
-                                    setDestinationCity(e.target.value);
-                                    handleChange(e);
-                                }}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Destination State</label>
-                            <input
-                                type="text"
-                                name="destination_state"
-                                value={destinationState}
-                                onChange={(e) => {
-                                    setDestinationState(e.target.value);
-                                    handleChange(e);
-                                }}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
-                            />
+
+                            <input type="hidden" value={destinationCity} />
+                            <input type="hidden" value={destinationState} />
+                            <input type="hidden" value={destinationZip} />
                         </div>
                     </div>
                     {renderInputFields()}
-                    <div className="flex justify-end">
+                    <div className="flex justify-end pb-4">
                         <button type="button" onClick={onClose} className="mr-2 px-4 py-2 bg-gray-300 rounded">
                             Cancel
                         </button>
@@ -441,7 +391,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                         </button>
                     </div>
                 </form>
-                <EditHistory quoteId={quote?.id || 0} searchTerm="" searchColumn="id" editHistory={[]} />
+                {/* <EditHistory quoteId={quote?.id || 0} searchTerm="" searchColumn="id" editHistory={[]} /> */}
             </div>
         </div>
     );
