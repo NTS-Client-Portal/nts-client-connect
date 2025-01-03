@@ -106,63 +106,62 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
 
     return (
         <>
-            <nav className={`md:hidden w-full max-h-max bg-white flex flex-col md:flex-row gap-1 justify-end px-4 relative z-50 py-1 drop-shadow ${className}`}>
-                <div className='flex gap-2 items-center relative z-50 justify-between mr-4'>
-                    <ul className='flex gap-2 items-center justify-end w-full'>
+            <nav className={`md:hidden w-full max-h-max bg-white py-1 drop-shadow ${className}`}>
+                <div className='flex flex-row-reverse justify-around w-full'>
 
-                        <li>
-                            <NotificationBell session={session} />
-                        </li>
-        
-                        <li>
-                            <Image
-                                src={profilePictureUrl}
-                                alt='profile-img'
-                                className='rounded-full shadow-lg mr-1 cursor-pointer '
-                                width={44}
-                                height={44}
-                                onClick={toggleDropdown}
-                            />
-                            {dropdownOpen && (
-                                <div className="absolute right-0 mt-1 md:mt-2 z-50 w-fit text-sm bg-white border border-gray-200 rounded shadow-lg">
-                                    <div className="p-4">
-                                        <span className="text-sm">Assigned Representative:</span>
-                                        {assignedSalesUsers.map((user, index) => (
-                                            <div key={index} className="font-bold text-xs">
-                                                {user.first_name} {user.last_name} - {user.phone_number} <br /> {user.email}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className="border-t border-gray-200">
-                                        <Link href="/user/settings" className="block px-2 py-2 border-b border-gray-200 font-semibold text-gray-800 hover:bg-gray-100">
-                                            User Settings
-                                        </Link>
-                                        <Link href="/user/settings" className="block px-2 py-2 border-b border-gray-200 font-semibold text-gray-800 hover:bg-gray-100">
-                                            Security Settings
-                                        </Link>
-                                        <button
-                                            onClick={handleLogout}
-                                            className="block w-full text-left font-semibold px-2 border-b border-gray-200 py-2 text-gray-800 hover:bg-gray-100"
-                                        >
-                                            Logout
-                                        </button>
-                                        <span className='flex justify-center items-center my-2'> <FeedBack /></span>
-                                    </div>
+
+                    <span>
+                        <NotificationBell session={session} />
+                    </span>
+
+                    <span>
+                        <Image
+                            src={profilePictureUrl}
+                            alt='profile-img'
+                            className='rounded-full shadow-lg cursor-pointer '
+                            width={44}
+                            height={44}
+                            onClick={toggleDropdown}
+                        />
+                        {dropdownOpen && (
+                            <div className="absolute right-0 mt-1 md:mt-2 z-50 w-fit text-sm bg-white border border-gray-200 rounded shadow-lg">
+                                <div className="p-4">
+                                    <span className="text-sm">Assigned Representative:</span>
+                                    {assignedSalesUsers.map((user, index) => (
+                                        <div key={index} className="font-bold text-xs">
+                                            {user.first_name} {user.last_name} - {user.phone_number} <br /> {user.email}
+                                        </div>
+                                    ))}
                                 </div>
-                            )}
-                        </li>
-                    </ul>
+                                <div className="border-t border-gray-200">
+                                    <Link href="/user/settings" className="block px-2 py-2 border-b border-gray-200 font-semibold text-gray-800 hover:bg-gray-100">
+                                        User Settings
+                                    </Link>
+                                    <Link href="/user/settings" className="block px-2 py-2 border-b border-gray-200 font-semibold text-gray-800 hover:bg-gray-100">
+                                        Security Settings
+                                    </Link>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="block w-full text-left font-semibold px-2 border-b border-gray-200 py-2 text-gray-800 hover:bg-gray-100"
+                                    >
+                                        Logout
+                                    </button>
+                                    <span className='flex justify-center items-center my-2'> <FeedBack /></span>
+                                </div>
+                            </div>
+                        )}
+                    </span>
 
                 </div>
             </nav>
             <nav className={`hidden w-full bg-white z-20 md:flex flex-col md:flex-row gap-1 justify-between px-4 py-2 drop-shadow ${className}`}>
-                <ul className='w-full flex gap-2 md:gap-4 items-center z-20 justify-start pl-64'>
+                <ul className='w-full flex md:gap-12 items-center z-20 justify-start pl-64'>
                     <li>
                         <FeedBack />
                     </li>
 
                 </ul>
-                <ul className='w-full flex gap-2 md:gap-4 items-start z-20 justify-end mr-12'>
+                <ul className='w-full flex gap-12 items-center z-20 justify-end mr-12'>
                     <li>
                         <NotificationBell session={session} />
                     </li>
@@ -171,8 +170,8 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                             src={profilePictureUrl}
                             alt='profile-img'
                             className='rounded-full shadow-md cursor-pointer '
-                            width={34}
-                            height={34}
+                            width={40}
+                            height={40}
                             onClick={toggleDropdown}
                         />
                         {dropdownOpen && (

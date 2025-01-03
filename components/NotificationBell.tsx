@@ -65,23 +65,23 @@ const NotificationBell = ({ session }) => {
     };
 
     return (
-        <span className="relative z-50 w-full h-full" ref={dropdownRef}>
+        <div className="relative" ref={dropdownRef}>
             <button onClick={toggleDropdown}>
                 <Bell className="h-9 w-auto mt-1 text-zinc-900 dark:text-stone-50" />
-                {notifications.length > 0 && <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 dark:bg-red-500 rounded-full"></span>}
+                {notifications.length > 0 && <span className="absolute top-0 left-0 h-2 w-2 bg-red-500 dark:bg-red-500 rounded-full"></span>}
             </button>
             {dropdownOpen && (
-                <div className="absolute w-screen md:w-[400px] top-0 bg-white dark:bg-zinc-800 shadow-lg rounded-md overflow-hidden">
-                    <div className="p-2">
+                <div className="absolute w-96 md:w-[300px] top-6 lg:left-12 transform -translate-x-1/2 bg-white dark:bg-zinc-800 shadow-lg rounded-md overflow-hidden">
+                    <div className="p-1">
                         {notifications.length > 0 ? (
                             notifications.map((notification) => (
                                 <div
                                     key={notification.id}
-                                    className={`p-2 border-b z-50 border-zinc-200 ${notification.is_read ? 'bg-white dark:bg-zinc-600' : 'bg-zinc-300 dark:bg-zinc-900'}`}
+                                    className={`p-2 border-b  border-zinc-200 ${notification.is_read ? 'bg-white dark:bg-zinc-600' : 'bg-zinc-300 dark:bg-zinc-900'}`}
                                 >
-                                    <div className="flex justify-between items-center w-full">
+                                    <div className="flex flex-col justify-between items-center w-full">
                                         <span
-                                            className="dark:text-stone-100"
+                                            className="dark:text-stone-100 text-sm px-2 text-center"
                                             dangerouslySetInnerHTML={{ __html: notification.message }}
                                         ></span>
                                         {!notification.is_read && (
@@ -110,7 +110,7 @@ const NotificationBell = ({ session }) => {
                 </div>
             )}
             {errorText && <div className="text-red-500">{errorText}</div>}
-        </span>
+        </div>
     );
 };
 

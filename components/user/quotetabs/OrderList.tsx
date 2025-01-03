@@ -221,7 +221,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
                     await insertDocumentRecord(filePath, quote, templateData.title);
 
                     // Create a notification for the user
-                    const notificationMessage = `Quote ID ${quote.id} was delivered. <a class="text-ntsLightBlue underline font-semibold" href="/user/documents">View Quote</a>`;
+                    const notificationMessage = `Order ID ${quote.id} was delivered. <a class="text-ntsLightBlue underline font-semibold" href="/user/documents">View Order Details</a>`;
                     await supabase
                         .from('notifications')
                         .insert({

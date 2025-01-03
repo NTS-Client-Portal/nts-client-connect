@@ -1503,6 +1503,8 @@ export type Database = {
           created_at: string | null
           deposit: number | null
           destination_city: string | null
+          destination_name: string | null
+          destination_phone: string | null
           destination_state: string | null
           destination_street: string | null
           destination_surface_type: string | null
@@ -1539,6 +1541,8 @@ export type Database = {
           operational_condition: boolean | null
           origin_address: string | null
           origin_city: string | null
+          origin_name: string | null
+          origin_phone: string | null
           origin_state: string | null
           origin_street: string | null
           origin_surface_type: string | null
@@ -1582,6 +1586,8 @@ export type Database = {
           created_at?: string | null
           deposit?: number | null
           destination_city?: string | null
+          destination_name?: string | null
+          destination_phone?: string | null
           destination_state?: string | null
           destination_street?: string | null
           destination_surface_type?: string | null
@@ -1618,6 +1624,8 @@ export type Database = {
           operational_condition?: boolean | null
           origin_address?: string | null
           origin_city?: string | null
+          origin_name?: string | null
+          origin_phone?: string | null
           origin_state?: string | null
           origin_street?: string | null
           origin_surface_type?: string | null
@@ -1661,6 +1669,8 @@ export type Database = {
           created_at?: string | null
           deposit?: number | null
           destination_city?: string | null
+          destination_name?: string | null
+          destination_phone?: string | null
           destination_state?: string | null
           destination_street?: string | null
           destination_surface_type?: string | null
@@ -1697,6 +1707,8 @@ export type Database = {
           operational_condition?: boolean | null
           origin_address?: string | null
           origin_city?: string | null
+          origin_name?: string | null
+          origin_phone?: string | null
           origin_state?: string | null
           origin_street?: string | null
           origin_surface_type?: string | null
