@@ -300,13 +300,13 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                 <div className='flex flex-col items-center gap-1'>
                                                     <span className='flex flex-col'>
                                                         <label className='text-sm font-semibold text-ntsBlue'>Carrier Pay:</label>
-                                                            <input
-                                                                type="number"
-                                                                value={priceInput}
-                                                                onChange={(e) => setPriceInput(e.target.value)}
-                                                                placeholder="Enter price"
-                                                                className="border border-gray-300 rounded-md p-1"
-                                                            />
+                                                        <input
+                                                            type="number"
+                                                            value={priceInput}
+                                                            onChange={(e) => setPriceInput(e.target.value)}
+                                                            placeholder="Enter price"
+                                                            className="border border-gray-300 rounded-md p-1"
+                                                        />
                                                     </span>
                                                     <span className='flex flex-col'>
                                                         <label className='text-sm font-semibold text-emerald-600'>Deposit:</label>

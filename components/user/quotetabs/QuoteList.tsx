@@ -36,6 +36,35 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
     const [popupMessage, setPopupMessage] = useState<string | null>(null); // Add state for popup message
     const [showOrderForm, setShowOrderForm] = useState(false);
     const [errorText, setErrorText] = useState<string>('');
+    const [showPriceInput, setShowPriceInput] = useState<number | null>(null);
+    const [priceInput, setPriceInput] = useState<string>('');
+
+    const user = session?.user;
+
+    const fetchQuotes = useCallback(async () => {
+        if (!user) return;
+
+        try {
+            const { data, error } = await supabase
+                .from('shippingquotes')
+                .select('*')
+                .eq('user_id', user.id);
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            setQuotes(data || []);
+        } catch (error) {
+            console.error('Error fetching quotes:', error);
+        }
+    }, [user, supabase]);
+
+    useEffect(() => {
+        if (user) {
+            fetchQuotes();
+        }
+    }, [user, fetchQuotes]);
 
     const archiveQuote = async (quoteId: number) => {
         const { error } = await supabase
@@ -430,6 +459,35 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
         }
     }, [popupMessage]);
 
+    const getStatusClasses = (status: string) => {
+        switch (status) {
+            case 'In Progress':
+                return 'bg-blue-50 text-blue-700';
+            case 'Need More Info':
+                return 'bg-amber-50 text-amber-700';
+            case 'Priced':
+                return 'bg-green-50 text-green-700';
+            case 'Cancelled':
+                return 'bg-red-50 text-red-700';
+            default:
+                return 'bg-gray-50 text-gray-700';
+        }
+    };
+
+    const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>, quoteId: number) => {
+        const newStatus = e.target.value;
+
+        // Update the status in the database
+        const { error } = await supabase
+            .from('shippingquotes')
+            .update({ brokers_status: newStatus })
+            .eq('id', quoteId);
+
+        if (error) {
+            console.error('Error updating status:', error.message);
+        }
+    };
+
 
     return (
         <div className="w-full bg-white max-h-max flex-grow">
@@ -479,24 +537,22 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
                 />
             </div>
             <div className="block md:hidden">
-                {quotes.map((quote) => (
-                    <QuoteDetailsMobile
-                        key={quote.id}
-                        quotes={quotes}
-                        handleStatusChange={() => { }}
-                        getStatusClasses={() => ''}
-                        formatDate={formatDate}
-                        archiveQuote={null}
-                        handleEditClick={handleEditClick}
-                        handleCreateOrderClick={handleCreateOrderClick}
-                        handleRespond={handleRespond}
-                        isAdmin={isAdmin}
-                        setShowPriceInput={() => { }}
-                        showPriceInput={null}
-                        priceInput={null}
-                        setPriceInput={() => { }}
-                    />
-                ))}
+                <QuoteDetailsMobile
+                    quotes={quotes}
+                    handleStatusChange={handleStatusChange}
+                    getStatusClasses={getStatusClasses}
+                    formatDate={formatDate}
+                    archiveQuote={archiveQuote}
+                    handleEditClick={handleEditClick}
+                    handleCreateOrderClick={handleCreateOrderClick}
+                    handleRespond={handleRespond}
+                    isAdmin={isAdmin} // Replace with actual isAdmin value
+                    setShowPriceInput={setShowPriceInput}
+                    showPriceInput={showPriceInput}
+                    priceInput={priceInput}
+                    setPriceInput={setPriceInput}
+                    handleRejectClick={handleRejectClick}
+                />
             </div>
         </div>
     );
