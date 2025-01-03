@@ -71,7 +71,7 @@ const NotificationBell = ({ session }) => {
                 {notifications.length > 0 && <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 dark:bg-red-500 rounded-full"></span>}
             </button>
             {dropdownOpen && (
-                <div className="absolute w-[200px] md:w-[400px] top-0 md:right-0 bg-white dark:bg-zinc-800 shadow-lg rounded-md overflow-hidden">
+                <div className="absolute w-screen md:w-[400px] top-0 bg-white dark:bg-zinc-800 shadow-lg rounded-md overflow-hidden">
                     <div className="p-2">
                         {notifications.length > 0 ? (
                             notifications.map((notification) => (

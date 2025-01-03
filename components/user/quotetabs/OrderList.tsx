@@ -338,22 +338,22 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
 
     return (
         <div className="w-full bg-white  shadow rounded-md max-h-max flex-grow">
-
-
             {!!errorText && <div className="text-red-500">{errorText}</div>}
             <div className="hidden 2xl:block overflow-x-auto">
                 <OrderTable
-                    handleEditClick={handleEditQuote}
-                    isAdmin={isAdmin}
-                    sortConfig={sortConfig}
+                    sortConfig={{ column: 'id', order: 'asc' }}
                     handleSort={handleSort}
                     orders={quotes}
                     expandedRow={expandedRow}
                     handleRowClick={handleRowClick}
                     archiveOrder={archiveOrder}
                     handleMarkAsComplete={(id) => () => handleMarkAsComplete(id)}
+                    isAdmin={true}
+                    handleEditClick={handleEditQuote}
                     searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
                     searchColumn={searchColumn}
+                    setSearchColumn={setSearchColumn}
                 />
             </div>
             <div className="block md:hidden">

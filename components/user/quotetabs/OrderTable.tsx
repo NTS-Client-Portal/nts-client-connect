@@ -1,8 +1,9 @@
-import React, { useState, useMemo, } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Database } from '@/lib/database.types';
 import { supabase } from '@/lib/initSupabase';
 import { formatDate, freightTypeMapping } from './QuoteUtils';
 import { MoveHorizontal } from 'lucide-react';
+import { useRouter } from 'next/router';
 
 interface OrderTableProps {
     sortConfig: { column: string; order: string };
@@ -15,8 +16,12 @@ interface OrderTableProps {
     isAdmin: boolean;
     handleMarkAsComplete: (id: number) => React.MouseEventHandler<HTMLButtonElement>;
     searchTerm: string;
+    setSearchTerm: (term: string) => void;
     searchColumn: string;
+    setSearchColumn: (column: string) => void;
 }
+
+
 
 const OrderTable: React.FC<OrderTableProps> = ({
     sortConfig,
@@ -29,11 +34,23 @@ const OrderTable: React.FC<OrderTableProps> = ({
     isAdmin,
     handleMarkAsComplete,
     searchTerm,
+    setSearchTerm,
     searchColumn,
+    setSearchColumn,
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [activeTab, setActiveTab] = useState<'orderdetails' | 'editHistory'>('orderdetails');
     const rowsPerPage = 10;
+
+    const router = useRouter();
+
+    useEffect(() => {
+        const { searchTerm, searchColumn } = router.query;
+        if (searchTerm && searchColumn) {
+            setSearchTerm(searchTerm as string);
+            setSearchColumn(searchColumn as string);
+        }
+    }, [router.query, setSearchTerm, setSearchColumn]);
 
     const indexOfLastRow = currentPage * rowsPerPage;
     const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -115,6 +132,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
         }
     }
 
+
     async function handleStatusChange(e: React.ChangeEvent<HTMLSelectElement>, id: number): Promise<void> {
         const newStatus = e.target.value;
         try {
@@ -138,6 +156,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
         }
     }
 
+
     return (
         <div className='w-full'>
             <div className="flex justify-start gap-4 my-4 ml-4">
@@ -145,7 +164,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                     <label className="mr-2">Search by:</label>
                     <select
                         value={searchColumn}
-                        onChange={(e) => (e.target.value)}
+                        onChange={(e) => setSearchColumn(e.target.value)}
                         className="border border-gray-300 rounded-md shadow-sm"
                     >
                         <option value="id">ID</option>
@@ -157,7 +176,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                 <input
                     type="text"
                     value={searchTerm}
-                    onChange={(e) => (e.target.value)}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search..."
                     className="border border-gray-300 pl-2 rounded-md shadow-sm"
                 />

@@ -356,10 +356,14 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                 )}
                 {activeTab === 'orders' && (
                     <OrderList
-                        session={session}
-                        fetchQuotes={fetchQuotes}
-                        isAdmin={isAdmin}
-                        selectedUserId={selectedUserId}
+                    session={session}
+                    fetchQuotes={fetchQuotes}
+                    isAdmin={isAdmin}
+                    selectedUserId={selectedUserId}
+                    searchTerm={searchTerm}
+                    searchColumn={searchColumn}
+                    setSearchTerm={setSearchTerm}
+                    setSearchColumn={setSearchColumn}
                     />
                 )}
                 {activeTab === 'delivered' && (
