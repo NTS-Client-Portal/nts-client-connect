@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
 import { Database } from '@lib/database.types';
-import { set } from 'react-hook-form';
+import { v4 as uuidv4 } from 'uuid';
 
 interface LanesInventoryProps {
     session: Session | null;
 }
-
+type profiles = Database['public']['Tables']['profiles']['Row'];
 type Lane = Database['public']['Tables']['lanes_inventory']['Row'];
 
 const LanesInventory = ({ session }: LanesInventoryProps) => {
@@ -24,8 +24,30 @@ const LanesInventory = ({ session }: LanesInventoryProps) => {
     const [destinationState, setDestinationState] = useState<string>('');
     const [destinationZip, setDestinationZip] = useState<string>('');
     const [notes, setNotes] = useState<string>('');
+    const [companyId, setCompanyId] = useState<string>('');
 
     const user = session?.user;
+
+    const fetchCompanyId = useCallback(async () => {
+        if (!user) return;
+
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('company_id')
+                .eq('id', user.id)
+                .single();
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            setCompanyId(data.company_id);
+        } catch (error) {
+            console.error('Error fetching company ID:', error);
+            setErrorText('Error fetching company ID');
+        }
+    }, [user, supabase]);
 
     const fetchLanes = useCallback(async () => {
         if (!user) return;
@@ -34,7 +56,7 @@ const LanesInventory = ({ session }: LanesInventoryProps) => {
             const { data, error } = await supabase
                 .from('lanes_inventory')
                 .select('*')
-                .eq('id', user.id);
+                .eq('user_id', user.id);
 
             if (error) {
                 throw new Error(error.message);
@@ -49,17 +71,18 @@ const LanesInventory = ({ session }: LanesInventoryProps) => {
 
     useEffect(() => {
         if (user) {
+            fetchCompanyId();
             fetchLanes();
         }
-    }, [user, fetchLanes]);
+    }, [user, fetchCompanyId, fetchLanes]);
 
     const addOrUpdateLane = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!user) return;
+        if (!user || !companyId) return;
 
         const laneData = {
             user_id: user.id,
-            company_id: 'your_company_id', // Add the appropriate company_id here
+            company_id: companyId,
             origin_address: originAddress,
             origin_city: originCity,
             origin_state: originState,
@@ -69,7 +92,7 @@ const LanesInventory = ({ session }: LanesInventoryProps) => {
             destination_state: destinationState,
             destination_zip: destinationZip,
             notes: notes,
-            id: selectedLane ? selectedLane.id : undefined,
+            id: selectedLane ? selectedLane.id : uuidv4(), // Generate a unique ID if not editing
         };
 
         let response: { data: Lane[] | null; error: { message: string } | null };
@@ -315,7 +338,7 @@ const LanesInventory = ({ session }: LanesInventoryProps) => {
                                         {lane.origin_address} {lane.origin_city}, {lane.origin_state} {lane.origin_zip}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {lane.destination_address} {lane.destination_city}, {lane.destination_state} {lane.destination_zip}
-                                        </td>
+                                    </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{lane.notes}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <button className="text-indigo-600 hover:text-indigo-900" onClick={() => editLane(lane)}>Edit</button>

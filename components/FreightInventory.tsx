@@ -4,6 +4,7 @@ import Papa from 'papaparse';
 import { Database } from '@lib/database.types';
 import InventoryTab from '@/components/inventory/InventoryTab';
 import { checkDuplicateInventoryNumber, addFreightItem } from '@lib/database';
+import FreightFormModal from '@/components/FreightFormModal';
 
 interface FreightInventoryProps {
     session: Session | null;
@@ -255,217 +256,45 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
                 <div className='flex flex-col justify-center items-center'>
                     <h1 className="xs:text-md mb-2 text-xl md:text-2xl font-medium text-center underline underline-offset-8">Freight Inventory</h1>
                 </div>
-                {isModalOpen && (
-                    <div className="fixed inset-0 dark:text-zinc-100  z-50 h-full  bg-opacity-50 flex justify-center items-center ">
-                        <div className="dark:text-zinc-100 dark:bg-zinc-900 border border-zinc-700 shadow-lg bg-zinc-100 z-50 p-4 md:p-8 h-[770px] max-h-max my-16 rounded  w-full md:w-1/2 overflow-y-auto">
-                            <h2 className="text-xl dark:text-zinc-100 mb-4 ">{editingFreight ? 'Edit Inventory' : 'Add Inventory'}</h2>
-                            <form onSubmit={addOrUpdateFreight} className="flex  flex-col w-full gap-2 my-2 p-2 bg-zinc-50 dark:bg-zinc-900 dark:text-zinc-100">
-                                <div className='flex flex-col gap-4 w-full dark:bg-zinc-900 dark:text-zinc-100'>
-                                    <label className='text-zinc-900 font-medium dark:text-zinc-100'>Inventory Type
-                                        <select
-                                            className="rounded w-full p-2 border text-zinc-900 border-zinc-900"
-                                            value={selectedOption}
-                                            onChange={handleOptionChange}
-                                        >
-                                            <option value="">Select...</option>
-                                            <option value="equipment">Equipment/Machinery</option>
-                                            <option value="ltl_ftl">Commodity (pallets, crates, loose parts, etc.)</option>
-                                        </select>
-                                    </label>
-
-                                    {selectedOption === 'equipment' && (
-                                        <div className='md:flex gap-2 w-full'>
-                                            <label className='dark:text-zinc-dark:text-zinc-100 font-medium'>Year
-                                                <input
-                                                    className="rounded w-full p-2 border border-zinc-900"
-                                                    type="text"
-                                                    placeholder='Year'
-                                                    value={yearAmount}
-                                                    onChange={(e) => {
-                                                        setErrorText('');
-                                                        setYearAmount(e.target.value);
-                                                    }}
-                                                />
-                                            </label>
-                                            <label className='dark:text-zinc-100 font-medium'>Make
-                                                <input
-                                                    className="rounded w-full p-2 border border-zinc-900"
-                                                    type="text"
-                                                    placeholder='Make'
-                                                    value={make}
-                                                    onChange={(e) => {
-                                                        setErrorText('');
-                                                        setMake(e.target.value);
-                                                    }}
-                                                />
-                                            </label>
-                                            <label className='dark:text-zinc-100 font-medium'>Model
-                                                <input
-                                                    className="rounded w-full p-2 border border-zinc-900"
-                                                    type="text"
-                                                    placeholder='Model'
-                                                    value={model}
-                                                    onChange={(e) => {
-                                                        setErrorText('');
-                                                        setModel(e.target.value);
-                                                    }}
-                                                />
-                                            </label>
-                                        </div>
-                                    )}
-
-                                    {selectedOption === 'ltl_ftl' && (
-                                        <div className='flex gap-2 w-full'>
-                                            <label className='dark:text-zinc-100 font-medium'>Pallet/Crate Count
-                                                <input
-                                                    className="rounded w-full p-2 border border-zinc-900"
-                                                    type="text"
-                                                    placeholder='Pallet/Crate Count'
-                                                    value={palletCount}
-                                                    onChange={(e) => {
-                                                        setErrorText('');
-                                                        setPalletCount(e.target.value);
-                                                    }}
-                                                />
-                                            </label>
-                                            <label className='dark:text-zinc-100 font-medium'>Commodity
-                                                <input
-                                                    className="rounded w-full p-2 border border-zinc-900"
-                                                    type="text"
-                                                    value={commodity}
-                                                    onChange={(e) => {
-                                                        setErrorText('');
-                                                        setCommodity(e.target.value);
-                                                    }}
-                                                />
-                                            </label>
-                                        </div>
-                                    )}
-
-                                    <div className='md:flex gap-2'>
-                                        <label className='dark:text-zinc-100 font-medium'>Length
-                                            <input
-                                                className="rounded w-full px-2 py-1 border border-zinc-900"
-                                                type="text"
-                                                value={length}
-                                                onChange={(e) => {
-                                                    setErrorText('');
-                                                    setLength(e.target.value);
-                                                }}
-                                            />
-                                            {selectedOption !== 'ltl_ftl' && (
-                                                <select
-                                                    className="rounded text-zinc-900 w-full px-2 py-1  border border-zinc-900"
-                                                    value={lengthUnit}
-                                                    onChange={(e) => setLengthUnit(e.target.value)}
-                                                >
-                                                    <option value="ft">Feet</option>
-                                                    <option value="in">Inches</option>
-                                                </select>
-                                            )}
-                                        </label>
-                                        <label className='dark:text-zinc-100 font-medium'>Width
-                                            <input
-                                                className="rounded text-zinc-900 w-full px-2 py-1  border border-zinc-900"
-                                                type="text"
-                                                value={width}
-                                                onChange={(e) => {
-                                                    setErrorText('');
-                                                    setWidth(e.target.value);
-                                                }}
-                                            />
-                                            {selectedOption !== 'ltl_ftl' && (
-                                                <select
-                                                    className="rounded text-zinc-900 w-full px-2 py-1  border border-zinc-900"
-                                                    value={widthUnit}
-                                                    onChange={(e) => setWidthUnit(e.target.value)}
-                                                >
-                                                    <option value="ft">Feet</option>
-                                                    <option value="in">Inches</option>
-                                                </select>
-                                            )}
-                                        </label>
-                                        <label className='dark:text-zinc-100 font-medium'>Height
-                                            <input
-                                                className="rounded text-zinc-900 w-full px-2 py-1  border border-zinc-900"
-                                                type="text"
-                                                value={height}
-                                                onChange={(e) => {
-                                                    setErrorText('');
-                                                    setHeight(e.target.value);
-                                                }}
-                                            />
-                                            {selectedOption !== 'ltl_ftl' && (
-                                                <select
-                                                    className="rounded text-zinc-900 w-full px-2 py-1  border border-zinc-900"
-                                                    value={heightUnit}
-                                                    onChange={(e) => setHeightUnit(e.target.value)}
-                                                >
-                                                    <option value="ft">Feet</option>
-                                                    <option value="in">Inches</option>
-                                                </select>
-                                            )}
-                                        </label>
-                                        <label className='dark:text-zinc-100 font-medium'>Weight
-                                            <input
-                                                className="rounded w-full px-2 py-1  border text-zinc-900 border-zinc-900"
-                                                type="text"
-                                                value={weight}
-                                                onChange={(e) => {
-                                                    setErrorText('');
-                                                    setWeight(e.target.value);
-                                                }}
-                                            />
-                                            <select
-                                                className="rounded w-full px-2 py-1  text-zinc-900 border border-zinc-900"
-                                                value={weightUnit}
-                                                onChange={(e) => setWeightUnit(e.target.value)}
-                                            >
-                                                <option value="lbs">Pounds</option>
-                                                <option value="T">Tons</option>
-                                            </select>
-                                        </label>
-                                    </div>
-                                    <div className='flex gap-2 justify-center mb-2 w-full'>
-                                        <label className='dark:text-zinc-100 w-full font-medium'>Serial Number
-                                            <input
-                                                className="rounded text-zinc-900 w-full p-2 border border-zinc-900"
-                                                type="text"
-                                                value={serialNumber}
-                                                onChange={(e) => {
-                                                    setErrorText('');
-                                                    setSerialNumber(e.target.value);
-                                                }}
-                                            />
-                                        </label>
-                                        <label className='dark:text-zinc-100 w-full font-medium'>Inventory Number
-                                            <input
-                                                className="rounded w-full p-2 border border-zinc-900"
-                                                type="text"
-                                                value={inventoryNumber}
-                                                onChange={(e) => {
-                                                    setErrorText('');
-                                                    setInventoryNumber(e.target.value);
-                                                }}
-                                            />
-                                        </label>
-                                    </div>
-                                </div>
-                                <button className="body-btn" type="submit">
-                                    {editingFreight ? 'Update Inventory' : 'Add Inventory'}
-                                </button>
-                                {editingFreight && (
-                                    <button type="button" className="btn-slate mt-2 shadow-md hover:bg-stone-300/50 hover:text-zinc-700" onClick={resetForm}>
-                                        Close
-                                    </button>
-                                )}
-                                <button type="button" className="bg-stone-300  text-zinc-800 py-2 px-4 font-semibold mt-2 hover:bg-stone-300/50 hover:text-zinc-700" onClick={() => setIsModalOpen(false)}>
-                                    Close
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                )}
+                <FreightFormModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    onSubmit={addOrUpdateFreight}
+                    editingFreight={!!editingFreight}
+                    selectedOption={selectedOption}
+                    handleOptionChange={handleOptionChange}
+                    yearAmount={yearAmount}
+                    setYearAmount={setYearAmount}
+                    make={make}
+                    setMake={setMake}
+                    model={model}
+                    setModel={setModel}
+                    palletCount={palletCount}
+                    setPalletCount={setPalletCount}
+                    commodity={commodity}
+                    setCommodity={setCommodity}
+                    length={length}
+                    setLength={setLength}
+                    lengthUnit={lengthUnit}
+                    setLengthUnit={setLengthUnit}
+                    width={width}
+                    setWidth={setWidth}
+                    widthUnit={widthUnit}
+                    setWidthUnit={setWidthUnit}
+                    height={height}
+                    setHeight={setHeight}
+                    heightUnit={heightUnit}
+                    setHeightUnit={setHeightUnit}
+                    weight={weight}
+                    setWeight={setWeight}
+                    weightUnit={weightUnit}
+                    setWeightUnit={setWeightUnit}
+                    serialNumber={serialNumber}
+                    setSerialNumber={setSerialNumber}
+                    inventoryNumber={inventoryNumber}
+                    setInventoryNumber={setInventoryNumber}
+                    setErrorText={setErrorText}
+                />
                 {!!errorText && <div className="text-red-500">{errorText}</div>}
             </div>
 
@@ -478,19 +307,14 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
                     </div>
                     <div className="mt-4 md:m-0 place-content-center self-center">
                         <label className="custom-file-upload">
-                                <input className='hidden' type="file" accept=".csv" onChange={handleFileUpload} />
+                            <input className='hidden' type="file" accept=".csv" onChange={handleFileUpload} />
                             <span className="body-btn">Upload CSV</span>
-                        
                         </label>
-
                     </div>
 
                     {errorText && <div className="text-red-500">{errorText}</div>}
-
                 </div>
-
             </div>
-
 
             <div className="flex justify-between w-full border-b border-zinc-300">
                 <div className='flex flex-col gap-2 justify-normal items-end'>
@@ -500,19 +324,16 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
                     <div className="mt-4 md:m-0">
                         <a href="/public/LTL-FTL_CSV_TEMPLATE.csv" download className="upload-button m-0 px-7 py-2">Download LTL/FTL CSV Template </a>
                     </div>
-
                 </div>
-                </div>
+            </div>
 
-            
             <div className="w-full">
-                    <InventoryTab
-                        freightList={freightList}
-                        editFreight={editFreight}
-                        handleDeleteClick={(id) => handleDeleteClick(id, 'freight')}
-                        handleAddFreight={addFreightItem}
-                    />
-
+                <InventoryTab
+                    freightList={freightList}
+                    editFreight={editFreight}
+                    handleDeleteClick={(id) => handleDeleteClick(id, 'freight')}
+                    handleAddFreight={addFreightItem}
+                />
             </div>
         </div>
     );

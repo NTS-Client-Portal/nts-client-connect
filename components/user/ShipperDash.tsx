@@ -75,9 +75,14 @@ const ShipperDash = () => {
                     .from('company_sales_users')
                     .select(`
                         sales_user_id,
-                        nts_users (
-                            id
-                        )
+                            nts_users (
+                                id,
+                                first_name,
+                                last_name,
+                                email,
+                                phone_number,
+                                profile_picture
+                            )
                     `)
                     .eq('company_id', userProfile.company_id);
 
