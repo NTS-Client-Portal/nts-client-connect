@@ -7,7 +7,6 @@ import OrderFormModal from './OrderFormModal';
 import { generatePDF, uploadPDFToSupabase, insertDocumentRecord } from '../../GeneratePDF';
 import SelectTemplate from '@/components/SelectTemplate';
 
-
 interface QuoteTableProps {
     sortConfig: { column: string; order: string };
     handleSort: (column: string, order: string) => void;
@@ -63,12 +62,24 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
         if (!searchTerm) {
             return quotes;
         }
-        return quotes
-            .filter((quote) => {
-                const value = quote[searchColumn]?.toString().toLowerCase() || '';
-                return value.includes(searchTerm.toLowerCase());
-            });
-    }, [searchTerm, searchColumn, quotes]);
+        return quotes.filter((quote) => {
+            const shipmentItems = typeof quote.shipment_items === 'string' ? JSON.parse(quote.shipment_items) : quote.shipment_items;
+            const searchString: string = [
+                quote.id,
+                quote.freight_type,
+                quote.origin_city,
+                quote.origin_state,
+                quote.origin_zip,
+                quote.destination_city,
+                quote.destination_state,
+                quote.destination_zip,
+                quote.due_date,
+                quote.price,
+                ...shipmentItems?.map((item: { year: string; make: string; model: string; container_length: string; container_type: string }) => `${item.year} ${item.make} ${item.model} ${item.container_length} ft ${item.container_type}`) || []
+            ].join(' ').toLowerCase();
+            return searchString.includes(searchTerm.toLowerCase());
+        });
+    }, [searchTerm, quotes]);
 
     const currentRows = filteredQuotes.slice(indexOfFirstRow, indexOfLastRow);
     const totalPages = Math.ceil(filteredQuotes.length / rowsPerPage);
@@ -177,8 +188,6 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedQuoteId, setSelectedQuoteId] = useState<number | null>(null);
 
-
-
     return (
         <div className='w-full'>
             <div className="flex justify-start gap-4 my-4 ml-4">
@@ -213,13 +222,13 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                             Notes
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
-                            <TableHeaderSort column="Load Details" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
+                            <TableHeaderSort column="Shipment Details" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
                             <TableHeaderSort column="Origin/Destination" sortOrder={sortConfig.column === 'origin_destination' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
-                            <TableHeaderSort column="due date" sortOrder={sortConfig.column === 'due_date' ? sortConfig.order : null} onSort={handleSort} />
+                            <TableHeaderSort column="due_date" sortOrder={sortConfig.column === 'due_date' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-semibold tracking-wider">
                             <TableHeaderSort column="price" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
@@ -228,7 +237,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                     </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200 w-fit">
-                    {quotes.map((quote, index) => (
+                    {currentRows.map((quote, index) => (
                         <React.Fragment key={quote.id}>
                             <tr
                                 className={`cursor-pointer mb-4 w-max ${index % 2 === 0 ? 'bg-white h-fit w-full' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}
@@ -293,6 +302,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                     </a>
                                 </td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.due_date}</td>
+
                                 <td>
                                     {isAdmin ? (
                                         showPriceInput === quote.id ? (
