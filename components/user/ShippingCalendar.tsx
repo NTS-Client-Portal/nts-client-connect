@@ -55,7 +55,7 @@ const ShippingCalendar: React.FC<ShippingCalendarProps> = () => {
         // Convert schedules to events for the calendar
         const calendarEvents = schedules.map(schedule => ({
             id: schedule.id.toString(),
-            title: `Order ${schedule.id}`,
+            title: `Order #${schedule.id}`,
             start: new Date(schedule.earliest_pickup_date),
             end: new Date(schedule.latest_pickup_date),
         }));

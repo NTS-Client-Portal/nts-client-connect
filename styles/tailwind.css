@@ -438,28 +438,40 @@ main {
 @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
 @media print {
-	body {
-		margin: 0 !important;
-	}
+  body {
+    margin: 0 !important;
+  }
 }
 
 .main-container {
-	font-family: 'Lato';
-	width: fit-content;
-	margin-left: auto;
-	margin-right: auto;
+  font-family: 'Lato';
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 
 
 .ck-content {
-	font-family: 'Lato';
-	line-height: 1.6;
-	word-break: break-word;
-  height:400px !important;
+  font-family: 'Lato';
+  line-height: 1.6;
+  word-break: break-word;
+  height: 400px !important;
 }
 
 .editor-container_classic-editor .editor-container__editor {
-	min-width: 795px;
-	max-width: 795px;
+  min-width: 795px;
+  max-width: 795px;
+}
+
+.rbc-event,
+.rbc-day-slot .rbc-background-event {
+  border: none;
+  box-sizing: border-box;
+  box-shadow: none;
+  margin: 0;
+  padding: 0 !important;
+  color: #242b35 !important;
+  font-weight: 600;
+  background-color: #f97416b2 !important;
 }
