@@ -348,7 +348,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
                     handleRowClick={handleRowClick}
                     archiveOrder={archiveOrder}
                     handleMarkAsComplete={(id) => () => handleMarkAsComplete(id)}
-                    isAdmin={true}
+                    isAdmin={isAdmin}
                     handleEditClick={handleEditQuote}
                     searchTerm={searchTerm}
                     setSearchTerm={setSearchTerm}
