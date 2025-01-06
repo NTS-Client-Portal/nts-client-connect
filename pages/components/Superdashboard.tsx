@@ -91,15 +91,45 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         setLoading(true);
         setError(null);
         setSuccess(null);
-
-        const { error } = await supabase.from('nts_users').delete().eq('id', id);
-        if (error) {
-            setError(error.message);
-        } else {
+    
+        try {
+            // Delete related records in the chat_requests table
+            const { error: deleteChatRequestsError } = await supabase
+                .from('chat_requests')
+                .delete()
+                .eq('broker_id', id);
+    
+            if (deleteChatRequestsError) {
+                throw new Error(deleteChatRequestsError.message);
+            }
+    
+            // Delete related records in the company_sales_users table
+            const { error: deleteCompanySalesUsersError } = await supabase
+                .from('company_sales_users')
+                .delete()
+                .eq('sales_user_id', id);
+    
+            if (deleteCompanySalesUsersError) {
+                throw new Error(deleteCompanySalesUsersError.message);
+            }
+    
+            // Delete the user from the nts_users table
+            const { error: deleteUserError } = await supabase
+                .from('nts_users')
+                .delete()
+                .eq('id', id);
+    
+            if (deleteUserError) {
+                throw new Error(deleteUserError.message);
+            }
+    
             fetchNtsUsers();
             setSuccess('NTS User deleted successfully');
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const handleEditNtsUser = async (id: string, updatedUser: Partial<NtsUser>) => {
