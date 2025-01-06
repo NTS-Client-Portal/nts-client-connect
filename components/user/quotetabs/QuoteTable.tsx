@@ -4,7 +4,7 @@ import { formatDate, renderAdditionalDetails, freightTypeMapping } from './Quote
 import { supabase } from '@/lib/initSupabase';
 import { Database } from '@/lib/database.types';
 import OrderFormModal from './OrderFormModal';
-import { generatePDF, uploadPDFToSupabase, insertDocumentRecord } from '../../GeneratePDF';
+import { generateAndUploadDocx, replaceShortcodes } from "@/components/GenerateDocx";
 import SelectTemplate from '@/components/SelectTemplate';
 
 interface QuoteTableProps {
@@ -162,19 +162,80 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
 
     const [depositInput, setDepositInput] = useState('');
 
-    const handlePriceSubmit = async (e, quoteId) => {
-        e.preventDefault();
-        const price = parseFloat(priceInput);
-        const deposit = parseFloat(depositInput);
-        const totalPrice = price + deposit;
+    interface PriceSubmitEvent extends React.FormEvent<HTMLFormElement> {
+        target: HTMLFormElement & {
+            price: HTMLInputElement;
+            deposit: HTMLInputElement;
+        };
+    }
 
-        const { error } = await supabase
+    const handlePriceSubmit = async (e: React.FormEvent<HTMLFormElement>, quoteId: number) => {
+        e.preventDefault();
+        const target = e.target as typeof e.target & {
+            price: HTMLInputElement;
+            deposit: HTMLInputElement;
+        };
+        const price = parseFloat(target.price.value);
+        const deposit = parseFloat(target.deposit.value);
+        const totalPrice = price + deposit;
+    
+        const { error: updateError } = await supabase
             .from('shippingquotes')
             .update({ price, deposit, total_price: totalPrice })
             .eq('id', quoteId);
-
-        if (error) {
-            console.error('Error updating price:', error.message);
+    
+        if (updateError) {
+            console.error('Error updating price:', updateError.message);
+            return;
+        }
+    
+        // Fetch the updated quote data
+        const { data: updatedQuote, error: fetchError } = await supabase
+            .from('shippingquotes')
+            .select('*')
+            .eq('id', quoteId)
+            .single();
+    
+        if (fetchError) {
+            console.error('Error fetching updated quote:', fetchError.message);
+            return;
+        }
+    
+        // Fetch the template content
+        const { data: templateData, error: templateError } = await supabase
+            .from('templates')
+            .select('*')
+            .eq('context', 'quote')
+            .single();
+    
+        if (templateError) {
+            console.error('Error fetching template:', templateError.message);
+            return;
+        }
+    
+        const content = replaceShortcodes(templateData.content, { quote: updatedQuote });
+        const title = templateData.title || 'Quote Confirmation';
+        const templateId = templateData.id; // Get the template ID
+    
+        await generateAndUploadDocx(updatedQuote, content, title, templateId); // Pass the template ID
+    
+        // Save the document metadata with the template ID
+        const { data: documentData, error: documentError } = await supabase
+            .from('documents')
+            .insert({
+                user_id: updatedQuote.user_id,
+                title,
+                description: 'Quote Confirmation Document',
+                file_name: `${title}.docx`,
+                file_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                file_url: `path/to/${title}.docx`,
+                template_id: templateId, // Include the template ID
+            })
+            .select()
+            .single();
+    
+        if (documentError) {
+            console.error('Error saving document metadata:', documentError.message);
         } else {
             fetchQuotes();
             setShowPriceInput(null);
@@ -472,7 +533,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                     Edit History
                                                 </button>
                                             </div>
-                                            {activeTab === 'quotedetails' && (
+                                            {activeTab === 'quotes' && (
                                                 <div className='border border-gray-200 p-6 h-full'>
                                                     {renderAdditionalDetails(quote)}
                                                     <div className='flex gap-2 items-center h-full'>

@@ -1,17 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useSupabaseClient, Session } from "@supabase/auth-helpers-react";
 import { Database } from "@/lib/database.types";
-import {
-	FolderHeart,
-	Folder,
-	Menu,
-	Star,
-	Trash2,
-	X,
-	Download,
-	Eye,
-	Upload,
-} from "lucide-react";
+import { FolderHeart, Folder, Menu, Star, Trash2, X, Download, Eye, Upload } from "lucide-react";
 import { updateFavoriteStatus } from "@/lib/database";
 import { useDocumentNotification } from "@/context/DocumentNotificationContext";
 import { generateAndUploadDocx, replaceShortcodes } from "@/components/GenerateDocx";
@@ -22,12 +12,8 @@ interface DocumentsProps {
 
 const Documents: React.FC<DocumentsProps> = ({ session }) => {
 	const supabase = useSupabaseClient<Database>();
-	const [documents, setDocuments] = useState<
-		Database["public"]["Tables"]["documents"]["Row"][]
-	>([]);
-	const [importantDocuments, setImportantDocuments] = useState<
-		Database["public"]["Tables"]["documents"]["Row"][]
-	>([]);
+	const [documents, setDocuments] = useState<Database["public"]["Tables"]["documents"]["Row"][]>([]);
+	const [importantDocuments, setImportantDocuments] = useState<Database["public"]["Tables"]["documents"]["Row"][]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [file, setFile] = useState<File | null>(null);

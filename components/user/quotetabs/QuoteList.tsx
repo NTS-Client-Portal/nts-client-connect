@@ -4,18 +4,10 @@ import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import OrderFormModal from "./OrderFormModal";
 import EditQuoteModal from "./EditQuoteModal";
 import QuoteDetailsMobile from "../mobile/QuoteDetailsMobile";
-import {
-	freightTypeMapping,
-	formatDate,
-	renderAdditionalDetails,
-} from "./QuoteUtils";
+import { freightTypeMapping, formatDate, renderAdditionalDetails } from "./QuoteUtils";
 import QuoteTable from "./QuoteTable";
 import RejectReasonModal from "./RejectReasonModal";
-import { set } from "react-hook-form";
-import {
-	generateAndUploadDocx,
-	replaceShortcodes,
-} from "@/components/GenerateDocx";
+import { generateAndUploadDocx, replaceShortcodes } from "@/components/GenerateDocx";
 
 interface QuoteListProps {
 	session: any;
