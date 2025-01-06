@@ -59,12 +59,13 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
     const [quotesState, setQuotes] = useState(quotes);
     const [quote, setQuote] = useState<Database['public']['Tables']['shippingquotes']['Row'] | null>(null);
     const rowsPerPage = 10;
-
     const indexOfLastRow = currentPage * rowsPerPage;
     const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-
     const [searchTerm, setSearchTerm] = useState('');
     const [searchColumn, setSearchColumn] = useState('id');
+    const [showPriceInput, setShowPriceInput] = useState<number | null>(null);
+    const [carrierPayInput, setCarrierPayInput] = useState('');
+    const [depositInput, setDepositInput] = useState('');
 
     const filteredQuotes = useMemo(() => {
         let sortedQuotes = [...quotes];
@@ -112,8 +113,8 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
         setCurrentPage(pageNumber);
     };
 
-    const [showPriceInput, setShowPriceInput] = useState<number | null>(null);
-    const [priceInput, setPriceInput] = useState('');
+    
+
 
     const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>, quoteId: number) => {
         const newStatus = e.target.value;
@@ -160,65 +161,56 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
         }
     };
 
-    const [depositInput, setDepositInput] = useState('');
-
-    interface PriceSubmitEvent extends React.FormEvent<HTMLFormElement> {
-        target: HTMLFormElement & {
-            price: HTMLInputElement;
-            deposit: HTMLInputElement;
-        };
-    }
-
     const handlePriceSubmit = async (e: React.FormEvent<HTMLFormElement>, quoteId: number) => {
         e.preventDefault();
         const target = e.target as typeof e.target & {
-            price: HTMLInputElement;
+            carrierPay: HTMLInputElement;
             deposit: HTMLInputElement;
         };
-        const price = parseFloat(target.price.value);
+        const carrierPay = parseFloat(target.carrierPay.value);
         const deposit = parseFloat(target.deposit.value);
-        const totalPrice = price + deposit;
-    
+        const totalPrice = carrierPay + deposit;
+
         const { error: updateError } = await supabase
             .from('shippingquotes')
-            .update({ price, deposit, total_price: totalPrice })
+            .update({ carrier_pay: carrierPay, deposit, price: totalPrice })
             .eq('id', quoteId);
-    
+
         if (updateError) {
             console.error('Error updating price:', updateError.message);
             return;
         }
-    
+
         // Fetch the updated quote data
         const { data: updatedQuote, error: fetchError } = await supabase
             .from('shippingquotes')
             .select('*')
             .eq('id', quoteId)
             .single();
-    
+
         if (fetchError) {
             console.error('Error fetching updated quote:', fetchError.message);
             return;
         }
-    
+
         // Fetch the template content
         const { data: templateData, error: templateError } = await supabase
             .from('templates')
             .select('*')
             .eq('context', 'quote')
             .single();
-    
+
         if (templateError) {
             console.error('Error fetching template:', templateError.message);
             return;
         }
-    
+
         const content = replaceShortcodes(templateData.content, { quote: updatedQuote });
         const title = templateData.title || 'Quote Confirmation';
         const templateId = templateData.id; // Get the template ID
-    
+
         await generateAndUploadDocx(updatedQuote, content, title, templateId); // Pass the template ID
-    
+
         // Save the document metadata with the template ID
         const { data: documentData, error: documentError } = await supabase
             .from('documents')
@@ -233,13 +225,13 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
             })
             .select()
             .single();
-    
+
         if (documentError) {
             console.error('Error saving document metadata:', documentError.message);
         } else {
             fetchQuotes();
             setShowPriceInput(null);
-            setPriceInput('');
+            setCarrierPayInput('');
             setDepositInput('');
         }
     };
@@ -393,35 +385,37 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.due_date}</td>
 
                                 <td>
-                                    {isAdmin ? (
-                                        showPriceInput === quote.id ? (
-                                            <form onSubmit={(e) => handlePriceSubmit(e, quote.id)}>
-                                                <div className='flex flex-col items-center gap-1'>
-                                                    <span className='flex flex-col'>
-                                                        <label className='text-sm font-semibold text-ntsBlue'>Carrier Pay:</label>
-                                                        <input
-                                                            type="number"
-                                                            value={priceInput}
-                                                            onChange={(e) => setPriceInput(e.target.value)}
-                                                            placeholder="Enter price"
-                                                            className="border border-gray-300 rounded-md p-1"
-                                                        />
-                                                    </span>
-                                                    <span className='flex flex-col'>
-                                                        <label className='text-sm font-semibold text-emerald-600'>Deposit:</label>
-                                                        <input
-                                                            type="number"
-                                                            value={depositInput}
-                                                            onChange={(e) => setDepositInput(e.target.value)}
-                                                            placeholder="Enter deposit"
-                                                            className="border border-gray-300 rounded-md p-1"
-                                                        />
-                                                    </span>
-                                                </div>
-                                                <button type="submit" className="ml-2 text-ntsLightBlue text-sm font-semibold underline">
-                                                    Submit
-                                                </button>
-                                            </form>
+                                {isAdmin ? (
+                                    showPriceInput === quote.id ? (
+                                        <form onSubmit={(e) => handlePriceSubmit(e, quote.id)}>
+                                            <div className='flex flex-col items-center gap-1'>
+                                                <span className='flex flex-col'>
+                                                    <label className='text-sm font-semibold text-ntsBlue'>Carrier Pay:</label>
+                                                    <input
+                                                        type="number"
+                                                        name="carrierPay"
+                                                        value={carrierPayInput}
+                                                        onChange={(e) => setCarrierPayInput(e.target.value)}
+                                                        placeholder="Enter price"
+                                                        className="border border-gray-300 rounded-md p-1"
+                                                    />
+                                                </span>
+                                                <span className='flex flex-col'>
+                                                    <label className='text-sm font-semibold text-emerald-600'>Deposit:</label>
+                                                    <input
+                                                        type="number"
+                                                        name="deposit"
+                                                        value={depositInput}
+                                                        onChange={(e) => setDepositInput(e.target.value)}
+                                                        placeholder="Enter deposit"
+                                                        className="border border-gray-300 rounded-md p-1"
+                                                    />
+                                                </span>
+                                            </div>
+                                            <button type="submit" className="pl-6 text-ntsLightBlue text-center text-sm font-semibold underline">
+                                                Submit
+                                            </button>
+                                        </form>
                                         ) : (
                                             <div className='flex justify-center gap-1'>
                                                 {quote.price ? (

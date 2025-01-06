@@ -1503,6 +1503,7 @@ export type Database = {
           beam: string | null
           brokers_status: string | null
           buyer_number: string | null
+          carrier_pay: number | null
           class_type: string | null
           commodity: string | null
           company_id: string | null
@@ -1590,6 +1591,7 @@ export type Database = {
           beam?: string | null
           brokers_status?: string | null
           buyer_number?: string | null
+          carrier_pay?: number | null
           class_type?: string | null
           commodity?: string | null
           company_id?: string | null
@@ -1677,6 +1679,7 @@ export type Database = {
           beam?: string | null
           brokers_status?: string | null
           buyer_number?: string | null
+          carrier_pay?: number | null
           class_type?: string | null
           commodity?: string | null
           company_id?: string | null
