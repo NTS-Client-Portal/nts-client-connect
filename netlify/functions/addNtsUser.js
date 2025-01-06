@@ -3,55 +3,56 @@ const { v4: uuidv4 } = require('uuid');
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const defaultPassword = process.env.NEXT_PUBLIC_DEFAULT_PASSWORD;
 
 const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
 exports.handler = async (event, context) => {
-    const { email, role, first_name, last_name, phone_number, address } = JSON.parse(event.body);
+    const { email, role, first_name, last_name, phone_number, office } = JSON.parse(event.body);
+
+    if (!email || !role || !first_name || !last_name) {
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ error: 'Email, role, first name, and last name are required' }),
+        };
+    }
 
     try {
-        // Check if the user already exists in auth.users
-        const { data: usersData, error: usersError } = await supabaseAdmin.auth.admin.listUsers();
-        if (usersError) {
-            throw new Error(usersError.message);
-        }
-        const userExists = usersData.users.some(user => user.email === email);
-        let userId;
+        // Sign up the user in Supabase Auth
+        const { data, error: signUpError } = await supabaseAdmin.auth.signUp({
+            email,
+            password: defaultPassword, // Use the default password from the environment variable
+        });
 
-        if (!userExists) {
-            // Sign up the user in auth.users using the service role key
-            const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
-                email,
-                password: 'temporaryPassword123', // You can generate a random password or handle it differently
-                email_confirm: true,
-            });
-
-            if (authError) {
-                throw new Error(authError.message);
-            }
-
-            userId = authUser.user.id;
-        } else {
-            const existingUser = usersData.users.find(user => user.email === email);
-            userId = existingUser?.id;
+        if (signUpError) {
+            throw new Error(signUpError.message);
         }
 
-        // Insert into nts_users table
-        const ntsUserToInsert = {
-            id: userId,
+        const authUserId = data.user?.id;
+
+        if (!authUserId) {
+            throw new Error('Failed to get user ID from sign-up response');
+        }
+
+        // Generate a unique ID for the new user
+        const newUserId = uuidv4();
+
+        // Insert the user into the nts_users table with the specified company_id
+        const { error: insertError } = await supabaseAdmin.from('nts_users').insert({
+            id: newUserId,
             email,
             role,
-            first_name: first_name || null,
-            last_name: last_name || null,
-            phone_number: phone_number || null,
-            address: address || null,
-            email_notifications: false,
-            inserted_at: new Date().toISOString(), // Set inserted_at to the current date and time
-        };
+            first_name,
+            last_name,
+            phone_number,
+            office,
+            company_id: 'cc0e2fd6-e5b5-4a7e-b375-7c0d28e2b45d', // Set the company_id field
+            inserted_at: new Date().toISOString(),
+            auth_uid: authUserId,
+        });
 
-        const { error: ntsUserError } = await supabaseAdmin.from('nts_users').insert([ntsUserToInsert]);
-        if (ntsUserError) {
-            throw new Error(ntsUserError.message);
+        if (insertError) {
+            throw new Error(insertError.message);
         }
 
         return {
@@ -59,6 +60,7 @@ exports.handler = async (event, context) => {
             body: JSON.stringify({ message: 'NTS User added successfully' }),
         };
     } catch (error) {
+        console.error('Error adding NTS User:', error.message);
         return {
             statusCode: 500,
             body: JSON.stringify({ error: error.message }),

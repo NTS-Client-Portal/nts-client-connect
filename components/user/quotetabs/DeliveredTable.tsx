@@ -15,6 +15,7 @@ interface DeliveredTableProps {
     handleEditClick: (quote: ShippingQuotesRow) => void;
     handleMarkAsComplete: (id: number) => void;
     duplicateQuote: (quote: ShippingQuotesRow) => void;
+    
 }
 
 const DeliveredTable: React.FC<DeliveredTableProps> = ({
