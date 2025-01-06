@@ -19,7 +19,7 @@ exports.handler = async (event, context) => {
     try {
         // Check if the user already exists
         const { data: existingUsers, error: getUserError } = await supabaseAdmin
-            .from('users')
+            .from('auth.users')
             .select('*')
             .eq('email', email);
 
@@ -32,21 +32,24 @@ exports.handler = async (event, context) => {
         if (existingUsers && existingUsers.length > 0) {
             authUserId = existingUsers[0].id;
         } else {
-            // Sign up the user in Supabase Auth
-            const { data, error: signUpError } = await supabaseAdmin.auth.signUp({
-                email,
-                password, // Use the provided password
-            });
+            // Manually insert the user into the auth.users table
+            const { data: newUser, error: insertUserError } = await supabaseAdmin
+                .from('auth.users')
+                .insert({
+                    id: uuidv4(),
+                    email,
+                    role: 'authenticated',
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                })
+                .select()
+                .single();
 
-            if (signUpError) {
-                throw new Error(signUpError.message);
+            if (insertUserError) {
+                throw new Error(insertUserError.message);
             }
 
-            authUserId = data.user?.id;
-
-            if (!authUserId) {
-                throw new Error('Failed to get user ID from sign-up response');
-            }
+            authUserId = newUser.id;
         }
 
         // Generate a unique ID for the new user
