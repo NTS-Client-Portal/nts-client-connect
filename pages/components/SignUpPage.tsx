@@ -19,6 +19,8 @@ export default function SignUpPage() {
     const [companyName, setCompanyName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [industry, setIndustry] = useState('');
+    const [otp, setOtp] = useState('');
+    const [generatedOtp, setGeneratedOtp] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -33,7 +35,20 @@ export default function SignUpPage() {
         return hasLowercase && hasUppercase && hasDigit;
     };
 
-    const handleSignUp = async (e: React.FormEvent) => {
+    const generateOtp = () => {
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        setGeneratedOtp(otp);
+        return otp;
+    };
+
+    const sendOtpEmail = async (email: string, otp: string) => {
+        // Use a third-party email service to send the OTP email
+        // For example, using SendGrid, Mailgun, etc.
+        // This is a placeholder function and should be replaced with actual email sending logic
+        console.log(`Sending OTP ${otp} to email ${email}`);
+    };
+
+    const handleSendOtp = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
@@ -46,6 +61,29 @@ export default function SignUpPage() {
 
         if (!validatePassword(password)) {
             setError('Password must contain at least one lowercase letter, one uppercase letter, and one digit');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const otp = generateOtp();
+            await sendOtpEmail(email, otp);
+
+            setCurrentStep(2); // Move to the OTP verification step
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleVerifyOtp = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+
+        if (otp !== generatedOtp) {
+            setError('Invalid OTP');
             setLoading(false);
             return;
         }
@@ -64,7 +102,7 @@ export default function SignUpPage() {
             await handleCompleteProfile();
 
             setSuccess(true);
-            setCurrentStep(2); // Move to the next step
+            setCurrentStep(3); // Move to the next step
         } catch (error) {
             setError(error.message);
         } finally {
@@ -95,7 +133,7 @@ export default function SignUpPage() {
                         company_name: string;
                         company_size: string;
                     }>;
-                    if (!existingCompany.assigned_sales_user) updates.assigned_sales_user = '52a7d630-a8cc-48cf-be7d-5188a956e2e5';
+                    if (!existingCompany.assigned_sales_user) updates.assigned_sales_user = '2b5928cc-4f66-4be4-8d76-4eb91c55db00';
                     if (!existingCompany.assigned_at) updates.assigned_at = new Date().toISOString();
                     if (!existingCompany.company_name) updates.company_name = companyName;
                     if (!existingCompany.company_size) updates.company_size = '1-10';
@@ -112,7 +150,7 @@ export default function SignUpPage() {
                     }
                 } else {
                     companyId = uuidv4();
-                    const assignedSalesUserId = '52a7d630-a8cc-48cf-be7d-5188a956e2e5';
+                    const assignedSalesUserId = '2b5928cc-4f66-4be4-8d76-4eb91c55db00';
                     const assignedAt = new Date().toISOString();
                     const { data: newCompany, error: newCompanyError } = await supabase
                         .from('companies')
@@ -211,7 +249,7 @@ export default function SignUpPage() {
                                 ) : (
                                     <>
                                         {currentStep === 1 && (
-                                            <form className="mt-4" onSubmit={handleSignUp}>
+                                            <form className="mt-4" onSubmit={handleSendOtp}>
                                                 <div className="mb-4">
                                                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Are you signing up as a company or an individual?</label>
                                                     <div className="flex gap-2 mt-2">
@@ -335,11 +373,32 @@ export default function SignUpPage() {
                                                     className="w-full body-btn mt-12"
                                                     disabled={loading}
                                                 >
-                                                    {loading ? 'Signing Up...' : 'Sign Up'}
+                                                    {loading ? 'Sending OTP...' : 'Send OTP'}
                                                 </button>
                                             </form>
                                         )}
-                                        {currentStep === 2 && companyId && (
+                                        {currentStep === 2 && (
+                                            <form className="mt-4" onSubmit={handleVerifyOtp}>
+                                                <label htmlFor="otp" className="mt-4">Enter OTP</label>
+                                                <input
+                                                    type="text"
+                                                    id="otp"
+                                                    value={otp}
+                                                    onChange={(e) => setOtp(e.target.value)}
+                                                    required
+                                                    className="w-full p-2 mb-6 border rounded"
+                                                    disabled={loading}
+                                                />
+                                                <button
+                                                    type="submit"
+                                                    className="w-full body-btn mt-12"
+                                                    disabled={loading}
+                                                >
+                                                    {loading ? 'Verifying OTP...' : 'Verify OTP'}
+                                                </button>
+                                            </form>
+                                        )}
+                                        {currentStep === 3 && companyId && (
                                             <InviteUserForm companyId={companyId} />
                                         )}
                                     </>
