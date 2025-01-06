@@ -19,8 +19,6 @@ export default function SignUpPage() {
     const [companyName, setCompanyName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [industry, setIndustry] = useState('');
-    const [otp, setOtp] = useState('');
-    const [generatedOtp, setGeneratedOtp] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -35,20 +33,20 @@ export default function SignUpPage() {
         return hasLowercase && hasUppercase && hasDigit;
     };
 
-    const generateOtp = () => {
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        setGeneratedOtp(otp);
-        return otp;
-    };
+    // const generateOtp = () => {
+    //     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    //     setGeneratedOtp(otp);
+    //     return otp;
+    // };
 
-    const sendOtpEmail = async (email: string, otp: string) => {
-        // Use a third-party email service to send the OTP email
-        // For example, using SendGrid, Mailgun, etc.
-        // This is a placeholder function and should be replaced with actual email sending logic
-        console.log(`Sending OTP ${otp} to email ${email}`);
-    };
+    // const sendOtpEmail = async (email: string, otp: string) => {
+    //     // Use a third-party email service to send the OTP email
+    //     // For example, using SendGrid, Mailgun, etc.
+    //     // This is a placeholder function and should be replaced with actual email sending logic
+    //     console.log(`Sending OTP ${otp} to email ${email}`);
+    // };
 
-    const handleSendOtp = async (e: React.FormEvent) => {
+    const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
@@ -61,29 +59,6 @@ export default function SignUpPage() {
 
         if (!validatePassword(password)) {
             setError('Password must contain at least one lowercase letter, one uppercase letter, and one digit');
-            setLoading(false);
-            return;
-        }
-
-        try {
-            const otp = generateOtp();
-            await sendOtpEmail(email, otp);
-
-            setCurrentStep(2); // Move to the OTP verification step
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleVerifyOtp = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
-
-        if (otp !== generatedOtp) {
-            setError('Invalid OTP');
             setLoading(false);
             return;
         }
@@ -102,7 +77,7 @@ export default function SignUpPage() {
             await handleCompleteProfile();
 
             setSuccess(true);
-            setCurrentStep(3); // Move to the next step
+            setCurrentStep(2); // Move to the next step
         } catch (error) {
             setError(error.message);
         } finally {
@@ -249,7 +224,7 @@ export default function SignUpPage() {
                                 ) : (
                                     <>
                                         {currentStep === 1 && (
-                                            <form className="mt-4" onSubmit={handleSendOtp}>
+                                            <form className="mt-4" onSubmit={handleSignUp}>
                                                 <div className="mb-4">
                                                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Are you signing up as a company or an individual?</label>
                                                     <div className="flex gap-2 mt-2">
@@ -373,32 +348,11 @@ export default function SignUpPage() {
                                                     className="w-full body-btn mt-12"
                                                     disabled={loading}
                                                 >
-                                                    {loading ? 'Sending OTP...' : 'Send OTP'}
+                                                    {loading ? 'Signing Up...' : 'Sign Up'}
                                                 </button>
                                             </form>
                                         )}
-                                        {currentStep === 2 && (
-                                            <form className="mt-4" onSubmit={handleVerifyOtp}>
-                                                <label htmlFor="otp" className="mt-4">Enter OTP</label>
-                                                <input
-                                                    type="text"
-                                                    id="otp"
-                                                    value={otp}
-                                                    onChange={(e) => setOtp(e.target.value)}
-                                                    required
-                                                    className="w-full p-2 mb-6 border rounded"
-                                                    disabled={loading}
-                                                />
-                                                <button
-                                                    type="submit"
-                                                    className="w-full body-btn mt-12"
-                                                    disabled={loading}
-                                                >
-                                                    {loading ? 'Verifying OTP...' : 'Verify OTP'}
-                                                </button>
-                                            </form>
-                                        )}
-                                        {currentStep === 3 && companyId && (
+                                        {currentStep === 2 && companyId && (
                                             <InviteUserForm companyId={companyId} />
                                         )}
                                     </>
