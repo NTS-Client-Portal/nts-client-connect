@@ -21,6 +21,14 @@ interface OrderTableProps {
     setSearchColumn: (column: string) => void;
 }
 
+const columnDisplayNames: { [key: string]: string } = {
+    id: 'ID',
+    freight_type: 'Load Details',
+    origin_destination: 'Origin/Destination',
+    due_date: 'Earliest/Latest Pickup Date',
+    price: 'Price',
+};
+
 
 
 const OrderTable: React.FC<OrderTableProps> = ({
@@ -56,12 +64,43 @@ const OrderTable: React.FC<OrderTableProps> = ({
     const indexOfFirstRow = indexOfLastRow - rowsPerPage;
 
     const filteredOrders = useMemo(() => {
-        return orders.filter((order) => {
-            const value = order[searchColumn]?.toString().toLowerCase() || '';
-            return value.includes(searchTerm.toLowerCase());
-        });
-    }, [searchTerm, searchColumn, orders]);
-
+            let sortedQuotes = [...orders];
+    
+            if (sortConfig.column) {
+                sortedQuotes.sort((a, b) => {
+                    if (a[sortConfig.column] < b[sortConfig.column]) {
+                        return sortConfig.order === 'asc' ? -1 : 1;
+                    }
+                    if (a[sortConfig.column] > b[sortConfig.column]) {
+                        return sortConfig.order === 'asc' ? 1 : -1;
+                    }
+                    return 0;
+                });
+            }
+    
+            if (searchTerm) {
+                sortedQuotes = sortedQuotes.filter((quote) => {
+                    const shipmentItems = typeof quote.shipment_items === 'string' ? JSON.parse(quote.shipment_items) : quote.shipment_items;
+                    const searchString: string = [
+                        quote.id,
+                        quote.freight_type,
+                        quote.origin_city,
+                        quote.origin_state,
+                        quote.origin_zip,
+                        quote.destination_city,
+                        quote.destination_state,
+                        quote.destination_zip,
+                        quote.due_date,
+                        quote.price,
+                        ...shipmentItems?.map((item: { year: string; make: string; model: string; container_length: string; container_type: string }) => `${item.year} ${item.make} ${item.model} ${item.container_length} ft ${item.container_type}`) || []
+                    ].join(' ').toLowerCase();
+                    return searchString.includes(searchTerm.toLowerCase());
+                });
+            }
+    
+            return sortedQuotes;
+        }, [searchTerm, orders, sortConfig]);
+        
     const sortedOrders = useMemo(() => {
         const sorted = [...filteredOrders];
         if (sortConfig.column) {
@@ -95,7 +134,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
 
         return (
             <button onClick={handleSortClick} className="flex items-center">
-                {column}
+                {columnDisplayNames[column] || column}
                 {sortOrder === 'asc' ? (
                     <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7"></path>
@@ -188,13 +227,13 @@ const OrderTable: React.FC<OrderTableProps> = ({
                             <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
-                            <TableHeaderSort column="Load Description" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
+                            <TableHeaderSort column="freight_type" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
-                            <TableHeaderSort column="Origin/Destination" sortOrder={sortConfig.column === 'origin_city' ? sortConfig.order : null} onSort={handleSort} />
+                            <TableHeaderSort column="origin_destination" sortOrder={sortConfig.column === 'origin_city' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
-                            <TableHeaderSort column="Earliest/Latest Pickup" sortOrder={sortConfig.column === 'pickup_date_range' ? sortConfig.order : null} onSort={handleSort} />
+                            <TableHeaderSort column="due_date" sortOrder={sortConfig.column === 'pickup_date_range' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
                             <TableHeaderSort column="price" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
@@ -313,6 +352,9 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                                 >
                                                     Mark as Complete
                                                 </button>
+                                                <button onClick={() => archiveOrder(order.id)} className="text-red-500 mt-3 font-semibold underline text-sm">
+                                                            Archive Order
+                                                        </button>
                                             </>
                                         )}
                                     </div>
@@ -351,9 +393,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                                         <button onClick={() => handleEditClick(order)} className="text-ntsLightBlue mt-3 font-semibold text-base underline h-full">
                                                             Edit Order
                                                         </button>
-                                                        <button onClick={() => archiveOrder(order.id)} className="text-red-500 mt-3 font-semibold underline text-sm">
-                                                            Archive Order
-                                                        </button>
+
                                                     </div>
                                                 </div>
                                             )}

@@ -154,7 +154,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
 
                 </div>
             </nav>
-            <nav className={`hidden w-full bg-white z-20 md:flex flex-col md:flex-row gap-1 justify-between px-4 py-2 drop-shadow ${className}`}>
+            <nav className={`hidden w-full bg-white z-10 md:flex flex-col md:flex-row gap-1 justify-between px-4 py-2 drop-shadow ${className}`}>
                 <ul className='w-full flex md:gap-12 items-center z-20 justify-start pl-64'>
                     <li>
                         <FeedBack />
@@ -165,7 +165,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                     <li>
                         <NotificationBell session={session} />
                     </li>
-                    <li className='relative right-0 z-50'>
+                    <li className='relative right-0 z-10'>
                         <Image
                             src={profilePictureUrl}
                             alt='profile-img'

@@ -30,6 +30,14 @@ interface QuoteTableProps {
     handleRejectClick: (id: number) => void;
 }
 
+const columnDisplayNames: { [key: string]: string } = {
+    id: 'ID',
+    freight_type: 'Load Details',
+    origin_destination: 'Origin/Destination',
+    due_date: 'Date',
+    price: 'Price',
+};
+
 const QuoteTable: React.FC<QuoteTableProps> = ({
     sortConfig,
     handleSort,
@@ -59,30 +67,46 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
     const [searchColumn, setSearchColumn] = useState('id');
 
     const filteredQuotes = useMemo(() => {
-        if (!searchTerm) {
-            return quotes;
+        let sortedQuotes = [...quotes];
+
+        if (sortConfig.column) {
+            sortedQuotes.sort((a, b) => {
+                if (a[sortConfig.column] < b[sortConfig.column]) {
+                    return sortConfig.order === 'asc' ? -1 : 1;
+                }
+                if (a[sortConfig.column] > b[sortConfig.column]) {
+                    return sortConfig.order === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
         }
-        return quotes.filter((quote) => {
-            const shipmentItems = typeof quote.shipment_items === 'string' ? JSON.parse(quote.shipment_items) : quote.shipment_items;
-            const searchString: string = [
-                quote.id,
-                quote.freight_type,
-                quote.origin_city,
-                quote.origin_state,
-                quote.origin_zip,
-                quote.destination_city,
-                quote.destination_state,
-                quote.destination_zip,
-                quote.due_date,
-                quote.price,
-                ...shipmentItems?.map((item: { year: string; make: string; model: string; container_length: string; container_type: string }) => `${item.year} ${item.make} ${item.model} ${item.container_length} ft ${item.container_type}`) || []
-            ].join(' ').toLowerCase();
-            return searchString.includes(searchTerm.toLowerCase());
-        });
-    }, [searchTerm, quotes]);
+
+        if (searchTerm) {
+            sortedQuotes = sortedQuotes.filter((quote) => {
+                const shipmentItems = typeof quote.shipment_items === 'string' ? JSON.parse(quote.shipment_items) : quote.shipment_items;
+                const searchString: string = [
+                    quote.id,
+                    quote.freight_type,
+                    quote.origin_city,
+                    quote.origin_state,
+                    quote.origin_zip,
+                    quote.destination_city,
+                    quote.destination_state,
+                    quote.destination_zip,
+                    quote.due_date,
+                    quote.price,
+                    ...shipmentItems?.map((item: { year: string; make: string; model: string; container_length: string; container_type: string }) => `${item.year} ${item.make} ${item.model} ${item.container_length} ft ${item.container_type}`) || []
+                ].join(' ').toLowerCase();
+                return searchString.includes(searchTerm.toLowerCase());
+            });
+        }
+
+        return sortedQuotes;
+    }, [searchTerm, quotes, sortConfig]);
 
     const currentRows = filteredQuotes.slice(indexOfFirstRow, indexOfLastRow);
     const totalPages = Math.ceil(filteredQuotes.length / rowsPerPage);
+
 
     const handlePageChange = (pageNumber: number) => {
         setCurrentPage(pageNumber);
@@ -167,7 +191,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
 
         return (
             <button onClick={handleSortClick} className="flex items-center">
-                {column}
+                {columnDisplayNames[column] || column}
                 {sortOrder === 'asc' ? (
                     <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7"></path>
@@ -198,7 +222,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                         onChange={(e) => setSearchColumn(e.target.value)}
                         className="border border-gray-300 rounded-md shadow-sm"
                     >
-                        <option value="id">ID</option>
+                         <option value="id">ID</option>
                         <option value="freight_type">Load Details</option>
                         <option value="origin_destination">Origin/Destination</option>
                         <option value="due_date">Date</option>
@@ -213,19 +237,19 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                 />
             </div>
             <table className="min-w-full place-content-center divide-zinc-200">
-                <thead className="bg-ntsBlue border-2 border-t-orange-500 text-zinc-50  top-0 w-fit">
+            <thead className="bg-ntsBlue border-2 border-t-orange-500 text-zinc-50  top-0 w-fit">
                     <tr>
-                        <th className="px-6 py-3 text-left text-xs text-nowrap font-semibold uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs text-nowrap font-semibold uppercase tracking-wider">
                             <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-semibold tracking-wider">
                             Notes
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
-                            <TableHeaderSort column="Shipment Details" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
+                            <TableHeaderSort column="freight_type" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
-                            <TableHeaderSort column="Origin/Destination" sortOrder={sortConfig.column === 'origin_destination' ? sortConfig.order : null} onSort={handleSort} />
+                            <TableHeaderSort column="origin_destination" sortOrder={sortConfig.column === 'origin_destination' ? sortConfig.order : null} onSort={handleSort} />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
                             <TableHeaderSort column="due_date" sortOrder={sortConfig.column === 'due_date' ? sortConfig.order : null} onSort={handleSort} />
@@ -239,7 +263,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                 <tbody className="bg-white divide-y divide-gray-200 w-fit">
                     {currentRows.map((quote, index) => (
                         <React.Fragment key={quote.id}>
-                            <tr
+                            <tr onClick={() => handleRowClick(quote.id)}
                                 className={`cursor-pointer mb-4 w-max ${index % 2 === 0 ? 'bg-white h-fit w-full' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}
                             >
                                 <td
@@ -432,8 +456,8 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                         <div className="p-4 bg-white border-x border-b border-ntsLightBlue/30 rounded-b-md">
                                             <div className="flex gap-1">
                                                 <button
-                                                    className={`px-4 py-2 ${activeTab === 'quotedetails' ? 'bg-gray-200 border-t border-ntsLightBlue' : 'bg-gray-200'}`}
-                                                    onClick={() => setActiveTab('quotedetails')}
+                                                    className={`px-4 py-2 ${activeTab === 'quotes' ? 'bg-gray-200 border-t border-ntsLightBlue' : 'bg-gray-200'}`}
+                                                    onClick={() => setActiveTab('quotes')}
                                                 >
                                                     Quote Details
                                                 </button>
