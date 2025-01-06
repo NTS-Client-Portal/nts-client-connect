@@ -136,13 +136,14 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 <label className="block text-sm font-medium text-gray-700">Length</label>
                                 <input
                                     type="text"
-                                    name="year"
+                                    name="length"
                                     value={updatedQuote.length || ''}
                                     onChange={handleChange}
                                     className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                                 />                           
                             <select
                                 className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900"
+                                name="length_unit"
                                 value={updatedQuote.length_unit || 'ft'}
                                 onChange={handleChange}
                                      >
@@ -154,12 +155,13 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 <label className="block text-sm font-medium text-gray-700">Width</label>
                                 <input
                                     type="text"
-                                    name="make"
+                                    name="width"
                                     value={updatedQuote.width || ''}
                                     onChange={handleChange}
                                     className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                                 />
                                   <select className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900"
+                                name="width_unit"
                                 value={updatedQuote.width_unit || 'ft'}
                                 onChange={handleChange}
                                      >
@@ -171,13 +173,14 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 <label className="block text-sm font-medium text-gray-700">Height</label>
                                 <input
                                     type="text"
-                                    name="model"
+                                    name="height"
                                     value={updatedQuote.height || ''}
                                     onChange={handleChange}
                                     className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                                 />
                               <select  className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900"
-                                value={updatedQuote.length_unit || 'ft'}
+                                name="height_unit"
+                                value={updatedQuote.height_unit || 'ft'}
                                 onChange={handleChange}
                                      >
                                  <option value="ft">Feet</option>

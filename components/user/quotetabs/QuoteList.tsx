@@ -25,39 +25,22 @@ interface QuoteListProps {
 
 const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
 	const supabase = useSupabaseClient<Database>();
-	const [quotes, setQuotes] = useState<
-		Database["public"]["Tables"]["shippingquotes"]["Row"][]
-	>([]);
-	const [profiles, setProfiles] = useState<
-		Database["public"]["Tables"]["profiles"]["Row"][]
-	>([]);
+	const [quotes, setQuotes] = useState<Database["public"]["Tables"]["shippingquotes"]["Row"][]>([]);
+	const [profiles, setProfiles] = useState<Database["public"]["Tables"]["profiles"]["Row"][]>([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedQuoteId, setSelectedQuoteId] = useState<number | null>(null);
-	const [quote, setQuote] = useState<
-		Database["public"]["Tables"]["shippingquotes"]["Row"] | null
-	>(null);
+	const [quote, setQuote] = useState<Database["public"]["Tables"]["shippingquotes"]["Row"] | null>(null);
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-	const [quoteToEdit, setQuoteToEdit] = useState<
-		Database["public"]["Tables"]["shippingquotes"]["Row"] | null
-	>(null);
+	const [quoteToEdit, setQuoteToEdit] = useState<Database["public"]["Tables"]["shippingquotes"]["Row"] | null>(null);
 	const [isRejectedModalOpen, setIsRejectedModalOpen] = useState(false);
-	const [quotesToReject, setQuotesToReject] = useState<
-		Database["public"]["Tables"]["shippingquotes"]["Row"][]
-	>([]);
+	const [quotesToReject, setQuotesToReject] = useState<Database["public"]["Tables"]["shippingquotes"]["Row"][]>([]);
 	const [expandedRow, setExpandedRow] = useState<number | null>(null);
-	const [sortedQuotes, setSortedQuotes] = useState<
-		Database["public"]["Tables"]["shippingquotes"]["Row"][]
-	>([]);
-	const [sortConfig, setSortConfig] = useState<{
-		column: string;
-		order: string;
-	}>({ column: "id", order: "desc" });
+	const [sortedQuotes, setSortedQuotes] = useState<Database["public"]["Tables"]["shippingquotes"]["Row"][]>([]);
+	const [sortConfig, setSortConfig] = useState<{column: string; order: string;}>({ column: "id", order: "desc" });
 	const [searchTerm, setSearchTerm] = useState("");
 	const [searchColumn, setSearchColumn] = useState("id");
 	const [activeTab, setActiveTab] = useState("quotes"); // Add this line
-	const [editHistory, setEditHistory] = useState<
-		Database["public"]["Tables"]["edit_history"]["Row"][]
-	>([]);
+	const [editHistory, setEditHistory] = useState<Database["public"]["Tables"]["edit_history"]["Row"][]>([]);
 	const [popupMessage, setPopupMessage] = useState<string | null>(null); // Add state for popup message
 	const [showOrderForm, setShowOrderForm] = useState(false);
 	const [errorText, setErrorText] = useState<string>("");
