@@ -58,7 +58,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         setLoading(true);
         const { data, error } = await supabase
             .from('nts_users')
-            .select('email, first_name, last_name, role');
+            .select('id, email, first_name, last_name, role');
         if (error) {
             setError(error.message);
         } else {

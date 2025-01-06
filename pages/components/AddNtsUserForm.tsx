@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Database } from '@/lib/database.types';
-import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
 
 interface AddNtsUserFormProps {
     isOpen: boolean;
@@ -12,7 +11,6 @@ interface AddNtsUserFormProps {
 type NtsUser = Database['public']['Tables']['nts_users']['Row'];
 
 const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSuccess, ntsUsers }) => {
-    const supabase = useSupabaseClient<Database>();
     const [newNtsUser, setNewNtsUser] = useState<Partial<NtsUser>>({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -29,25 +27,18 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
         setLoading(true);
 
         try {
-            // Generate a random UUID for the id field
-            const { data: { session } } = await supabase.auth.getSession();
-            const userId = session?.user?.id;
-
-            // Insert the user into the nts_users table with the specified company_id
-            const { error: insertError } = await supabase.from('nts_users').insert({
-                email: newNtsUser.email,
-                role: newNtsUser.role,
-                first_name: newNtsUser.first_name,
-                last_name: newNtsUser.last_name,
-                phone_number: newNtsUser.phone_number,
-                office: newNtsUser.office,
-                id: userId,
-                company_id: 'cc0e2fd6-e5b5-4a7e-b375-7c0d28e2b45d', // Set the company_id field
-                inserted_at: new Date().toISOString(), // Set the inserted_at field
+            const response = await fetch('/api/addNtsUser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newNtsUser),
             });
 
-            if (insertError) {
-                throw new Error(insertError.message);
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error);
             }
 
             setNewNtsUser({});
