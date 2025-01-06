@@ -12,6 +12,8 @@ type NtsUser = Database['public']['Tables']['nts_users']['Row'];
 
 const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSuccess, ntsUsers }) => {
     const [newNtsUser, setNewNtsUser] = useState<Partial<NtsUser>>({});
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -19,8 +21,13 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
         e.preventDefault();
         setError(null);
 
-        if (!newNtsUser.email || !newNtsUser.role || !newNtsUser.first_name || !newNtsUser.last_name) {
-            setError('Email, role, first name, and last name are required');
+        if (!newNtsUser.email || !newNtsUser.role || !newNtsUser.first_name || !newNtsUser.last_name || !password || !confirmPassword) {
+            setError('All fields are required');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            setError('Passwords do not match');
             return;
         }
 
@@ -32,7 +39,7 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(newNtsUser),
+                body: JSON.stringify({ ...newNtsUser, password }),
             });
 
             const result = await response.json();
@@ -42,6 +49,8 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
             }
 
             setNewNtsUser({});
+            setPassword('');
+            setConfirmPassword('');
             onClose();
             onSuccess();
         } catch (error) {
@@ -101,6 +110,24 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                                 </div>
                             )
                         ))}
+                        <div className="mb-4">
+                            <label className="block text-gray-700">Password</label>
+                            <input
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-gray-700">Confirm Password</label>
+                            <input
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
                     </div>
                     <div className="flex justify-end mt-4">
                         <button

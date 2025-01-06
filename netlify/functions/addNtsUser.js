@@ -3,17 +3,16 @@ const { v4: uuidv4 } = require('uuid');
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const defaultPassword = process.env.NEXT_PUBLIC_DEFAULT_PASSWORD;
 
 const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
 exports.handler = async (event, context) => {
-    const { email, role, first_name, last_name, phone_number, office } = JSON.parse(event.body);
+    const { email, role, first_name, last_name, phone_number, office, password } = JSON.parse(event.body);
 
-    if (!email || !role || !first_name || !last_name) {
+    if (!email || !role || !first_name || !last_name || !password) {
         return {
             statusCode: 400,
-            body: JSON.stringify({ error: 'Email, role, first name, and last name are required' }),
+            body: JSON.stringify({ error: 'Email, role, first name, last name, and password are required' }),
         };
     }
 
@@ -21,7 +20,7 @@ exports.handler = async (event, context) => {
         // Sign up the user in Supabase Auth
         const { data, error: signUpError } = await supabaseAdmin.auth.signUp({
             email,
-            password: defaultPassword, // Use the default password from the environment variable
+            password, // Use the provided password
         });
 
         if (signUpError) {
