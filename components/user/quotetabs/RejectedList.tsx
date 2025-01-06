@@ -8,12 +8,14 @@ import RejectedTable from './RejectedTable';
 interface RejectedProps {
     session: Session | null;
     selectedUserId: string;
+    fetchQuotes: () => void;
     isAdmin: boolean;
+    companyId: string;
 }
 
 type Quote = Database['public']['Tables']['shippingquotes']['Row'];
 
-const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserId }) => {
+const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserId, companyId }) => {
     const [errorText, setErrorText] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [rejectedQuotes, setRejectedQuotes] = useState<Quote[]>([]);

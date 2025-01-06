@@ -56,12 +56,12 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
     }, [session, supabase]);
 
     const fetchQuotes = useCallback(async () => {
-        if (!session?.user?.id || !selectedUserId) return;
+        if (!session?.user?.id || !companyId) return;
 
         const { data, error } = await supabase
             .from('shippingquotes')
             .select('*')
-            .eq('assigned_sales_user', selectedUserId)
+            .eq('company_id', companyId)
             .eq('is_archived', false); // Fetch only non-archived quotes
 
         if (error) {
@@ -70,7 +70,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
             console.log('Fetched Quotes:', data);
             setQuotes(data);
         }
-    }, [session, selectedUserId, supabase]);
+    }, [session, companyId, supabase]);
 
     const fetchEditHistory = useCallback(async () => {
         if (!companyId) return;
@@ -350,8 +350,10 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                 {activeTab === 'requests' && (
                     <QuoteList
                         session={session}
+                        fetchQuotes={fetchQuotes}
                         isAdmin={isAdmin}
                         selectedUserId={selectedUserId}
+                        companyId={companyId}
                     />
                 )}
                 {activeTab === 'orders' && (
@@ -360,27 +362,34 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                         fetchQuotes={fetchQuotes}
                         isAdmin={isAdmin}
                         selectedUserId={selectedUserId}
+                        companyId={companyId}
                     />
                 )}
                 {activeTab === 'delivered' && (
                     <DeliveredList
                         session={session}
                         isAdmin={isAdmin}
-                        selectedUserId={selectedUserId} // Pass selectedUserId
+                        fetchQuotes={fetchQuotes}
+                        selectedUserId={selectedUserId}
+                        companyId={companyId}
                     />
                 )}
                 {activeTab === 'archived' && (
                     <Archived
                         session={session}
                         isAdmin={isAdmin}
+                        fetchQuotes={fetchQuotes}
                         selectedUserId={selectedUserId}
+                        companyId={companyId}
                     />
                 )}
                 {activeTab === 'rejected' && (
                     <RejectedList
-                        session={session}
-                        selectedUserId={selectedUserId}
-                        isAdmin={isAdmin}
+                    session={session}
+                    isAdmin={isAdmin}
+                    fetchQuotes={fetchQuotes}
+                    selectedUserId={selectedUserId}
+                    companyId={companyId}
                     />
                 )}
             </div>

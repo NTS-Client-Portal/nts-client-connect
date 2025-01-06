@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Database } from '@/lib/database.types';
 import TableHeaderSort from './TableHeaderSort';
 import { formatDate, freightTypeMapping } from './QuoteUtils';
-import Archived from './Archived';
 
 type ShippingQuotesRow = Database['public']['Tables']['shippingquotes']['Row'];
 
@@ -10,10 +9,10 @@ interface ArchivedTableProps {
     quotes: ShippingQuotesRow[];
     sortConfig: { column: string; order: string };
     handleSort: (column: string) => void;
-    fetchDeliveredQuotes: () => void;
     unArchive: (quote: ShippingQuotesRow) => void;
     handleStatusChange: (e: React.ChangeEvent<HTMLSelectElement>, id: number) => void;
     isAdmin: boolean;
+    companyId: string; // Add companyId as a prop
 }
 
 const ArchivedTable: React.FC<ArchivedTableProps> = ({
@@ -21,9 +20,9 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
     sortConfig,
     handleSort,
     unArchive,
-    fetchDeliveredQuotes,
     handleStatusChange,
     isAdmin,
+    companyId, // Add companyId as a prop
 }) => {
     const [archivedQuotes, setArchivedQuotes] = useState<ShippingQuotesRow[]>([]);
     const [showArchived, setShowArchived] = useState(false);
@@ -38,8 +37,8 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
     }, [searchTerm, searchColumn, quotes]);
 
     useEffect(() => {
-        setArchivedQuotes(quotes.filter((quote) => quote.status === 'archived'));
-    }, [quotes]);
+        setArchivedQuotes(quotes.filter((quote) => quote.status === 'archived' && quote.company_id === companyId));
+    }, [quotes, companyId]);
 
     const handleShowArchived = () => {
         setShowArchived(!showArchived);
@@ -63,10 +62,7 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
 
     const handleStatusChangeWrapper = (e: React.ChangeEvent<HTMLSelectElement>, id: number) => {
         handleStatusChange(e, id);
-        fetchDeliveredQuotes();
     };
-
-
 
     return (
         <div className='w-full'>
@@ -119,7 +115,7 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
                     </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                    {quotes.map((quote, index) => (
+                    {sortedQuotes.map((quote, index) => (
                         <tr key={quote.id} className={`cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}>
                             <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200">{quote.id}</td>
                             <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200">

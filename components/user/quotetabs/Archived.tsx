@@ -9,13 +9,16 @@ interface ArchivedProps {
     session: Session | null;
     selectedUserId: string;
     isAdmin: boolean;
+    fetchQuotes: () => void;
+    companyId: string; // Add companyId as a prop
 }
 
-const Archived: React.FC<ArchivedProps> = ({ session, isAdmin }) => {
+const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQuotes }) => {
     const [errorText, setErrorText] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [archivedQuotes, setArchivedQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
     const [popupMessage, setPopupMessage] = useState<string | null>(null);
+
     const fetchProfiles = useCallback(async (companyId: string) => {
         const { data: profiles, error } = await supabase
             .from('profiles')
@@ -161,10 +164,10 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin }) => {
                     quotes={archivedQuotes}
                     sortConfig={{ column: 'id', order: 'asc' }}
                     handleSort={() => { }}
-                    fetchDeliveredQuotes={() => { }}
                     unArchive={unArchive}
                     handleStatusChange={() => { }}
                     isAdmin={isAdmin}
+                    companyId={companyId}
                 />
             </div>
             <div className="block md:hidden">

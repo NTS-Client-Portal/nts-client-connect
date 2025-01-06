@@ -14,9 +14,10 @@ interface OrderListProps {
     selectedUserId: string;
     fetchQuotes: () => void;
     isAdmin: boolean;
+    companyId: string;
 }
 
-const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
+const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetchQuotes }) => {
     const [quotes, setQuotes] = useState<ShippingQuotesRow[]>([]);
     const [sortConfig, setSortConfig] = useState<{ column: string; order: 'asc' | 'desc' }>({ column: '', order: 'asc' });
     const [errorText, setErrorText] = useState<string>('');
@@ -32,51 +33,69 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
     const [searchColumn, setSearchColumn] = useState<string>('id');
     const router = useRouter();
 
-    const fetchOrdersForNtsUsers = useCallback(async (userId: string) => {
-        const { data: companySalesUsers, error: companySalesUsersError } = await supabase
-            .from('company_sales_users')
-            .select('company_id')
-            .eq('sales_user_id', userId);
-
-        if (companySalesUsersError) {
-            console.error('Error fetching company_sales_users for nts_user:', companySalesUsersError.message);
-            return [];
-        }
-
-        const companyIds = companySalesUsers.map((companySalesUser) => companySalesUser.company_id);
-
-        const { data: quotes, error: quotesError } = await supabase
-            .from('shippingquotes')
-            .select('*')
-            .in('company_id', companyIds)
-            .eq('status', 'Order')
-            .not('is_complete', 'is', true);
-
-        if (quotesError) {
-            console.error('Error fetching quotes for nts_user:', quotesError.message);
-            return [];
-        }
-
-        return quotes;
-    }, []);
-
+    const fetchOrdersForNtsUsers = useCallback(
+        async (userId: string, companyId: string) => {
+            const { data: companySalesUsers, error: companySalesUsersError } = await supabase
+                .from("company_sales_users")
+                .select("company_id")
+                .eq("sales_user_id", userId);
+    
+            if (companySalesUsersError) {
+                console.error(
+                    "Error fetching company_sales_users for nts_user:",
+                    companySalesUsersError.message
+                );
+                return [];
+            }
+    
+            const companyIds = companySalesUsers.map(
+                (companySalesUser) => companySalesUser.company_id
+            );
+    
+            if (!companyIds.includes(companyId)) {
+                console.error("Company ID not assigned to the user");
+                return [];
+            }
+    
+            const { data: orders, error: ordersError } = await supabase
+                .from("shippingquotes")
+                .select("*")
+                .eq("company_id", companyId)
+                .eq("status", "Order")
+                .or("is_archived.is.null,is_archived.eq.false")
+                .not('is_complete', 'eq', true)
+                .or('is_complete.is.null,is_complete.eq.true');
+    
+            if (ordersError) {
+                console.error(
+                    "Error fetching orders for nts_user:",
+                    ordersError.message
+                );
+                return [];
+            }
+    
+            return orders;
+        },
+        [supabase]
+    );
+    
     const fetchQuotesForCompany = useCallback(async (companyId: string) => {
-        const { data: quotes, error: quotesError } = await supabase
+        const { data: orders, error: ordersError } = await supabase
             .from('shippingquotes')
             .select('*')
             .eq('company_id', companyId)
             .eq('status', 'Order')
             .not('is_complete', 'is', true);
-
-        if (quotesError) {
-            console.error('Error fetching quotes for company:', quotesError.message);
+    
+        if (ordersError) {
+            console.error('Error fetching orders for company:', ordersError.message);
             return [];
         }
-
-        return quotes;
+    
+        return orders;
     }, []);
-
-    const fetchQuotes = useCallback(async () => {
+    
+    const fetchOrders = useCallback(async () => {
         let query = supabase
             .from('shippingquotes')
             .select('*')
@@ -84,22 +103,21 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
             .or('is_archived.is.null,is_archived.eq.false')
             .not('is_complete', 'eq', true)
             .or('is_complete.is.null,is_complete.eq.true');
-
-
+    
         if (!isNtsUser && session?.user?.id) {
             query = query.eq('user_id', session.user.id);
         }
-
+    
         const { data, error } = await query;
-
+    
         if (error) {
             setErrorText(error.message);
         } else {
-            console.log('Fetched Quotes:', data);
+            console.log('Fetched Orders:', data);
             setQuotes(data as any); // Ensure the data is cast to the correct type
         }
     }, [session, isNtsUser]);
-
+    
     useEffect(() => {
         const checkUserType = async () => {
             if (session?.user?.id) {
@@ -108,34 +126,34 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
                     .select('id')
                     .eq('id', session.user.id)
                     .single();
-
+    
                 if (ntsUserError) {
                     console.error('Error fetching nts_user role:', ntsUserError.message);
                 } else if (ntsUserData) {
                     setIsNtsUser(true);
-                    const quotes = await fetchOrdersForNtsUsers(session.user.id);
-                    setQuotes(quotes);
+                    const orders = await fetchOrdersForNtsUsers(session.user.id, companyId);
+                    setQuotes(orders);
                     return;
                 }
-
+    
                 const { data: profileData, error: profileError } = await supabase
                     .from('profiles')
                     .select('company_id')
                     .eq('id', session.user.id)
                     .single();
-
+    
                 if (profileError) {
                     console.error('Error fetching profile:', profileError.message);
                 } else if (profileData?.company_id) {
-                    const quotes = await fetchQuotesForCompany(profileData.company_id);
-                    setQuotes(quotes);
+                    const orders = await fetchQuotesForCompany(profileData.company_id);
+                    setQuotes(orders);
                     return;
                 }
-
+    
                 fetchQuotes();
             }
         };
-
+    
         checkUserType();
     }, [session, fetchQuotes, fetchOrdersForNtsUsers, fetchQuotesForCompany]);
 

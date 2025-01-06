@@ -10,188 +10,164 @@ import RejectReasonModal from "./RejectReasonModal";
 import { generateAndUploadDocx, replaceShortcodes } from "@/components/GenerateDocx";
 
 interface QuoteListProps {
-	session: any;
-	selectedUserId: string;
-	isAdmin: boolean;
+    session: any;
+    selectedUserId: string;
+    isAdmin: boolean;
+    fetchQuotes: () => void;
+    companyId: string; // Add companyId as a prop
 }
 
-const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
-	const supabase = useSupabaseClient<Database>();
-	const [quotes, setQuotes] = useState<Database["public"]["Tables"]["shippingquotes"]["Row"][]>([]);
-	const [profiles, setProfiles] = useState<Database["public"]["Tables"]["profiles"]["Row"][]>([]);
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [selectedQuoteId, setSelectedQuoteId] = useState<number | null>(null);
-	const [quote, setQuote] = useState<Database["public"]["Tables"]["shippingquotes"]["Row"] | null>(null);
-	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-	const [quoteToEdit, setQuoteToEdit] = useState<Database["public"]["Tables"]["shippingquotes"]["Row"] | null>(null);
-	const [isRejectedModalOpen, setIsRejectedModalOpen] = useState(false);
-	const [quotesToReject, setQuotesToReject] = useState<Database["public"]["Tables"]["shippingquotes"]["Row"][]>([]);
-	const [expandedRow, setExpandedRow] = useState<number | null>(null);
-	const [sortedQuotes, setSortedQuotes] = useState<Database["public"]["Tables"]["shippingquotes"]["Row"][]>([]);
-	const [sortConfig, setSortConfig] = useState<{column: string; order: string;}>({ column: "id", order: "desc" });
-	const [searchTerm, setSearchTerm] = useState("");
-	const [searchColumn, setSearchColumn] = useState("id");
-	const [activeTab, setActiveTab] = useState("quotes"); // Add this line
-	const [editHistory, setEditHistory] = useState<Database["public"]["Tables"]["edit_history"]["Row"][]>([]);
-	const [popupMessage, setPopupMessage] = useState<string | null>(null); // Add state for popup message
-	const [showOrderForm, setShowOrderForm] = useState(false);
-	const [errorText, setErrorText] = useState<string>("");
-	const [showPriceInput, setShowPriceInput] = useState<number | null>(null);
-	const [priceInput, setPriceInput] = useState<string>("");
+const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, companyId }) => {
+    const supabase = useSupabaseClient<Database>();
+    const [quotes, setQuotes] = useState<Database["public"]["Tables"]["shippingquotes"]["Row"][]>([]);
+    const [profiles, setProfiles] = useState<Database["public"]["Tables"]["profiles"]["Row"][]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedQuoteId, setSelectedQuoteId] = useState<number | null>(null);
+    const [quote, setQuote] = useState<Database["public"]["Tables"]["shippingquotes"]["Row"] | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [quoteToEdit, setQuoteToEdit] = useState<Database["public"]["Tables"]["shippingquotes"]["Row"] | null>(null);
+    const [isRejectedModalOpen, setIsRejectedModalOpen] = useState(false);
+    const [quotesToReject, setQuotesToReject] = useState<Database["public"]["Tables"]["shippingquotes"]["Row"][]>([]);
+    const [expandedRow, setExpandedRow] = useState<number | null>(null);
+    const [sortedQuotes, setSortedQuotes] = useState<Database["public"]["Tables"]["shippingquotes"]["Row"][]>([]);
+    const [sortConfig, setSortConfig] = useState<{ column: string; order: string; }>({ column: "id", order: "desc" });
+    const [searchTerm, setSearchTerm] = useState("");
+    const [searchColumn, setSearchColumn] = useState("id");
+    const [activeTab, setActiveTab] = useState("quotes"); // Add this line
+    const [editHistory, setEditHistory] = useState<Database["public"]["Tables"]["edit_history"]["Row"][]>([]);
+    const [popupMessage, setPopupMessage] = useState<string | null>(null); // Add state for popup message
+    const [showOrderForm, setShowOrderForm] = useState(false);
+    const [errorText, setErrorText] = useState<string>("");
+    const [showPriceInput, setShowPriceInput] = useState<number | null>(null);
+    const [priceInput, setPriceInput] = useState<string>("");
 
-	const user = session?.user;
+    const user = session?.user;
 
-	const fetchQuotes = useCallback(async () => {
-		if (!user) return;
+    const archiveQuote = async (quoteId: number) => {
+        const { error } = await supabase
+            .from("shippingquotes")
+            .update({ is_archived: true })
+            .eq("id", quoteId);
 
-		try {
-			const { data, error } = await supabase
-				.from("shippingquotes")
-				.select("*")
-				.eq("user_id", user.id);
+        if (error) {
+            console.error("Error archiving quote:", error.message);
+            setErrorText("Error archiving quote");
+        } else {
+            setQuotes((prevQuotes) =>
+                prevQuotes.filter((quote) => quote.id !== quoteId)
+            );
+        }
+    };
 
-			if (error) {
-				throw new Error(error.message);
-			}
+    const rejectedQuotes = async (quoteId: number) => {
+        const { error } = await supabase
+            .from("shippingquotes")
+            .update({ status: "Rejected" })
+            .eq("id", quoteId);
 
-			setQuotes(data || []);
-		} catch (error) {
-			console.error("Error fetching quotes:", error);
-		}
-	}, [user, supabase]);
+        if (error) {
+            console.error("Error rejecting quote:", error.message);
+            setErrorText("Error rejecting quote");
+        } else {
+            setQuotes((prevQuotes) =>
+                prevQuotes.filter((quote) => quote.id !== quoteId)
+            );
+        }
+    };
 
-	useEffect(() => {
-		if (user) {
-			fetchQuotes();
-		}
-	}, [user, fetchQuotes]);
+    const handleCreateOrderClick = (quoteId: number) => {
+        const quote = quotes.find((q) => q.id === quoteId);
+        if (quote) {
+            setSelectedQuoteId(quote.id);
+            setQuote(quote);
+            setIsModalOpen(true);
+        }
+    };
 
-	const archiveQuote = async (quoteId: number) => {
-		const { error } = await supabase
-			.from("shippingquotes")
-			.update({ is_archived: true })
-			.eq("id", quoteId);
+    const fetchEditHistory = useCallback(
+        async (companyId: string) => {
+            const { data, error } = await supabase
+                .from("edit_history")
+                .select("*")
+                .eq("company_id", companyId)
+                .order("edited_at", { ascending: false });
 
-		if (error) {
-			console.error("Error archiving quote:", error.message);
-			setErrorText("Error archiving quote");
-		} else {
-			setQuotes((prevQuotes) =>
-				prevQuotes.filter((quote) => quote.id !== quoteId)
-			);
-		}
-	};
+            if (error) {
+                console.error("Error fetching edit history:", error.message);
+            } else {
+                console.log("Fetched Edit History:", data);
+                setEditHistory(data);
+            }
+        },
+        [supabase]
+    );
 
-	const rejectedQuotes = async (quoteId: number) => {
-		const { error } = await supabase
-			.from("shippingquotes")
-			.update({ status: "Rejected" })
-			.eq("id", quoteId);
+    useEffect(() => {
+        const filteredAndSorted = quotes
+            .filter((quote) => {
+                const value = quote[searchColumn]?.toString().toLowerCase() || "";
+                return value.includes(searchTerm.toLowerCase());
+            })
+            .sort((a, b) => {
+                if (a[sortConfig.column] < b[sortConfig.column]) {
+                    return sortConfig.order === "asc" ? -1 : 1;
+                }
+                if (a[sortConfig.column] > b[sortConfig.column]) {
+                    return sortConfig.order === "asc" ? 1 : -1;
+                }
+                return 0;
+            });
 
-		if (error) {
-			console.error("Error rejecting quote:", error.message);
-			setErrorText("Error rejecting quote");
-		} else {
-			setQuotes((prevQuotes) =>
-				prevQuotes.filter((quote) => quote.id !== quoteId)
-			);
-		}
-	};
+        setSortedQuotes(filteredAndSorted);
+    }, [quotes, sortConfig, searchTerm, searchColumn]);
 
-	const handleCreateOrderClick = (quoteId: number) => {
-		const quote = quotes.find((q) => q.id === quoteId);
-		if (quote) {
-			setSelectedQuoteId(quote.id);
-			setQuote(quote);
-			setIsModalOpen(true);
-		}
-	};
+    const handleSort = (column: string, order: string) => {
+        setSortConfig({ column, order });
+    };
 
-	const fetchEditHistory = useCallback(
-		async (companyId: string) => {
-			const { data, error } = await supabase
-				.from("edit_history")
-				.select("*")
-				.eq("company_id", companyId)
-				.order("edited_at", { ascending: false });
+    const fetchProfiles = useCallback(
+        async (companyId: string) => {
+            const { data: profiles, error } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("company_id", companyId);
 
-			if (error) {
-				console.error("Error fetching edit history:", error.message);
-			} else {
-				console.log("Fetched Edit History:", data);
-				setEditHistory(data);
-			}
-		},
-		[supabase]
-	);
+            if (error) {
+                console.error("Error fetching profiles:", error.message);
+                return [];
+            }
 
-	useEffect(() => {
-		const filteredAndSorted = quotes
-			.filter((quote) => {
-				const value = quote[searchColumn]?.toString().toLowerCase() || "";
-				return value.includes(searchTerm.toLowerCase());
-			})
-			.sort((a, b) => {
-				if (a[sortConfig.column] < b[sortConfig.column]) {
-					return sortConfig.order === "asc" ? -1 : 1;
-				}
-				if (a[sortConfig.column] > b[sortConfig.column]) {
-					return sortConfig.order === "asc" ? 1 : -1;
-				}
-				return 0;
-			});
+            return profiles;
+        },
+        [supabase]
+    );
 
-		setSortedQuotes(filteredAndSorted);
-	}, [quotes, sortConfig, searchTerm, searchColumn]);
+    const fetchShippingQuotes = useCallback(
+        async (profileIds: string[]) => {
+            const { data: quotes, error } = await supabase
+                .from("shippingquotes")
+                .select("*")
+                .in("user_id", profileIds)
+                .eq("status", "Quote")
+                .or("is_archived.is.null,is_archived.eq.false");
 
-	const handleSort = (column: string, order: string) => {
-		setSortConfig({ column, order });
-	};
+            if (error) {
+                console.error("Error fetching shipping quotes:", error.message);
+                return [];
+            }
 
-	const fetchProfiles = useCallback(
-		async (companyId: string) => {
-			const { data: profiles, error } = await supabase
-				.from("profiles")
-				.select("*")
-				.eq("company_id", companyId);
+            return quotes;
+        },
+        [supabase]
+    );
 
-			if (error) {
-				console.error("Error fetching profiles:", error.message);
-				return [];
-			}
-
-			return profiles;
-		},
-		[supabase]
-	);
-
-	const fetchShippingQuotes = useCallback(
-		async (profileIds: string[]) => {
-			const { data: quotes, error } = await supabase
-				.from("shippingquotes")
-				.select("*")
-				.in("user_id", profileIds)
-				.eq("status", "Quote")
-				.or("is_archived.is.null,is_archived.eq.false");
-
-			if (error) {
-				console.error("Error fetching shipping quotes:", error.message);
-				return [];
-			}
-
-			return quotes;
-		},
-		[supabase]
-	);
-
-	const fetchQuotesForNtsUsers = useCallback(
-		async (userId: string) => {
-			const { data: companySalesUsers, error: companySalesUsersError } =
-				await supabase
-					.from("company_sales_users")
-					.select("company_id")
-					.eq("sales_user_id", userId);
-
+    const fetchQuotesForNtsUsers = useCallback(
+		async (userId: string, companyId: string) => {
+			const { data: companySalesUsers, error: companySalesUsersError } = await supabase
+				.from("company_sales_users")
+				.select("company_id")
+				.eq("sales_user_id", userId);
+	
 			if (companySalesUsersError) {
 				console.error(
 					"Error fetching company_sales_users for nts_user:",
@@ -199,18 +175,23 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
 				);
 				return [];
 			}
-
+	
 			const companyIds = companySalesUsers.map(
 				(companySalesUser) => companySalesUser.company_id
 			);
-
+	
+			if (!companyIds.includes(companyId)) {
+				console.error("Company ID not assigned to the user");
+				return [];
+			}
+	
 			const { data: quotes, error: quotesError } = await supabase
 				.from("shippingquotes")
 				.select("*")
-				.in("company_id", companyIds)
+				.eq("company_id", companyId)
 				.eq("status", "Quote")
 				.or("is_archived.is.null,is_archived.eq.false");
-
+	
 			if (quotesError) {
 				console.error(
 					"Error fetching quotes for nts_user:",
@@ -218,339 +199,339 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin }) => {
 				);
 				return [];
 			}
-
+	
 			return quotes;
 		},
 		[supabase]
 	);
 
-	const fetchInitialQuotes = useCallback(async () => {
-		if (!session?.user?.id) return;
+    const fetchInitialQuotes = useCallback(async () => {
+        if (!session?.user?.id) return;
 
-		if (isAdmin) {
-			const quotesData = await fetchQuotesForNtsUsers(session.user.id);
-			setQuotes(quotesData);
-		} else {
-			// Fetch the user's profile
-			const { data: userProfile, error: userProfileError } = await supabase
-				.from("profiles")
-				.select("company_id")
-				.eq("id", session.user.id)
-				.single();
+        if (isAdmin) {
+            const quotesData = await fetchQuotesForNtsUsers(session.user.id, companyId);
+            setQuotes(quotesData);
+        } else {
+            // Fetch the user's profile
+            const { data: userProfile, error: userProfileError } = await supabase
+                .from("profiles")
+                .select("company_id")
+                .eq("id", session.user.id)
+                .single();
 
-			if (userProfileError) {
-				console.error("Error fetching user profile:", userProfileError.message);
-				return;
-			}
+            if (userProfileError) {
+                console.error("Error fetching user profile:", userProfileError.message);
+                return;
+            }
 
-			if (!userProfile) {
-				console.error("No profile found for user");
-				return;
-			}
+            if (!userProfile) {
+                console.error("No profile found for user");
+                return;
+            }
 
-			const companyId = userProfile.company_id;
-			const profilesData = await fetchProfiles(companyId);
+            const companyId = userProfile.company_id;
+            const profilesData = await fetchProfiles(companyId);
 
-			setProfiles(profilesData);
+            setProfiles(profilesData);
 
-			const profileIds = profilesData.map((profile) => profile.id);
-			const quotesData = await fetchShippingQuotes(profileIds);
+            const profileIds = profilesData.map((profile) => profile.id);
+            const quotesData = await fetchShippingQuotes(profileIds);
 
-			setQuotes(quotesData);
-		}
-	}, [
-		session,
-		supabase,
-		fetchProfiles,
-		fetchShippingQuotes,
-		fetchQuotesForNtsUsers,
-		isAdmin,
-	]);
+            setQuotes(quotesData);
+        }
+    }, [
+        session,
+        supabase,
+        fetchProfiles,
+        fetchShippingQuotes,
+        fetchQuotesForNtsUsers,
+        isAdmin,
+    ]);
 
-	useEffect(() => {
-		const channel = supabase
-			.channel("shippingquotes")
-			.on(
-				"postgres_changes",
-				{ event: "*", schema: "public", table: "shippingquotes" },
-				(payload) => {
-					console.log("Change received!", payload);
-					fetchInitialQuotes(); // Update DOM or fetch updated data
-				}
-			)
-			.subscribe();
+    useEffect(() => {
+        const channel = supabase
+            .channel("shippingquotes")
+            .on(
+                "postgres_changes",
+                { event: "*", schema: "public", table: "shippingquotes" },
+                (payload) => {
+                    console.log("Change received!", payload);
+                    fetchInitialQuotes(); // Update DOM or fetch updated data
+                }
+            )
+            .subscribe();
 
-		return () => {
-			supabase.removeChannel(channel); // Cleanup subscription
-		};
-	}, [supabase, fetchInitialQuotes]);
+        return () => {
+            supabase.removeChannel(channel); // Cleanup subscription
+        };
+    }, [supabase, fetchInitialQuotes]);
 
-	useEffect(() => {
-		fetchInitialQuotes();
-	}, [fetchInitialQuotes]);
+    useEffect(() => {
+        fetchInitialQuotes();
+    }, [fetchInitialQuotes]);
 
-	const handleModalSubmit = async (data) => {
-		if (selectedQuoteId !== null && session?.user?.id) {
-			const { error } = await supabase
-				.from("shippingquotes")
-				.update({
-					origin_street: data.originStreet,
-					origin_name: data.originName,
-					origin_phone: data.originPhone,
-					destination_street: data.destinationStreet,
-					destination_name: data.destinationName,
-					destination_phone: data.destinationPhone,
-					earliest_pickup_date: data.earliestPickupDate,
-					latest_pickup_date: data.latestPickupDate,
-					notes: data.notes,
-					status: "Order",
-				})
-				.eq("id", selectedQuoteId);
-	
-			if (error) {
-				console.error("Error updating shipping quote:", error.message);
-			} else {
-				// Fetch the updated quote data
-				const { data: updatedQuote, error: fetchError } = await supabase
-					.from("shippingquotes")
-					.select("*")
-					.eq("id", selectedQuoteId)
-					.single();
-	
-				if (fetchError) {
-					console.error("Error fetching updated quote:", fetchError.message);
-				} else {
-					// Fetch the template content
-					const { data: templateData, error: templateError } = await supabase
-						.from("templates")
-						.select("*")
-						.eq("context", "order")
-						.single();
-	
-					if (templateError) {
-						console.error("Error fetching template:", templateError.message);
-					} else {
-						const content = replaceShortcodes(templateData.content, { quote: updatedQuote });
-						const title = templateData.title || "Order Confirmation";
-						const templateId = templateData.id; // Get the template ID
-	
-						await generateAndUploadDocx(updatedQuote, content, title, templateId); // Pass the template ID
-	
-						// Save the document metadata with the template ID
-						const { data: documentData, error: documentError } = await supabase
-							.from("documents")
-							.insert({
-								user_id: session.user.id,
-								title,
-								description: "Order Confirmation Document",
-								file_name: `${title}.docx`,
-								file_type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-								file_url: `path/to/${title}.docx`,
-								template_id: templateId, // Include the template ID
-							})
-							.select()
-							.single();
-	
-						if (documentError) {
-							console.error("Error saving document metadata:", documentError.message);
-						} else {
-							setQuotes((prevQuotes) => prevQuotes.filter((quote) => quote.id !== selectedQuoteId));
-						}
-					}
-				}
-			}
-		}
-	};
+    const handleModalSubmit = async (data) => {
+        if (selectedQuoteId !== null && session?.user?.id) {
+            const { error } = await supabase
+                .from("shippingquotes")
+                .update({
+                    origin_street: data.originStreet,
+                    origin_name: data.originName,
+                    origin_phone: data.originPhone,
+                    destination_street: data.destinationStreet,
+                    destination_name: data.destinationName,
+                    destination_phone: data.destinationPhone,
+                    earliest_pickup_date: data.earliestPickupDate,
+                    latest_pickup_date: data.latestPickupDate,
+                    notes: data.notes,
+                    status: "Order",
+                })
+                .eq("id", selectedQuoteId);
 
-	const handleRespond = async (quoteId: number) => {
-		const price = prompt("Enter the price:");
-		if (price === null) return;
+            if (error) {
+                console.error("Error updating shipping quote:", error.message);
+            } else {
+                // Fetch the updated quote data
+                const { data: updatedQuote, error: fetchError } = await supabase
+                    .from("shippingquotes")
+                    .select("*")
+                    .eq("id", selectedQuoteId)
+                    .single();
 
-		const { error } = await supabase
-			.from("shippingquotes")
-			.update({ price: parseFloat(price) })
-			.eq("id", quoteId);
+                if (fetchError) {
+                    console.error("Error fetching updated quote:", fetchError.message);
+                } else {
+                    // Fetch the template content
+                    const { data: templateData, error: templateError } = await supabase
+                        .from("templates")
+                        .select("*")
+                        .eq("context", "order")
+                        .single();
 
-		if (error) {
-			console.error("Error responding to quote:", error.message);
-		} else {
-			setQuotes((prevQuotes) =>
-				prevQuotes.map((quote) =>
-					quote.id === quoteId ? { ...quote, price: parseFloat(price) } : quote
-				)
-			);
-		}
-	};
+                    if (templateError) {
+                        console.error("Error fetching template:", templateError.message);
+                    } else {
+                        const content = replaceShortcodes(templateData.content, { quote: updatedQuote });
+                        const title = templateData.title || "Order Confirmation";
+                        const templateId = templateData.id; // Get the template ID
 
-	const handleEditClick = (
-		quote: Database["public"]["Tables"]["shippingquotes"]["Row"]
-	) => {
-		setQuoteToEdit(quote);
-		setIsEditModalOpen(true);
-	};
+                        await generateAndUploadDocx(updatedQuote, content, title, templateId); // Pass the template ID
 
-	const handleRejectSubmit = async (data: {
-		notes: string;
-		status: string;
-		quote: Database["public"]["Tables"]["shippingquotes"]["Row"];
-	}) => {
-		const { quote } = data;
-		if (quote) {
-			setSelectedQuoteId(quote.id);
-			setQuote(quote);
-			setIsRejectedModalOpen(false);
+                        // Save the document metadata with the template ID
+                        const { data: documentData, error: documentError } = await supabase
+                            .from("documents")
+                            .insert({
+                                user_id: session.user.id,
+                                title,
+                                description: "Order Confirmation Document",
+                                file_name: `${title}.docx`,
+                                file_type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                file_url: `path/to/${title}.docx`,
+                                template_id: templateId, // Include the template ID
+                            })
+                            .select()
+                            .single();
 
-			const { error } = await supabase
-				.from("shippingquotes")
-				.update({ status: "rejected", notes: data.notes })
-				.eq("id", quote.id);
+                        if (documentError) {
+                            console.error("Error saving document metadata:", documentError.message);
+                        } else {
+                            setQuotes((prevQuotes) => prevQuotes.filter((quote) => quote.id !== selectedQuoteId));
+                        }
+                    }
+                }
+            }
+        }
+    };
 
-			if (error) {
-				console.error("Error rejecting quote:", error.message);
-			} else {
-				setQuotes((prevQuotes) => prevQuotes.filter((q) => q.id !== quote.id));
-			}
-		}
-	};
+    const handleRespond = async (quoteId: number) => {
+        const price = prompt("Enter the price:");
+        if (price === null) return;
 
-	const handleRejectClick = (id: number) => {
-		const quote = quotes.find((q) => q.id === id);
-		if (quote) {
-			setQuotesToReject([quote]);
-			setQuote(quote);
-			setIsRejectedModalOpen(true);
-		}
-	};
+        const { error } = await supabase
+            .from("shippingquotes")
+            .update({ price: parseFloat(price) })
+            .eq("id", quoteId);
 
-	const handleEditModalSubmit = async (
-		updatedQuote: Database["public"]["Tables"]["shippingquotes"]["Row"]
-	) => {
-		if (quoteToEdit && session?.user?.id) {
-			const { data: originalQuote, error: fetchError } = await supabase
-				.from("shippingquotes")
-				.select("*")
-				.eq("id", quoteToEdit.id)
-				.single();
+        if (error) {
+            console.error("Error responding to quote:", error.message);
+        } else {
+            setQuotes((prevQuotes) =>
+                prevQuotes.map((quote) =>
+                    quote.id === quoteId ? { ...quote, price: parseFloat(price) } : quote
+                )
+            );
+        }
+    };
 
-			if (fetchError) {
-				console.error("Error fetching original quote:", fetchError.message);
-				return;
-			}
+    const handleEditClick = (
+        quote: Database["public"]["Tables"]["shippingquotes"]["Row"]
+    ) => {
+        setQuoteToEdit(quote);
+        setIsEditModalOpen(true);
+    };
 
-			const { error: updateError } = await supabase
-				.from("shippingquotes")
-				.update(updatedQuote)
-				.eq("id", quoteToEdit.id);
+    const handleRejectSubmit = async (data: {
+        notes: string;
+        status: string;
+        quote: Database["public"]["Tables"]["shippingquotes"]["Row"];
+    }) => {
+        const { quote } = data;
+        if (quote) {
+            setSelectedQuoteId(quote.id);
+            setQuote(quote);
+            setIsRejectedModalOpen(false);
 
-			if (updateError) {
-				console.error("Error updating quote:", updateError.message);
-				return;
-			}
+            const { error } = await supabase
+                .from("shippingquotes")
+                .update({ status: "rejected", notes: data.notes })
+                .eq("id", quote.id);
 
-			const changes = Object.keys(updatedQuote).reduce((acc, key) => {
-				if (updatedQuote[key] !== originalQuote[key]) {
-					acc[key] = { old: originalQuote[key], new: updatedQuote[key] };
-				}
-				return acc;
-			}, {});
+            if (error) {
+                console.error("Error rejecting quote:", error.message);
+            } else {
+                setQuotes((prevQuotes) => prevQuotes.filter((q) => q.id !== quote.id));
+            }
+        }
+    };
 
-			const { data: profile, error: profileError } = await supabase
-				.from("profiles")
-				.select("company_id")
-				.eq("id", session.user.id)
-				.single();
+    const handleRejectClick = (id: number) => {
+        const quote = quotes.find((q) => q.id === id);
+        if (quote) {
+            setQuotesToReject([quote]);
+            setQuote(quote);
+            setIsRejectedModalOpen(true);
+        }
+    };
 
-			if (profileError) {
-				console.error("Error fetching profile:", profileError.message);
-				return;
-			}
+    const handleEditModalSubmit = async (
+        updatedQuote: Database["public"]["Tables"]["shippingquotes"]["Row"]
+    ) => {
+        if (quoteToEdit && session?.user?.id) {
+            const { data: originalQuote, error: fetchError } = await supabase
+                .from("shippingquotes")
+                .select("*")
+                .eq("id", quoteToEdit.id)
+                .single();
 
-			const { error: historyError } = await supabase
-				.from("edit_history")
-				.insert({
-					quote_id: quoteToEdit.id,
-					edited_by: session.user.id,
-					changes: JSON.stringify(changes),
-					company_id: profile.company_id, // Ensure company_id is set
-				});
+            if (fetchError) {
+                console.error("Error fetching original quote:", fetchError.message);
+                return;
+            }
 
-			if (historyError) {
-				console.error("Error logging edit history:", historyError.message);
-			} else {
-				setQuotes((prevQuotes) =>
-					prevQuotes.map((quote) =>
-						quote.id === updatedQuote.id ? updatedQuote : quote
-					)
-				);
-			}
-		}
-		setIsEditModalOpen(false);
-	};
+            const { error: updateError } = await supabase
+                .from("shippingquotes")
+                .update(updatedQuote)
+                .eq("id", quoteToEdit.id);
 
-	const handleRowClick = (id: number) => {
-		setExpandedRow(expandedRow === id ? null : id);
-	};
+            if (updateError) {
+                console.error("Error updating quote:", updateError.message);
+                return;
+            }
 
-	const duplicateQuote = async (
-		quote: Database["public"]["Tables"]["shippingquotes"]["Row"]
-	) => {
-		const { data, error } = await supabase
-			.from("shippingquotes")
-			.insert({
-				...quote,
-				id: undefined, // Let the database generate a new ID
-				due_date: null, // Require the user to fill out a new shipping date
-			})
-			.select();
+            const changes = Object.keys(updatedQuote).reduce((acc, key) => {
+                if (updatedQuote[key] !== originalQuote[key]) {
+                    acc[key] = { old: originalQuote[key], new: updatedQuote[key] };
+                }
+                return acc;
+            }, {});
 
-		if (error) {
-			console.error("Error duplicating quote:", error.message);
-		} else {
-			if (data && data.length > 0) {
-				setPopupMessage(`Duplicate Quote Request Added - Quote #${data[0].id}`);
-			}
-			fetchInitialQuotes();
-		}
-	};
+            const { data: profile, error: profileError } = await supabase
+                .from("profiles")
+                .select("company_id")
+                .eq("id", session.user.id)
+                .single();
 
-	const reverseQuote = async (
-		quote: Database["public"]["Tables"]["shippingquotes"]["Row"]
-	) => {
-		const { data, error } = await supabase
-			.from("shippingquotes")
-			.insert({
-				...quote,
-				id: undefined, // Let the database generate a new ID
-				due_date: null, // Require the user to fill out a new shipping date
-				origin_city: quote.destination_city,
-				origin_state: quote.destination_state,
-				origin_zip: quote.destination_zip,
-				destination_city: quote.origin_city,
-				destination_state: quote.origin_state,
-				destination_zip: quote.origin_zip,
-			})
-			.select();
+            if (profileError) {
+                console.error("Error fetching profile:", profileError.message);
+                return;
+            }
 
-		if (error) {
-			console.error("Error reversing quote:", error.message);
-		} else {
-			if (data && data.length > 0) {
-				setPopupMessage(
-					`Flip Route Duplicate Request Added - Quote #${data[0].id}`
-				);
-			}
-			fetchInitialQuotes();
-		}
-	};
+            const { error: historyError } = await supabase
+                .from("edit_history")
+                .insert({
+                    quote_id: quoteToEdit.id,
+                    edited_by: session.user.id,
+                    changes: JSON.stringify(changes),
+                    company_id: profile.company_id, // Ensure company_id is set
+                });
 
-	useEffect(() => {
-		if (popupMessage) {
-			const timer = setTimeout(() => {
-				setPopupMessage(null);
-			}, 3000);
-			return () => clearTimeout(timer);
-		}
-	}, [popupMessage]);
+            if (historyError) {
+                console.error("Error logging edit history:", historyError.message);
+            } else {
+                setQuotes((prevQuotes) =>
+                    prevQuotes.map((quote) =>
+                        quote.id === updatedQuote.id ? updatedQuote : quote
+                    )
+                );
+            }
+        }
+        setIsEditModalOpen(false);
+    };
+
+    const handleRowClick = (id: number) => {
+        setExpandedRow(expandedRow === id ? null : id);
+    };
+
+    const duplicateQuote = async (
+        quote: Database["public"]["Tables"]["shippingquotes"]["Row"]
+    ) => {
+        const { data, error } = await supabase
+            .from("shippingquotes")
+            .insert({
+                ...quote,
+                id: undefined, // Let the database generate a new ID
+                due_date: null, // Require the user to fill out a new shipping date
+            })
+            .select();
+
+        if (error) {
+            console.error("Error duplicating quote:", error.message);
+        } else {
+            if (data && data.length > 0) {
+                setPopupMessage(`Duplicate Quote Request Added - Quote #${data[0].id}`);
+            }
+            fetchInitialQuotes();
+        }
+    };
+
+    const reverseQuote = async (
+        quote: Database["public"]["Tables"]["shippingquotes"]["Row"]
+    ) => {
+        const { data, error } = await supabase
+            .from("shippingquotes")
+            .insert({
+                ...quote,
+                id: undefined, // Let the database generate a new ID
+                due_date: null, // Require the user to fill out a new shipping date
+                origin_city: quote.destination_city,
+                origin_state: quote.destination_state,
+                origin_zip: quote.destination_zip,
+                destination_city: quote.origin_city,
+                destination_state: quote.origin_state,
+                destination_zip: quote.origin_zip,
+            })
+            .select();
+
+        if (error) {
+            console.error("Error reversing quote:", error.message);
+        } else {
+            if (data && data.length > 0) {
+                setPopupMessage(
+                    `Flip Route Duplicate Request Added - Quote #${data[0].id}`
+                );
+            }
+            fetchInitialQuotes();
+        }
+    };
+
+    useEffect(() => {
+        if (popupMessage) {
+            const timer = setTimeout(() => {
+                setPopupMessage(null);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [popupMessage]);
 
 	const getStatusClasses = (status: string) => {
 		switch (status) {

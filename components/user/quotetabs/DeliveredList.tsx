@@ -11,10 +11,12 @@ type ShippingQuotesRow = Database['public']['Tables']['shippingquotes']['Row'];
 interface DeliveredListProps {
     session: Session | null;
     selectedUserId: string;
+    fetchQuotes: () => void;
     isAdmin: boolean;
+    companyId: string;
 }
 
-const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin }) => {
+const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, companyId, fetchQuotes }) => {
     const [quotes, setQuotes] = useState<ShippingQuotesRow[]>([]);
     const [errorText, setErrorText] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -27,42 +29,58 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin }) => {
     const [popupMessage, setPopupMessage] = useState<string | null>(null);
     const [deliveredQuotes, setDeliveredQuotes] = useState<ShippingQuotesRow[]>([]);
 
-    const fetchDeliveredForNtsUsers = useCallback(async (userId: string) => {
-        const { data: companySalesUsers, error: companySalesUsersError } = await supabase
-            .from('company_sales_users')
-            .select('company_id')
-            .eq('sales_user_id', userId);
+    const fetchDeliveredQuotesForNtsUsers = useCallback(
+        async (userId: string, companyId: string) => {
+            const { data: companySalesUsers, error: companySalesUsersError } = await supabase
+                .from("company_sales_users")
+                .select("company_id")
+                .eq("sales_user_id", userId);
 
-        if (companySalesUsersError) {
-            console.error('Error fetching company_sales_users for nts_user:', companySalesUsersError.message);
-            return [];
-        }
+            if (companySalesUsersError) {
+                console.error(
+                    "Error fetching company_sales_users for nts_user:",
+                    companySalesUsersError.message
+                );
+                return [];
+            }
 
-        const companyIds = companySalesUsers.map((companySalesUser) => companySalesUser.company_id);
+            const companyIds = companySalesUsers.map(
+                (companySalesUser) => companySalesUser.company_id
+            );
 
+            if (!companyIds.includes(companyId)) {
+                console.error("Company ID not assigned to the user");
+                return [];
+            }
+
+            const { data: quotes, error: quotesError } = await supabase
+                .from("shippingquotes")
+                .select("*")
+                .eq("company_id", companyId)
+                .eq("is_complete", true); // Fetch only delivered quotes
+
+            if (quotesError) {
+                console.error(
+                    "Error fetching delivered quotes for nts_user:",
+                    quotesError.message
+                );
+                return [];
+            }
+
+            return quotes;
+        },
+        [supabase]
+    );
+
+    const fetchDeliveredQuotesForCompany = useCallback(async (companyId: string) => {
         const { data: quotes, error: quotesError } = await supabase
             .from('shippingquotes')
             .select('*')
-            .in('company_id', companyIds)
-            .eq('status', 'Delivered');
-
-        if (quotesError) {
-            console.error('Error fetching quotes for nts_user:', quotesError.message);
-            return [];
-        }
-
-        return quotes;
-    }, []);
-
-    const fetchDeliveredQuotes = useCallback(async () => {
-        const { data: quotes, error } = await supabase
-            .from('shippingquotes')
-            .select('*')
+            .eq('company_id', companyId)
             .eq('is_complete', true); // Fetch only delivered quotes
 
-        if (error) {
-            console.error('Error fetching delivered quotes:', error.message);
-            setErrorText('Error fetching delivered quotes');
+        if (quotesError) {
+            console.error('Error fetching delivered quotes for company:', quotesError.message);
             return [];
         }
 
@@ -70,14 +88,43 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin }) => {
     }, []);
 
     useEffect(() => {
-        const fetchQuotes = async () => {
-            const quotesData = await fetchDeliveredQuotes();
-            setDeliveredQuotes(quotesData);
-            setIsLoading(false);
+        const checkUserType = async () => {
+            if (session?.user?.id) {
+                const { data: ntsUserData, error: ntsUserError } = await supabase
+                    .from('nts_users')
+                    .select('id')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (ntsUserError) {
+                    console.error('Error fetching nts_user role:', ntsUserError.message);
+                } else if (ntsUserData) {
+                    setIsNtsUser(true);
+                    const quotes = await fetchDeliveredQuotesForNtsUsers(session.user.id, companyId);
+                    setDeliveredQuotes(quotes);
+                    return;
+                }
+
+                const { data: profileData, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('company_id')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (profileError) {
+                    console.error('Error fetching profile:', profileError.message);
+                } else if (profileData?.company_id) {
+                    const quotes = await fetchDeliveredQuotesForCompany(profileData.company_id);
+                    setDeliveredQuotes(quotes);
+                    return;
+                }
+
+                fetchQuotes();
+            }
         };
 
-        fetchQuotes();
-    }, [fetchDeliveredQuotes]);
+        checkUserType();
+    }, [session, fetchQuotes, fetchDeliveredQuotesForNtsUsers, fetchDeliveredQuotesForCompany]);
 
     useEffect(() => {
         const channel = supabase
@@ -88,7 +135,7 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin }) => {
                 (payload) => {
                     console.log('Change received!', payload);
                     if (payload.eventType === 'UPDATE' && payload.new.is_complete) {
-                        fetchDeliveredQuotes();
+                        fetchDeliveredQuotesForCompany(companyId);
                     }
                 }
             )
@@ -97,7 +144,7 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin }) => {
         return () => {
             supabase.removeChannel(channel); // Cleanup subscription
         };
-    }, [fetchDeliveredQuotes]);
+    }, [fetchDeliveredQuotesForCompany, companyId]);
 
     const generatePDF = (quote: ShippingQuotesRow) => {
         const doc = new jsPDF();
@@ -285,7 +332,7 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin }) => {
             if (data && data.length > 0) {
                 setPopupMessage(`Quote Successfully Created - Quote #${data[0].id}`);
             }
-            fetchDeliveredQuotes(); // Fetch delivered quotes to update the list
+            fetchDeliveredQuotesForCompany(companyId); // Fetch delivered quotes to update the list
         }
     };
 
@@ -296,7 +343,7 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin }) => {
             <div className="hidden 2xl:block overflow-x-auto">
                 <DeliveredTable
                     quotes={deliveredQuotes}
-                    fetchDeliveredQuotes={fetchDeliveredQuotes}
+                    fetchDeliveredQuotes={() => fetchDeliveredQuotesForCompany(companyId)}
                     handleStatusChange={handleStatusChange}
                     handleEditClick={handleEditQuote}
                     handleMarkAsComplete={handleMarkAsComplete}
