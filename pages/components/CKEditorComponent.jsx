@@ -1,20 +1,10 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { CKEditor, useCKEditorCloud } from '@ckeditor/ckeditor5-react';
 
-const LICENSE_KEY =
-    'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3MzY3MjYzOTksImp0aSI6ImRjY2Q5YmRhLTY0YjgtNDViYS04ODBmLWI0ZWI4ODhiZTAwMyIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiLCJzaCJdLCJ3aGl0ZUxhYmVsIjp0cnVlLCJsaWNlbnNlVHlwZSI6InRyaWFsIiwiZmVhdHVyZXMiOlsiKiJdLCJ2YyI6ImRhZmQxZGRmIn0.fCIkUjYReY0qfIAUuH40bOXcoYwiRfYvi5HS6yruw8IIZLI6-B1JoLaSvuxXvFZyARPyj16_QOT6oWRB5_PtPQ';
+const LICENSE_KEY = 'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3MzY3MjYzOTksImp0aSI6ImRjY2Q5YmRhLTY0YjgtNDViYS04ODBmLWI0ZWI4ODhiZTAwMyIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiLCJzaCJdLCJ3aGl0ZUxhYmVsIjp0cnVlLCJsaWNlbnNlVHlwZSI6InRyaWFsIiwiZmVhdHVyZXMiOlsiKiJdLCJ2YyI6ImRhZmQxZGRmIn0.fCIkUjYReY0qfIAUuH40bOXcoYwiRfYvi5HS6yruw8IIZLI6-B1JoLaSvuxXvFZyARPyj16_QOT6oWRB5_PtPQ';
 
-/**
- * USE THIS INTEGRATION METHOD ONLY FOR DEVELOPMENT PURPOSES.
- *
- * This sample is configured to use OpenAI API for handling AI Assistant queries.
- * See: https://ckeditor.com/docs/ckeditor5/latest/features/ai-assistant/ai-assistant-integration.html
- * for a full integration and customization guide.
- */
 const AI_API_KEY = 'https://9en_pumetc8m.cke-cs.com/api/v5/GNGqaOM7VwXJvoTrSfmv';
-
-const CLOUD_SERVICES_TOKEN_URL =
-    'https://9en_pumetc8m.cke-cs.com/token/dev/b62d2a2511cdf381ce8265bb132fb97a496af4a16fea2882a8181a823975?limit=10';
+const CLOUD_SERVICES_TOKEN_URL = 'https://9en_pumetc8m.cke-cs.com/token/dev/b62d2a2511cdf381ce8265bb132fb97a496af4a16fea2882a8181a823975?limit=10';
 
 export default function CKEditorComponent({ content, setContent }) {
     const editorContainerRef = useRef(null);
@@ -327,16 +317,16 @@ function configUpdateAlert(config) {
 
     configUpdateAlert.configUpdateAlertShown = true;
 
-    if (!isModifiedByUser(config.licenseKey, '<YOUR_LICENSE_KEY>')) {
-        valuesToUpdate.push('LICENSE_KEY');
+    if (!isModifiedByUser(config.licenseKey, 'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3MzY3MjYzOTksImp0aSI6ImRjY2Q5YmRhLTY0YjgtNDViYS04ODBmLWI0ZWI4ODhiZTAwMyIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiLCJzaCJdLCJ3aGl0ZUxhYmVsIjp0cnVlLCJsaWNlbnNlVHlwZSI6InRyaWFsIiwiZmVhdHVyZXMiOlsiKiJdLCJ2YyI6ImRhZmQxZGRmIn0.fCIkUjYReY0qfIAUuH40bOXcoYwiRfYvi5HS6yruw8IIZLI6-B1JoLaSvuxXvFZyARPyj16_QOT6oWRB5_PtPQ')) {
+        valuesToUpdate.push('eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3MzY3MjYzOTksImp0aSI6ImRjY2Q5YmRhLTY0YjgtNDViYS04ODBmLWI0ZWI4ODhiZTAwMyIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiLCJzaCJdLCJ3aGl0ZUxhYmVsIjp0cnVlLCJsaWNlbnNlVHlwZSI6InRyaWFsIiwiZmVhdHVyZXMiOlsiKiJdLCJ2YyI6ImRhZmQxZGRmIn0.fCIkUjYReY0qfIAUuH40bOXcoYwiRfYvi5HS6yruw8IIZLI6-B1JoLaSvuxXvFZyARPyj16_QOT6oWRB5_PtPQ');
     }
 
     if (!isModifiedByUser(config.ai?.openAI?.requestHeaders?.Authorization, 'Bearer <YOUR_AI_API_KEY>')) {
         valuesToUpdate.push('AI_API_KEY');
     }
 
-    if (!isModifiedByUser(config.cloudServices?.tokenUrl, '<YOUR_CLOUD_SERVICES_TOKEN_URL>')) {
-        valuesToUpdate.push('CLOUD_SERVICES_TOKEN_URL');
+    if (!isModifiedByUser(config.cloudServices?.tokenUrl, 'https://9en_pumetc8m.cke-cs.com/token/dev/b62d2a2511cdf381ce8265bb132fb97a496af4a16fea2882a8181a823975?limit=10')) {
+        valuesToUpdate.push('https://9en_pumetc8m.cke-cs.com/token/dev/b62d2a2511cdf381ce8265bb132fb97a496af4a16fea2882a8181a823975?limit=10');
     }
 
     if (valuesToUpdate.length) {

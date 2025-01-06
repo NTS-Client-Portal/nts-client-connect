@@ -17,10 +17,6 @@ export interface Template {
 
 const TemplateManager: React.FC = () => {
     const [templates, setTemplates] = useState<Template[]>([]);
-    const [profiles, setProfiles] = useState<any[]>([]);
-    const [shippingQuotes, setShippingQuotes] = useState<any[]>([]);
-    const [companies, setCompanies] = useState<any[]>([]);
-    const [ntsUsers, setNtsUsers] = useState<any[]>([]);
     const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
@@ -30,10 +26,6 @@ const TemplateManager: React.FC = () => {
 
     useEffect(() => {
         fetchTemplates();
-        fetchProfiles();
-        fetchShippingQuotes();
-        fetchCompanies();
-        fetchNtsUsers();
     }, []);
 
     const fetchTemplates = async () => {
@@ -45,54 +37,6 @@ const TemplateManager: React.FC = () => {
             console.error('Error fetching templates:', error.message);
         } else {
             setTemplates(data);
-        }
-    };
-
-    const fetchProfiles = async () => {
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('*');
-
-        if (error) {
-            console.error('Error fetching profiles:', error.message);
-        } else {
-            setProfiles(data);
-        }
-    };
-
-    const fetchShippingQuotes = async () => {
-        const { data, error } = await supabase
-            .from('shippingquotes')
-            .select('*');
-
-        if (error) {
-            console.error('Error fetching shipping quotes:', error.message);
-        } else {
-            setShippingQuotes(data);
-        }
-    };
-
-    const fetchCompanies = async () => {
-        const { data, error } = await supabase
-            .from('companies')
-            .select('*');
-
-        if (error) {
-            console.error('Error fetching companies:', error.message);
-        } else {
-            setCompanies(data);
-        }
-    };
-
-    const fetchNtsUsers = async () => {
-        const { data, error } = await supabase
-            .from('nts_users')
-            .select('*');
-
-        if (error) {
-            console.error('Error fetching nts users:', error.message);
-        } else {
-            setNtsUsers(data);
         }
     };
 
@@ -117,22 +61,16 @@ const TemplateManager: React.FC = () => {
     };
 
     const handleSaveTemplate = async () => {
-        const pdfTemplate = { title, content, type: 'pdf', context };
-        const emailTemplate = { title, content, type: 'email', context };
+        const templateData = { title, content, type: 'email', context };
 
         if (selectedTemplate) {
-            const { error: pdfError } = await supabase
+            const { error } = await supabase
                 .from('templates')
-                .update(pdfTemplate)
+                .update(templateData)
                 .eq('id', selectedTemplate.id);
 
-            const { error: emailError } = await supabase
-                .from('templates')
-                .update(emailTemplate)
-                .eq('id', selectedTemplate.id);
-
-            if (pdfError || emailError) {
-                console.error('Error updating template:', pdfError?.message || emailError?.message);
+            if (error) {
+                console.error('Error updating template:', error.message);
             } else {
                 fetchTemplates();
                 setSelectedTemplate(null);
@@ -141,16 +79,12 @@ const TemplateManager: React.FC = () => {
                 setContext('quote'); // Reset context state
             }
         } else {
-            const { error: pdfError } = await supabase
+            const { error } = await supabase
                 .from('templates')
-                .insert(pdfTemplate);
+                .insert(templateData);
 
-            const { error: emailError } = await supabase
-                .from('templates')
-                .insert(emailTemplate);
-
-            if (pdfError || emailError) {
-                console.error('Error creating template:', pdfError?.message || emailError?.message);
+            if (error) {
+                console.error('Error creating template:', error.message);
             } else {
                 fetchTemplates();
                 setTitle('');
@@ -163,38 +97,6 @@ const TemplateManager: React.FC = () => {
     const handleViewTemplate = (template: Template) => {
         setSelectedTemplate(template);
         setIsModalOpen(true);
-    };
-
-    const handleSendEmail = async () => {
-        if (!selectedTemplate) return;
-
-        const emailContent = replaceShortcodes(selectedTemplate.content, { /* Add necessary data here */ });
-        const emailSubject = replaceShortcodes(selectedTemplate.title, { /* Add necessary data here */ });
-        const emailData = {
-            to: 'recipient@example.com', // Replace with actual recipient
-            subject: emailSubject,
-            text: emailContent.replace(/<[^>]+>/g, ''), // Strip HTML tags for plain text version
-            html: emailContent, // Include HTML content
-            attachments: [],
-        };
-
-        try {
-            const response = await fetch('/api/sendEmail', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(emailData),
-            });
-
-            if (response.ok) {
-                alert('Email sent successfully');
-            } else {
-                alert('Error sending email');
-            }
-        } catch (error) {
-            console.error('Error sending email:', error);
-        }
     };
 
     return (
@@ -309,16 +211,20 @@ const TemplateManager: React.FC = () => {
                 <div className="mt-8 border border-zinc-900/30 p-4 bg-white shadow-md rounded-md w-fit">
                     <h2 className="text-xl font-bold mb-4">Shortcodes Legend</h2>
                     <ul className="list-disc list-inside">
-                        <li><strong>Quote ID</strong> - <code>{'{quote.id}'}</code></li>
-                        <li><strong>Origin City</strong> - <code>{'{quote.origin_city}'}</code></li>
+                    <li><strong>Quote ID</strong> - <code>{'{quote.id}'}</code></li>
                         <li><strong>Origin State</strong> - <code>{'{quote.origin_state}'}</code></li>
+                        <li><strong>Destination Street</strong> - <code>{'{quote.destination_street}'}</code></li>
                         <li><strong>Destination City</strong> - <code>{'{quote.destination_city}'}</code></li>
                         <li><strong>Destination State</strong> - <code>{'{quote.destination_state}'}</code></li>
+                        <li><strong>Origin Street</strong> - <code>{'{quote.origin_street}'}</code></li>
+                        <li><strong>Origin City</strong> - <code>{'{quote.origin_city}'}</code></li>
                         <li><strong>Quote Price</strong> - <code>{'{quote.price}'}</code></li>
                         <li><strong>Due Date</strong> - <code>{'{quote.due_date}'}</code></li>
                         <li><strong>Freight Year</strong> - <code>{'{quote.year}'}</code></li>
                         <li><strong>Freight Make</strong> - <code>{'{quote.make}'}</code></li>
                         <li><strong>Freight Model</strong> - <code>{'{quote.model}'}</code></li>
+                        <li><strong>Earliest Pickup Date</strong> - <code>{'{quote.earliest_pickup_date}'}</code></li>
+                        <li><strong>Latest Pickup Date</strong> - <code>{'{quote.latest_pickup_date}'}</code></li>
                         <li><strong>User ID</strong> - <code>{'{quote.user_id}'}</code></li>
                         <li><strong>User Email</strong> - <code>{'{profile.email}'}</code></li>
                         <li><strong>User First Name</strong> - <code>{'{profile.first_name}'}</code></li>

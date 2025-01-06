@@ -206,7 +206,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
                     const { data: templateData, error: templateError } = await supabase
                         .from('templates')
                         .select('content, title')
-                        .eq('title', 'Order Completion')
+                        .eq('context', 'order')
                         .single();
 
                     if (templateError) {
@@ -306,7 +306,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin }) => {
                 const { data: templateData, error: templateError } = await supabase
                     .from('templates')
                     .select('content, title')
-                    .eq('title', 'Order Completion')
+                    .eq('context', 'order')
                     .single();
 
                 if (templateError) {

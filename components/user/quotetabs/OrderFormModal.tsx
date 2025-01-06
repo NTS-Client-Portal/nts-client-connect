@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { supabase } from '@lib/initSupabase';
 import { Database } from '@lib/database.types';
 import { MoveHorizontal } from 'lucide-react';
-import { generateAndUploadPDF } from '@/components/GeneratePDF';
 
 interface OrderFormModalProps {
     isOpen: boolean;
@@ -34,29 +33,6 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
     const [latestPickupDate, setLatestPickupDate] = useState('');
     const [isAgreed, setIsAgreed] = useState(false);
     const [notes, setNotes] = useState('');
-    const [templateContent, setTemplateContent] = useState<string | null>(null);
-    const [templateTitle, setTemplateTitle] = useState<string | null>(null);
-
-    useEffect(() => {
-        const fetchTemplate = async () => {
-            const { data, error } = await supabase
-                .from('templates')
-                .select('*')
-                .eq('context', 'order')
-                .single();
-
-            if (error) {
-                console.error('Error fetching template:', error.message);
-                setTemplateContent(null);
-                setTemplateTitle(null);
-            } else {
-                setTemplateContent(data.content);
-                setTemplateTitle(data.title);
-            }
-        };
-
-        fetchTemplate();
-    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -96,47 +72,8 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
         if (error) {
             console.error('Error updating shipping quote:', error.message);
         } else {
-            // Generate and upload PDF
-            const templateContent = `
-                <h1>Order Confirmation</h1>
-                <p><strong>Quote ID:</strong> {quote.id}</p>
-                <p><strong>Origin:</strong> {quote.origin_city}, {quote.origin_state} {quote.origin_zip}</p>
-                <p><strong>Destination:</strong> {quote.destination_city}, {quote.destination_state} {quote.destination_zip}</p>
-                <p><strong>Freight:</strong> {quote.year} {quote.make} {quote.model}</p>
-                <p><strong>Dimensions:</strong> {quote.length}' x {quote.width}' x {quote.height}' {quote.weight} lbs</p>
-                <p><strong>Earliest Pickup Date:</strong> {earliestPickupDate}</p>
-                <p><strong>Latest Pickup Date:</strong> {latestPickupDate}</p>
-                <p><strong>Notes:</strong> {notes}</p>
-                                        <p>
-                            Customer-provided load descriptions and dimensions must be accurate, loading areas and pathways must be accessible to the carrier, and any unusual conditions on-site on pickup and delivery must be advised in advance. Failure to adequately describe and report the above information or give advance notice of special conditions will incur additional charges or truck cancellation fees.
-                        </p>
-                                                <br />
-                        <p>
-                            Transport costs are payable by bank wire, ACH, bank transfer, credit card, cash, and certified funds. All payment arrangements have been made with your account representative and paid for in full prior to pickup unless other arrangements have been made. If payment is made in full by credit card, a 3% service fee will be applied. The total cost includes all fees (taxes, insurance, and fuel surcharges that otherwise would apply).
-                        </p>
-                        <br />
-                        <p>
-                            Carrier insurance limits are $100,000 unless stated otherwise in writing, or additional certificates or trip riders are provided. By my signature affixed to this agreement, I hereby agree as the customer accepting the transporter&apos;s service and the broker Nationwide Transport Services (N.T.S) to pay all charges as agreed. I understand that any deposit is 100% refundable until 72 hours before my 1st available pickup date, which thereafter will be surrendered. Any cancellation must be submitted to N.T.S. via Fax or Email. I understand that the broker is not the actual transporter of my shipment and that as the broker, N.T.S. will obtain the services of a qualified carrier with the ability and qualifications to move and deliver my shipment.
-                        </p>
-                        <br />
-                        <p>
-                            I further understand that while every effort will be made to obtain a driver on a timely basis, the broker cannot guarantee and will not act as a guarantor of the transporter&apos;s actions. We also do not guarantee any specific delivery dates due to variables such as weather and unforeseeable events. Each transporter is an independently owned entity and is not related to the broker in any way. I agree by signature hereon that the broker cannot be held responsible for any act of negligence of the carrier or any act of God or force of nature.
-                        </p>
-                        <br />
-                        <p>
-                            Inspection of your shipment must be done on delivery and before signing the Bill of Lading (delivery inspection report). If there are any new damages, they must be recorded on the Bill of Lading to proceed with a claim. If you cannot inspect due to special conditions such as deliveries at night, snow, rain, dirty vehicles, etc., please mark that you cannot inspect due to these conditions on the Bill of Lading. The customer must keep a copy of the signed BOL with damages noted thereon. For vehicle shipments, the customer is responsible for removing electronic toll collectors ahead of time, like SunPass/ EZ-Pass, to avoid being charged passing tolls while in transport.
-                        </p>
-                        <br />
-                        <p>
-                            I understand this agreement is of no force and effect until my signature is affixed hereto unless I allow an authorized carrier to pick up my shipment, where then I will be bound by all the terms and conditions contained herein. By my signature affixed to this agreement, I hereby agree to accept the services of N.T.S and the transporter selected by N.T.S.
-                        </p>
-            `;
-            const content = templateContent;
-            const title = templateTitle || 'Order Confirmation';
-            await generateAndUploadPDF(quote, content, title);
-
             // Send notifications
-            const notificationMessage = `A new order has been submitted for Quote ID: ${quote.id}`;
+            const notificationMessage = `A new order has been submitted for Order ID: ${quote.id}`;
             const { error: profileNotificationError } = await supabase
                 .from('notifications')
                 .insert({
@@ -178,7 +115,6 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div className='mt-4 grid grid-cols-1 md:grid-cols-2 gap-4'>
                         <div className='flex flex-col justify-between bg-zinc-200 p-4 rounded-md'>
-
                             <label>Origin Street Address</label>
                             <input
                                 type="text"
@@ -189,7 +125,6 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
                                 className="rounded w-full p-[4px] border border-zinc-900"
                             />
                             <p className='font-semibold mt-1 text-sm'> {quote.origin_city}, {quote.origin_state} {quote.origin_zip}</p>
-
                             <div className='flex flex-col gap-1'>
                                 <div>
                                     <label>Origin Contact Name</label>
@@ -286,32 +221,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
                             className="rounded w-full p-2 border border-zinc-900"
                         />
                     </div>
-
                     <div className="mt-4 border border-zinc-900 pt-4 max-h-80 p-8 overflow-y-auto">
-                        <p>
-                            Customer-provided load descriptions and dimensions must be accurate, loading areas and pathways must be accessible to the carrier, and any unusual conditions on-site on pickup and delivery must be advised in advance. Failure to adequately describe and report the above information or give advance notice of special conditions will incur additional charges or truck cancellation fees.
-                        </p>
-                        <br />
-                        <p>
-                            Transport costs are payable by bank wire, ACH, bank transfer, credit card, cash, and certified funds. All payment arrangements have been made with your account representative and paid for in full prior to pickup unless other arrangements have been made. If payment is made in full by credit card, a 3% service fee will be applied. The total cost includes all fees (taxes, insurance, and fuel surcharges that otherwise would apply).
-                        </p>
-                        <br />
-                        <p>
-                            Carrier insurance limits are $100,000 unless stated otherwise in writing, or additional certificates or trip riders are provided. By my signature affixed to this agreement, I hereby agree as the customer accepting the transporter&apos;s service and the broker Nationwide Transport Services (N.T.S) to pay all charges as agreed. I understand that any deposit is 100% refundable until 72 hours before my 1st available pickup date, which thereafter will be surrendered. Any cancellation must be submitted to N.T.S. via Fax or Email. I understand that the broker is not the actual transporter of my shipment and that as the broker, N.T.S. will obtain the services of a qualified carrier with the ability and qualifications to move and deliver my shipment.
-                        </p>
-                        <br />
-                        <p>
-                            I further understand that while every effort will be made to obtain a driver on a timely basis, the broker cannot guarantee and will not act as a guarantor of the transporter&apos;s actions. We also do not guarantee any specific delivery dates due to variables such as weather and unforeseeable events. Each transporter is an independently owned entity and is not related to the broker in any way. I agree by signature hereon that the broker cannot be held responsible for any act of negligence of the carrier or any act of God or force of nature.
-                        </p>
-                        <br />
-                        <p>
-                            Inspection of your shipment must be done on delivery and before signing the Bill of Lading (delivery inspection report). If there are any new damages, they must be recorded on the Bill of Lading to proceed with a claim. If you cannot inspect due to special conditions such as deliveries at night, snow, rain, dirty vehicles, etc., please mark that you cannot inspect due to these conditions on the Bill of Lading. The customer must keep a copy of the signed BOL with damages noted thereon. For vehicle shipments, the customer is responsible for removing electronic toll collectors ahead of time, like SunPass/ EZ-Pass, to avoid being charged passing tolls while in transport.
-                        </p>
-                        <br />
-                        <p>
-                            I understand this agreement is of no force and effect until my signature is affixed hereto unless I allow an authorized carrier to pick up my shipment, where then I will be bound by all the terms and conditions contained herein. By my signature affixed to this agreement, I hereby agree to accept the services of N.T.S and the transporter selected by N.T.S.
-                        </p>
-
                         <div className="flex items-center mt-2">
                             <input
                                 type="checkbox"
@@ -333,7 +243,6 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
                         </button>
                     </div>
                 </form>
-
             </div>
         </div>
     );

@@ -341,7 +341,7 @@ const LanesInventory = ({ session }: LanesInventoryProps) => {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{lane.notes}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <button className="text-indigo-600 hover:text-indigo-900" onClick={() => editLane(lane)}>Edit</button>
+                                        <button className="text-ntsLightBlue hover:text-ntsLightBlue/90" onClick={() => editLane(lane)}>Edit</button>
                                         <button className="text-red-600 hover:text-red-900 ml-4" onClick={() => handleDeleteClick(lane.id)}>Delete</button>
                                     </td>
                                 </tr>

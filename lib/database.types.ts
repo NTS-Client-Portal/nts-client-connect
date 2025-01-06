@@ -429,6 +429,7 @@ export type Database = {
           id: number
           is_favorite: boolean | null
           nts_user_id: string | null
+          template_id: string | null
           title: string | null
           user_id: string | null
         }
@@ -441,6 +442,7 @@ export type Database = {
           id?: number
           is_favorite?: boolean | null
           nts_user_id?: string | null
+          template_id?: string | null
           title?: string | null
           user_id?: string | null
         }
@@ -453,10 +455,18 @@ export type Database = {
           id?: number
           is_favorite?: boolean | null
           nts_user_id?: string | null
+          template_id?: string | null
           title?: string | null
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "documents_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "documents_user_id_fkey"
             columns: ["user_id"]
@@ -1558,6 +1568,7 @@ export type Database = {
           shipment_items: Json | null
           status: string | null
           tarping: boolean | null
+          template_id: string | null
           trailer: boolean | null
           type: string | null
           unloading_by: boolean | null
@@ -1641,6 +1652,7 @@ export type Database = {
           shipment_items?: Json | null
           status?: string | null
           tarping?: boolean | null
+          template_id?: string | null
           trailer?: boolean | null
           type?: string | null
           unloading_by?: boolean | null
@@ -1724,6 +1736,7 @@ export type Database = {
           shipment_items?: Json | null
           status?: string | null
           tarping?: boolean | null
+          template_id?: string | null
           trailer?: boolean | null
           type?: string | null
           unloading_by?: boolean | null
@@ -1742,6 +1755,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shippingquotes_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
             referencedColumns: ["id"]
           },
           {

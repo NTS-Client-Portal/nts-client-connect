@@ -66,7 +66,7 @@
 }
 
 .cancel-btn {
-  @apply m-0 px-2 py-1.5 text-nowrap rounded-sm bg-rose-600 text-stone-100 font-medium hover:bg-rose-600/90;
+  @apply m-0 px-3 py-2 text-nowrap rounded-sm bg-ntsBlue text-stone-100 font-medium hover:bg-ntsBlue/90;
 }
 
 .upload-button {
@@ -96,8 +96,7 @@ body,
 }
 
 .side-navbar {
-  @apply flex-grow;
-  background-color: #1b1b1b;
+  @apply flex-grow bg-ntsBlue;
   height: 100vh;
   /* Full height of the viewport */
   width: 13em;

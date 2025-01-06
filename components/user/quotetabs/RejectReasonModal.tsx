@@ -111,7 +111,7 @@ const RejectReasonModal: React.FC<RejectReasonModalProps> = ({ onClose, onSubmit
                                         key={reason}
                                         type="button"
                                         onClick={() => handleReasonClick(reason)}
-                                        className={`bg-gray-200 text-gray-700 px-2 py-1 rounded ${selectedReasons.includes(reason) ? 'bg-blue-200' : ''}`}
+                                        className={`bg-gray-200 text-gray-700 px-2 py-1 rounded ${selectedReasons.includes(reason) ? 'bg-blue-400 text-white' : 'bg-gray-200'}`}
                                     >
                                         {reason}
                                     </button>
