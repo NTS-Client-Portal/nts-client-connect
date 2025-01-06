@@ -17,20 +17,36 @@ exports.handler = async (event, context) => {
     }
 
     try {
-        // Sign up the user in Supabase Auth
-        const { data, error: signUpError } = await supabaseAdmin.auth.signUp({
-            email,
-            password, // Use the provided password
-        });
+        // Check if the user already exists
+        const { data: existingUsers, error: getUserError } = await supabaseAdmin
+            .from('users')
+            .select('*')
+            .eq('email', email);
 
-        if (signUpError) {
-            throw new Error(signUpError.message);
+        if (getUserError) {
+            throw new Error(getUserError.message);
         }
 
-        const authUserId = data.user?.id;
+        let authUserId;
 
-        if (!authUserId) {
-            throw new Error('Failed to get user ID from sign-up response');
+        if (existingUsers && existingUsers.length > 0) {
+            authUserId = existingUsers[0].id;
+        } else {
+            // Sign up the user in Supabase Auth
+            const { data, error: signUpError } = await supabaseAdmin.auth.signUp({
+                email,
+                password, // Use the provided password
+            });
+
+            if (signUpError) {
+                throw new Error(signUpError.message);
+            }
+
+            authUserId = data.user?.id;
+
+            if (!authUserId) {
+                throw new Error('Failed to get user ID from sign-up response');
+            }
         }
 
         // Generate a unique ID for the new user
