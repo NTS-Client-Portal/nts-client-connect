@@ -28,6 +28,7 @@ const InventoryTab = ({ freightList = [], editFreight, handleDeleteClick, handle
                         <tr className='border-b pt-6 dark:text-zinc-50 border-zinc-900/20  dark:border-zinc-900'>
                             <th className="dark:border-zinc-900 px-6 pt-4 pb-1 text-left text-nowrap text-xs font-semibold dark:text-semibold dark:font-medium uppercase tracking-wider border-r border-zinc-900/20  dark:border-zinc-100/20 ">Inventory Item</th>
                             <th className="dark:border-zinc-900 px-6 pt-4 pb-1 text-left text-nowrap text-xs font-semibold dark:text-semibold dark:font-medium uppercase tracking-wider border-r border-zinc-900/20  dark:border-zinc-100/20 ">Dimensions</th>
+                            <th className="dark:border-zinc-900 px-6 pt-4 pb-1 text-left text-nowrap text-xs font-semibold dark:text-semibold dark:font-medium uppercase tracking-wider border-r border-zinc-900/20  dark:border-zinc-100/20 ">Freight Type</th>
                             <th className="dark:border-zinc-900 px-6 pt-4 pb-1 text-left text-nowrap text-xs font-semibold dark:text-semibold dark:font-medium uppercase tracking-wider border-r border-zinc-900/20  dark:border-zinc-100/20 ">Serial Number</th>
                             <th className="dark:border-zinc-900 px-6 pt-4 pb-1 text-left text-nowrap text-xs font-semibold dark:text-semibold dark:font-medium uppercase tracking-wider border-r border-zinc-900/20  dark:border-zinc-100/20 ">Inventory Number</th>
                             <th className="dark:border-zinc-900 px-6 pt-4 pb-1  text-center text-nowrap text-xs font-semibold dark:text-semibold dark:font-medium uppercase tracking-tighter border-r border-zinc-900/20  dark:border-zinc-100/20">Actions</th>
@@ -41,6 +42,9 @@ const InventoryTab = ({ freightList = [], editFreight, handleDeleteClick, handle
                                 </td>
                                 <td className=" px-6 py-1 text-xs whitespace-nowrap border-r border-zinc-900/20  dark:border-zinc-100/20   dark:text-white">
                                     {freight.length} {freight.length_unit}, {freight.width} {freight.width_unit}, {freight.height} {freight.height_unit}, {freight.weight} {freight.weight_unit}
+                                </td>
+                                <td className=" px-6 py-1 text-xs whitespace-nowrap border-r border-zinc-900/20  dark:border-zinc-100/20   dark:text-white">
+                                    {freight.freight_type}
                                 </td>
                                 <td className=" px-6 py-1 text-xs whitespace-nowrap border-r border-zinc-900/20  dark:border-zinc-100/20   dark:text-white">
                                     {freight.serial_number}

@@ -14,6 +14,7 @@ interface SelectOptionProps {
     setErrorText: (value: string) => void;
     session: Session;
     setFormData: (data: any) => void;
+    formData: any; // Add formData prop
     disabled: boolean;
 }
 
@@ -23,6 +24,7 @@ const SelectOption: React.FC<SelectOptionProps> = ({
     setErrorText,
     session,
     setFormData,
+    formData, // Add formData prop
 }) => {
     return (
         <>
@@ -50,6 +52,7 @@ const SelectOption: React.FC<SelectOptionProps> = ({
                 <EquipmentForm
                     setFormData={setFormData}
                     setErrorText={setErrorText}
+                    formData={formData} // Pass formData to EquipmentForm
                 />
             )}
 

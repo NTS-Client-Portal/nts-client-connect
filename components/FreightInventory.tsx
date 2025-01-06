@@ -140,8 +140,9 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
             weight_unit: weightUnit,
             serial_number: serialNumber,
             inventory_number: inventoryNumber,
-            freight_type: selectedOption
+            freight_type: selectedOption // Ensure this is set
         };
+        
 
         let response: { data: Freight[] | null; error: { message: string } | null };
         if (editingFreight) {

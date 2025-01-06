@@ -97,7 +97,12 @@ const FreightFormModal: React.FC<FreightFormModalProps> = ({
                             >
                                 <option value="">Select...</option>
                                 <option value="equipment">Equipment/Machinery</option>
-                                <option value="ltl_ftl">Commodity (pallets, crates, loose parts, etc.)</option>
+                                <option value="containers">Containers</option>
+                                <option value="semi_trucks">Semi Trucks</option>
+                                <option value="ltl_ftl">LTL/FTL</option>
+                                <option value="auto">Auto</option>
+                                <option value="rv_trailers">RV Trailers</option>
+                                <option value="boats">Boats</option>
                             </select>
                         </label>
 

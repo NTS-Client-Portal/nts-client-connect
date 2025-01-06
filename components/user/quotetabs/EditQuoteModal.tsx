@@ -131,6 +131,60 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 />
                             </div>
                         </div>
+                        <div className='flex gap-3 mt-2'>
+                            <div className="flex flex-col justify-center items-center mb-2">
+                                <label className="block text-sm font-medium text-gray-700">Length</label>
+                                <input
+                                    type="text"
+                                    name="year"
+                                    value={updatedQuote.length || ''}
+                                    onChange={handleChange}
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                />                           
+                            <select
+                                className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900"
+                                value={updatedQuote.length_unit || 'ft'}
+                                onChange={handleChange}
+                                     >
+                            <option value="ft">Feet</option>
+                            <option value="in">Inches</option>
+                            </select>
+                            </div>
+                            <div className="flex flex-col justify-center items-center mb-2">
+                                <label className="block text-sm font-medium text-gray-700">Width</label>
+                                <input
+                                    type="text"
+                                    name="make"
+                                    value={updatedQuote.width || ''}
+                                    onChange={handleChange}
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                />
+                                  <select className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900"
+                                value={updatedQuote.width_unit || 'ft'}
+                                onChange={handleChange}
+                                     >
+                            <option value="ft">Feet</option>
+                            <option value="in">Inches</option>
+                            </select>
+                            </div>
+                            <div className="flex flex-col justify-center items-center mb-2">
+                                <label className="block text-sm font-medium text-gray-700">Height</label>
+                                <input
+                                    type="text"
+                                    name="model"
+                                    value={updatedQuote.height || ''}
+                                    onChange={handleChange}
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                />
+                              <select  className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900"
+                                value={updatedQuote.length_unit || 'ft'}
+                                onChange={handleChange}
+                                     >
+                                 <option value="ft">Feet</option>
+                                <option value="in">Inches</option>
+                            </select>
+                            </div>
+                        </div>
                         <div className="mb-4">
                             <label className="block text-sm font-medium text-gray-700">Operational Condition</label>
                             <select

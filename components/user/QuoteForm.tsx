@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Session } from '@supabase/auth-helpers-react';
 import SelectOption from './SelectOption';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
@@ -37,6 +37,25 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
     const [saveToInventory, setSaveToInventory] = useState(false);
     const [inventoryItems, setInventoryItems] = useState<any[]>([]);
     const [selectedInventoryItem, setSelectedInventoryItem] = useState('');
+
+    useEffect(() => {
+        const fetchInventoryItems = async () => {
+            const { data, error } = await supabase
+                .from('freight')
+                .select('*')
+                .eq('user_id', session.user.id);
+
+            if (error) {
+                console.error('Error fetching inventory items:', error.message);
+            } else {
+                setInventoryItems(data);
+            }
+        };
+
+        if (session) {
+            fetchInventoryItems();
+        }
+    }, [session]);
 
     const handleOriginInputBlur = async () => {
         if (originInput.match(/^\d{5}$/)) {
@@ -110,6 +129,28 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                 } catch (error) {
                     console.error('Error fetching zip code:', error);
                 }
+            }
+        }
+    };
+
+    const handleInventoryChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const itemId = e.target.value;
+        setSelectedInventoryItem(itemId);
+        if (itemId) {
+            setSelectedOption('');
+            setFormData({});
+
+            const { data, error } = await supabase
+                .from('freight')
+                .select('*')
+                .eq('id', itemId)
+                .single();
+
+            if (error) {
+                console.error('Error fetching inventory item:', error.message);
+            } else if (data) {
+                setSelectedOption(data.freight_type);
+                setFormData(data);
             }
         }
     };
@@ -207,7 +248,6 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
 
     if (!isOpen) return null;
 
-
     return (
         <div className="fixed z-50 inset-0 bg-zinc-600 bg-opacity-50 flex justify-center  h-fit-content items-center  ">
             <div className="border-2 bg-ntsBlue border-t-orange-500 border-x-0 border-b-0 drop-shadow-xl pt-2 rounded w-sm w-[95vw] md:w-1/2 md:max-w-none overflow-y-auto relative  z-50">
@@ -217,13 +257,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                         <select
                             className="rounded text-zinc-800 bg-white w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
                             value={selectedInventoryItem}
-                            onChange={(e) => {
-                                setSelectedInventoryItem(e.target.value);
-                                if (e.target.value) {
-                                    setSelectedOption('');
-                                    setFormData({});
-                                }
-                            }}
+                            onChange={handleInventoryChange}
                             disabled={!!selectedOption}
                         >
                             <option value="">Select an item</option>
@@ -250,6 +284,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                         setErrorText={setErrorText}
                         session={session}
                         setFormData={setFormData}
+                        formData={formData} // Pass formData to SelectOption
                         disabled={false}
                     />
                     <div className='flex flex-col md:flex-row gap-2 w-full'>

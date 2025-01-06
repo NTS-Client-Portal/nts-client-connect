@@ -283,7 +283,11 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                                     {order.year && order.make && order.model && (
                                                         <>
                                                             <span className='font-semibold text-sm text-gray-700 p-0 text-start w-min'>Shipment Item:</span><br />
-                                                            <span className='text-normal text-zinc-900 text-start w-min'>{`${order.year} ${order.make} ${order.model}`}</span>
+                                                            <span className='text-normal text-zinc-900 text-start w-min'>{`${order.year} ${order.make} ${order.model}`}</span><br />
+                                                            <span className='text-normal text-zinc-900 text-start w-min'>
+                                                                {`${order.length} ${order.length_unit} x ${order.width} ${order.width_unit} x ${order.height} ${order.height_unit}, 
+                                                                ${order.weight} ${order.weight_unit}`}
+                                                                </span>
                                                         </>
                                                     )}
                                                 </div>

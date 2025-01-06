@@ -1531,6 +1531,7 @@ export type Database = {
           freight_type: string | null
           goods_value: string | null
           height: string | null
+          height_unit: string | null
           id: number
           inserted_at: string | null
           is_archived: boolean | null
@@ -1539,6 +1540,7 @@ export type Database = {
           last_name: string | null
           latest_pickup_date: string | null
           length: string | null
+          length_unit: string | null
           load_description: string | null
           loading_assistance: string | null
           loading_by: boolean | null
@@ -1579,6 +1581,7 @@ export type Database = {
           weight_per_pallet_unit: string | null
           weight_unit: string | null
           width: string | null
+          width_unit: string | null
           year: string | null
         }
         Insert: {
@@ -1615,6 +1618,7 @@ export type Database = {
           freight_type?: string | null
           goods_value?: string | null
           height?: string | null
+          height_unit?: string | null
           id?: number
           inserted_at?: string | null
           is_archived?: boolean | null
@@ -1623,6 +1627,7 @@ export type Database = {
           last_name?: string | null
           latest_pickup_date?: string | null
           length?: string | null
+          length_unit?: string | null
           load_description?: string | null
           loading_assistance?: string | null
           loading_by?: boolean | null
@@ -1663,6 +1668,7 @@ export type Database = {
           weight_per_pallet_unit?: string | null
           weight_unit?: string | null
           width?: string | null
+          width_unit?: string | null
           year?: string | null
         }
         Update: {
@@ -1699,6 +1705,7 @@ export type Database = {
           freight_type?: string | null
           goods_value?: string | null
           height?: string | null
+          height_unit?: string | null
           id?: number
           inserted_at?: string | null
           is_archived?: boolean | null
@@ -1707,6 +1714,7 @@ export type Database = {
           last_name?: string | null
           latest_pickup_date?: string | null
           length?: string | null
+          length_unit?: string | null
           load_description?: string | null
           loading_assistance?: string | null
           loading_by?: boolean | null
@@ -1747,6 +1755,7 @@ export type Database = {
           weight_per_pallet_unit?: string | null
           weight_unit?: string | null
           width?: string | null
+          width_unit?: string | null
           year?: string | null
         }
         Relationships: [

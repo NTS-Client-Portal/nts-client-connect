@@ -223,6 +223,7 @@ const TemplateManager: React.FC = () => {
                         <li><strong>Freight Year</strong> - <code>{'{quote.year}'}</code></li>
                         <li><strong>Freight Make</strong> - <code>{'{quote.make}'}</code></li>
                         <li><strong>Freight Model</strong> - <code>{'{quote.model}'}</code></li>
+                        <li><strong>notes</strong> - <code>{'{quote.notes}'}</code></li>
                         <li><strong>Earliest Pickup Date</strong> - <code>{'{quote.earliest_pickup_date}'}</code></li>
                         <li><strong>Latest Pickup Date</strong> - <code>{'{quote.latest_pickup_date}'}</code></li>
                         <li><strong>User ID</strong> - <code>{'{quote.user_id}'}</code></li>

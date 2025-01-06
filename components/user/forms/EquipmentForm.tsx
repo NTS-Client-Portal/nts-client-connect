@@ -3,39 +3,47 @@ import React, { useState, useEffect } from 'react';
 interface EquipmentFormProps {
     setFormData: (data: any) => void;
     setErrorText: (value: string) => void;
+    formData: any;
 }
 
 const EquipmentForm: React.FC<EquipmentFormProps> = ({
     setFormData,
     setErrorText,
+    formData,
 }) => {
-    const [year, setYear] = useState('');
-    const [make, setMake] = useState('');
-    const [model, setModel] = useState('');
-    const [operationalCondition, setOperationalCondition] = useState<boolean | null>(null);
-    const [length, setLength] = useState('');
-    const [width, setWidth] = useState('');
-    const [height, setHeight] = useState('');
-    const [weight, setWeight] = useState('');
-    const [weightUnit, setWeightUnit] = useState('lbs'); // Default to lbs
-    const [loadingUnloadingRequirements, setLoadingUnloadingRequirements] = useState('');
-    const [tarping, setTarping] = useState<boolean | null>(null);
-    const [isAuction, setIsAuction] = useState<boolean | null>(null);
-    const [auction, setAuction] = useState('');
-    const [buyerNumber, setBuyerNumber] = useState('');
-    const [lotNumber, setLotNumber] = useState('');
+    const [year, setYear] = useState(formData.year || '');
+    const [make, setMake] = useState(formData.make || '');
+    const [model, setModel] = useState(formData.model || '');
+    const [length, setLength] = useState(formData.length || '');
+    const [lengthUnit, setLengthUnit] = useState(formData.length_unit || 'ft'); // Default to feet
+    const [width, setWidth] = useState(formData.width || '');
+    const [widthUnit, setWidthUnit] = useState(formData.width_unit || 'ft'); // Default to feet
+    const [height, setHeight] = useState(formData.height || '');
+    const [heightUnit, setHeightUnit] = useState(formData.height_unit || 'ft'); // Default to feet
+    const [weight, setWeight] = useState(formData.weight || '');
+    const [weightUnit, setWeightUnit] = useState(formData.weight_unit || 'lbs'); // Default to lbs
+    const [operationalCondition, setOperationalCondition] = useState<boolean | null>(formData.operational_condition || null);
+    const [loadingUnloadingRequirements, setLoadingUnloadingRequirements] = useState(formData.loading_unloading_requirements || '');
+    const [tarping, setTarping] = useState<boolean | null>(formData.tarping || null);
+    const [isAuction, setIsAuction] = useState<boolean | null>(formData.is_auction || null);
+    const [auction, setAuction] = useState(formData.auction || '');
+    const [buyerNumber, setBuyerNumber] = useState(formData.buyer_number || '');
+    const [lotNumber, setLotNumber] = useState(formData.lot_number || '');
 
     useEffect(() => {
-        const formData = {
+        const updatedFormData = {
             year: year.toString(),
             make,
             model,
-            operational_condition: operationalCondition,
             length: length.toString(),
+            length_unit: lengthUnit,
             width: width.toString(),
+            width_unit: widthUnit,
             height: height.toString(),
+            height_unit: heightUnit,
             weight: weight.toString(),
-            weight_unit: weightUnit, // Add weight_unit to formData
+            weight_unit: weightUnit,
+            operational_condition: operationalCondition,
             loading_unloading_requirements: loadingUnloadingRequirements,
             tarping,
             auction,
@@ -43,8 +51,8 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
             lot_number: lotNumber,
         };
 
-        setFormData(formData);
-    }, [year, make, model, operationalCondition, length, width, height, weight, weightUnit, loadingUnloadingRequirements, tarping, isAuction, auction, buyerNumber, lotNumber, setFormData]);
+        setFormData(updatedFormData);
+    }, [year, make, model, length, lengthUnit, width, widthUnit, height, heightUnit, weight, weightUnit, operationalCondition, loadingUnloadingRequirements, tarping, isAuction, auction, buyerNumber, lotNumber, setFormData]);
 
     return (
         <div className="flex flex-col gap-3">
@@ -89,40 +97,70 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
 
             <div className='flex flex-col md:flex-row gap-2'>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Length
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                        type="text"
-                        placeholder="20&apos; 6&quot;"
-                        value={length}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setLength(e.target.value);
-                        }}
-                    />
+                    <div className="flex items-center">
+                        <input
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                            type="text"
+                            placeholder=""
+                            value={length}
+                            onChange={(e) => {
+                                setErrorText('');
+                                setLength(e.target.value);
+                            }}
+                        />
+                        <select
+                            className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900 ml-2"
+                            value={lengthUnit}
+                            onChange={(e) => setLengthUnit(e.target.value)}
+                        >
+                            <option value="ft">Feet</option>
+                            <option value="in">Inches</option>
+                        </select>
+                    </div>
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Width
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                        type="text"
-                        placeholder="7&apos; 6&quot;"
-                        value={width}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setWidth(e.target.value);
-                        }}
-                    />
+                    <div className="flex items-center">
+                        <input
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                            type="text"
+                            placeholder=""
+                            value={width}
+                            onChange={(e) => {
+                                setErrorText('');
+                                setWidth(e.target.value);
+                            }}
+                        />
+                        <select
+                            className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900 ml-2"
+                            value={widthUnit}
+                            onChange={(e) => setWidthUnit(e.target.value)}
+                        >
+                            <option value="ft">Feet</option>
+                            <option value="in">Inches</option>
+                        </select>
+                    </div>
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Height
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                        type="text"
-                        placeholder="9&apos; 6&quot;"
-                        value={height}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setHeight(e.target.value);
-                        }}
-                    />
+                    <div className="flex items-center">
+                        <input
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                            type="text"
+                            placeholder=""
+                            value={height}
+                            onChange={(e) => {
+                                setErrorText('');
+                                setHeight(e.target.value);
+                            }}
+                        />
+                        <select
+                            className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900 ml-2"
+                            value={heightUnit}
+                            onChange={(e) => setHeightUnit(e.target.value)}
+                        >
+                            <option value="ft">Feet</option>
+                            <option value="in">Inches</option>
+                        </select>
+                    </div>
                 </label>
             </div>
 
