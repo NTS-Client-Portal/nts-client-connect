@@ -4,39 +4,49 @@ import { Database } from '@/lib/database.types';
 import { supabase } from '@/lib/initSupabase';
 import ArchivedTable from './ArchivedTable';
 
+type ShippingQuotesRow = Database['public']['Tables']['shippingquotes']['Row'];
+
 interface ArchivedProps {
     session: Session | null;
     selectedUserId: string;
     isAdmin: boolean;
-    fetchQuotes: () => void;
     companyId: string; // Add companyId as a prop
 }
 
-const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQuotes }) => {
+const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId }) => {
     const [errorText, setErrorText] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [archivedQuotes, setArchivedQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
     const [popupMessage, setPopupMessage] = useState<string | null>(null);
+    const [isNtsUser, setIsNtsUser] = useState<boolean>(false);
+    const [isCompanyUser, setIsCompanyUser] = useState<boolean>(false);
+    const [sortConfig, setSortConfig] = useState<{ column: string; order: string }>({ column: 'id', order: 'asc' });
+    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [searchColumn, setSearchColumn] = useState<string>('id');
 
     const fetchQuotesForNtsUsers = useCallback(async (userId: string) => {
-        const { data: companySalesUsers, error: companySalesUsersError } = await supabase
+        const { data: companyIdsData, error: companyIdsError } = await supabase
             .from('company_sales_users')
             .select('company_id')
             .eq('sales_user_id', userId);
 
-        if (companySalesUsersError) {
-            console.error('Error fetching company_sales_users for nts_user:', companySalesUsersError.message);
+        if (companyIdsError) {
+            console.error('Error fetching company IDs:', companyIdsError.message);
             return [];
         }
 
-        const companyIds = companySalesUsers.map((companySalesUser) => companySalesUser.company_id);
+        const companyIds = companyIdsData.map((item: any) => item.company_id);
+
+        if (companyIds.length === 0) {
+            return [];
+        }
 
         const { data: quotes, error: quotesError } = await supabase
             .from('shippingquotes')
             .select('*')
             .in('company_id', companyIds)
-            .eq('is_archived', true)
-            .eq('status', 'Archived'); // Fetch only archived quotes with status 'Archived'
+            .eq('status', 'Archived')
+            .is('is_archived', true);
 
         if (quotesError) {
             console.error('Error fetching quotes for nts_user:', quotesError.message);
@@ -51,8 +61,8 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
             .from('shippingquotes')
             .select('*')
             .eq('company_id', companyId)
-            .eq('is_archived', true)
-            .eq('status', 'Archived'); // Fetch only archived quotes with status 'Archived'
+            .eq('status', 'Archived')
+            .is('is_archived', true);
 
         if (quotesError) {
             console.error('Error fetching quotes for company:', quotesError.message);
@@ -69,31 +79,52 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
             const quotesData = await fetchQuotesForNtsUsers(session.user.id);
             setArchivedQuotes(quotesData);
         } else {
-            // Fetch the user's profile
-            const { data: userProfile, error: userProfileError } = await supabase
-                .from('profiles')
-                .select('company_id')
-                .eq('id', session.user.id)
-                .single();
-
-            if (userProfileError) {
-                console.error('Error fetching user profile:', userProfileError.message);
-                return;
-            }
-
-            if (!userProfile) {
-                console.error('No profile found for user');
-                return;
-            }
-
-            const companyId = userProfile.company_id;
             const quotesData = await fetchQuotesForCompany(companyId);
-
             setArchivedQuotes(quotesData);
         }
 
         setIsLoading(false);
-    }, [session, supabase, fetchQuotesForCompany, fetchQuotesForNtsUsers, isAdmin]);
+    }, [session, supabase, fetchQuotesForCompany, fetchQuotesForNtsUsers, isAdmin, companyId]);
+
+    useEffect(() => {
+        const checkUserType = async () => {
+            if (session?.user?.id) {
+                const { data: ntsUserData, error: ntsUserError } = await supabase
+                    .from('nts_users')
+                    .select('id')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (ntsUserError) {
+                    console.error('Error fetching nts_user role:', ntsUserError.message);
+                } else if (ntsUserData) {
+                    setIsNtsUser(true);
+                    const quotes = await fetchQuotesForNtsUsers(session.user.id);
+                    setArchivedQuotes(quotes);
+                    return;
+                }
+
+                const { data: profileData, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('company_id')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (profileError) {
+                    console.error('Error fetching profile:', profileError.message);
+                } else if (profileData?.company_id) {
+                    setIsCompanyUser(true);
+                    const quotes = await fetchQuotesForCompany(profileData.company_id);
+                    setArchivedQuotes(quotes);
+                    return;
+                }
+
+                fetchArchivedQuotes();
+            }
+        };
+
+        checkUserType();
+    }, [session, fetchQuotesForNtsUsers, fetchArchivedQuotes, fetchQuotesForCompany, companyId]);
 
     useEffect(() => {
         fetchArchivedQuotes();
@@ -146,10 +177,13 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
             <div className="hidden 2xl:block overflow-x-auto">
                 <ArchivedTable
                     quotes={archivedQuotes}
-                    sortConfig={{ column: 'id', order: 'asc' }}
+                    sortConfig={sortConfig}
                     handleSort={() => { }}
                     unArchive={unArchive}
                     handleStatusChange={() => { }}
+                    isAdmin={isAdmin}
+                    isNtsUser={isNtsUser}
+                    isCompanyUser={isCompanyUser}
                     companyId={companyId}
                 />
             </div>

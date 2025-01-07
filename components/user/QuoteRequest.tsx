@@ -61,7 +61,8 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
         const { data, error } = await supabase
             .from('shippingquotes')
             .select('*')
-            .eq('company_id', companyId);
+            .eq('company_id', companyId)
+            .eq('is_archived', false); // Fetch only non-archived quotes
 
         if (error) {
             setErrorText(error.message);
@@ -306,7 +307,6 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                         <option value="requests">Shipping Requests</option>
                         <option value="orders">Shipping Orders</option>
                         <option value="history">Completed Orders</option>
-                        <option value="archived">Archived</option>
                         <option value="rejected">Rejected RFQ&apos;s</option>
                         <option value="editHistory">Edit History</option>
                     </select>
@@ -331,12 +331,12 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                     >
                         Completed Orders
                     </button>
-                    <button
+                    {/* <button
                         className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'archived' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
                         onClick={() => handleTabChange('archived')}
                     >
                         Archived
-                    </button>
+                    </button> */}
                     <button
                         className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'rejected' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
                         onClick={() => handleTabChange('rejected')}
@@ -373,15 +373,14 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                         companyId={companyId}
                     />
                 )}
-                {activeTab === 'archived' && (
+                {/* {activeTab === 'archived' && (
                     <Archived
                         session={session}
                         isAdmin={isAdmin}
                         selectedUserId={selectedUserId}
                         companyId={companyId}
-                        fetchQuotes={fetchQuotes}
                     />
-                )}
+                )} */}
                 {activeTab === 'rejected' && (
                     <RejectedList
                     session={session}

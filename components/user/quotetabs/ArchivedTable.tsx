@@ -11,7 +11,10 @@ interface ArchivedTableProps {
     handleSort: (column: string) => void;
     unArchive: (quote: ShippingQuotesRow) => void;
     handleStatusChange: (e: React.ChangeEvent<HTMLSelectElement>, id: number) => void;
-    companyId: string; // Add companyId as a prop
+    isAdmin: boolean;
+    isNtsUser: boolean;
+    isCompanyUser: boolean; // Add isCompanyUser prop
+    companyId: string; // Add companyId prop
 }
 
 const ArchivedTable: React.FC<ArchivedTableProps> = ({
@@ -20,7 +23,10 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
     handleSort,
     unArchive,
     handleStatusChange,
-    companyId, // Add companyId as a prop
+    isAdmin,
+    isNtsUser,
+    isCompanyUser,
+    companyId, // Add companyId prop
 }) => {
     const [archivedQuotes, setArchivedQuotes] = useState<ShippingQuotesRow[]>([]);
     const [showArchived, setShowArchived] = useState(false);
@@ -35,7 +41,7 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
     }, [searchTerm, searchColumn, quotes]);
 
     useEffect(() => {
-        setArchivedQuotes(quotes.filter((quote) => quote.status === 'Archived' && quote.company_id === companyId));
+        setArchivedQuotes(quotes.filter((quote) => quote.is_archived && quote.company_id === companyId));
     }, [quotes, companyId]);
 
     const handleShowArchived = () => {
@@ -120,54 +126,21 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
                                 <div className=''>
                                     {Array.isArray(quote.shipment_items) ? quote.shipment_items.map((item: any, index) => (
                                         <React.Fragment key={index}>
-                                            {item.container_length && item.container_type && typeof item === 'object' && (
-                                                <span className='flex flex-col gap-0'>
-                                                    <span className='font-semibold text-sm text-gray-700 p-0'>Shipment Item {index + 1}:</span>
-                                                    <span className='text-base text-zinc-900 p-0'>{`${item.container_length} ft ${item.container_type}`}</span>
-                                                </span>
-                                            )}
-                                            {item.year && item.make && item.model && (
-                                                <span className='flex flex-col gap-0 w-min'>
-                                                    <span className='font-semibold text-sm text-gray-700 p-0 w-min'>Shipment Item {index + 1}:</span>
-                                                    <span className='text-base text-zinc-900 p-0 w-min'>{`${item.year} ${item.make} ${item.model}`}</span>
-                                                </span>
-                                            )}
+                                            <div>{item.description}</div>
+                                            <div>{item.quantity}</div>
                                         </React.Fragment>
-                                    )) : (
-                                        <>
-                                            <div className='text-start w-min'>
-                                                {quote.container_length && quote.container_type && (
-                                                    <>
-                                                        <span className='font-semibold text-sm text-gray-700 p-0 text-start w-min'>Shipment Item:</span><br />
-                                                        <span className='text-normal text-zinc-900 w-min text-start'>{`${quote.container_length} ft ${quote.container_type}`}</span>
-                                                    </>
-                                                )}
-                                                {quote.year && quote.make && quote.model && (
-                                                    <>
-                                                        <span className='font-semibold text-sm text-gray-700 p-0 text-start w-min'>Shipment Item:</span><br />
-                                                        <span className='text-normal text-zinc-900 text-start w-min'>{`${quote.year} ${quote.make} ${quote.model}`}</span>
-                                                    </>
-                                                )}
-                                            </div>
-                                        </>
-                                    )}
-                                    <div className='text-start pt-1 w-min'>
-                                        <span className='font-semibold text-xs text-gray-700 text-start w-min'>Freight Type:</span>
-                                        <span className='text-xs text-zinc-900 text-start px-1 w-min'>{freightTypeMapping[quote.freight_type] || (quote.freight_type ? quote.freight_type.toUpperCase() : 'N/A')}</span>
-                                    </div>
+                                    )) : null}
                                 </div>
                             </td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.origin_city}, {quote.origin_state}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.destination_city}, {quote.destination_state}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.due_date}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.status}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.price ? `$${quote.price}` : 'Pending'}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
-                                <div className='flex flex-col items-start gap-2'>
-                                    <button onClick={() => unArchive(quote)} className="text-ntsLightBlue font-semibold text-base underline h-full">
-                                        Unarchive Quote
-                                    </button>
-                                </div>
+                            <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200">{quote.origin_city}</td>
+                            <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200">{quote.destination_city}</td>
+                            <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200">{formatDate(quote.due_date)}</td>
+                            <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200">{quote.status}</td>
+                            <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200">{quote.price ? `$${quote.price}` : 'Not priced yet'}</td>
+                            <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200">
+                                <button onClick={() => unArchive(quote)} className="text-blue-600 hover:text-blue-900">
+                                    Unarchive
+                                </button>
                             </td>
                         </tr>
                     ))}
