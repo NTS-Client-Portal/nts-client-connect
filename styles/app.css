@@ -2394,6 +2394,10 @@ body:is(.dark *) {
   line-height: 2.5rem;
 }
 
+.text-\[10px\] {
+  font-size: 10px;
+}
+
 .text-base {
   font-size: 1rem;
   line-height: 1.5rem;
@@ -3546,14 +3550,42 @@ main:is(.dark *) {
 
 .rbc-event,
 .rbc-day-slot .rbc-background-event {
-  border: none;
-  box-sizing: border-box;
-  box-shadow: none;
-  margin: 0;
-  padding: 0 !important;
   color: #242b35 !important;
-  font-weight: 600;
-  background-color: #f97416b2 !important;
+}
+
+.custom-event {
+  color: #242b35 !important;
+  font-weight: 600 !important;
+}
+
+.bg-in-progress {
+  background-color: #f1bd2ee7 !important;
+  /* Tailwind's blue-500 */
+}
+
+.bg-dispatched {
+  background-color: #02274688 !important;
+  /* Tailwind's purple-500 */
+}
+
+.bg-picked-up {
+  background-color: #f97416c5 !important;
+  /* Tailwind's orange-500 */
+}
+
+.bg-delivered {
+  background-color: #10b981 !important;
+  /* Tailwind's green-500 */
+}
+
+.bg-completed {
+  background-color: #096800 !important;
+  /* Tailwind's gray-500 */
+}
+
+.bg-cancelled {
+  background-color: #ef44447a !important;
+  /* Tailwind's red-500 */
 }
 
 @media (min-width: 768px) {

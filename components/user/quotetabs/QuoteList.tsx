@@ -284,6 +284,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
                     earliest_pickup_date: data.earliestPickupDate,
                     latest_pickup_date: data.latestPickupDate,
                     notes: data.notes,
+                    brokers_status: "In Progress",
                     status: "Order",
                 })
                 .eq("id", selectedQuoteId);

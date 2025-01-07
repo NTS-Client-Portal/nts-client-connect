@@ -109,8 +109,8 @@ const ShipperChatRequestsPage: React.FC = () => {
                         <Image src={NtsBrokerPicture} alt="Profile Picture" className="avatar" width={100} height={100} />
                         <h2 className='text-base md:text-xl underline font-semibold mb-4'>{(user.first_name)} {user.last_name}</h2>
                         <span className="flex flex-col-reverse md:flex-col gap-1 justify-center md:justify-start items-center md:items-start text-sm md:text-base font-semibold">
-                            <p>{user.phone_number}</p>
                             <p>{(user.email).charAt(0).toUpperCase() + (user.email).slice(1)}</p>
+                            <p>{user.phone_number}</p>
                         </span>
                         {userProfile && session && (
                             <>

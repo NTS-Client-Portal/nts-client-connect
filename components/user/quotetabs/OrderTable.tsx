@@ -29,8 +29,6 @@ const columnDisplayNames: { [key: string]: string } = {
     price: 'Price',
 };
 
-
-
 const OrderTable: React.FC<OrderTableProps> = ({
     sortConfig,
     handleSort,
@@ -48,6 +46,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [activeTab, setActiveTab] = useState<'orderdetails' | 'editHistory'>('orderdetails');
+    const [localOrders, setLocalOrders] = useState(orders);
     const rowsPerPage = 10;
 
     const router = useRouter();
@@ -60,47 +59,51 @@ const OrderTable: React.FC<OrderTableProps> = ({
         }
     }, [router.query, setSearchTerm, setSearchColumn]);
 
+    useEffect(() => {
+        setLocalOrders(orders);
+    }, [orders]);
+
     const indexOfLastRow = currentPage * rowsPerPage;
     const indexOfFirstRow = indexOfLastRow - rowsPerPage;
 
     const filteredOrders = useMemo(() => {
-            let sortedQuotes = [...orders];
-    
-            if (sortConfig.column) {
-                sortedQuotes.sort((a, b) => {
-                    if (a[sortConfig.column] < b[sortConfig.column]) {
-                        return sortConfig.order === 'asc' ? -1 : 1;
-                    }
-                    if (a[sortConfig.column] > b[sortConfig.column]) {
-                        return sortConfig.order === 'asc' ? 1 : -1;
-                    }
-                    return 0;
-                });
-            }
-    
-            if (searchTerm) {
-                sortedQuotes = sortedQuotes.filter((quote) => {
-                    const shipmentItems = typeof quote.shipment_items === 'string' ? JSON.parse(quote.shipment_items) : quote.shipment_items;
-                    const searchString: string = [
-                        quote.id,
-                        quote.freight_type,
-                        quote.origin_city,
-                        quote.origin_state,
-                        quote.origin_zip,
-                        quote.destination_city,
-                        quote.destination_state,
-                        quote.destination_zip,
-                        quote.due_date,
-                        quote.price,
-                        ...shipmentItems?.map((item: { year: string; make: string; model: string; container_length: string; container_type: string }) => `${item.year} ${item.make} ${item.model} ${item.container_length} ft ${item.container_type}`) || []
-                    ].join(' ').toLowerCase();
-                    return searchString.includes(searchTerm.toLowerCase());
-                });
-            }
-    
-            return sortedQuotes;
-        }, [searchTerm, orders, sortConfig]);
-        
+        let sortedQuotes = [...localOrders];
+
+        if (sortConfig.column) {
+            sortedQuotes.sort((a, b) => {
+                if (a[sortConfig.column] < b[sortConfig.column]) {
+                    return sortConfig.order === 'asc' ? -1 : 1;
+                }
+                if (a[sortConfig.column] > b[sortConfig.column]) {
+                    return sortConfig.order === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+
+        if (searchTerm) {
+            sortedQuotes = sortedQuotes.filter((quote) => {
+                const shipmentItems = typeof quote.shipment_items === 'string' ? JSON.parse(quote.shipment_items) : quote.shipment_items;
+                const searchString: string = [
+                    quote.id,
+                    quote.freight_type,
+                    quote.origin_city,
+                    quote.origin_state,
+                    quote.origin_zip,
+                    quote.destination_city,
+                    quote.destination_state,
+                    quote.destination_zip,
+                    quote.due_date,
+                    quote.price,
+                    ...shipmentItems?.map((item: { year: string; make: string; model: string; container_length: string; container_type: string }) => `${item.year} ${item.make} ${item.model} ${item.container_length} ft ${item.container_type}`) || []
+                ].join(' ').toLowerCase();
+                return searchString.includes(searchTerm.toLowerCase());
+            });
+        }
+
+        return sortedQuotes;
+    }, [searchTerm, localOrders, sortConfig]);
+
     const sortedOrders = useMemo(() => {
         const sorted = [...filteredOrders];
         if (sortConfig.column) {
@@ -167,10 +170,9 @@ const OrderTable: React.FC<OrderTableProps> = ({
             case 'Cancelled':
                 return 'text-red-500';
             default:
-                return '';
+                return 'In Progress';
         }
     }
-
 
     async function handleStatusChange(e: React.ChangeEvent<HTMLSelectElement>, id: number): Promise<void> {
         const newStatus = e.target.value;
@@ -185,16 +187,16 @@ const OrderTable: React.FC<OrderTableProps> = ({
                 return;
             }
 
-            // Optionally, you can update the local state to reflect the change immediately
-            const updatedOrders = orders.map(order =>
-                order.id === id ? { ...order, status: newStatus } : order
+            // Update the local state to reflect the change immediately
+            setLocalOrders(prevOrders =>
+                prevOrders.map(order =>
+                    order.id === id ? { ...order, brokers_status: newStatus } : order
+                )
             );
-            handleSort(sortConfig.column, sortConfig.order); // Re-sort the table if necessary
         } catch (error) {
             console.error('Error updating status:', error);
         }
     }
-
 
     return (
         <div className='w-full'>
@@ -331,36 +333,37 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                             Edit Order
                                         </button>
                                         {isAdmin && (
-                                            <>
-                                                <select
-                                                    value={order.status}
-                                                    onChange={(e) => {
-                                                        e.stopPropagation();
-                                                        handleStatusChange(e, order.id);
-                                                    }}
-                                                    className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(order.status)}`}
-                                                >
-                                                    <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
-                                                    <option value="Dispatched" className={getStatusClasses('Dispatched')}>Dispatched</option>
-                                                    <option value="Picked Up" className={getStatusClasses('Picked Up')}>Picked Up</option>
-                                                    <option value="Delivered" className={getStatusClasses('Delivered')}>Delivered</option>
-                                                    <option value="Completed" className={getStatusClasses('Completed')}>Completed</option>
-                                                    <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
-                                                </select>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleMarkAsComplete(order.id)(e);
-                                                    }}
-                                                    className="text-green-600 ml-2 relative z-50"
-                                                >
-                                                    Mark as Complete
-                                                </button>
-                                                <button onClick={() => archiveOrder(order.id)} className="text-red-500 mt-3 font-semibold underline text-sm">
-                                                            Archive Order
-                                                        </button>
-                                            </>
-                                        )}
+                                <>
+                                    <select
+                                        value={order.brokers_status}
+                                        onChange={(e) => {
+                                            e.stopPropagation();
+                                            handleStatusChange(e, order.id);
+                                        }}
+                                        className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(order.brokers_status)}`}
+                                    >
+                                        <option value="" disabled>Select Status</option>
+                                        <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
+                                        <option value="Dispatched" className={getStatusClasses('Dispatched')}>Dispatched</option>
+                                        <option value="Picked Up" className={getStatusClasses('Picked Up')}>Picked Up</option>
+                                        <option value="Delivered" className={getStatusClasses('Delivered')}>Delivered</option>
+                                        <option value="Completed" className={getStatusClasses('Completed')}>Completed</option>
+                                        <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
+                                    </select>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleMarkAsComplete(order.id)(e);
+                                        }}
+                                        className="text-green-600 ml-2 relative z-50"
+                                    >
+                                        Mark as Complete
+                                    </button>
+                                    <button onClick={() => archiveOrder(order.id)} className="text-red-500 mt-3 font-semibold underline text-sm">
+                                        Archive Order
+                                    </button>
+                                </>
+                            )}
                                     </div>
                                 </td>
                             </tr>
