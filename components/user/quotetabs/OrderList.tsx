@@ -34,12 +34,12 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
     const router = useRouter();
 
     const fetchOrdersForNtsUsers = useCallback(
-        async (userId: string, companyId: string) => {
+        async (userId: string) => {
             const { data: companySalesUsers, error: companySalesUsersError } = await supabase
                 .from("company_sales_users")
                 .select("company_id")
                 .eq("sales_user_id", userId);
-    
+
             if (companySalesUsersError) {
                 console.error(
                     "Error fetching company_sales_users for nts_user:",
@@ -47,25 +47,23 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                 );
                 return [];
             }
-    
+
             const companyIds = companySalesUsers.map(
                 (companySalesUser) => companySalesUser.company_id
             );
-    
-            if (!companyIds.includes(companyId)) {
-                console.error("Company ID not assigned to the user");
+
+            if (companyIds.length === 0) {
+                console.error("No companies assigned to the user");
                 return [];
             }
-    
+
             const { data: orders, error: ordersError } = await supabase
-                .from("shippingquotes")
-                .select("*")
-                .eq("company_id", companyId)
-                .eq("status", "Order")
-                .or("is_archived.is.null,is_archived.eq.false")
-                .not('is_complete', 'eq', true)
-                .or('is_complete.is.null,is_complete.eq.true');
-    
+            .from('shippingquotes')
+            .select('*')
+            .eq('company_id', companyId)
+            .eq('status', 'Order')
+            .not('is_complete', 'is', true);
+
             if (ordersError) {
                 console.error(
                     "Error fetching orders for nts_user:",
@@ -73,12 +71,12 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                 );
                 return [];
             }
-    
+
             return orders;
         },
         [supabase]
     );
-    
+
     const fetchQuotesForCompany = useCallback(async (companyId: string) => {
         const { data: orders, error: ordersError } = await supabase
             .from('shippingquotes')
@@ -86,38 +84,56 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
             .eq('company_id', companyId)
             .eq('status', 'Order')
             .not('is_complete', 'is', true);
-    
+
         if (ordersError) {
             console.error('Error fetching orders for company:', ordersError.message);
             return [];
         }
-    
+
         return orders;
     }, []);
-    
-    const fetchOrders = useCallback(async () => {
-        let query = supabase
-            .from('shippingquotes')
-            .select('*')
-            .eq('status', 'Order')
-            .or('is_archived.is.null,is_archived.eq.false')
-            .not('is_complete', 'eq', true)
-            .or('is_complete.is.null,is_complete.eq.true');
-    
-        if (!isNtsUser && session?.user?.id) {
-            query = query.eq('user_id', session.user.id);
-        }
-    
-        const { data, error } = await query;
-    
-        if (error) {
-            setErrorText(error.message);
+
+    const fetchInitialQuotes = useCallback(async () => {
+        if (!session?.user?.id) return;
+
+        if (isAdmin) {
+            const ordersData = await fetchOrdersForNtsUsers(session.user.id);
+            setQuotes(ordersData);
         } else {
-            console.log('Fetched Orders:', data);
-            setQuotes(data as any); // Ensure the data is cast to the correct type
+            // Fetch the user's profile
+            const { data: userProfile, error: userProfileError } = await supabase
+                .from("profiles")
+                .select("company_id")
+                .eq("id", session.user.id)
+                .single();
+
+            if (userProfileError) {
+                console.error("Error fetching user profile:", userProfileError.message);
+                return;
+            }
+
+            if (!userProfile) {
+                console.error("No profile found for user");
+                return;
+            }
+
+            const companyId = userProfile.company_id;
+            const ordersData = await fetchQuotesForCompany(companyId);
+
+            setQuotes(ordersData);
         }
-    }, [session, isNtsUser]);
-    
+    }, [
+        session,
+        supabase,
+        fetchQuotesForCompany,
+        fetchOrdersForNtsUsers,
+        isAdmin,
+    ]);
+
+    useEffect(() => {
+        fetchInitialQuotes();
+    }, [fetchInitialQuotes]);
+
     useEffect(() => {
         const checkUserType = async () => {
             if (session?.user?.id) {
@@ -126,22 +142,21 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                     .select('id')
                     .eq('id', session.user.id)
                     .single();
-    
+
                 if (ntsUserError) {
                     console.error('Error fetching nts_user role:', ntsUserError.message);
                 } else if (ntsUserData) {
-                    setIsNtsUser(true);
-                    const orders = await fetchOrdersForNtsUsers(session.user.id, companyId);
+                    const orders = await fetchOrdersForNtsUsers(session.user.id);
                     setQuotes(orders);
                     return;
                 }
-    
+
                 const { data: profileData, error: profileError } = await supabase
                     .from('profiles')
                     .select('company_id')
                     .eq('id', session.user.id)
                     .single();
-    
+
                 if (profileError) {
                     console.error('Error fetching profile:', profileError.message);
                 } else if (profileData?.company_id) {
@@ -149,11 +164,11 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                     setQuotes(orders);
                     return;
                 }
-    
+
                 fetchQuotes();
             }
         };
-    
+
         checkUserType();
     }, [session, fetchQuotes, fetchOrdersForNtsUsers, fetchQuotesForCompany]);
 
