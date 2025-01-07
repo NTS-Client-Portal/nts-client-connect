@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Session } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import { supabase } from '@/lib/initSupabase';
-import { formatDate, freightTypeMapping } from './QuoteUtils';
 import ArchivedTable from './ArchivedTable';
 
 interface ArchivedProps {
@@ -18,35 +17,6 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [archivedQuotes, setArchivedQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
     const [popupMessage, setPopupMessage] = useState<string | null>(null);
-
-    const fetchProfiles = useCallback(async (companyId: string) => {
-        const { data: profiles, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('company_id', companyId);
-
-        if (error) {
-            console.error('Error fetching profiles:', error.message);
-            return [];
-        }
-
-        return profiles;
-    }, [supabase]);
-
-    const fetchShippingQuotes = useCallback(async (profileIds: string[]) => {
-        const { data: quotes, error } = await supabase
-            .from('shippingquotes')
-            .select('*')
-            .in('user_id', profileIds)
-            .eq('is_archived', true); // Fetch only archived quotes
-
-        if (error) {
-            console.error('Error fetching shipping quotes:', error.message);
-            return [];
-        }
-
-        return quotes;
-    }, [supabase]);
 
     const fetchQuotesForNtsUsers = useCallback(async (userId: string) => {
         const { data: companySalesUsers, error: companySalesUsersError } = await supabase
@@ -65,10 +35,27 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
             .from('shippingquotes')
             .select('*')
             .in('company_id', companyIds)
-            .eq('is_archived', true); // Fetch only archived quotes
+            .eq('is_archived', true)
+            .eq('status', 'Archived'); // Fetch only archived quotes with status 'Archived'
 
         if (quotesError) {
             console.error('Error fetching quotes for nts_user:', quotesError.message);
+            return [];
+        }
+
+        return quotes;
+    }, [supabase]);
+
+    const fetchQuotesForCompany = useCallback(async (companyId: string) => {
+        const { data: quotes, error: quotesError } = await supabase
+            .from('shippingquotes')
+            .select('*')
+            .eq('company_id', companyId)
+            .eq('is_archived', true)
+            .eq('status', 'Archived'); // Fetch only archived quotes with status 'Archived'
+
+        if (quotesError) {
+            console.error('Error fetching quotes for company:', quotesError.message);
             return [];
         }
 
@@ -100,16 +87,13 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
             }
 
             const companyId = userProfile.company_id;
-            const profilesData = await fetchProfiles(companyId);
-
-            const profileIds = profilesData.map(profile => profile.id);
-            const quotesData = await fetchShippingQuotes(profileIds);
+            const quotesData = await fetchQuotesForCompany(companyId);
 
             setArchivedQuotes(quotesData);
         }
 
         setIsLoading(false);
-    }, [session, supabase, fetchProfiles, fetchShippingQuotes, fetchQuotesForNtsUsers, isAdmin]);
+    }, [session, supabase, fetchQuotesForCompany, fetchQuotesForNtsUsers, isAdmin]);
 
     useEffect(() => {
         fetchArchivedQuotes();
@@ -166,7 +150,6 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
                     handleSort={() => { }}
                     unArchive={unArchive}
                     handleStatusChange={() => { }}
-                    isAdmin={isAdmin}
                     companyId={companyId}
                 />
             </div>

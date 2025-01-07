@@ -11,7 +11,6 @@ interface ArchivedTableProps {
     handleSort: (column: string) => void;
     unArchive: (quote: ShippingQuotesRow) => void;
     handleStatusChange: (e: React.ChangeEvent<HTMLSelectElement>, id: number) => void;
-    isAdmin: boolean;
     companyId: string; // Add companyId as a prop
 }
 
@@ -21,7 +20,6 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
     handleSort,
     unArchive,
     handleStatusChange,
-    isAdmin,
     companyId, // Add companyId as a prop
 }) => {
     const [archivedQuotes, setArchivedQuotes] = useState<ShippingQuotesRow[]>([]);
@@ -37,7 +35,7 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
     }, [searchTerm, searchColumn, quotes]);
 
     useEffect(() => {
-        setArchivedQuotes(quotes.filter((quote) => quote.status === 'archived' && quote.company_id === companyId));
+        setArchivedQuotes(quotes.filter((quote) => quote.status === 'Archived' && quote.company_id === companyId));
     }, [quotes, companyId]);
 
     const handleShowArchived = () => {

@@ -211,7 +211,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
     const archiveOrder = async (quoteId: number) => {
         const { error } = await supabase
             .from('shippingquotes')
-            .update({ is_archived: true })
+            .update({ is_archived: true, status: 'Archived' })
             .eq('id', quoteId);
 
         if (error) {

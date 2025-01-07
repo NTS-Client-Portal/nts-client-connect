@@ -61,8 +61,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
         const { data, error } = await supabase
             .from('shippingquotes')
             .select('*')
-            .eq('company_id', companyId)
-            .eq('is_archived', false); // Fetch only non-archived quotes
+            .eq('company_id', companyId);
 
         if (error) {
             setErrorText(error.message);
@@ -378,9 +377,9 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                     <Archived
                         session={session}
                         isAdmin={isAdmin}
-                        fetchQuotes={fetchQuotes}
                         selectedUserId={selectedUserId}
                         companyId={companyId}
+                        fetchQuotes={fetchQuotes}
                     />
                 )}
                 {activeTab === 'rejected' && (
