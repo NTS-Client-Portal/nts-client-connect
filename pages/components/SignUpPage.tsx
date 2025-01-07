@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Head from 'next/head';
 import Link from 'next/link';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useRouter } from 'next/router';
@@ -7,6 +6,7 @@ import Image from 'next/image';
 import { v4 as uuidv4 } from 'uuid';
 import { assignSalesUser } from '@/lib/assignSalesUser';
 import InviteUserForm from '@/components/user/InviteUserForm';
+import { sendOtpEmail } from '@/lib/sendOtpEmail';
 
 export default function SignUpPage() {
     const supabase = useSupabaseClient();
@@ -41,13 +41,6 @@ export default function SignUpPage() {
         return otp;
     };
 
-    const sendOtpEmail = async (email: string, otp: string) => {
-        // Use a third-party email service to send the OTP email
-        // For example, using SendGrid, Mailgun, etc.
-        // This is a placeholder function and should be replaced with actual email sending logic
-        console.log(`Sending OTP ${otp} to email ${email}`);
-    };
-
     const handleSendOtp = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -67,7 +60,7 @@ export default function SignUpPage() {
 
         try {
             const otp = generateOtp();
-            await sendOtpEmail(email, otp);
+            await sendOtpEmail(email, otp); // Use the sendOtpEmail function
 
             setCurrentStep(2); // Move to the OTP verification step
         } catch (error) {
@@ -206,10 +199,6 @@ export default function SignUpPage() {
 
     return (
         <>
-            <Head>
-                <title>NTS-SHIPPER-CONNECT - Sign Up</title>
-                <meta name="description" content="Sign up for an account" />
-            </Head>
             <div className="w-full h-full bg-200">
                 <div className="md:grid min-w-full min-h-screen md:grid-cols-2 ">
                     <div style={{ backgroundImage: "url('/images/d8t-dozer-dark.jpg')", backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }} className="hidden md:grid h-1/3 w-full md:h-full col-span-1">
@@ -361,7 +350,7 @@ export default function SignUpPage() {
                                                     <option value="Construction/Contractor">Construction/Contractor</option>
                                                     <option value="Auto/Truck Dealer">Auto/Truck Dealer</option>
                                                     <option value="Retail">Retail</option>
-                                                    <option value="Auction">Auction</option>
+                                                    <option value="Auction"> Auction</option>
                                                     <option value="Wholesaler">Wholesaler</option>
                                                     <option value="Mining">Mining</option>
                                                     <option value="Manufacturer">Manufacturer</option>
