@@ -3,6 +3,13 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+console.log('Supabase URL:', supabaseUrl);
+console.log('Service Role Key:', serviceRoleKey);
+
+if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error('Missing Supabase URL or Service Role Key');
+}
+
 const supabase = createClient(supabaseUrl, serviceRoleKey);
 
 export const assignSalesUser = async (companyId: string) => {

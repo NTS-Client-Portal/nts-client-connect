@@ -4,7 +4,6 @@ import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { v4 as uuidv4 } from 'uuid';
-import { assignSalesUser } from '@/lib/assignSalesUser';
 import InviteUserForm from '@/components/user/InviteUserForm';
 import { sendOtpEmail } from '@/lib/sendOtpEmail';
 
@@ -163,7 +162,11 @@ export default function SignUpPage() {
                         throw new Error(newCompanyError.message);
                     }
 
-                    await assignSalesUser(companyId);
+                    // Call the Netlify Function to assign the sales user
+                    await fetch('/.netlify/functions/assign-sales-user', {
+                        method: 'POST',
+                        body: JSON.stringify({ companyId }),
+                    });
                 }
             } else {
                 companyId = uuidv4();
