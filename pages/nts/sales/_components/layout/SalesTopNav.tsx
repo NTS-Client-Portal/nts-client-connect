@@ -5,6 +5,7 @@ import Image from 'next/image';
 import NotificationBell from '@/components/NotificationBell';
 import { Session } from '@supabase/auth-helpers-react';
 import FeedBack from '@/components/ui/FeedBack';
+import { useRouter } from 'next/router';
 
 interface SalesTopNavProps {
     session: Session | null;
@@ -33,19 +34,13 @@ const SalesTopNav: React.FC<SalesTopNavProps> = ({ session, className = '' }) =>
         }
     }, [userProfile]);
 
+   const router = useRouter();
+
     const handleLogout = async () => {
-        try {
-            const { error } = await supabase.auth.signOut();
-            if (error) {
-                console.error('Error logging out:', error.message);
-                alert('Failed to log out. Please try again.');
-            }
-            window.location.href = '/login'; // Redirect to login page
-        } catch (err) {
-            console.error('Unexpected error during logout:', err);
-            alert('An unexpected error occurred. Please try again.');
-            window.location.href = '/login'; // Redirect to login page
-        }
+        await supabase.auth.signOut();
+        sessionStorage.clear();
+        localStorage.clear();
+        router.push('/nts/login');
     };
 
 

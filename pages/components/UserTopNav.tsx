@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useSession } from '@supabase/auth-helpers-react';
 import Router from 'next/router';
 import ShipperBrokerConnect from '@/components/chat/ShipperBrokerConnect';
+import { useRouter } from 'next/router';
 
 interface UserTopNavProps {
     className?: string;
@@ -73,20 +74,13 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
         fetchAssignedSalesUsers();
     }, [userProfile]);
 
+    const router = useRouter();
+
     const handleLogout = async () => {
-        try {
-            const { error } = await supabase.auth.signOut();
-            if (error) {
-                console.error('Error logging out:', error.message);
-                alert('Failed to log out. Please try again.');
-            } else {
-                Router.push('/'); // Redirect to login page
-            }
-        } catch (err) {
-            console.error('Unexpected error during logout:', err);
-            alert('An unexpected error occurred. Please try again.');
-            Router.push('/'); // Redirect to login page
-        }
+        await supabase.auth.signOut();
+        sessionStorage.clear();
+        localStorage.clear();
+        router.push('/');
     };
 
     const toggleDarkMode = () => {

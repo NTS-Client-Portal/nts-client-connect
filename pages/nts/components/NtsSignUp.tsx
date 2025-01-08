@@ -80,25 +80,29 @@ export default function SignUpPage() {
         e.preventDefault();
         setLoading(true);
         setError(null);
-
+    
         try {
             const { error } = await supabase.auth.verifyOtp({
                 email,
                 token: otp,
                 type: 'signup',
             });
-
+    
             if (error) {
                 throw new Error(error.message);
             }
-
+    
             // Complete profile setup
             await handleCompleteProfile();
-
+    
             setSuccess(true);
             setCurrentStep(3); // Move to the next step
         } catch (error) {
-            setError(error.message);
+            if (error.message.includes("Database error finding user")) {
+                setError("User not found. Please ensure you have signed up correctly.");
+            } else {
+                setError(error.message);
+            }
         } finally {
             setLoading(false);
         }

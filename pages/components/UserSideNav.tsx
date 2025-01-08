@@ -57,19 +57,10 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
 
    
     const handleLogout = async () => {
-        try {
-            const { error } = await supabase.auth.signOut();
-            if (error) {
-                console.error('Error logging out:', error.message);
-                alert('Failed to log out. Please try again.');
-            } else {
-                router.push('/'); // Redirect to login page
-            }
-        } catch (err) {
-            console.error('Unexpected error during logout:', err);
-            alert('An unexpected error occurred. Please try again.');
-            router.push('/'); // Redirect to login page
-        }
+        await supabase.auth.signOut();
+        sessionStorage.clear();
+        localStorage.clear();
+        router.push('/');
     };
 
     const profilePictureUrl = userProfile?.profile_picture
