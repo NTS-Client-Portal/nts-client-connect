@@ -1,4 +1,4 @@
-import NtsVerifyOtp from "../components/NtsVerifyOtp";
+import NtsVerifyOtp from "../../components/NtsVerifyOtp";
 
 const NtsVerifyOtpPage = () => {
     return <NtsVerifyOtp />;
