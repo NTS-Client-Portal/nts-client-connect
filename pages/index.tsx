@@ -13,7 +13,6 @@ import QuoteRequest from '@/components/user/QuoteRequest';
 import UserLayout from '@/pages/components/UserLayout';
 import Image from 'next/image';
 
-
 interface UserProfile {
   id: string;
   email: string;
@@ -33,11 +32,6 @@ interface UserProfile {
 }
 
 const LoginPage = () => {
-  // or true, depending on your logic
-  const company = { id: 'company-id' };
-  const profiles = [];
-  const ntsUsers = [];
-  const isAdmin = false;
   const session = useSession();
   const supabase = useSupabaseClient();
   const router = useRouter();
@@ -102,7 +96,7 @@ const LoginPage = () => {
     };
   }, [router, supabase]);
 
-  const handleResendConfirmation = async () => {
+  const handleResendOtp = async () => {
     setResendLoading(true);
     setResendSuccess(false);
     setError(null);
@@ -212,13 +206,13 @@ const LoginPage = () => {
                 <div className="mt-4 text-center">
                   <p>Please verify your email address to access the application.</p>
                   <button
-                    onClick={handleResendConfirmation}
+                    onClick={handleResendOtp}
                     className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
                     disabled={resendLoading}
                   >
-                    {resendLoading ? 'Resending...' : 'Resend Confirmation Email'}
+                    {resendLoading ? 'Resending...' : 'Resend OTP'}
                   </button>
-                  {resendSuccess && <div className="text-green-500 mt-2">Confirmation email resent successfully!</div>}
+                  {resendSuccess && <div className="text-green-500 mt-2">OTP resent successfully!</div>}
                   {error && <div className="text-red-500 mt-2">{error}</div>}
                 </div>
               </div>
@@ -228,6 +222,8 @@ const LoginPage = () => {
       </Layout>
     );
   }
+
+  return null;
 };
 
 export default LoginPage;
