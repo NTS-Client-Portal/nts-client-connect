@@ -691,6 +691,24 @@ export type Database = {
           },
         ]
       }
+      global_settings: {
+        Row: {
+          id: number
+          key: string
+          value: boolean
+        }
+        Insert: {
+          id?: number
+          key: string
+          value: boolean
+        }
+        Update: {
+          id?: number
+          key?: string
+          value?: boolean
+        }
+        Relationships: []
+      }
       invitations: {
         Row: {
           company_id: string | null
