@@ -140,13 +140,13 @@ const LoginPage = () => {
         <div className="w-full h-screen bg-200">
           <div className="min-w-full min-h-screen grid grid-cols-1 md:grid-cols-2 ">
 
-            <div style={{ backgroundImage: "url('/images/d8t-dozer-dark.jpg')", backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }} className="hidden md:block h-full w-full md:h-full col-span-1">
+            <div className="hidden md:block bg-gray-950 h-full w-full md:h-full col-span-1">
               <div className='absolute top-5 left-5'>
                 <span className='flex mt-5 lg:mt-2 2xl:mt-0 items-center justify-center font-bold  flex-nowrap'> <h2 className='text-lg md:mt-0  self-center font-extrabold tracking-tighter text-white flex gap-0.5'>SHIPPER<MoveHorizontal className='size-6 text-orange-500' />CONNECT</h2></span>
                 <span className='text-xs md:text-base font-bold text-center text-orange-500'>A Division of NTS Logistics</span>
               </div>
-              <div className='hidden h-5/6 w-full md:flex items-end justify-center'>
-                <h1 className='text-stone-100 font-medium text-xl italic'>Your trusted partner in Logistics.</h1>
+              <div className='hidden h-5/6 w-full md:flex items-center justify-center'>
+                <h1 className='text-white font-medium text-2xl italic'>Your trusted partner in logistics.</h1>
               </div>
             </div>
 
@@ -156,7 +156,7 @@ const LoginPage = () => {
               </Link>
             </div>
 
-            <div className='w-full h-auto flex flex-col justify-center items-center '>
+            <div className='w-full h-auto flex flex-col justify-center items-center col-span-1'>
 
               <div className=" w-full h-full max-h-max text-zinc-900 sm:h-full sm:w-full max-w-md p-5 bg-white shadow flex flex-col justify-center items-center text-base">
                 <span className="font-sans text-4xl font-medium text-center pb-2 mb-2 my-6 border-b mx-4 align-center">
