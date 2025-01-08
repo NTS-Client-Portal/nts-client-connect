@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import { Database } from '@/lib/database.types';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 interface AddNtsUserFormProps {
     isOpen: boolean;
@@ -16,6 +21,7 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [profilePicture, setProfilePicture] = useState<File | null>(null);
 
     const handleAddNtsUser = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -34,12 +40,27 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
         setLoading(true);
 
         try {
-            const response = await fetch('/api/addNtsUser', {
+            let profilePictureUrl = null;
+
+            if (profilePicture) {
+                const { data, error: uploadError } = await supabase
+                    .storage
+                    .from('profile-pictures')
+                    .upload(`public/${profilePicture.name}`, profilePicture);
+
+                if (uploadError) {
+                    throw new Error(uploadError.message);
+                }
+
+                profilePictureUrl = `${supabaseUrl}/storage/v1/object/public/profile-pictures/${data.path}`;
+            }
+
+            const response = await fetch('/.netlify/functions/addNtsUser', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ ...newNtsUser, password }),
+                body: JSON.stringify({ ...newNtsUser, password, profile_picture: profilePictureUrl }),
             });
 
             const result = await response.json();
@@ -51,6 +72,7 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
             setNewNtsUser({});
             setPassword('');
             setConfirmPassword('');
+            setProfilePicture(null);
             onClose();
             onSuccess();
         } catch (error) {
@@ -125,6 +147,14 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                                 type="password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
+                                className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-gray-700">Profile Picture</label>
+                            <input
+                                type="file"
+                                onChange={(e) => setProfilePicture(e.target.files ? e.target.files[0] : null)}
                                 className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>

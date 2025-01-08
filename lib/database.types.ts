@@ -960,6 +960,7 @@ export type Database = {
           company_id: string | null
           email: string
           email_notifications: boolean | null
+          extension: string | null
           first_name: string | null
           id: string
           inserted_at: string | null
@@ -976,6 +977,7 @@ export type Database = {
           company_id?: string | null
           email: string
           email_notifications?: boolean | null
+          extension?: string | null
           first_name?: string | null
           id: string
           inserted_at?: string | null
@@ -992,6 +994,7 @@ export type Database = {
           company_id?: string | null
           email?: string
           email_notifications?: boolean | null
+          extension?: string | null
           first_name?: string | null
           id?: string
           inserted_at?: string | null
