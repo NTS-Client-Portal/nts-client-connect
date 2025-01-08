@@ -83,24 +83,6 @@ const LoginPage = () => {
     checkUserRole();
   }, [session, router, supabase]);
 
-  useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        router.push(`/reset-password?access_token=${session?.access_token}`);
-      } else if (event === 'SIGNED_IN') {
-        if (!session?.user.email_confirmed_at) {
-          router.push(`/verify-otp?email=${session?.user.email}`);
-        } else {
-          router.push('/user/logistics-management');
-        }
-      }
-    });
-
-    return () => {
-      authListener?.subscription.unsubscribe();
-    };
-  }, [router, supabase]);
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);

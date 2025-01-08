@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useRouter } from 'next/router';
 import { Eye, EyeOff } from 'lucide-react';
@@ -10,6 +10,24 @@ const CustomSignInForm = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false);
+
+    useEffect(() => {
+        const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'PASSWORD_RECOVERY') {
+                router.push(`/reset-password?access_token=${session?.access_token}`);
+            } else if (event === 'SIGNED_IN') {
+                if (!session?.user.email_confirmed_at) {
+                    router.push(`/verify-otp?email=${session?.user.email}`);
+                } else {
+                    router.push('/user/logistics-management');
+                }
+            }
+        });
+
+        return () => {
+            authListener?.subscription.unsubscribe();
+        };
+    }, [router, supabase]);
 
     const handleSignIn = async (e: React.FormEvent) => {
         e.preventDefault();
