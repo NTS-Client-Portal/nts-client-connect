@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Database } from '@/lib/database.types';
 import TableHeaderSort from './TableHeaderSort';
-import { formatDate, freightTypeMapping } from './QuoteUtils';
+import { formatDate, renderAdditionalDetails, freightTypeMapping } from './QuoteUtils';
 
 type ShippingQuotesRow = Database['public']['Tables']['shippingquotes']['Row'];
 
@@ -79,8 +79,8 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
                     className="border border-gray-300 pl-2 rounded-md shadow-sm"
                 />
             </div>
-            <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
-                <thead className="bg-ntsBlue text-zinc-50 border-2 border-t-orange-500 dark:bg-zinc-900 static top-0 w-full">
+            <table className="min-w-full divide-y divide-zinc-200 border">
+                <thead className="bg-ntsBlue text-zinc-50 border-2 border-t-orange-500 static top-0 w-full">
                     <tr>
                         <th className="px-6 py-3 text-left text-nowrap text-xs font-medium uppercase tracking-wider">
                             <TableHeaderSort column="Order ID" sortOrder={sortConfig.column === 'id' ? sortConfig.order : 'desc'} onSort={handleSort} />
@@ -106,7 +106,7 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                     {quotes.map((quote, index) => (
-                        <tr key={quote.id} className={`cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}>
+                        <tr key={quote.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-100'}`}>
                             <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{quote.id}</td>
                             <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
                                 <div className=''>

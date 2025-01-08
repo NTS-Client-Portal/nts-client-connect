@@ -159,7 +159,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
             .insert([{
                 ...quote,
                 user_id: session.user.id,
-                company_id: companyId,
+                company_id: quote.company_id || companyId,
                 first_name: quote.first_name || null,
                 last_name: quote.last_name || null,
                 email: quote.email || null,
@@ -288,7 +288,6 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                             addQuote={addQuote}
                             errorText={errorText}
                             setErrorText={setErrorText}
-                            companyId={companyId} // Pass companyId to QuoteForm
                             assignedSalesUser={session?.user?.id || ''} // Pass assignedSalesUser to QuoteForm
                             fetchQuotes={fetchQuotes}
 

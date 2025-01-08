@@ -14,12 +14,11 @@ interface QuoteFormProps {
     errorText: string;
     setErrorText: (value: string) => void;
     session: Session;
-    fetchQuotes: () => void; // Add fetchQuotes prop
-    companyId: string; // Add companyId prop
+    fetchQuotes: () => void; // Add fetchQuotes pro
     assignedSalesUser: string; // Add assignedSalesUser prop
 }
 
-const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorText, setErrorText, session, fetchQuotes, companyId, assignedSalesUser }) => {
+const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorText, setErrorText, session, fetchQuotes, assignedSalesUser }) => {
     const supabase = useSupabaseClient<Database>();
     const { userProfile: profilesUser } = useProfilesUser(); // Use ProfilesUserContext
     const { userProfile: ntsUser } = useNtsUsers(); // Use NtsUsersContext
@@ -160,7 +159,6 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
 
         const quote = {
             user_id: session.user.id,
-            company_id: companyId,
             assigned_sales_user: assignedSalesUser,
             origin_zip: originZip,
             origin_city: originCity,

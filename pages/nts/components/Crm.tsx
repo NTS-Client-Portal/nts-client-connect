@@ -191,9 +191,9 @@ const Crm: React.FC = () => {
                         <div className='grid grid-cols-2 pb-2 border-b border-b-gray-200 pt-1 px-2'>
                           <div className='font-medium'>  {profile.first_name} {profile.last_name}</div>
                           <div className='flex flex-col gap-1 mt-1'>
-                            <a className='text-ntsLightBlue underline cursor-auto flex gap-1 items-center' href={`mailto:${profile.email}`}>
+                            <a className='text-ntsLightBlue underline cursor-pointer flex gap-1 items-center' href={`mailto:${profile.email}`}>
                               <Mail /> Email {profile.first_name}</a>
-                            <a className='text-ntsLightBlue underline cursor-auto flex gap-1 items-center' href={`tel:${profile.phone_number}`}>
+                            <a className='text-ntsLightBlue underline cursor-pointer flex gap-1 items-center' href={`tel:${profile.phone_number}`}>
                               <PhoneForwarded /> Call {profile.first_name}</a>
                           </div>
                         </div>
@@ -231,10 +231,12 @@ const Crm: React.FC = () => {
                     <div className='grid grid-cols-2 place-items-center py-2 border shadow-sm'>
                     <div className='font-medium'>  {profile.first_name} {profile.last_name}</div>
                       <div className='flex flex-col gap-1 mt-1'>
-                        <a className='text-ntsLightBlue underline cursor-auto flex gap-1 items-center' href={`mailto:${profile.email}`}>
-                          <Mail /> Email {profile.first_name}</a>
-                        <a className='text-ntsLightBlue underline cursor-auto flex gap-1 items-center' href={`tel:${profile.phone_number}`}>
-                          <PhoneForwarded /> Call {profile.first_name}</a>
+                      <a className='text-ntsLightBlue underline cursor-pointer flex gap-1 items-center' href={`mailto:${profile.email}`}>
+                        <Mail /> Email {profile.first_name}
+                       </a>
+                      <a className='text-ntsLightBlue underline cursor-pointer flex gap-1 items-center' href={`tel:${profile.phone_number}`}>
+                        <PhoneForwarded /> Call {profile.first_name}
+                      </a>
                       </div>
                     </div>
                   </li>

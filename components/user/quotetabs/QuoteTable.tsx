@@ -289,7 +289,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                     className="border border-gray-300 pl-2 rounded-md shadow-sm"
                 />
             </div>
-            <table className="min-w-full place-content-center divide-zinc-200">
+            <table className="min-w-full place-content-center divide-zinc-200 border">
             <thead className="bg-ntsBlue border-2 border-t-orange-500 text-zinc-50  top-0 w-fit">
                     <tr>
                     <th className="px-6 py-3 text-left text-xs text-nowrap font-semibold uppercase tracking-wider">

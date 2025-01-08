@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Database } from '@/lib/database.types';
 import { supabase } from '@/lib/initSupabase';
-import { formatDate, freightTypeMapping } from './QuoteUtils';
+import { formatDate, renderAdditionalDetails, freightTypeMapping } from './QuoteUtils';
 import { MoveHorizontal } from 'lucide-react';
 import { useRouter } from 'next/router';
 
@@ -222,7 +222,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                     className="border border-gray-300 pl-2 rounded-md shadow-sm"
                 />
             </div>
-            <table className="min-w-full divide-y divide-zinc-200 ">
+            <table className="min-w-full divide-y divide-zinc-200 border">
                 <thead className="bg-ntsBlue border-2 border-t-orange-500 static top-0 w-full text-white">
                     <tr >
                         <th className="px-6 py-3 text-left text-xs text-nowrap font-semibold uppercase tracking-wider">
@@ -387,7 +387,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                             </div>
                                             {activeTab === 'orderdetails' && (
                                                 <div className='border border-gray-200 p-6 h-full'>
-                                                    {/* Render additional order details here */}
+                                                   {renderAdditionalDetails(order)}
                                                     <div className='flex gap-2 items-center h-full'>
                                                         <button onClick={(e) => { e.stopPropagation(); /* duplicateOrder(order); */ }} className="body-btn ml-2">
                                                             Duplicate Order

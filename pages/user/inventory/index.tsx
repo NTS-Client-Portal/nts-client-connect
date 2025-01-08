@@ -17,24 +17,7 @@ const FreightInventoryPage: React.FC = () => {
     return (
         <ProfilesUserProvider>
             <UserLayout>
-                <div className="flex gap-1 border-b border-gray-300">
-                    <button
-                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'freight' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
-                        onClick={() => setActiveTab('freight')}
-                    >
-                        Freight Inventory
-                    </button>
-                    <button
-                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'lanes' ? 'bg-zinc-700 text-white border-zinc-500' : 'bg-zinc-200'}`}
-                        onClick={() => setActiveTab('lanes')}
-                    >
-                        Lanes Inventory
-                    </button>
-                </div>
-                <div className='flex flex-col gap-8'>
-                    {activeTab === 'freight' && <FreightInventory session={session} />}
-                    {activeTab === 'lanes' && <LanesInventory session={session} />}
-                </div>
+                <FreightInventory session={session} />    
             </UserLayout>
         </ProfilesUserProvider>
     );

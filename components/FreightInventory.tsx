@@ -318,12 +318,12 @@ const FreightInventory = ({ session }: FreightInventoryProps) => {
             </div>
 
             <div className="flex justify-between w-full border-b border-zinc-300">
-                <div className='flex flex-col gap-2 justify-normal items-end'>
+                <div className='flex flex-col gap-2 justify-normal items-start'>
                     <div>
-                        <a href="/public/EQUIPMENT_CSV_TEMPLATE.csv" download className="upload-button m-0 px-5 py-2 ">Download Equipment CSV Template </a>
+                        <a href="/public/EQUIPMENT_CSV_TEMPLATE.csv" download className="text-ntsLightBlue underline m-0 px-2 py-2 ">Download Equipment CSV Template </a>
                     </div>
                     <div className="mt-4 md:m-0">
-                        <a href="/public/LTL-FTL_CSV_TEMPLATE.csv" download className="upload-button m-0 px-7 py-2">Download LTL/FTL CSV Template </a>
+                        <a href="/public/LTL-FTL_CSV_TEMPLATE.csv" download className="text-ntsLightBlue underline text-start m-0 px-2 py-2">Download LTL/FTL CSV Template </a>
                     </div>
                 </div>
             </div>

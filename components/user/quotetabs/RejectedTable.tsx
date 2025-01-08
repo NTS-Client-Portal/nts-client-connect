@@ -73,7 +73,7 @@ const RejectedTable: React.FC<DeliveredTableProps> = ({
                     className="border border-gray-300 pl-2 rounded-md shadow-sm"
                 />
             </div>
-            <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">
+            <table className="min-w-full divide-y divide-zinc-200 border">
                 <thead className="bg-ntsBlue text-zinc-50 border-2 border-t-orange-500 dark:bg-zinc-900 static top-0 w-full">
                     <tr>
                         <th className="px-6 py-3 text-left text-nowrap text-xs font-medium uppercase tracking-wider">
