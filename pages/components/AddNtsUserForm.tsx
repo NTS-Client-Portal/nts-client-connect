@@ -16,24 +16,48 @@ interface AddNtsUserFormProps {
 type NtsUser = Database['public']['Tables']['nts_users']['Row'];
 
 const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSuccess, ntsUsers }) => {
-    const [newNtsUser, setNewNtsUser] = useState<Partial<NtsUser>>({});
+    const [newNtsUser, setNewNtsUser] = useState<Partial<NtsUser>>({
+        role: 'sales', // Set default role here
+    });
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [companyId, setCompanyId] = useState(''); // Add companyId state
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [profilePicture, setProfilePicture] = useState<File | null>(null);
+
+    const allowedFields = ['email', 'role', 'first_name', 'last_name', 'phone_number', 'office'];
 
     const handleAddNtsUser = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
 
-        if (!newNtsUser.email || !newNtsUser.role || !newNtsUser.first_name || !newNtsUser.last_name || !password || !confirmPassword) {
-            setError('All fields are required');
+        if (!newNtsUser.email) {
+            setError('Email is required');
             return;
         }
-
+        if (!newNtsUser.role) {
+            setError('Role is required');
+            return;
+        }
+        if (!newNtsUser.first_name) {
+            setError('First name is required');
+            return;
+        }
+        if (!newNtsUser.last_name) {
+            setError('Last name is required');
+            return;
+        }
+        if (!password) {
+            setError('Password is required');
+            return;
+        }
         if (password !== confirmPassword) {
             setError('Passwords do not match');
+            return;
+        }
+        if (!companyId) {
+            setError('Company ID is required');
             return;
         }
 
@@ -55,24 +79,27 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                 profilePictureUrl = `${supabaseUrl}/storage/v1/object/public/profile-pictures/${data.path}`;
             }
 
-            const response = await fetch('/.netlify/functions/addNtsUser', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ ...newNtsUser, password, profile_picture: profilePictureUrl }),
+            const { error: insertError } = await supabase.from('nts_users').insert({
+                email: newNtsUser.email,
+                role: newNtsUser.role,
+                first_name: newNtsUser.first_name,
+                last_name: newNtsUser.last_name,
+                phone_number: newNtsUser.phone_number,
+                office: newNtsUser.office,
+                company_id: companyId,
+                profile_picture: profilePictureUrl,
+                inserted_at: new Date().toISOString(),
             });
 
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.error);
+            if (insertError) {
+                throw new Error(insertError.message);
             }
 
-            setNewNtsUser({});
+            setNewNtsUser({ role: 'sales' }); // Reset form with default role
             setPassword('');
             setConfirmPassword('');
             setProfilePicture(null);
+            setCompanyId(''); // Reset companyId
             onClose();
             onSuccess();
         } catch (error) {
@@ -81,15 +108,6 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
         } finally {
             setLoading(false);
         }
-    };
-
-    const ntsUserTemplate: Partial<NtsUser> = {
-        email: '',
-        role: 'sales',
-        first_name: '',
-        last_name: '',
-        phone_number: '',
-        office: '',
     };
 
     if (!isOpen) return null;
@@ -101,36 +119,33 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                 {error && <div className="text-red-500 mb-4">{error}</div>}
                 <form onSubmit={handleAddNtsUser}>
                     <div className="grid grid-cols-2 gap-4">
-                        {Object.keys(ntsUsers[0] || ntsUserTemplate).map((key) => (
-                            key !== 'id' && key !== 'profile_picture' && key !== 'email_notifications' && key !== 'profile_id' && key !== 'company_id' && (
-                                <div key={key} className="mb-4">
-                                    <label className="block text-gray-700">{key}</label>
-                                    {key === 'role' ? (
-                                        <select
-                                            value={newNtsUser[key] || ''}
-                                            onChange={(e) =>
-                                                setNewNtsUser({ ...newNtsUser, [key]: e.target.value })
-                                            }
-                                            className="w-full px-3 bg-white py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        >
-                                            <option value="">Select a role</option>
-                                            <option value="sales">Sales</option>
-                                            <option value="manager">Manager</option>
-                                            <option value="admin">Admin</option>
-                                            <option value="superadmin">Superadmin</option>
-                                        </select>
-                                    ) : (
-                                        <input
-                                            type="text"
-                                            value={newNtsUser[key] || ''}
-                                            onChange={(e) =>
-                                                setNewNtsUser({ ...newNtsUser, [key]: e.target.value })
-                                            }
-                                            className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        />
-                                    )}
-                                </div>
-                            )
+                        {allowedFields.map((key) => (
+                            <div key={key} className="mb-4">
+                                <label className="block text-gray-700">{key}</label>
+                                {key === 'role' ? (
+                                    <select
+                                        value={newNtsUser[key] || 'sales'}
+                                        onChange={(e) =>
+                                            setNewNtsUser({ ...newNtsUser, [key]: e.target.value })
+                                        }
+                                        className="w-full px-3 bg-white py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        <option value="sales">Sales</option>
+                                        <option value="manager">Manager</option>
+                                        <option value="admin">Admin</option>
+                                        <option value="superadmin">Superadmin</option>
+                                    </select>
+                                ) : (
+                                    <input
+                                        type="text"
+                                        value={newNtsUser[key] || ''}
+                                        onChange={(e) =>
+                                            setNewNtsUser({ ...newNtsUser, [key]: e.target.value })
+                                        }
+                                        className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                )}
+                            </div>
                         ))}
                         <div className="mb-4">
                             <label className="block text-gray-700">Password</label>
@@ -151,12 +166,28 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                             />
                         </div>
                         <div className="mb-4">
+                            <label className="block text-gray-700">Company ID</label>
+                            <input
+                                type="text"
+                                value={companyId}
+                                onChange={(e) => setCompanyId(e.target.value)}
+                                className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                        <div className="mb-4">
                             <label className="block text-gray-700">Profile Picture</label>
                             <input
                                 type="file"
                                 onChange={(e) => setProfilePicture(e.target.files ? e.target.files[0] : null)}
                                 className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
+                            {profilePicture && (
+                                <img
+                                    src={URL.createObjectURL(profilePicture)}
+                                    alt="Profile Preview"
+                                    className="mt-2 w-32 h-32 object-cover rounded-full"
+                                />
+                            )}
                         </div>
                     </div>
                     <div className="flex justify-end mt-4">

@@ -1157,6 +1157,10 @@ body:is(.dark *) {
   height: 100vh;
 }
 
+.h-32 {
+  height: 8rem;
+}
+
 .max-h-40 {
   max-height: 10rem;
 }
@@ -1320,6 +1324,10 @@ body:is(.dark *) {
 .w-min {
   width: -moz-min-content;
   width: min-content;
+}
+
+.w-32 {
+  width: 8rem;
 }
 
 .min-w-\[8rem\] {
@@ -2145,6 +2153,11 @@ body:is(.dark *) {
 .object-contain {
   -o-object-fit: contain;
      object-fit: contain;
+}
+
+.object-cover {
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 
 .object-center {
@@ -4429,6 +4442,10 @@ main:is(.dark *) {
 
   .md\:gap-6 {
     gap: 1.5rem;
+  }
+
+  .md\:gap-8 {
+    gap: 2rem;
   }
 
   .md\:p-4 {

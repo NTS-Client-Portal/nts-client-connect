@@ -48,12 +48,12 @@ const SalesLayout: React.FC<SalesLayoutProps> = ({ children }) => {
                 <SalesTopNav session={session} />
             </div>
             <main className="ml-0 mt-32 md:mt-20 xl:ml-52 p-4 z-0 relative">
-                {userProfile && session && (
+                {/* {userProfile && session && (
                     <ChatRequestListener />
                 )}
                 <Link className="body-btn" href="/nts/sales/chat-requests">
                     View All Chat Requests
-                </Link>
+                </Link> */}
                 {children}
             </main>
         </div>

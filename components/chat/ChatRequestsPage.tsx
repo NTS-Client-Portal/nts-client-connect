@@ -175,9 +175,9 @@ const ChatRequestsPage: React.FC = () => {
     };
 
     return (
-        <div className="container mx-auto p-4 flex">
+        <div className="container mx-auto p-4 flex md:gap-8">
             <div className='flex flex-col gap-4'>
-                <div className="p-4 bg-white dark:bg-zinc-900 rounded-lg shadow-lg">
+                <div className="p-4 bg-white w-full dark:bg-zinc-900 rounded-lg shadow-lg">
                     <h2 className="text-xl font-bold mb-4">Assigned Shippers</h2>
                     <input
                         type="text"
@@ -195,12 +195,12 @@ const ChatRequestsPage: React.FC = () => {
                         <tbody>
                             {filteredCompanies.map(company => (
                                 <React.Fragment key={company.id}>
-                                    <span className='border-b border-gray-300'>
+                                    <span className='border-b border-gray-300 w-full'>
                                         <tr className=" gap-2 py-2 px-1 bg-ntsBlue hover:bg-slate-400 divide-2 border border-y-zinc-300 text-white  text-start text-sm font-semibold flex flex-nowrap text-nowrap"><strong>Company: </strong>{company.company_name}
                                         </tr>
                                         {getProfilesForCompany(company.id).map(profile => (
                                             <tr key={profile.id} className="flex flex-col gap-2 py-2 px-1 hover:bg-gray-100 divide-2 border border-y-zinc-300 text-start text-sm font-semibold">
-                                                <div className="flex justify-between items-center">
+                                                <div className="flex justify-between gap-4 items-center">
                                                     <span>{profile.first_name} {profile.last_name} {profile.email}</span>
                                                     <button className="body-btn" onClick={() => handleRequestChat(profile)}>Request Chat</button>
                                                 </div>
@@ -213,10 +213,11 @@ const ChatRequestsPage: React.FC = () => {
                     </table>
                 </div>
                 <div className=" p-4">
-                    <h1 className="text-2xl font-bold mb-4">Chat Requests</h1>
+                    <h1 className="text-2xl font-bold mb-2 text-zinc-900 underline">Chat Requests</h1>
                     <ul>
-                        {chatRequests.map((request) => (
-                            <li key={request.id} className="mb-4 p-4 bg-white dark:bg-zinc-900 rounded-lg shadow-lg">
+                     {chatRequests && chatRequests.length > 0 ? (
+                        chatRequests.map((request) => (
+                        <li key={request.id} className="mb-4 p-4 bg-white dark:bg-zinc-900 rounded-lg shadow-lg">
                                 <p><strong>Topic:</strong> {request.topic}</p>
                                 <p><strong>Priority:</strong> {request.priority}</p>
                                 <p><strong>Shipper ID:</strong> {request.shipper_id}</p>
@@ -226,8 +227,11 @@ const ChatRequestsPage: React.FC = () => {
                                     <button className='body-btn' onClick={() => handleDeleteChat(request.id)}>Delete</button>
                                 </div>
                             </li>
-                        ))}
-                    </ul>
+                        ))
+                    ) : (
+                        <li className='text-gray-500 italic'>No chat requests found</li>
+                    )}
+                </ul>
                 </div>
             </div>
 
