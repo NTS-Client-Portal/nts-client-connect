@@ -13,8 +13,6 @@ const NtsLogin = () => {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-    const [resendLoading, setResendLoading] = useState(false);
-    const [resendSuccess, setResendSuccess] = useState(false);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -34,7 +32,7 @@ const NtsLogin = () => {
             const user = data.user;
             if (user) {
                 if (!user.email_confirmed_at) {
-                    setError('Email not confirmed. Please check your email for the confirmation link.');
+                    router.push(`/nts/verify-otp?email=${user.email}`);
                     return;
                 }
 
@@ -56,28 +54,6 @@ const NtsLogin = () => {
                 }
             }
         }
-    };
-
-    const handleResendOtp = async () => {
-        setResendLoading(true);
-        setResendSuccess(false);
-        setError(null);
-
-        const { error } = await supabase.auth.resend({
-            type: 'signup',
-            email,
-            options: {
-                emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}`
-            }
-        });
-
-        if (error) {
-            setError(error.message);
-        } else {
-            setResendSuccess(true);
-        }
-
-        setResendLoading(false);
     };
 
     const togglePasswordVisibility = () => {
@@ -135,18 +111,6 @@ const NtsLogin = () => {
                         Reset Password
                     </Link>
                 </div>
-                {error && error.includes('Email not confirmed') && (
-                    <div className="mt-4 text-center">
-                        <button
-                            onClick={handleResendOtp}
-                            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-                            disabled={resendLoading}
-                        >
-                            {resendLoading ? 'Resending...' : 'Resend OTP'}
-                        </button>
-                        {resendSuccess && <div className="text-green-500 mt-2">OTP resent successfully!</div>}
-                    </div>
-                )}
             </div>
         </div>
     );
