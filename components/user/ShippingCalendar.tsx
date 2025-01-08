@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Calendar, momentLocalizer, Event as BigCalendarEvent } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { supabase } from '@/lib/initSupabase';
 import { Database } from '@/lib/database.types';
 import { useRouter } from 'next/router';
-import { stat } from 'fs';
+import { useSession } from '@supabase/auth-helpers-react';
 
 type ShippingCalendarProps = {
     // Add props here if needed
@@ -48,35 +48,57 @@ const ShippingCalendar: React.FC<ShippingCalendarProps> = () => {
     const [events, setEvents] = useState<Event[]>([]);
     const [errorText, setErrorText] = useState<string>('');
     const router = useRouter();
+    const session = useSession();
+
+    const fetchSchedulesForCompany = useCallback(async (companyId: string) => {
+        const { data: schedules, error } = await supabase
+            .from('shippingquotes')
+            .select('id, earliest_pickup_date, latest_pickup_date, origin_city, origin_state, destination_city, destination_state, brokers_status')
+            .eq('company_id', companyId)
+            .eq('status', 'Order')
+            .or('is_complete.is.null,is_complete.eq.false')
+            .or('is_archived.is.null,is_archived.eq.false');
+
+        if (error) {
+            console.error('Error fetching schedules:', error.message);
+            setErrorText('Error fetching schedules');
+            return [];
+        }
+
+        return schedules;
+    }, []);
 
     useEffect(() => {
         const fetchSchedules = async () => {
-            try {
-                // Fetch schedules with status 'Order'
-                const { data: schedules, error } = await supabase
-                    .from('shippingquotes')
-                    .select('id, earliest_pickup_date, latest_pickup_date, origin_city, origin_state, destination_city, destination_state, brokers_status')
-                    .eq('status', 'Order')
-                    .or('is_complete.is.null,is_complete.eq.false')
-                    .or('is_archived.is.null,is_archived.eq.false');
+            if (!session?.user?.id) return;
 
-                if (error) {
-                    setErrorText(error.message);
-                    console.error('Error fetching schedules:', error.message);
-                    return;
-                }
+            // Fetch the user's profile
+            const { data: userProfile, error: userProfileError } = await supabase
+                .from("profiles")
+                .select("company_id")
+                .eq("id", session.user.id)
+                .single();
 
-                console.log('Fetched schedules:', schedules); // Debugging log
-
-                setSchedules(schedules.filter(schedule => schedule.id !== null && schedule.earliest_pickup_date !== null && schedule.latest_pickup_date !== null) as Schedule[]);
-            } catch (error) {
-                console.error('Error fetching schedules:', error);
-                setErrorText('Error fetching schedules');
+            if (userProfileError) {
+                console.error("Error fetching user profile:", userProfileError.message);
+                setErrorText('Error fetching user profile');
+                return;
             }
+
+            if (!userProfile) {
+                console.error("No profile found for user");
+                setErrorText('No profile found for user');
+                return;
+            }
+
+            const companyId = userProfile.company_id;
+            const schedulesData = await fetchSchedulesForCompany(companyId);
+
+            setSchedules(schedulesData.filter(schedule => schedule.id !== null && schedule.earliest_pickup_date !== null && schedule.latest_pickup_date !== null) as Schedule[]);
         };
 
         fetchSchedules();
-    }, []);
+    }, [session, fetchSchedulesForCompany]);
 
     useEffect(() => {
         // Convert schedules to events for the calendar
@@ -98,8 +120,6 @@ const ShippingCalendar: React.FC<ShippingCalendarProps> = () => {
     const handleSelectEvent = (event: Event) => {
         router.push(`/user/logistics-management?tab=orders&searchTerm=${event.id}&searchColumn=id`);
     };
-
-    
 
     return (
         <div className="px-4">
