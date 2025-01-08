@@ -24,7 +24,7 @@ const withNtsUser = (WrappedComponent: React.FC) => {
                 const { data, error } = await supabase
                     .from('nts_users')
                     .select('id')
-                    .eq('auth_uid', session.user.id)
+                    .eq('id', session.user.id)
                     .single();
 
                 if (error) {
