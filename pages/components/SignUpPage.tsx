@@ -24,6 +24,8 @@ export default function SignUpPage() {
     const [userType, setUserType] = useState('company');
     const [currentStep, setCurrentStep] = useState(1);
     const [companyId, setCompanyId] = useState<string | null>(null);
+    const [resendLoading, setResendLoading] = useState(false);
+    const [resendSuccess, setResendSuccess] = useState(false);
 
     const validatePassword = (password: string): boolean => {
         const hasLowercase = /[a-z]/.test(password);
@@ -107,6 +109,28 @@ export default function SignUpPage() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleResendOtp = async () => {
+        setResendLoading(true);
+        setResendSuccess(false);
+        setError(null);
+
+        const { error } = await supabase.auth.resend({
+            type: 'signup',
+            email,
+            options: {
+                emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}`
+            }
+        });
+
+        if (error) {
+            setError(error.message);
+        } else {
+            setResendSuccess(true);
+        }
+
+        setResendLoading(false);
     };
 
     const handleCompleteProfile = async () => {
@@ -397,6 +421,15 @@ export default function SignUpPage() {
                                                 >
                                                     {loading ? 'Verifying OTP...' : 'Verify OTP'}
                                                 </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={handleResendOtp}
+                                                    className="w-full mt-4 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition duration-200"
+                                                    disabled={resendLoading}
+                                                >
+                                                    {resendLoading ? 'Resending...' : 'Resend OTP'}
+                                                </button>
+                                                {resendSuccess && <div className="text-green-500 mt-2">OTP resent successfully!</div>}
                                             </form>
                                         )}
                                         {currentStep === 3 && companyId && (

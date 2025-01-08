@@ -23,6 +23,8 @@ export default function SignUpPage() {
     const [success, setSuccess] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
     const [profilePicture, setProfilePicture] = useState<File | null>(null);
+    const [resendLoading, setResendLoading] = useState(false);
+    const [resendSuccess, setResendSuccess] = useState(false);
 
     const validatePassword = (password: string): boolean => {
         const hasLowercase = /[a-z]/.test(password);
@@ -80,21 +82,21 @@ export default function SignUpPage() {
         e.preventDefault();
         setLoading(true);
         setError(null);
-    
+
         try {
             const { error } = await supabase.auth.verifyOtp({
                 email,
                 token: otp,
                 type: 'signup',
             });
-    
+
             if (error) {
                 throw new Error(error.message);
             }
-    
+
             // Complete profile setup
             await handleCompleteProfile();
-    
+
             setSuccess(true);
             setCurrentStep(3); // Move to the next step
         } catch (error) {
@@ -106,6 +108,28 @@ export default function SignUpPage() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleResendOtp = async () => {
+        setResendLoading(true);
+        setResendSuccess(false);
+        setError(null);
+
+        const { error } = await supabase.auth.resend({
+            type: 'signup',
+            email,
+            options: {
+                emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}`
+            }
+        });
+
+        if (error) {
+            setError(error.message);
+        } else {
+            setResendSuccess(true);
+        }
+
+        setResendLoading(false);
     };
 
     const handleCompleteProfile = async () => {
@@ -299,6 +323,15 @@ export default function SignUpPage() {
                         >
                             {loading ? 'Verifying OTP...' : 'Verify OTP'}
                         </button>
+                        <button
+                            type="button"
+                            onClick={handleResendOtp}
+                            className="w-full mt-4 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition duration-200"
+                            disabled={resendLoading}
+                        >
+                            {resendLoading ? 'Resending...' : 'Resend OTP'}
+                        </button>
+                        {resendSuccess && <div className="text-green-500 mt-2">OTP resent successfully!</div>}
                     </form>
                 )}
                 {currentStep === 3 && (
