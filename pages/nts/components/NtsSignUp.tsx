@@ -15,17 +15,13 @@ export default function SignUpPage() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
-    const [companyName, setCompanyName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [industry, setIndustry] = useState('');
     const [otp, setOtp] = useState('');
     const [generatedOtp, setGeneratedOtp] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
-    const [userType, setUserType] = useState('company');
     const [currentStep, setCurrentStep] = useState(1);
-    const [companyId, setCompanyId] = useState<string | null>(null);
     const [profilePicture, setProfilePicture] = useState<File | null>(null);
 
     const validatePassword = (password: string): boolean => {
@@ -134,7 +130,7 @@ export default function SignUpPage() {
                         first_name: firstName,
                         last_name: lastName,
                         phone_number: phoneNumber,
-                        company_id: process.env.NEXT_PUBLIC_NTS_COMPANY_ID,
+                        company_id: process.env.NEXT_PUBLIC_NTS_COMPANYID,
                         role: 'sales',
                         profile_picture: profilePictureUrl,
                     });
@@ -210,31 +206,11 @@ export default function SignUpPage() {
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="block text-gray-700">Company Name</label>
-                            <input
-                                type="text"
-                                value={companyName}
-                                onChange={(e) => setCompanyName(e.target.value)}
-                                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                required
-                            />
-                        </div>
-                        <div className="mb-4">
                             <label className="block text-gray-700">Phone Number</label>
                             <input
                                 type="text"
                                 value={phoneNumber}
                                 onChange={(e) => setPhoneNumber(e.target.value)}
-                                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                required
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700">Industry</label>
-                            <input
-                                type="text"
-                                value={industry}
-                                onChange={(e) => setIndustry(e.target.value)}
                                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 required
                             />
