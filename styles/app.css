@@ -2701,6 +2701,11 @@ body:is(.dark *) {
   color: rgb(9 9 11 / var(--tw-text-opacity, 1));
 }
 
+.text-slate-600 {
+  --tw-text-opacity: 1;
+  color: rgb(71 85 105 / var(--tw-text-opacity, 1));
+}
+
 .underline {
   text-decoration-line: underline;
 }

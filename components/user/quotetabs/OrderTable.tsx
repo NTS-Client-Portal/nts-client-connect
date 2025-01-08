@@ -158,15 +158,15 @@ const OrderTable: React.FC<OrderTableProps> = ({
     function getStatusClasses(status: string): string {
         switch (status) {
             case 'In Progress':
-                return 'text-blue-500';
+                return 'text-yellow-500';
             case 'Dispatched':
-                return 'text-purple-500';
+                return 'text-slate-600';
             case 'Picked Up':
                 return 'text-orange-500';
             case 'Delivered':
-                return 'text-green-500';
+                return 'text-emerald-600';
             case 'Completed':
-                return 'text-gray-500';
+                return 'text-green-500';
             case 'Cancelled':
                 return 'text-red-500';
             default:
