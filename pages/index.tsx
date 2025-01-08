@@ -6,11 +6,6 @@ import Link from 'next/link';
 import CustomSignInForm from '@/components/CustomSignInForm';
 import { MoveHorizontal } from 'lucide-react';
 import Layout from './components/Layout';
-import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
-import { NtsUsersProvider } from '@/context/NtsUsersContext';
-import ShipperDash from '@/components/user/ShipperDash';
-import QuoteRequest from '@/components/user/QuoteRequest';
-import UserLayout from '@/pages/components/UserLayout';
 import Image from 'next/image';
 
 interface UserProfile {
@@ -35,10 +30,9 @@ const LoginPage = () => {
   const session = useSession();
   const supabase = useSupabaseClient();
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
@@ -83,30 +77,30 @@ const LoginPage = () => {
     checkUserRole();
   }, [session, router, supabase]);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleResendOtp = async () => {
+    setResendLoading(true);
+    setResendSuccess(false);
     setError(null);
-    setLoading(true);
 
-    const emailDomain = email.split('@')[1];
-    if (emailDomain === 'ntslogistics.com' || emailDomain === 'nationwidetransportservices.com') {
-      setError('Emails from ntslogistics.com or nationwidetransportservices.com are not allowed.');
-      setLoading(false);
-      return;
-    }
+    if (session?.user?.email) {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: session.user.email,
+        options: {
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}`
+        }
+      });
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    setLoading(false);
-
-    if (error) {
-      setError('Invalid email or password');
+      if (error) {
+        setError(error.message);
+      } else {
+        setResendSuccess(true);
+      }
     } else {
-      router.push('/user/logistics-management');
+      setError('No email found for the current session.');
     }
+
+    setResendLoading(false);
   };
 
   if (!session) {
@@ -147,38 +141,7 @@ const LoginPage = () => {
                   Sign In
                 </span>
                 <div className="mt-4">
-                  <form onSubmit={handleLogin}>
-                    {error && <div className="text-red-500 mb-4">{error}</div>}
-                    <div className="mb-4">
-                      <label htmlFor="email" className="block text-gray-700">Email</label>
-                      <input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label htmlFor="password" className="block text-gray-700">Password</label>
-                      <input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200"
-                      disabled={loading}
-                    >
-                      {loading ? 'Logging in...' : 'Login'}
-                    </button>
-                  </form>
+                  <CustomSignInForm />
                 </div>
                 <div className="mt-4 text-center">
                   <p>Don&apos;t have an account?</p>
@@ -202,6 +165,42 @@ const LoginPage = () => {
           </div>
         </div>
       </>
+    );
+  }
+
+  if (!session.user.email_confirmed_at) {
+    return (
+      <Layout>
+        <Head>
+          <title>NTS Client Portal</title>
+          <meta name="description" content="Welcome to SSTA Reminders & Tasks" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <link rel="icon" href="/hc-28.png" />
+        </Head>
+        <div className="w-full h-full bg-200">
+          <div className="min-w-full min-h-screen flex items-center justify-center">
+            <div className="w-full h-full flex justify-center items-center p-4">
+              <div className="w-full h-full sm:h-auto sm:w-2/5 max-w-sm p-5 bg-white shadow flex flex-col text-base">
+                <span className="font-sans text-4xl text-center pb-2 mb-1 border-b mx-4 align-center">
+                  Verify Your Email
+                </span>
+                <div className="mt-4 text-center">
+                  <p>Please verify your email address to access the application.</p>
+                  <button
+                    onClick={handleResendOtp}
+                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+                    disabled={resendLoading}
+                  >
+                    {resendLoading ? 'Resending...' : 'Resend OTP'}
+                  </button>
+                  {resendSuccess && <div className="text-green-500 mt-2">OTP resent successfully!</div>}
+                  {error && <div className="text-red-500 mt-2">{error}</div>}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Layout>
     );
   }
 
