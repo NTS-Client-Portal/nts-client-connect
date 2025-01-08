@@ -17,6 +17,7 @@ export default function SignUpPage() {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [extension, setExtension] = useState('');
     const [office, setOffice] = useState('');
+    const [otp, setOtp] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -66,11 +67,36 @@ export default function SignUpPage() {
                 throw new Error(error.message);
             }
 
+            setSuccess(true);
+            setCurrentStep(2); // Move to the OTP verification step
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleVerifyOtp = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+
+        try {
+            const { error } = await supabase.auth.verifyOtp({
+                email,
+                token: otp,
+                type: 'signup',
+            });
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
             // Complete profile setup
             await handleCompleteProfile();
 
             setSuccess(true);
-            setCurrentStep(2); // Move to the next step
+            setCurrentStep(3); // Move to the next step
         } catch (error) {
             setError(error.message);
         } finally {
@@ -249,9 +275,32 @@ export default function SignUpPage() {
                     </form>
                 )}
                 {currentStep === 2 && (
+                    <form onSubmit={handleVerifyOtp}>
+                        <h2 className="text-2xl font-semibold mb-6">Verify OTP</h2>
+                        {error && <div className="text-red-500 mb-4">{error}</div>}
+                        <div className="mb-4">
+                            <label className="block text-gray-700">Enter OTP</label>
+                            <input
+                                type="text"
+                                value={otp}
+                                onChange={(e) => setOtp(e.target.value)}
+                                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+                            disabled={loading}
+                        >
+                            {loading ? 'Verifying OTP...' : 'Verify OTP'}
+                        </button>
+                    </form>
+                )}
+                {currentStep === 3 && (
                     <div>
                         <h2 className="text-2xl font-semibold mb-6">Sign Up Successful</h2>
-                        <p className="mb-4">Please check your email to verify your account.</p>
+                        <p className="mb-4">Your account has been created successfully.</p>
                         <Link href="nts/login">
                             <a className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 text-center block">
                                 Go to Login
