@@ -16,6 +16,8 @@ export default function SignUpPage() {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
+    const [extension, setExtension] = useState('');
+    const [office, setOffice] = useState('');
     const [otp, setOtp] = useState('');
     const [generatedOtp, setGeneratedOtp] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -130,6 +132,8 @@ export default function SignUpPage() {
                         first_name: firstName,
                         last_name: lastName,
                         phone_number: phoneNumber,
+                        extension: extension,
+                        office: office,
                         company_id: process.env.NEXT_PUBLIC_NTS_COMPANYID,
                         role: 'sales',
                         profile_picture: profilePictureUrl,
@@ -205,15 +209,43 @@ export default function SignUpPage() {
                                 required
                             />
                         </div>
+                        <div className="mb-4 grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-gray-700">Phone Number</label>
+                                <input
+                                    type="text"
+                                    value={phoneNumber}
+                                    onChange={(e) => setPhoneNumber(e.target.value)}
+                                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-gray-700">Extension</label>
+                                <input
+                                    type="text"
+                                    value={extension}
+                                    onChange={(e) => setExtension(e.target.value)}
+                                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+                        </div>
                         <div className="mb-4">
-                            <label className="block text-gray-700">Phone Number</label>
-                            <input
-                                type="text"
-                                value={phoneNumber}
-                                onChange={(e) => setPhoneNumber(e.target.value)}
+                            <label className="block text-gray-700">Office</label>
+                            <select
+                                value={office}
+                                onChange={(e) => setOffice(e.target.value)}
                                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 required
-                            />
+                            >
+                                <option value="">Select Office</option>
+                                <option value="Fort Lauderdale">Fort Lauderdale</option>
+                                <option value="West Palm Beach">West Palm Beach</option>
+                                <option value="Orlando">Orlando</option>
+                                <option value="Fort Myers">Fort Myers</option>
+                                <option value="Tampa">Tampa</option>
+                                <option value="Kentucky">Kentucky</option>
+                            </select>
                         </div>
                         <div className="mb-4">
                             <label className="block text-gray-700">Profile Picture</label>

@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/initSupabase';
+import { Eye, EyeOff } from 'lucide-react';
 
 const SuperadminLogin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
@@ -61,18 +63,24 @@ const SuperadminLogin = () => {
                         className="mt-1 block w-full p-1 rounded-md border border-gray-300 shadow-md focus:border-ntsLightBlue focus:ring focus:ring-ntsLightBlue focus:ring-opacity-50"
                     />
                 </div>
-                <div className="mb-4">
+                <div className="mb-4 relative">
                     <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                         Password
                     </label>
                     <input
-                        type="password"
+                        type={showPassword ? 'text' : 'password'}
                         id="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         className="mt-1 block w-full py-1 rounded-md border border-gray-300 shadow-sm focus:border-ntsLightBlue focus:ring focus:ring-ntsLightBlue focus:ring-opacity-50"
                     />
+                    <div
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                        onClick={() => setShowPassword(!showPassword)}
+                    >
+                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </div>
                 </div>
                 <button
                     type="submit"
