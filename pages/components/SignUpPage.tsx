@@ -5,7 +5,6 @@ import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { v4 as uuidv4 } from 'uuid';
 import InviteUserForm from '@/components/user/InviteUserForm';
-import { sendOtpEmail } from '@/lib/sendOtpEmail';
 
 export default function SignUpPage() {
     const supabase = useSupabaseClient();
@@ -18,8 +17,6 @@ export default function SignUpPage() {
     const [companyName, setCompanyName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [industry, setIndustry] = useState('');
-    const [otp, setOtp] = useState('');
-    const [generatedOtp, setGeneratedOtp] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -34,13 +31,7 @@ export default function SignUpPage() {
         return hasLowercase && hasUppercase && hasDigit;
     };
 
-    const generateOtp = () => {
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        setGeneratedOtp(otp);
-        return otp;
-    };
-
-    const handleSendOtp = async (e: React.FormEvent) => {
+    const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
@@ -58,43 +49,26 @@ export default function SignUpPage() {
         }
 
         try {
-            const otp = generateOtp();
-            await sendOtpEmail(email, otp); // Use the sendOtpEmail function
-
-            setCurrentStep(2); // Move to the OTP verification step
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleVerifyOtp = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
-
-        if (otp !== generatedOtp) {
-            setError('Invalid OTP');
-            setLoading(false);
-            return;
-        }
-
-        try {
             const { error } = await supabase.auth.signUp({
                 email,
                 password,
+                options: {
+                    data: {
+                        first_name: firstName,
+                        last_name: lastName,
+                        phone_number: phoneNumber,
+                        company_name: companyName,
+                        industry: industry,
+                    },
+                },
             });
 
             if (error) {
                 throw new Error(error.message);
             }
 
-            // Complete profile setup
-            await handleCompleteProfile();
-
             setSuccess(true);
-            setCurrentStep(3); // Move to the next step
+            setCurrentStep(2); // Move to the next step
         } catch (error) {
             setError(error.message);
         } finally {
@@ -241,7 +215,7 @@ export default function SignUpPage() {
                                 ) : (
                                     <>
                                         {currentStep === 1 && (
-                                            <form className="mt-4" onSubmit={handleSendOtp}>
+                                            <form className="mt-4" onSubmit={handleSignUp}>
                                                 <div className="mb-4">
                                                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Are you signing up as a company or an individual?</label>
                                                     <div className="flex gap-2 mt-2">
@@ -365,30 +339,14 @@ export default function SignUpPage() {
                                                     className="w-full body-btn mt-12"
                                                     disabled={loading}
                                                 >
-                                                    {loading ? 'Sending OTP...' : 'Send OTP'}
+                                                    {loading ? 'Signing Up...' : 'Sign Up'}
                                                 </button>
                                             </form>
                                         )}
                                         {currentStep === 2 && (
-                                            <form className="mt-4" onSubmit={handleVerifyOtp}>
-                                                <label htmlFor="otp" className="mt-4">Enter OTP</label>
-                                                <input
-                                                    type="text"
-                                                    id="otp"
-                                                    value={otp}
-                                                    onChange={(e) => setOtp(e.target.value)}
-                                                    required
-                                                    className="w-full p-2 mb-6 border rounded"
-                                                    disabled={loading}
-                                                />
-                                                <button
-                                                    type="submit"
-                                                    className="w-full body-btn mt-12"
-                                                    disabled={loading}
-                                                >
-                                                    {loading ? 'Verifying OTP...' : 'Verify OTP'}
-                                                </button>
-                                            </form>
+                                            <div className="text-green-500 text-center mb-4 border border-zinc-900 p-4 rounded">
+                                                Your sign up was successful! Please check your email to confirm your account. Make sure to check your spam or junk folder if you don&apos;t see it within a few minutes!
+                                            </div>
                                         )}
                                         {currentStep === 3 && companyId && (
                                             <InviteUserForm companyId={companyId} />
