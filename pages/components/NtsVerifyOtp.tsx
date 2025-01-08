@@ -42,7 +42,7 @@ const NtsVerifyOtpPage = () => {
             type: 'signup',
             email: email as string,
             options: {
-                emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}`
+                emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/nts/sales/`
             }
         });
 

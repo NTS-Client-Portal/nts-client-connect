@@ -35,7 +35,10 @@ const LoginPage = () => {
   const session = useSession();
   const supabase = useSupabaseClient();
   const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
@@ -98,6 +101,32 @@ const LoginPage = () => {
     };
   }, [router, supabase]);
 
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    const emailDomain = email.split('@')[1];
+    if (emailDomain === 'ntslogistics.com' || emailDomain === 'nationwidetransportservices.com') {
+      setError('Emails from ntslogistics.com or nationwidetransportservices.com are not allowed.');
+      setLoading(false);
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    setLoading(false);
+
+    if (error) {
+      setError('Invalid email or password');
+    } else {
+      router.push('/user/logistics-management');
+    }
+  };
+
   if (!session) {
     return (
       <>
@@ -136,7 +165,38 @@ const LoginPage = () => {
                   Sign In
                 </span>
                 <div className="mt-4">
-                  <CustomSignInForm />
+                  <form onSubmit={handleLogin}>
+                    {error && <div className="text-red-500 mb-4">{error}</div>}
+                    <div className="mb-4">
+                      <label htmlFor="email" className="block text-gray-700">Email</label>
+                      <input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label htmlFor="password" className="block text-gray-700">Password</label>
+                      <input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+                      disabled={loading}
+                    >
+                      {loading ? 'Logging in...' : 'Login'}
+                    </button>
+                  </form>
                 </div>
                 <div className="mt-4 text-center">
                   <p>Don&apos;t have an account?</p>
