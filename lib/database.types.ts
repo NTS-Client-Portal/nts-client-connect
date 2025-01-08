@@ -1965,19 +1965,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      create_profile: {
-        Args: {
-          email: string
-          first_name: string
-          last_name: string
-          phone_number: string
-          company_name: string
-          company_size: string
-          company_id: string
-          role: string
-        }
-        Returns: undefined
-      }
+      [_ in never]: never
     }
     Enums: {
       balance_payment_method_enum:
