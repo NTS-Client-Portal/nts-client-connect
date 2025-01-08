@@ -52,7 +52,7 @@ export default function SignUpPage() {
         }
 
         try {
-            const { error } = await supabase.auth.signUp({
+            const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
@@ -68,6 +68,22 @@ export default function SignUpPage() {
 
             if (error) {
                 throw new Error(error.message);
+            }
+
+            // Insert profile into the profiles table
+            const user = data.user;
+            if (user) {
+                await supabase
+                    .from('profiles')
+                    .insert({
+                        id: user.id,
+                        email: user.email,
+                        first_name: firstName,
+                        last_name: lastName,
+                        phone_number: phoneNumber,
+                        company_name: companyName,
+                        industry: industry,
+                    });
             }
 
             setSuccess(true);
@@ -156,7 +172,7 @@ export default function SignUpPage() {
                         company_name: string;
                         company_size: string;
                     }>;
-                    if (!existingCompany.assigned_sales_user) updates.assigned_sales_user = '2b5928cc-4f66-4be4-8d76-4eb91c55db00';
+                    if (!existingCompany.assigned_sales_user) updates.assigned_sales_user = '52a7d630-a8cc-48cf-be7d-5188a956e2e5';
                     if (!existingCompany.assigned_at) updates.assigned_at = new Date().toISOString();
                     if (!existingCompany.company_name) updates.company_name = companyName;
                     if (!existingCompany.company_size) updates.company_size = '1-10';
@@ -200,7 +216,27 @@ export default function SignUpPage() {
                     });
                 }
             } else {
+                // Handle individual sign-up
                 companyId = uuidv4();
+                const assignedSalesUserId = '2b5928cc-4f66-4be4-8d76-4eb91c55db00';
+                const assignedAt = new Date().toISOString();
+                const { data: newCompany, error: newCompanyError } = await supabase
+                    .from('companies')
+                    .insert({
+                        id: companyId,
+                        name: `${firstName} ${lastName}`,
+                        company_name: `${firstName} ${lastName}`,
+                        company_size: '1-10',
+                        assigned_sales_user: assignedSalesUserId,
+                        assigned_at: assignedAt,
+                        industry,
+                    })
+                    .select()
+                    .single();
+
+                if (newCompanyError) {
+                    throw new Error(newCompanyError.message);
+                }
             }
 
             setCompanyId(companyId);
