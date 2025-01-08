@@ -190,7 +190,6 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                 const { data: brokerData, error: brokerError } = await supabase
                     .from('company_sales_users')
                     .select('sales_user_id')
-                    .eq('company_id', companyId)
                     .single();
 
                 if (brokerError) {
