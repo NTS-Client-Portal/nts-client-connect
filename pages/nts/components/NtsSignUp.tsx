@@ -2,7 +2,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useRouter } from 'next/router';
-import { sendOtpEmail } from '@/lib/sendOtpEmail';
 import { Eye } from 'lucide-react';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -18,8 +17,6 @@ export default function SignUpPage() {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [extension, setExtension] = useState('');
     const [office, setOffice] = useState('');
-    const [otp, setOtp] = useState('');
-    const [generatedOtp, setGeneratedOtp] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -33,13 +30,7 @@ export default function SignUpPage() {
         return hasLowercase && hasUppercase && hasDigit;
     };
 
-    const generateOtp = () => {
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        setGeneratedOtp(otp);
-        return otp;
-    };
-
-    const handleSendOtp = async (e: React.FormEvent) => {
+    const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
@@ -57,32 +48,18 @@ export default function SignUpPage() {
         }
 
         try {
-            const otp = generateOtp();
-            await sendOtpEmail(email, otp); // Use the sendOtpEmail function
-
-            setCurrentStep(2); // Move to the OTP verification step
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleVerifyOtp = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
-
-        if (otp !== generatedOtp) {
-            setError('Invalid OTP');
-            setLoading(false);
-            return;
-        }
-
-        try {
             const { error } = await supabase.auth.signUp({
                 email,
                 password,
+                options: {
+                    data: {
+                        first_name: firstName,
+                        last_name: lastName,
+                        phone_number: phoneNumber,
+                        extension: extension,
+                        office: office,
+                    },
+                },
             });
 
             if (error) {
@@ -93,7 +70,7 @@ export default function SignUpPage() {
             await handleCompleteProfile();
 
             setSuccess(true);
-            setCurrentStep(3); // Move to the next step
+            setCurrentStep(2); // Move to the next step
         } catch (error) {
             setError(error.message);
         } finally {
@@ -156,7 +133,7 @@ export default function SignUpPage() {
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
             <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
                 {currentStep === 1 && (
-                    <form onSubmit={handleSendOtp}>
+                    <form onSubmit={handleSignUp}>
                         <h2 className="text-2xl font-semibold mb-6">Sign Up</h2>
                         {error && <div className="text-red-500 mb-4">{error}</div>}
                         <div className="mb-4">
@@ -267,37 +244,14 @@ export default function SignUpPage() {
                             className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200"
                             disabled={loading}
                         >
-                            {loading ? 'Sending OTP...' : 'Sign Up'}
+                            {loading ? 'Signing Up...' : 'Sign Up'}
                         </button>
                     </form>
                 )}
                 {currentStep === 2 && (
-                    <form onSubmit={handleVerifyOtp}>
-                        <h2 className="text-2xl font-semibold mb-6">Verify OTP</h2>
-                        {error && <div className="text-red-500 mb-4">{error}</div>}
-                        <div className="mb-4">
-                            <label className="block text-gray-700">Enter OTP</label>
-                            <input
-                                type="text"
-                                value={otp}
-                                onChange={(e) => setOtp(e.target.value)}
-                                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                required
-                            />
-                        </div>
-                        <button
-                            type="submit"
-                            className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200"
-                            disabled={loading}
-                        >
-                            {loading ? 'Verifying OTP...' : 'Verify OTP'}
-                        </button>
-                    </form>
-                )}
-                {currentStep === 3 && (
                     <div>
                         <h2 className="text-2xl font-semibold mb-6">Sign Up Successful</h2>
-                        <p className="mb-4">Your account has been created successfully.</p>
+                        <p className="mb-4">Please check your email to verify your account.</p>
                         <Link href="nts/login">
                             <a className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 text-center block">
                                 Go to Login
