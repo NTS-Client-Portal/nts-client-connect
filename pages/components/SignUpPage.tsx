@@ -38,19 +38,19 @@ export default function SignUpPage() {
         e.preventDefault();
         setLoading(true);
         setError(null);
-    
+
         if (password !== confirmPassword) {
             setError('Passwords do not match');
             setLoading(false);
             return;
         }
-    
+
         if (!validatePassword(password)) {
             setError('Password must contain at least one lowercase letter, one uppercase letter, and one digit');
             setLoading(false);
             return;
         }
-    
+
         try {
             const { data, error } = await supabase.auth.signUp({
                 email,
@@ -61,15 +61,14 @@ export default function SignUpPage() {
                         last_name: lastName,
                         phone_number: phoneNumber,
                         company_name: companyName,
-                        industry: industry,
                     },
                 },
             });
-    
+
             if (error) {
                 throw new Error(error.message);
             }
-    
+
             // Insert profile into the profiles table
             const user = data.user;
             if (user) {
@@ -85,7 +84,7 @@ export default function SignUpPage() {
                         industry: industry,
                     });
             }
-    
+
             setSuccess(true);
             setCurrentStep(2); // Move to the OTP verification step
         } catch (error) {
@@ -94,26 +93,26 @@ export default function SignUpPage() {
             setLoading(false);
         }
     };
-    
+
     const handleVerifyOtp = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
-    
+
         try {
             const { error } = await supabase.auth.verifyOtp({
                 email,
                 token: otp,
                 type: 'signup',
             });
-    
+
             if (error) {
                 throw new Error(error.message);
             }
-    
+
             // Complete profile setup
             await handleCompleteProfile();
-    
+
             setSuccess(true);
             setCurrentStep(3); // Move to the next step
         } catch (error) {
@@ -136,7 +135,7 @@ export default function SignUpPage() {
             type: 'signup',
             email,
             options: {
-                emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}`
+                emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/verify-otp`
             }
         });
 
@@ -158,14 +157,14 @@ export default function SignUpPage() {
                     .select('*')
                     .eq('name', companyName)
                     .single();
-    
+
                 if (companyError && companyError.code !== 'PGRST116') {
                     throw new Error(companyError.message);
                 }
-    
+
                 if (existingCompany) {
                     companyId = existingCompany.id;
-    
+
                     const updates = {} as Partial<{
                         assigned_sales_user: string;
                         assigned_at: string;
@@ -176,13 +175,13 @@ export default function SignUpPage() {
                     if (!existingCompany.assigned_at) updates.assigned_at = new Date().toISOString();
                     if (!existingCompany.company_name) updates.company_name = companyName;
                     if (!existingCompany.company_size) updates.company_size = '1-10';
-    
+
                     if (Object.keys(updates).length > 0) {
                         const { error: updateCompanyError } = await supabase
                             .from('companies')
                             .update(updates)
                             .eq('id', companyId);
-    
+
                         if (updateCompanyError) {
                             throw new Error(updateCompanyError.message);
                         }
@@ -204,11 +203,11 @@ export default function SignUpPage() {
                         })
                         .select()
                         .single();
-    
+
                     if (newCompanyError) {
                         throw new Error(newCompanyError.message);
                     }
-    
+
                     // Call the Netlify Function to assign the sales user
                     await fetch('/.netlify/functions/assign-sales-user', {
                         method: 'POST',
@@ -233,14 +232,14 @@ export default function SignUpPage() {
                     })
                     .select()
                     .single();
-    
+
                 if (newCompanyError) {
                     throw new Error(newCompanyError.message);
                 }
             }
-    
+
             setCompanyId(companyId);
-    
+
             const profileId = uuidv4();
             const { error } = await supabase
                 .from('profiles')
@@ -256,11 +255,11 @@ export default function SignUpPage() {
                     team_role: 'manager',
                     industry,
                 });
-    
+
             if (error) {
                 throw new Error(error.message);
             }
-    
+
             setSuccess(true);
         } catch (error) {
             setError(error.message);
