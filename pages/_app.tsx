@@ -16,7 +16,6 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
-  const isNtsRoute = router.pathname.startsWith('/nts');
   const session = useSession();
   const supabaseClient = useSupabaseClient();
 
@@ -39,7 +38,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <SessionContextProvider supabaseClient={supabase} initialSession={pageProps.initialSession}>
       <DocumentNotificationProvider>
         <ChatProvider>
-          {isNtsRoute ? (
+          {router.pathname.startsWith('/nts') ? (
             <NtsUsersProvider>
               <Component {...pageProps} />
             </NtsUsersProvider>
