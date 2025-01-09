@@ -2,11 +2,9 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/initSupabase';
 import { GetServerSideProps } from 'next';
-import { useNtsUsers } from '@/context/NtsUsersContext';
 
 const MagicLink = ({ email, token }: { email: string; token: string }) => {
     const router = useRouter();
-    const { userProfile, loading: ntsLoading, error: ntsError } = useNtsUsers();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -25,14 +23,21 @@ const MagicLink = ({ email, token }: { email: string; token: string }) => {
                 setError(error.message);
                 console.error('Error verifying OTP:', error.message);
             } else {
-                if (userProfile) {
-                    console.log('User is an NTS user:', userProfile);
+                // Check if the user is an NTS user
+                const { data: ntsUser, error: ntsUserError } = await supabase
+                    .from('nts_users')
+                    .select('company_id')
+                    .eq('email', email)
+                    .single();
+
+                if (ntsUserError) {
+                    console.log('User is not an NTS user:', ntsUserError.message);
+                    // If the user is not an NTS user, redirect to the login page
+                    router.push('/login');
+                } else {
+                    console.log('User is an NTS user:', ntsUser);
                     // If the user is an NTS user, redirect to the set password page
                     router.push('/nts-set-password');
-                } else {
-                    console.log('User is not an NTS user');
-                    // If the user is not an NTS user, redirect to the user home page
-                    router.push('/user/logistics-management/');
                 }
             }
             setLoading(false);
@@ -41,9 +46,9 @@ const MagicLink = ({ email, token }: { email: string; token: string }) => {
         if (email && token) {
             handleMagicLink();
         }
-    }, [email, token, userProfile]);
+    }, [email, token]);
 
-    if (loading || ntsLoading) {
+    if (loading) {
         return <p>Loading...</p>;
     }
 
@@ -51,7 +56,6 @@ const MagicLink = ({ email, token }: { email: string; token: string }) => {
         <div className="container mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Redirecting...</h1>
             {error && <div className="text-red-500 mb-4">{error}</div>}
-            {ntsError && <div className="text-red-500 mb-4">{ntsError}</div>}
         </div>
     );
 };
