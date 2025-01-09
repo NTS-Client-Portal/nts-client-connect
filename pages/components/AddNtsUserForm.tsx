@@ -19,8 +19,6 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
     const [newNtsUser, setNewNtsUser] = useState<Partial<NtsUser>>({
         role: 'sales', // Set default role here
     });
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
     const [companyId, setCompanyId] = useState(''); // Add companyId state
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -48,14 +46,6 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
             setError('Last name is required');
             return;
         }
-        if (!password) {
-            setError('Password is required');
-            return;
-        }
-        if (password !== confirmPassword) {
-            setError('Passwords do not match');
-            return;
-        }
         if (!companyId) {
             setError('Company ID is required');
             return;
@@ -79,7 +69,28 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                 profilePictureUrl = `${supabaseUrl}/storage/v1/object/public/profile-pictures/${data.path}`;
             }
 
+            // Send magic link email
+            const { error: signInError } = await supabase.auth.signInWithOtp({
+                email: newNtsUser.email,
+                options: {
+                    emailRedirectTo: `${window.location.origin}/magic-link`,
+                },
+            });
+
+            if (signInError) {
+                throw new Error(signInError.message);
+            }
+
+            // Get the user information
+            const { data: userData, error: userError } = await supabase.auth.getUser();
+            if (userError) {
+                throw new Error(userError.message);
+            }
+
+            const { user } = userData;
+
             const { error: insertError } = await supabase.from('nts_users').insert({
+                id: user?.id, // Use the auth ID as the ID in nts_users
                 email: newNtsUser.email,
                 role: newNtsUser.role,
                 first_name: newNtsUser.first_name,
@@ -96,8 +107,6 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
             }
 
             setNewNtsUser({ role: 'sales' }); // Reset form with default role
-            setPassword('');
-            setConfirmPassword('');
             setProfilePicture(null);
             setCompanyId(''); // Reset companyId
             onClose();
@@ -147,24 +156,6 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                                 )}
                             </div>
                         ))}
-                        <div className="mb-4">
-                            <label className="block text-gray-700">Password</label>
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700">Confirm Password</label>
-                            <input
-                                type="password"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                        </div>
                         <div className="mb-4">
                             <label className="block text-gray-700">Company ID</label>
                             <input
