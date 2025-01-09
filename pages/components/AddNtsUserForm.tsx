@@ -107,7 +107,7 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                 email: newNtsUser.email,
                 options: {
                     emailRedirectTo: 'https://shipper-connect.com/magic-link'
-                }
+                },
             });
             
             if (magicLinkError) {
