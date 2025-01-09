@@ -106,7 +106,6 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
             const { error: magicLinkError } = await supabase.auth.signInWithOtp({
                 email: newNtsUser.email,
                 options: {
-                    shouldCreateUser: false,
                     emailRedirectTo: 'https://shipper-connect.com/magic-link'
                 },
             });
