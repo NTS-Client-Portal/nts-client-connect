@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/initSupabase';
+import { GetServerSideProps } from 'next';
 import { useNtsUsers } from '@/context/NtsUsersContext';
 
-const MagicLink = () => {
+const MagicLink = ({ email, token }: { email: string; token: string }) => {
     const router = useRouter();
     const { userProfile, loading: ntsLoading, error: ntsError } = useNtsUsers();
     const [loading, setLoading] = useState(true);
@@ -11,12 +12,12 @@ const MagicLink = () => {
 
     useEffect(() => {
         const handleMagicLink = async () => {
-            console.log('Email:', router.query.email);
-            console.log('Token:', router.query.token);
+            console.log('Email:', email);
+            console.log('Token:', token);
 
             const { error } = await supabase.auth.verifyOtp({
-                email: router.query.email as string,
-                token: router.query.token as string,
+                email,
+                token,
                 type: 'magiclink',
             });
 
@@ -37,10 +38,10 @@ const MagicLink = () => {
             setLoading(false);
         };
 
-        if (router.query.email && router.query.token) {
+        if (email && token) {
             handleMagicLink();
         }
-    }, [router.query.email, router.query.token, userProfile]);
+    }, [email, token, userProfile]);
 
     if (loading || ntsLoading) {
         return <p>Loading...</p>;
@@ -53,6 +54,23 @@ const MagicLink = () => {
             {ntsError && <div className="text-red-500 mb-4">{ntsError}</div>}
         </div>
     );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { email, token } = context.query;
+
+    if (!email || !token) {
+        return {
+            notFound: true,
+        };
+    }
+
+    return {
+        props: {
+            email: email as string,
+            token: token as string,
+        },
+    };
 };
 
 export default MagicLink;
