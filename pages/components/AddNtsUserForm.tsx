@@ -16,12 +16,11 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
     const [newNtsUser, setNewNtsUser] = useState<Partial<NtsUser>>({
         role: 'sales', // Set default role here
     });
-    const [companyId, setCompanyId] = useState(''); // Add companyId state
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [profilePicture, setProfilePicture] = useState<File | null>(null);
 
-    const allowedFields = ['email', 'role', 'first_name', 'last_name', 'phone_number', 'office'];
+    const allowedFields = ['email', 'role', 'first_name', 'last_name', 'phone_number', 'extension', 'office'];
 
     const handleAddNtsUser = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -41,10 +40,6 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
         }
         if (!newNtsUser.last_name) {
             setError('Last name is required');
-            return;
-        }
-        if (!companyId) {
-            setError('Company ID is required');
             return;
         }
 
@@ -85,6 +80,7 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
             }
 
             const userId = uuidv4(); // Generate a unique ID
+            const companyId = process.env.NEXT_PUBLIC_NTS_COMPANYID; // Use the environment variable
 
             const { error: insertError } = await supabase.from('nts_users').insert({
                 id: userId, // Use the generated unique ID
@@ -93,6 +89,7 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                 first_name: newNtsUser.first_name,
                 last_name: newNtsUser.last_name,
                 phone_number: newNtsUser.phone_number,
+                extension: newNtsUser.extension,
                 office: newNtsUser.office,
                 company_id: companyId,
                 profile_picture: profilePictureUrl,
@@ -117,7 +114,6 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
 
             setNewNtsUser({ role: 'sales' });
             setProfilePicture(null);
-            setCompanyId(''); // Reset companyId
             onClose();
             onSuccess();
         } catch (error) {
@@ -153,6 +149,46 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                                         <option value="admin">Admin</option>
                                         <option value="superadmin">Superadmin</option>
                                     </select>
+                                ) : key === 'office' ? (
+                                    <select
+                                        value={newNtsUser[key] || ''}
+                                        onChange={(e) =>
+                                            setNewNtsUser({ ...newNtsUser, [key]: e.target.value })
+                                        }
+                                        className="w-full px-3 bg-white py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        <option value="">Select Office</option>
+                                        <option value="Florence, KY">Florence, KY</option>
+                                        <option value="Fort Lauderdale, FL">Fort Lauderdale, FL</option>
+                                        <option value="Fort Myers, FL">Fort Myers, FL</option>
+                                        <option value="Fort Pierce, FL">Fort Pierce, FL</option>
+                                        <option value="Doral, FL">Doral, FL</option>
+                                        <option value="Orlando, FL">Orlando, FL</option>
+                                        <option value="Tampa, FL">Tampa, FL</option>
+                                        <option value="West Palm Beach, FL">West Palm Beach, FL</option>
+                                        <option value="Jacksonville, FL">Jacksonville, FL</option>
+                                        <option value="Cleveland, Ohio">Cleveland, Ohio</option>
+                                    </select>
+                                ) : key === 'phone_number' ? (
+                                    <div className="flex">
+                                        <input
+                                            type="text"
+                                            value={newNtsUser[key] || ''}
+                                            onChange={(e) =>
+                                                setNewNtsUser({ ...newNtsUser, [key]: e.target.value })
+                                            }
+                                            className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                        <input
+                                            type="text"
+                                            placeholder="Ext"
+                                            value={newNtsUser.extension || ''}
+                                            onChange={(e) =>
+                                                setNewNtsUser({ ...newNtsUser, extension: e.target.value })
+                                            }
+                                            className="w-1/4 bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ml-2"
+                                        />
+                                    </div>
                                 ) : (
                                     <input
                                         type="text"
@@ -165,15 +201,6 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                                 )}
                             </div>
                         ))}
-                        <div className="mb-4">
-                            <label className="block text-gray-700">Company ID</label>
-                            <input
-                                type="text"
-                                value={companyId}
-                                onChange={(e) => setCompanyId(e.target.value)}
-                                className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                        </div>
                         <div className="mb-4">
                             <label className="block text-gray-700">Profile Picture</label>
                             <input
