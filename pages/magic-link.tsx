@@ -18,35 +18,19 @@ const MagicLink = () => {
             if (error) {
                 setError(error.message);
             } else {
-                // Check user type and redirect accordingly
-                const { data, error: userError } = await supabase.auth.getUser();
-                if (userError) {
-                    setError(userError.message);
-                } else if (data.user) {
-                    const { data: ntsUser, error: ntsUserError } = await supabase
-                        .from('nts_users')
-                        .select('company_id')
-                        .eq('email', data.user.email)
-                        .single();
+                // Check if the user is an NTS user
+                const { data: ntsUser, error: ntsUserError } = await supabase
+                    .from('nts_users')
+                    .select('company_id')
+                    .eq('email', router.query.email as string)
+                    .single();
 
-                    if (ntsUserError) {
-                        // If the user is not an NTS user, check if they are in the profiles table
-                        const { data: profile, error: profileError } = await supabase
-                            .from('profiles')
-                            .select('id')
-                            .eq('email', data.user.email)
-                            .single();
-
-                        if (profileError) {
-                            setError(profileError.message);
-                        } else {
-                            // If the user is in the profiles table, redirect to the user home page
-                            router.push('/user/logistics-management/');
-                        }
-                    } else {
-                        // If the user is an NTS user, redirect to the set password page
-                        router.push('/nts-set-password');
-                    }
+                if (ntsUserError) {
+                    // If the user is not an NTS user, redirect to the user home page
+                    router.push('/user/logistics-management/');
+                } else {
+                    // If the user is an NTS user, redirect to the set password page
+                    router.push('/nts-set-password');
                 }
             }
             setLoading(false);
