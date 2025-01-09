@@ -38,19 +38,19 @@ export default function SignUpPage() {
         e.preventDefault();
         setLoading(true);
         setError(null);
-
+    
         if (password !== confirmPassword) {
             setError('Passwords do not match');
             setLoading(false);
             return;
         }
-
+    
         if (!validatePassword(password)) {
             setError('Password must contain at least one lowercase letter, one uppercase letter, and one digit');
             setLoading(false);
             return;
         }
-
+    
         try {
             const { data, error } = await supabase.auth.signUp({
                 email,
@@ -65,11 +65,11 @@ export default function SignUpPage() {
                     },
                 },
             });
-
+    
             if (error) {
                 throw new Error(error.message);
             }
-
+    
             // Insert profile into the profiles table
             const user = data.user;
             if (user) {
@@ -85,7 +85,7 @@ export default function SignUpPage() {
                         industry: industry,
                     });
             }
-
+    
             setSuccess(true);
             setCurrentStep(2); // Move to the OTP verification step
         } catch (error) {
@@ -94,26 +94,26 @@ export default function SignUpPage() {
             setLoading(false);
         }
     };
-
+    
     const handleVerifyOtp = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
-
+    
         try {
             const { error } = await supabase.auth.verifyOtp({
                 email,
                 token: otp,
                 type: 'signup',
             });
-
+    
             if (error) {
                 throw new Error(error.message);
             }
-
+    
             // Complete profile setup
             await handleCompleteProfile();
-
+    
             setSuccess(true);
             setCurrentStep(3); // Move to the next step
         } catch (error) {
