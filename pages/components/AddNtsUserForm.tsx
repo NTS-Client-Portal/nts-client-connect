@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
+import { supabase } from '@/lib/initSupabase';
 import { Database } from '@/lib/database.types';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { v4 as uuidv4 } from 'uuid';
 
 interface AddNtsUserFormProps {
     isOpen: boolean;
@@ -66,41 +63,43 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                     throw new Error(uploadError.message);
                 }
 
-                profilePictureUrl = `${supabaseUrl}/storage/v1/object/public/profile-pictures/${data.path}`;
+                const { publicUrl } = supabase.storage.from('profile-pictures').getPublicUrl(data.path).data;
+                profilePictureUrl = publicUrl;
             }
 
-            // Send magic link email
-            const { error: signInError } = await supabase.auth.signInWithOtp({
-                email: newNtsUser.email,
-                options: {
-                    emailRedirectTo: `${window.location.origin}/magic-link`,
-                },
-            });
+            let userId = uuidv4();
+            let insertError;
 
-            if (signInError) {
-                throw new Error(signInError.message);
+            // Retry logic for unique ID
+            for (let i = 0; i < 5; i++) {
+                const { error: checkError } = await supabase
+                    .from('nts_users')
+                    .select('id')
+                    .eq('id', userId)
+                    .single();
+
+                if (checkError) {
+                    // ID does not exist, proceed with insertion
+                    const { error: insertErr } = await supabase.from('nts_users').insert({
+                        id: userId, // Use the generated unique ID
+                        email: newNtsUser.email,
+                        role: newNtsUser.role,
+                        first_name: newNtsUser.first_name,
+                        last_name: newNtsUser.last_name,
+                        phone_number: newNtsUser.phone_number,
+                        office: newNtsUser.office,
+                        company_id: companyId,
+                        profile_picture: profilePictureUrl,
+                        inserted_at: new Date().toISOString(),
+                    });
+
+                    insertError = insertErr;
+                    if (!insertError) break; // Exit loop if insertion is successful
+                } else {
+                    // ID exists, generate a new one
+                    userId = uuidv4();
+                }
             }
-
-            // Get the user information
-            const { data: userData, error: userError } = await supabase.auth.getUser();
-            if (userError) {
-                throw new Error(userError.message);
-            }
-
-            const { user } = userData;
-
-            const { error: insertError } = await supabase.from('nts_users').insert({
-                id: user?.id, // Use the auth ID as the ID in nts_users
-                email: newNtsUser.email,
-                role: newNtsUser.role,
-                first_name: newNtsUser.first_name,
-                last_name: newNtsUser.last_name,
-                phone_number: newNtsUser.phone_number,
-                office: newNtsUser.office,
-                company_id: companyId,
-                profile_picture: profilePictureUrl,
-                inserted_at: new Date().toISOString(),
-            });
 
             if (insertError) {
                 throw new Error(insertError.message);
