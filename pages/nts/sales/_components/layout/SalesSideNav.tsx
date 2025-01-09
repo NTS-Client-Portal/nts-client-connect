@@ -67,13 +67,13 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                                 </a>
                             </Link>
                         </li>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/nts/sales/central-connect' ? "active" : ""}`}>
+                        {/* <li className={`w-full flex justify-normal m-0 ${router.pathname === '/nts/sales/central-connect' ? "active" : ""}`}>
                             <Link href="/nts/sales/central-connect" legacyBehavior>
                                 <a className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales/central-connect' ? "active" : ""}`}>
                                     <span className='w-full flex items-center text-sm flex-nowrap text-nowrap justify-normal gap-1'><ChevronRightCircle size={'20px'} />CD Connect</span>
                                 </a>
                             </Link>
-                        </li>
+                        </li> */}
                         <li className={`w-full flex justify-normal m-0 ${router.pathname === '/nts/sales/equipment-directory' ? "active" : ""}`}>
                             <Link href="/nts/sales/equipment-directory" legacyBehavior>
                                 <a className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname === '/nts/sales/equipment-directory' ? "active" : ""}`}>
