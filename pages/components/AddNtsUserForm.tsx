@@ -51,6 +51,23 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
         setLoading(true);
 
         try {
+            // Check if email already exists
+            const { data: existingEmailUser, error: existingEmailError } = await supabase
+                .from('nts_users')
+                .select('id')
+                .eq('email', newNtsUser.email)
+                .single();
+
+            if (existingEmailError && existingEmailError.code !== 'PGRST116') {
+                throw new Error(existingEmailError.message);
+            }
+
+            if (existingEmailUser) {
+                setError('Email already exists');
+                setLoading(false);
+                return;
+            }
+
             let profilePictureUrl = null;
 
             if (profilePicture) {
@@ -67,42 +84,31 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                 profilePictureUrl = publicUrl;
             }
 
-            let userId = uuidv4();
-            let insertError;
+            const userId = uuidv4(); // Generate a unique ID
 
-            // Retry logic for unique ID
-            for (let i = 0; i < 5; i++) {
-                const { error: checkError } = await supabase
-                    .from('nts_users')
-                    .select('id')
-                    .eq('id', userId)
-                    .single();
-
-                if (checkError) {
-                    // ID does not exist, proceed with insertion
-                    const { error: insertErr } = await supabase.from('nts_users').insert({
-                        id: userId, // Use the generated unique ID
-                        email: newNtsUser.email,
-                        role: newNtsUser.role,
-                        first_name: newNtsUser.first_name,
-                        last_name: newNtsUser.last_name,
-                        phone_number: newNtsUser.phone_number,
-                        office: newNtsUser.office,
-                        company_id: companyId,
-                        profile_picture: profilePictureUrl,
-                        inserted_at: new Date().toISOString(),
-                    });
-
-                    insertError = insertErr;
-                    if (!insertError) break; // Exit loop if insertion is successful
-                } else {
-                    // ID exists, generate a new one
-                    userId = uuidv4();
-                }
-            }
-
+            const { error: insertError } = await supabase.from('nts_users').insert({
+                id: userId, // Use the generated unique ID
+                email: newNtsUser.email,
+                role: newNtsUser.role,
+                first_name: newNtsUser.first_name,
+                last_name: newNtsUser.last_name,
+                phone_number: newNtsUser.phone_number,
+                office: newNtsUser.office,
+                company_id: companyId,
+                profile_picture: profilePictureUrl,
+                inserted_at: new Date().toISOString(),
+            });
+            
             if (insertError) {
                 throw new Error(insertError.message);
+            }
+            
+            const { error: magicLinkError } = await supabase.auth.signInWithOtp({
+                email: newNtsUser.email,
+            });
+            
+            if (magicLinkError) {
+                throw new Error(magicLinkError.message);
             }
 
             setNewNtsUser({ role: 'sales' }); // Reset form with default role
