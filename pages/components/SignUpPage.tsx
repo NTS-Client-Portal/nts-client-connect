@@ -158,14 +158,14 @@ export default function SignUpPage() {
                     .select('*')
                     .eq('name', companyName)
                     .single();
-
+    
                 if (companyError && companyError.code !== 'PGRST116') {
                     throw new Error(companyError.message);
                 }
-
+    
                 if (existingCompany) {
                     companyId = existingCompany.id;
-
+    
                     const updates = {} as Partial<{
                         assigned_sales_user: string;
                         assigned_at: string;
@@ -176,13 +176,13 @@ export default function SignUpPage() {
                     if (!existingCompany.assigned_at) updates.assigned_at = new Date().toISOString();
                     if (!existingCompany.company_name) updates.company_name = companyName;
                     if (!existingCompany.company_size) updates.company_size = '1-10';
-
+    
                     if (Object.keys(updates).length > 0) {
                         const { error: updateCompanyError } = await supabase
                             .from('companies')
                             .update(updates)
                             .eq('id', companyId);
-
+    
                         if (updateCompanyError) {
                             throw new Error(updateCompanyError.message);
                         }
@@ -204,11 +204,11 @@ export default function SignUpPage() {
                         })
                         .select()
                         .single();
-
+    
                     if (newCompanyError) {
                         throw new Error(newCompanyError.message);
                     }
-
+    
                     // Call the Netlify Function to assign the sales user
                     await fetch('/.netlify/functions/assign-sales-user', {
                         method: 'POST',
@@ -233,14 +233,14 @@ export default function SignUpPage() {
                     })
                     .select()
                     .single();
-
+    
                 if (newCompanyError) {
                     throw new Error(newCompanyError.message);
                 }
             }
-
+    
             setCompanyId(companyId);
-
+    
             const profileId = uuidv4();
             const { error } = await supabase
                 .from('profiles')
@@ -256,11 +256,11 @@ export default function SignUpPage() {
                     team_role: 'manager',
                     industry,
                 });
-
+    
             if (error) {
                 throw new Error(error.message);
             }
-
+    
             setSuccess(true);
         } catch (error) {
             setError(error.message);
