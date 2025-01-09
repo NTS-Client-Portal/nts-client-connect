@@ -6,8 +6,6 @@ const MagicLink = () => {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
 
     useEffect(() => {
         const handleMagicLink = async () => {
@@ -25,21 +23,33 @@ const MagicLink = () => {
                 if (userError) {
                     setError(userError.message);
                 } else if (data.user) {
-                    const { data: profile, error: profileError } = await supabase
-                        .from('profiles')
-                        .select('id')
+                    const { data: ntsUser, error: ntsUserError } = await supabase
+                        .from('nts_users')
+                        .select('company_id')
                         .eq('email', data.user.email)
                         .single();
 
-                    if (profileError) {
-                        // If the user is not in the profiles table, assume they are an NTS user
-                        setLoading(false);
+                    if (ntsUserError) {
+                        // If the user is not an NTS user, check if they are in the profiles table
+                        const { data: profile, error: profileError } = await supabase
+                            .from('profiles')
+                            .select('id')
+                            .eq('email', data.user.email)
+                            .single();
+
+                        if (profileError) {
+                            setError(profileError.message);
+                        } else {
+                            // If the user is in the profiles table, redirect to the user home page
+                            router.push('/user/logistics-management/');
+                        }
                     } else {
-                        // If the user is in the profiles table, redirect to the user home page
-                        router.push('/user/logistics-management/');
+                        // If the user is an NTS user, redirect to the set password page
+                        router.push('/nts-set-password');
                     }
                 }
             }
+            setLoading(false);
         };
 
         if (router.query.email && router.query.token) {
@@ -47,60 +57,14 @@ const MagicLink = () => {
         }
     }, [router.query.email, router.query.token]);
 
-    const handleSetPassword = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError(null);
-
-        if (password !== confirmPassword) {
-            setError('Passwords do not match');
-            return;
-        }
-
-        const { error } = await supabase.auth.updateUser({
-            password,
-        });
-
-        if (error) {
-            setError(error.message);
-        } else {
-            router.push('/login');
-        }
-    };
-
     if (loading) {
         return <p>Loading...</p>;
     }
 
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Set Your Password</h1>
+            <h1 className="text-2xl font-bold mb-4">Redirecting...</h1>
             {error && <div className="text-red-500 mb-4">{error}</div>}
-            <form onSubmit={handleSetPassword}>
-                <div className="mb-4">
-                    <label className="block text-gray-700">Password</label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
-                <div className="mb-4">
-                    <label className="block text-gray-700">Confirm Password</label>
-                    <input
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
-                <button
-                    type="submit"
-                    className="body-btn text-white transition duration-200"
-                >
-                    Set Password
-                </button>
-            </form>
         </div>
     );
 };
