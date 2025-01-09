@@ -20,7 +20,25 @@ const MagicLink = () => {
             if (error) {
                 setError(error.message);
             } else {
-                setLoading(false);
+                // Check user type and redirect accordingly
+                const { data, error: userError } = await supabase.auth.getUser();
+                if (userError) {
+                    setError(userError.message);
+                } else if (data.user) {
+                    const { data: profile, error: profileError } = await supabase
+                        .from('profiles')
+                        .select('id')
+                        .eq('email', data.user.email)
+                        .single();
+
+                    if (profileError) {
+                        // If the user is not in the profiles table, assume they are an NTS user
+                        setLoading(false);
+                    } else {
+                        // If the user is in the profiles table, redirect to the user home page
+                        router.push('/user/logistics-management/');
+                    }
+                }
             }
         };
 
