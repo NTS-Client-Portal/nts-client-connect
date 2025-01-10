@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 export default function SignUpPage() {
     const supabase = useSupabaseClient();
@@ -16,7 +15,6 @@ export default function SignUpPage() {
     const [companyName, setCompanyName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [industry, setIndustry] = useState('');
-    const [otp, setOtp] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -28,11 +26,6 @@ export default function SignUpPage() {
         const hasUppercase = /[A-Z]/.test(password);
         const hasDigit = /\d/.test(password);
         return hasLowercase && hasUppercase && hasDigit;
-    };
-
-    const formatPhoneNumber = (phone: string): string | null => {
-        const phoneNumber = parsePhoneNumberFromString(phone, 'US'); // Default to US, adjust as needed
-        return phoneNumber ? phoneNumber.format('E.164') : null;
     };
 
     const handleSignUp = async (e: React.FormEvent) => {
@@ -52,56 +45,19 @@ export default function SignUpPage() {
             return;
         }
 
-        const formattedPhoneNumber = formatPhoneNumber(phoneNumber);
-        if (!formattedPhoneNumber) {
-            setError('Invalid phone number format. Please use the E.164 format (e.g., +12345678900)');
-            setLoading(false);
-            return;
-        }
-
         try {
-            const { error } = await supabase.auth.signInWithOtp({
-                phone: formattedPhoneNumber,
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
                 options: {
+                    emailRedirectTo: `https://www.shipper-connect.com/user/logistics-management/`,
                     data: {
                         first_name: firstName,
                         last_name: lastName,
-                        email: email,
+                        phone_number: phoneNumber,
                         company_name: companyName,
                     },
                 },
-            });
-
-            if (error) {
-                throw new Error(error.message);
-            }
-
-            setSuccess(true);
-            setCurrentStep(2); // Move to the OTP verification step
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleVerifyOtp = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
-
-        const formattedPhoneNumber = formatPhoneNumber(phoneNumber);
-        if (!formattedPhoneNumber) {
-            setError('Invalid phone number format. Please use the E.164 format (e.g., +12345678900)');
-            setLoading(false);
-            return;
-        }
-
-        try {
-            const { data, error } = await supabase.auth.verifyOtp({
-                phone: formattedPhoneNumber,
-                token: otp,
-                type: 'sms',
             });
 
             if (error) {
@@ -115,16 +71,17 @@ export default function SignUpPage() {
                     .from('profiles')
                     .insert({
                         id: user.id,
-                        email: email,
+                        email: user.email,
                         first_name: firstName,
                         last_name: lastName,
-                        phone_number: formattedPhoneNumber,
+                        phone_number: phoneNumber,
                         company_name: companyName,
                         industry: industry,
                     });
             }
 
-            router.push('/user/logistics-management');
+            setSuccess(true);
+            setCurrentStep(2); // Move to the next step
         } catch (error) {
             setError(error.message);
         } finally {
@@ -167,7 +124,7 @@ export default function SignUpPage() {
                             {error && <div className="text-red-500 text-center mb-4">{error}</div>}
                             {success && currentStep === 1 ? (
                                 <div className="text-green-500 text-center mb-4 border border-zinc-900 p-4 rounded">
-                                    OTP sent to your phone number. Please enter the OTP to verify your account.
+                                    Your sign up was successful! Please check your email to confirm your account. Make sure to check your spam or junk folder if you don&apos;t see it within a few minutes!
                                 </div>
                             ) : (
                                 <>
@@ -297,27 +254,6 @@ export default function SignUpPage() {
                                                 disabled={loading}
                                             >
                                                 {loading ? 'Signing Up...' : 'Sign Up'}
-                                            </button>
-                                        </form>
-                                    )}
-                                    {currentStep === 2 && (
-                                        <form className="mt-4" onSubmit={handleVerifyOtp}>
-                                            <label htmlFor="otp" className="mt-4">Enter OTP</label>
-                                            <input
-                                                type="text"
-                                                id="otp"
-                                                value={otp}
-                                                onChange={(e) => setOtp(e.target.value)}
-                                                required
-                                                className="w-full p-2 mb-6 border rounded"
-                                                disabled={loading}
-                                            />
-                                            <button
-                                                type="submit"
-                                                className="w-full body-btn mt-12"
-                                                disabled={loading}
-                                            >
-                                                {loading ? 'Verifying...' : 'Verify OTP'}
                                             </button>
                                         </form>
                                     )}
