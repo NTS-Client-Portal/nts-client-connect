@@ -29,6 +29,11 @@ export default function SignUpPage() {
         return hasLowercase && hasUppercase && hasDigit;
     };
 
+    const validatePhoneNumber = (phone: string): boolean => {
+        const phoneRegex = /^\+[1-9]\d{1,14}$/;
+        return phoneRegex.test(phone);
+    };
+
     const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -42,6 +47,12 @@ export default function SignUpPage() {
 
         if (!validatePassword(password)) {
             setError('Password must contain at least one lowercase letter, one uppercase letter, and one digit');
+            setLoading(false);
+            return;
+        }
+
+        if (!validatePhoneNumber(phoneNumber)) {
+            setError('Invalid phone number format. Please use the E.164 format (e.g., +12345678900)');
             setLoading(false);
             return;
         }
