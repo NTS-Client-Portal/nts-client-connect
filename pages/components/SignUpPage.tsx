@@ -87,7 +87,7 @@ export default function SignUpPage() {
             const { error: magicLinkError } = await supabase.auth.signInWithOtp({
                 email,
                 options: {
-                    emailRedirectTo: 'https://shipper-connect.com/magic-link',
+                    emailRedirectTo: 'https://shipper-connect.com/nts-set-password',
                 }
             });
             
