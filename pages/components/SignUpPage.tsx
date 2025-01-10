@@ -54,7 +54,7 @@ export default function SignUpPage() {
                         first_name: firstName,
                         last_name: lastName,
                         phone_number: phoneNumber,
-                        company_name: companyName,
+                        company_name: userType === 'individual' ? `${firstName} ${lastName}` : companyName,
                     },
                 },
             });
@@ -66,6 +66,23 @@ export default function SignUpPage() {
             // Insert profile into the profiles table
             const user = data.user;
             if (user) {
+                const companyId = user.id; // Use user ID as company ID for simplicity
+
+                // Insert into companies table
+                await supabase
+                    .from('companies')
+                    .insert({
+                        id: companyId,
+                        name: userType === 'individual' ? `${firstName} ${lastName}` : companyName,
+                        industry: industry,
+                    });
+
+                // Assign the user to a broker using the Netlify function
+                await fetch('/.netlify/functions/assign-sales-user', {
+                    method: 'POST',
+                    body: JSON.stringify({ companyId }),
+                });
+
                 await supabase
                     .from('profiles')
                     .insert({
@@ -74,7 +91,7 @@ export default function SignUpPage() {
                         first_name: firstName,
                         last_name: lastName,
                         phone_number: phoneNumber,
-                        company_name: companyName,
+                        company_name: userType === 'individual' ? `${firstName} ${lastName}` : companyName,
                         industry: industry,
                     });
             }
@@ -123,7 +140,7 @@ export default function SignUpPage() {
                             {error && <div className="text-red-500 text-center mb-4">{error}</div>}
                             {success && currentStep === 1 ? (
                                 <div className="text-green-500 text-center mb-4 border border-zinc-900 p-4 rounded">
-                                    Your sign up was successful! Please check your email to confirm your account. Make sure to check your spam or junk folder if you don&apos;t see it within a few minutes!
+                                    Your sign up was successful! Please check your email to confirm your account. Make sure to check your spam or junk folder if you don't see it within a few minutes!
                                 </div>
                             ) : (
                                 <>

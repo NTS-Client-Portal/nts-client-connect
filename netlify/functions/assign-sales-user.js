@@ -1,4 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -14,7 +17,7 @@ exports.handler = async (event, context) => {
         const { companyId } = JSON.parse(event.body);
 
         // Default sales user ID
-        const defaultSalesUserId = '52a7d630-a8cc-48cf-be7d-5188a956e2e5';
+        const defaultSalesUserId = process.env.NEXT_PUBLIC_DEFAULT_BROKERID;
 
         // Assign the default sales user to the new company
         const { error: assignError } = await supabase

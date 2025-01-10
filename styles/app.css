@@ -687,10 +687,6 @@ body:is(.dark *) {
   visibility: visible;
 }
 
-.invisible {
-  visibility: hidden;
-}
-
 .static {
   position: static;
 }
