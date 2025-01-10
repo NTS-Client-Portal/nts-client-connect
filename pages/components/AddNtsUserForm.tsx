@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '@/lib/initSupabase';
 import { Database } from '@/lib/database.types';
-import { v4 as uuidv4 } from 'uuid';
 
 interface AddNtsUserFormProps {
     isOpen: boolean;
@@ -79,11 +78,21 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                 profilePictureUrl = publicUrl;
             }
 
-            const userId = uuidv4(); // Generate a unique ID
+            // Create user in auth.users table
+            const { data: authUser, error: authError } = await supabase.auth.signUp({
+                email: newNtsUser.email,
+                password: 'temporary-password', // Use a temporary password
+            });
+
+            if (authError) {
+                throw new Error(authError.message);
+            }
+
+            const userId = authUser.user?.id; // Use the ID from the auth.users table
             const companyId = process.env.NEXT_PUBLIC_NTS_COMPANYID; // Use the environment variable
 
             const { error: insertError } = await supabase.from('nts_users').insert({
-                id: userId, // Use the generated unique ID
+                id: userId, // Use the ID from the auth.users table
                 email: newNtsUser.email,
                 role: newNtsUser.role,
                 first_name: newNtsUser.first_name,
@@ -99,16 +108,14 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
             if (insertError) {
                 throw new Error(insertError.message);
             }
-            
-            const { error: signUpError } = await supabase.auth.signInWithOtp({
-                email: newNtsUser.email,
-                options: {
-                    emailRedirectTo: `https://www.shipper-connect.com/nts-set-password`,
-                },
+
+            // Send reset-password email
+            const { error: resetPasswordError } = await supabase.auth.resetPasswordForEmail(newNtsUser.email, {
+                redirectTo: `https://www.shipper-connect.com/reset-password`,
             });
-            
-            if (signUpError) {
-                throw new Error(signUpError.message);
+
+            if (resetPasswordError) {
+                throw new Error(resetPasswordError.message);
             }
 
             setNewNtsUser({ role: 'sales' });
