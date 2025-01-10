@@ -94,6 +94,7 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                 company_id: companyId,
                 profile_picture: profilePictureUrl,
                 inserted_at: new Date().toISOString(),
+                profileType: 'nts_users', // Set profile type
             });
             
             if (insertError) {

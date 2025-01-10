@@ -1,10 +1,25 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
-import { NtsUser } from '@/lib/schema'; // Import the NtsUser type from schema.ts
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '@/lib/initSupabase';
+
+interface NtsUser {
+    id: string;
+    email: string;
+    profileType: string;
+    // Add other fields as necessary
+    address: string | null;
+    auth_uid: string | null;
+    company_id: string | null;
+    email_notifications: boolean | null;
+    extension: string | null;
+    first_name: string | null;
+    inserted_at: string;
+    last_name: string | null;
+    phone_number: string | null;
+    role: string;
+}
 
 interface NtsUsersContextType {
     userProfile: NtsUser | null;
-    setUserProfile: React.Dispatch<React.SetStateAction<NtsUser | null>>;
     loading: boolean;
     error: string | null;
 }
@@ -12,50 +27,45 @@ interface NtsUsersContextType {
 const NtsUsersContext = createContext<NtsUsersContextType | undefined>(undefined);
 
 export const NtsUsersProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const session = useSession();
-    const supabase = useSupabaseClient();
     const [userProfile, setUserProfile] = useState<NtsUser | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchUserProfile = async () => {
-            if (!session) {
+            setLoading(true);
+            const { data, error } = await supabase.auth.getUser();
+            if (error) {
+                setError(error.message);
                 setLoading(false);
                 return;
             }
 
-            try {
-                const { data, error } = await supabase
+            const user = data?.user;
+            if (user) {
+                const { data: profile, error: profileError } = await supabase
                     .from('nts_users')
                     .select('*')
-                    .eq('id', session.user.id)
+                    .eq('auth_uid', user.id)
                     .single();
 
-                if (error) {
-                    console.error('Error fetching user profile from nts_users:', error.message);
-                    setError('Error fetching user profile');
+                if (profileError) {
+                    setError(profileError.message);
                 } else {
-                    console.log('Fetched user profile from nts_users:', data);
-                    setUserProfile(data);
+                    setUserProfile({
+                        ...profile,
+                        profileType: 'nts_users', // Ensure profileType is included
+                    });
                 }
-            } catch (err) {
-                console.error('Unexpected error fetching user profile:', err);
-                setError('Unexpected error fetching user profile');
-            } finally {
-                setLoading(false);
             }
+            setLoading(false);
         };
 
-        if (session) {
-            fetchUserProfile();
-        } else {
-            setLoading(false);
-        }
-    }, [session, supabase]);
+        fetchUserProfile();
+    }, []);
 
     return (
-        <NtsUsersContext.Provider value={{ userProfile, setUserProfile, loading, error }}>
+        <NtsUsersContext.Provider value={{ userProfile, loading, error }}>
             {children}
         </NtsUsersContext.Provider>
     );

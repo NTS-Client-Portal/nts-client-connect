@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/initSupabase';
 import { GetServerSideProps } from 'next';
+import { useNtsUsers } from '@/context/NtsUsersContext';
 
 const MagicLink = ({ email, token }: { email: string; token: string }) => {
     const router = useRouter();
+    const { userProfile, loading: ntsLoading, error: ntsError } = useNtsUsers();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -23,10 +25,7 @@ const MagicLink = ({ email, token }: { email: string; token: string }) => {
                 setError(error.message);
                 console.error('Error verifying OTP:', error.message);
             } else {
-                // Check if the email domain is for NTS users
-                const isNtsUser = email.endsWith('@ntslogistics.com') || email.endsWith('@nationwidetransportservices.com');
-
-                if (isNtsUser) {
+                if (userProfile?.profileType === 'nts_users') {
                     console.log('User is an NTS user:', email);
                     // If the user is an NTS user, redirect to the set password page
                     router.push('/nts-set-password');
@@ -42,9 +41,9 @@ const MagicLink = ({ email, token }: { email: string; token: string }) => {
         if (email && token) {
             handleMagicLink();
         }
-    }, [email, token]);
+    }, [email, token, userProfile]);
 
-    if (loading) {
+    if (loading || ntsLoading) {
         return <p>Loading...</p>;
     }
 
@@ -52,6 +51,7 @@ const MagicLink = ({ email, token }: { email: string; token: string }) => {
         <div className="container mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Redirecting...</h1>
             {error && <div className="text-red-500 mb-4">{error}</div>}
+            {ntsError && <div className="text-red-500 mb-4">{ntsError}</div>}
         </div>
     );
 };
