@@ -53,7 +53,7 @@ export default function SignUpPage() {
                 email,
                 password,
                 options: {
-                    emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/user/logistics-management`,
+                    emailRedirectTo: `https://www.shipper-connect.com/user/logistics-management/`,
                     data: {
                         first_name: firstName,
                         last_name: lastName,
