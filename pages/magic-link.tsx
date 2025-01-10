@@ -32,8 +32,8 @@ const MagicLink = ({ email, token }: { email: string; token: string }) => {
 
                 if (ntsUserError) {
                     console.log('User is not an NTS user:', ntsUserError.message);
-                    // If the user is not an NTS user, redirect to the login page
-                    router.push('/login');
+                    // If the user is not an NTS user, redirect to the user home page
+                    router.push('/user/logistics-management/');
                 } else {
                     console.log('User is an NTS user:', ntsUser);
                     // If the user is an NTS user, redirect to the set password page
