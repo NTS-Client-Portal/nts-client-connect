@@ -12,36 +12,37 @@ const MagicLink = ({ email, token }: { email: string; token: string }) => {
 
     useEffect(() => {
         const handleMagicLink = async () => {
+            if (!email || !token) return;
+    
             console.log('Email:', email);
             console.log('Token:', token);
-
+    
             const { error } = await supabase.auth.verifyOtp({
                 email,
                 token,
                 type: 'magiclink',
             });
-
+    
             if (error) {
                 setError(error.message);
                 console.error('Error verifying OTP:', error.message);
-            } else {
-                if (userProfile?.profileType === 'nts_users') {
+            } else if (userProfile) {
+                if (userProfile.profileType === 'nts_users') {
                     console.log('User is an NTS user:', email);
-                    // If the user is an NTS user, redirect to the set password page
                     router.push('/nts-set-password');
                 } else {
                     console.log('User is not an NTS user:', email);
-                    // If the user is not an NTS user, redirect to the user home page
                     router.push('/user/logistics-management/');
                 }
             }
             setLoading(false);
         };
-
-        if (email && token) {
+    
+        if (userProfile && email && token) {
             handleMagicLink();
         }
     }, [email, token, userProfile]);
+    
 
     if (loading || ntsLoading) {
         return <p>Loading...</p>;
