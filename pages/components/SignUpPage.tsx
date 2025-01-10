@@ -87,7 +87,7 @@ export default function SignUpPage() {
             const { error: magicLinkError } = await supabase.auth.signInWithOtp({
                 email,
                 options: {
-                    emailRedirectTo: 'https://www.shipper-connect.com/user/logistics-management/',
+                    emailRedirectTo: 'https://www.shipper-connect.com/magic-link',
                 }
             });
             
