@@ -94,7 +94,6 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                 company_id: companyId,
                 profile_picture: profilePictureUrl,
                 inserted_at: new Date().toISOString(),
-                profileType: 'nts_users', // Set profile type
             });
             
             if (insertError) {
@@ -107,7 +106,7 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                 options: {
                     emailRedirectTo: 'https://shipper-connect.com/nts-set-password',
                     data: {
-                        profileType: 'nts_users',
+                        role: newNtsUser.role,
                     },
                 },
             });
