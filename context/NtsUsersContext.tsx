@@ -16,6 +16,7 @@ interface NtsUser {
     last_name: string | null;
     phone_number: string | null;
     role: string;
+    profile_picture: string | null; // Add profile_picture property
 }
 
 interface NtsUsersContextType {
