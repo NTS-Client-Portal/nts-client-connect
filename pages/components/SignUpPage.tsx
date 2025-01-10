@@ -15,6 +15,7 @@ export default function SignUpPage() {
     const [companyName, setCompanyName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [industry, setIndustry] = useState('');
+    const [otp, setOtp] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -46,18 +47,41 @@ export default function SignUpPage() {
         }
 
         try {
-            const { data, error } = await supabase.auth.signUp({
-                email,
-                password,
+            const { error } = await supabase.auth.signInWithOtp({
+                phone: phoneNumber,
                 options: {
-                    emailRedirectTo: `https://www.shipper-connect.com/user/logistics-management/`,
                     data: {
                         first_name: firstName,
                         last_name: lastName,
-                        phone_number: phoneNumber,
+                        email: email,
                         company_name: companyName,
                     },
                 },
+            });
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            setSuccess(true);
+            setCurrentStep(2); // Move to the OTP verification step
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleVerifyOtp = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+
+        try {
+            const { data, error } = await supabase.auth.verifyOtp({
+                phone: phoneNumber,
+                token: otp,
+                type: 'sms',
             });
 
             if (error) {
@@ -71,7 +95,7 @@ export default function SignUpPage() {
                     .from('profiles')
                     .insert({
                         id: user.id,
-                        email: user.email,
+                        email: email,
                         first_name: firstName,
                         last_name: lastName,
                         phone_number: phoneNumber,
@@ -80,8 +104,7 @@ export default function SignUpPage() {
                     });
             }
 
-            setSuccess(true);
-            setCurrentStep(2); // Move to the next step
+            router.push('/user/logistics-management');
         } catch (error) {
             setError(error.message);
         } finally {
@@ -124,7 +147,7 @@ export default function SignUpPage() {
                             {error && <div className="text-red-500 text-center mb-4">{error}</div>}
                             {success && currentStep === 1 ? (
                                 <div className="text-green-500 text-center mb-4 border border-zinc-900 p-4 rounded">
-                                    Your sign up was successful! Please check your email to confirm your account. Make sure to check your spam or junk folder if you don&apos;t see it within a few minutes!
+                                    OTP sent to your phone number. Please enter the OTP to verify your account.
                                 </div>
                             ) : (
                                 <>
@@ -254,6 +277,27 @@ export default function SignUpPage() {
                                                 disabled={loading}
                                             >
                                                 {loading ? 'Signing Up...' : 'Sign Up'}
+                                            </button>
+                                        </form>
+                                    )}
+                                    {currentStep === 2 && (
+                                        <form className="mt-4" onSubmit={handleVerifyOtp}>
+                                            <label htmlFor="otp" className="mt-4">Enter OTP</label>
+                                            <input
+                                                type="text"
+                                                id="otp"
+                                                value={otp}
+                                                onChange={(e) => setOtp(e.target.value)}
+                                                required
+                                                className="w-full p-2 mb-6 border rounded"
+                                                disabled={loading}
+                                            />
+                                            <button
+                                                type="submit"
+                                                className="w-full body-btn mt-12"
+                                                disabled={loading}
+                                            >
+                                                {loading ? 'Verifying...' : 'Verify OTP'}
                                             </button>
                                         </form>
                                     )}

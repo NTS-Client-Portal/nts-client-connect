@@ -29,8 +29,6 @@ const CustomSignInForm = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [resendLoading, setResendLoading] = useState(false);
-  const [resendSuccess, setResendSuccess] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
@@ -74,7 +72,6 @@ const CustomSignInForm = () => {
 
     checkUserRole();
   }, [session, router, supabase]);
-
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
