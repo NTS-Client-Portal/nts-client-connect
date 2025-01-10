@@ -100,14 +100,10 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                 throw new Error(insertError.message);
             }
             
-            const { error: signUpError } = await supabase.auth.signUp({
+            const { error: signUpError } = await supabase.auth.signInWithOtp({
                 email: newNtsUser.email,
-                password: uuidv4(),
                 options: {
-                    emailRedirectTo: 'https://shipper-connect.com/nts-set-password',
-                    data: {
-                        role: newNtsUser.role,
-                    },
+                    emailRedirectTo: 'https://shipper-connect.com/nts/nts-set-password',
                 },
             });
             
