@@ -4,8 +4,7 @@ import { supabase } from '@/lib/initSupabase';
 interface NtsUser {
     id: string;
     email: string;
-    profileType: string;
-    // Add other fields as necessary
+    // Remove profileType property
     address: string | null;
     auth_uid: string | null;
     company_id: string | null;
@@ -16,7 +15,7 @@ interface NtsUser {
     last_name: string | null;
     phone_number: string | null;
     role: string;
-    profile_picture: string | null; // Add profile_picture property
+    profile_picture: string | null;
 }
 
 interface NtsUsersContextType {
@@ -53,10 +52,7 @@ export const NtsUsersProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 if (profileError) {
                     setError(profileError.message);
                 } else {
-                    setUserProfile({
-                        ...profile,
-                        profileType: 'nts_users', // Ensure profileType is included
-                    });
+                    setUserProfile(profile);
                 }
             }
             setLoading(false);

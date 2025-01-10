@@ -27,13 +27,8 @@ const MagicLink = ({ email, token }: { email: string; token: string }) => {
                 setError(error.message);
                 console.error('Error verifying OTP:', error.message);
             } else if (userProfile) {
-                if (userProfile.profileType === 'nts_users') {
-                    console.log('User is an NTS user:', email);
-                    router.push('/nts-set-password');
-                } else {
-                    console.log('User is not an NTS user:', email);
-                    router.push('/user/logistics-management/');
-                }
+                // Redirect based on user profile
+                router.push('/nts-set-password');
             }
             setLoading(false);
         };
