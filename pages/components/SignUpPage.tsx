@@ -50,7 +50,6 @@ export default function SignUpPage() {
                 email,
                 password,
                 options: {
-                    emailRedirectTo: `https://www.shipper-connect.com/user/logistics-management/`,
                     data: {
                         first_name: firstName,
                         last_name: lastName,
