@@ -81,11 +81,20 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                 profilePictureUrl = publicUrl;
             }
 
-       
+            const { data: user, error: signUpError } = await supabase.auth.signUp({
+                email: newNtsUser.email,
+                password: uuidv4(), // Generate a random password
+            });
+
+            if (signUpError) {
+                throw new Error(signUpError.message);
+            }
+
             const companyId = process.env.NEXT_PUBLIC_NTS_COMPANYID; // Use the environment variable
 
             const { error: insertError } = await supabase.from('nts_users').insert({
-                id: session.user.id,
+                id: user?.user?.id,
+                auth_uid: user?.user?.id,
                 email: newNtsUser.email,
                 role: newNtsUser.role,
                 first_name: newNtsUser.first_name,
@@ -97,20 +106,20 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                 profile_picture: profilePictureUrl,
                 inserted_at: new Date().toISOString(),
             });
-            
+
             if (insertError) {
                 throw new Error(insertError.message);
             }
-            
-            const { error: signUpError } = await supabase.auth.signInWithOtp({
+
+            const { error: signInError } = await supabase.auth.signInWithOtp({
                 email: newNtsUser.email,
                 options: {
                     emailRedirectTo: `https://www.shipper-connect.com/nts-set-password`,
                 },
             });
-            
-            if (signUpError) {
-                throw new Error(signUpError.message);
+
+            if (signInError) {
+                throw new Error(signInError.message);
             }
 
             setNewNtsUser({ role: 'sales' });

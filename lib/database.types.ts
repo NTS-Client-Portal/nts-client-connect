@@ -1983,7 +1983,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      purge_user: {
+        Args: {
+          email_to_purge: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       balance_payment_method_enum:
