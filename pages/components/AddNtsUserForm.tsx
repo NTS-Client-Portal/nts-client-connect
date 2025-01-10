@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '@/lib/initSupabase';
 import { Database } from '@/lib/database.types';
+import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { v4 as uuidv4 } from 'uuid';
 
 interface AddNtsUserFormProps {
@@ -13,6 +14,7 @@ interface AddNtsUserFormProps {
 type NtsUser = Database['public']['Tables']['nts_users']['Row'];
 
 const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSuccess, ntsUsers }) => {
+    const session = useSession();
     const [newNtsUser, setNewNtsUser] = useState<Partial<NtsUser>>({
         role: 'sales', // Set default role here
     });
@@ -79,11 +81,11 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                 profilePictureUrl = publicUrl;
             }
 
-            const userId = uuidv4(); // Generate a unique ID
+       
             const companyId = process.env.NEXT_PUBLIC_NTS_COMPANYID; // Use the environment variable
 
             const { error: insertError } = await supabase.from('nts_users').insert({
-                id: userId, // Use the generated unique ID
+                id: session.user.id,
                 email: newNtsUser.email,
                 role: newNtsUser.role,
                 first_name: newNtsUser.first_name,
