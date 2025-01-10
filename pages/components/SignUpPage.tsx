@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 export default function SignUpPage() {
     const supabase = useSupabaseClient();
@@ -29,9 +30,9 @@ export default function SignUpPage() {
         return hasLowercase && hasUppercase && hasDigit;
     };
 
-    const validatePhoneNumber = (phone: string): boolean => {
-        const phoneRegex = /^\+[1-9]\d{1,14}$/;
-        return phoneRegex.test(phone);
+    const formatPhoneNumber = (phone: string): string | null => {
+        const phoneNumber = parsePhoneNumberFromString(phone, 'US'); // Default to US, adjust as needed
+        return phoneNumber ? phoneNumber.format('E.164') : null;
     };
 
     const handleSignUp = async (e: React.FormEvent) => {
@@ -51,7 +52,8 @@ export default function SignUpPage() {
             return;
         }
 
-        if (!validatePhoneNumber(phoneNumber)) {
+        const formattedPhoneNumber = formatPhoneNumber(phoneNumber);
+        if (!formattedPhoneNumber) {
             setError('Invalid phone number format. Please use the E.164 format (e.g., +12345678900)');
             setLoading(false);
             return;
@@ -59,7 +61,7 @@ export default function SignUpPage() {
 
         try {
             const { error } = await supabase.auth.signInWithOtp({
-                phone: phoneNumber,
+                phone: formattedPhoneNumber,
                 options: {
                     data: {
                         first_name: firstName,
@@ -88,9 +90,16 @@ export default function SignUpPage() {
         setLoading(true);
         setError(null);
 
+        const formattedPhoneNumber = formatPhoneNumber(phoneNumber);
+        if (!formattedPhoneNumber) {
+            setError('Invalid phone number format. Please use the E.164 format (e.g., +12345678900)');
+            setLoading(false);
+            return;
+        }
+
         try {
             const { data, error } = await supabase.auth.verifyOtp({
-                phone: phoneNumber,
+                phone: formattedPhoneNumber,
                 token: otp,
                 type: 'sms',
             });
@@ -109,7 +118,7 @@ export default function SignUpPage() {
                         email: email,
                         first_name: firstName,
                         last_name: lastName,
-                        phone_number: phoneNumber,
+                        phone_number: formattedPhoneNumber,
                         company_name: companyName,
                         industry: industry,
                     });

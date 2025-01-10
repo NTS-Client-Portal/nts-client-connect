@@ -80,6 +80,7 @@
     "leaflet-draw": "^1.0.4",
     "leaflet-geosearch": "^4.0.0",
     "leaflet.gridlayer.googlemutant": "^0.14.1",
+    "libphonenumber-js": "^1.11.17",
     "lodash.debounce": "^4.0.8",
     "lucide": "^0.453.0",
     "lucide-react": "^0.453.0",
