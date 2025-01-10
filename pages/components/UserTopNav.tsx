@@ -101,8 +101,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
     return (
         <>
             <nav className={`md:hidden w-full max-h-max bg-white py-1 drop-shadow ${className}`}>
-                <div className='flex justify-around w-full'>
-
+                <div className='flex justify-end gap-6 pr-3 w-full'>
 
                     <span>
                         <NotificationBell session={session} />

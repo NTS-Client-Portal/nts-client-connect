@@ -66,8 +66,6 @@ const ShipperDash = () => {
         }
     }, [session, fetchOrders, fetchDeliveredOrders]);
 
-    const NtsBrokerPicture = `${process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL}/nts_users/noah-profile.png?t=2024-12-24T23%3A54%3A10.034Z`;
-
     useEffect(() => {
         const fetchAssignedSalesUsers = async () => {
             if (userProfile?.company_id) {
@@ -121,14 +119,11 @@ const ShipperDash = () => {
     return (
         <div className='container mx-auto'>
             <div className='flex flex-col-reverse xl:flex-row items-center md:items-start gap-6'>
-             
-                    <div className='px-4 w-full'><ShippingCalendar /></div>
-              
-
+                <div className='px-4 w-full'><ShippingCalendar /></div>
                 {assignedSalesUsers.map((user, index) => (
                     <div key={index} className="broker-card flex text-nowrap flex-col justify-center items-center p-4 bg-white shadow rounded-lg w-[97vw] md:w-fit max-h-96">
                         <h2 className='text-xl underline font-bold mb-4'>Your Logistics Representative</h2>
-                        <Image src={NtsBrokerPicture} alt="Profile Picture" className="avatar" width={100} height={100} />
+                        <Image src={user.profile_picture} alt="Profile Picture" className="avatar" width={100} height={100} />
                         <h2 className='text-xl underline font-semibold mb-4'>{user.first_name} {user.last_name}</h2>
                         <span className="flex flex-col gap-1 justify-start items-start">
                             <p><strong>Email:</strong> {user.email}</p>

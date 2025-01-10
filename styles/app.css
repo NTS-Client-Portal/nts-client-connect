@@ -796,6 +796,26 @@ body:is(.dark *) {
   top: 2rem;
 }
 
+.right-12 {
+  right: 3rem;
+}
+
+.right-14 {
+  right: 3.5rem;
+}
+
+.right-auto {
+  right: auto;
+}
+
+.right-32 {
+  right: 8rem;
+}
+
+.top-6 {
+  top: 1.5rem;
+}
+
 .z-0 {
   z-index: 0;
 }
@@ -999,6 +1019,18 @@ body:is(.dark *) {
   margin-top: auto;
 }
 
+.mr-3 {
+  margin-right: 0.75rem;
+}
+
+.mr-1 {
+  margin-right: 0.25rem;
+}
+
+.mr-0 {
+  margin-right: 0px;
+}
+
 .block {
   display: block;
 }
@@ -1187,6 +1219,10 @@ body:is(.dark *) {
   max-height: max-content;
 }
 
+.max-h-\[600px\] {
+  max-height: 600px;
+}
+
 .min-h-\[80px\] {
   min-height: 80px;
 }
@@ -1328,6 +1364,10 @@ body:is(.dark *) {
 .w-min {
   width: -moz-min-content;
   width: min-content;
+}
+
+.w-52 {
+  width: 13rem;
 }
 
 .min-w-\[8rem\] {
@@ -4144,6 +4184,10 @@ main:is(.dark *) {
 }
 
 @media (min-width: 480px) {
+  .xs\:mr-3 {
+    margin-right: 0.75rem;
+  }
+
   .xs\:w-2\/5 {
     width: 40%;
   }
@@ -4160,6 +4204,10 @@ main:is(.dark *) {
 @media (min-width: 640px) {
   .sm\:row-span-1 {
     grid-row: span 1 / span 1;
+  }
+
+  .sm\:mr-0 {
+    margin-right: 0px;
   }
 
   .sm\:h-\[700px\] {
@@ -4191,6 +4239,11 @@ main:is(.dark *) {
     width: 100%;
   }
 
+  .sm\:-translate-x-1\/2 {
+    --tw-translate-x: -50%;
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  }
+
   .sm\:grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -4220,6 +4273,10 @@ main:is(.dark *) {
 
   .md\:relative {
     position: relative;
+  }
+
+  .md\:top-8 {
+    top: 2rem;
   }
 
   .md\:col-span-1 {
@@ -4271,6 +4328,10 @@ main:is(.dark *) {
     margin-top: 1rem;
   }
 
+  .md\:mr-0 {
+    margin-right: 0px;
+  }
+
   .md\:block {
     display: block;
   }
@@ -4297,6 +4358,10 @@ main:is(.dark *) {
 
   .md\:h-full {
     height: 100%;
+  }
+
+  .md\:h-\[600px\] {
+    height: 600px;
   }
 
   .md\:w-1\/2 {
@@ -4330,6 +4395,10 @@ main:is(.dark *) {
 
   .md\:w-full {
     width: 100%;
+  }
+
+  .md\:w-64 {
+    width: 16rem;
   }
 
   .md\:max-w-none {
@@ -4407,6 +4476,11 @@ main:is(.dark *) {
 
   .md\:gap-8 {
     gap: 2rem;
+  }
+
+  .md\:bg-white {
+    --tw-bg-opacity: 1;
+    background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
   }
 
   .md\:p-4 {
