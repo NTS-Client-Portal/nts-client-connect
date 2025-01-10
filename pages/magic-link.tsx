@@ -23,21 +23,17 @@ const MagicLink = ({ email, token }: { email: string; token: string }) => {
                 setError(error.message);
                 console.error('Error verifying OTP:', error.message);
             } else {
-                // Check if the user is an NTS user
-                const { data: ntsUser, error: ntsUserError } = await supabase
-                    .from('nts_users')
-                    .select('company_id')
-                    .eq('email', email)
-                    .single();
+                // Check if the email domain is for NTS users
+                const isNtsUser = email.endsWith('@ntslogistics.com') || email.endsWith('@nationwidetransportservices.com');
 
-                if (ntsUserError) {
-                    console.log('User is not an NTS user:', ntsUserError.message);
-                    // If the user is not an NTS user, redirect to the user home page
-                    router.push('/user/logistics-management/');
-                } else {
-                    console.log('User is an NTS user:', ntsUser);
+                if (isNtsUser) {
+                    console.log('User is an NTS user:', email);
                     // If the user is an NTS user, redirect to the set password page
                     router.push('/nts-set-password');
+                } else {
+                    console.log('User is not an NTS user:', email);
+                    // If the user is not an NTS user, redirect to the user home page
+                    router.push('/user/logistics-management/');
                 }
             }
             setLoading(false);
