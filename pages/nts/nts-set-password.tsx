@@ -1,13 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { supabase } from '@/lib/initSupabase';
+import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 
 const NtsSetPassword = () => {
     const router = useRouter();
+    const session = useSession();
+    const supabase = useSupabaseClient();
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (!session) {
+            const { email, token } = router.query;
+            if (email && token) {
+                supabase.auth.verifyOtp({
+                    email: email as string,
+                    token: token as string,
+                    type: 'magiclink',
+                }).then(({ error }) => {
+                    if (error) {
+                        setError(error.message);
+                    }
+                });
+            }
+        }
+    }, [session, router.query, supabase]);
 
     const handleSetPassword = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -15,6 +34,11 @@ const NtsSetPassword = () => {
 
         if (password !== confirmPassword) {
             setError('Passwords do not match');
+            return;
+        }
+
+        if (!session) {
+            setError('Auth session missing!');
             return;
         }
 
@@ -44,7 +68,8 @@ const NtsSetPassword = () => {
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border rounded-lg"
+                        required
                     />
                 </div>
                 <div className="mb-4">
@@ -53,12 +78,13 @@ const NtsSetPassword = () => {
                         type="password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border rounded-lg"
+                        required
                     />
                 </div>
                 <button
                     type="submit"
-                    className="body-btn text-white transition duration-200"
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg"
                     disabled={loading}
                 >
                     {loading ? 'Setting Password...' : 'Set Password'}

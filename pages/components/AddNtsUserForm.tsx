@@ -94,6 +94,7 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                 company_id: companyId,
                 profile_picture: profilePictureUrl,
                 inserted_at: new Date().toISOString(),
+                profileType: 'nts_users', // Set profile type
             });
             
             if (insertError) {
@@ -103,7 +104,7 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
             const { error: signUpError } = await supabase.auth.signInWithOtp({
                 email: newNtsUser.email,
                 options: {
-                    emailRedirectTo: 'https://www.shipper-connect.com/nts/nts-set-password',
+                    emailRedirectTo: `https://www.shipper-connect.com/nts/nts-set-password?email=${newNtsUser.email}`,
                 },
             });
             
