@@ -49,7 +49,7 @@ const NtsSetPassword = () => {
         if (error) {
             setError(error.message);
         } else {
-            router.push('/login');
+            router.push('/nts/login/');
         }
 
         setLoading(false);
