@@ -101,7 +101,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
     return (
         <>
             <nav className={`md:hidden w-full max-h-max bg-white py-1 drop-shadow ${className}`}>
-                <div className='flex flex-row-reverse justify-around w-full'>
+                <div className='flex justify-around w-full'>
 
 
                     <span>

@@ -56,38 +56,40 @@ const NtsSetPassword = () => {
     };
 
     return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Set Your Password</h1>
-            {error && <div className="text-red-500 mb-4">{error}</div>}
-            <form onSubmit={handleSetPassword}>
-                <div className="mb-4">
-                    <label className="block text-gray-700">Password</label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full px-3 py-2 border rounded-lg"
-                        required
-                    />
-                </div>
-                <div className="mb-4">
-                    <label className="block text-gray-700">Confirm Password</label>
-                    <input
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full px-3 py-2 border rounded-lg"
-                        required
-                    />
-                </div>
-                <button
-                    type="submit"
-                    className="bg-blue-500 text-white px-4 py-2 rounded-lg"
-                    disabled={loading}
-                >
-                    {loading ? 'Setting Password...' : 'Set Password'}
-                </button>
-            </form>
+        <div className="flex items-center justify-center min-h-screen bg-gray-100">
+            <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+                <h1 className="text-2xl font-bold mb-4 text-center">Set Your Password</h1>
+                {error && <div className="text-red-500 mb-4">{error}</div>}
+                <form onSubmit={handleSetPassword}>
+                    <div className="mb-4">
+                        <label className="block text-gray-700">Password</label>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full px-3 py-2 border rounded-lg"
+                            required
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block text-gray-700">Confirm Password</label>
+                        <input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className="w-full px-3 py-2 border rounded-lg"
+                            required
+                        />
+                    </div>
+                    <button
+                        type="submit"
+                        className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+                        disabled={loading}
+                    >
+                        {loading ? 'Setting Password...' : 'Set Password'}
+                    </button>
+                </form>
+            </div>
         </div>
     );
 };
