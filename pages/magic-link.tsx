@@ -29,7 +29,7 @@ const MagicLink = ({ email, token }: { email: string; token: string }) => {
             } else if (userProfile) {
                 if (userProfile.profileType === 'nts_users') {
                     console.log('User is an NTS user:', email);
-                    router.push('/nts-set-password');
+                    router.push('/nts/nts-set-password');
                 } else {
                     console.log('User is not an NTS user:', email);
                     router.push('/user/logistics-management/');
