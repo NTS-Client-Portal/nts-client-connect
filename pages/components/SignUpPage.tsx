@@ -58,7 +58,6 @@ export default function SignUpPage() {
                         last_name: lastName,
                         phone_number: phoneNumber,
                         company_name: companyName,
-                        industry: industry,
                     },
                 },
             });
@@ -83,18 +82,6 @@ export default function SignUpPage() {
                     });
             }
 
-            // Send magic link for login
-            const { error: magicLinkError } = await supabase.auth.signUp({
-                email,
-                password,
-                options: {
-                    emailRedirectTo: 'https://www.shipper-connect.com/magic-link',
-                }
-            });
-            
-            if (magicLinkError) {
-                throw new Error(magicLinkError.message);
-            }
 
             setSuccess(true);
             setCurrentStep(2); // Move to the next step
