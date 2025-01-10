@@ -12,21 +12,19 @@ const NtsSetPassword = () => {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (!session) {
-            const { email, token } = router.query;
-            if (email && token) {
-                supabase.auth.verifyOtp({
-                    email: email as string,
-                    token: token as string,
-                    type: 'magiclink',
-                }).then(({ error }) => {
-                    if (error) {
-                        setError(error.message);
-                    }
-                });
-            }
+        const { email, token } = router.query;
+        if (email && token) {
+            supabase.auth.verifyOtp({
+                email: email as string,
+                token: token as string,
+                type: 'signup',
+            }).then(({ error }) => {
+                if (error) {
+                    setError(error.message);
+                }
+            });
         }
-    }, [session, router.query, supabase]);
+    }, [router.query, supabase]);
 
     const handleSetPassword = async (e: React.FormEvent) => {
         e.preventDefault();
