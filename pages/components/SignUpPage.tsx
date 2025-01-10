@@ -3,8 +3,6 @@ import Link from 'next/link';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import { v4 as uuidv4 } from 'uuid';
-import InviteUserForm from '@/components/user/InviteUserForm';
 
 export default function SignUpPage() {
     const supabase = useSupabaseClient();
@@ -22,7 +20,6 @@ export default function SignUpPage() {
     const [success, setSuccess] = useState(false);
     const [userType, setUserType] = useState('company');
     const [currentStep, setCurrentStep] = useState(1);
-    const [companyId, setCompanyId] = useState<string | null>(null);
 
     const validatePassword = (password: string): boolean => {
         const hasLowercase = /[a-z]/.test(password);
@@ -82,7 +79,6 @@ export default function SignUpPage() {
                         industry: industry,
                     });
             }
-
 
             setSuccess(true);
             setCurrentStep(2); // Move to the next step

@@ -27,83 +27,9 @@ interface UserProfile {
 }
 
 const LoginPage = () => {
-  const session = useSession();
   const supabase = useSupabaseClient();
-  const router = useRouter();
-  const [resendLoading, setResendLoading] = useState(false);
-  const [resendSuccess, setResendSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
-  useEffect(() => {
-    const checkUserRole = async () => {
-      if (session && session.user.email_confirmed_at) {
-        const { data: userProfile, error } = await supabase
-          .from('profiles')
-          .select('id, email, team_role, inserted_at')
-          .eq('id', session.user.id)
-          .single();
 
-        if (error) {
-          console.error('Error fetching user profile:', error.message);
-          return;
-        }
-
-        if (userProfile) {
-          setUserProfile(userProfile as UserProfile);
-          router.push('/user/logistics-management');
-        } else {
-          // Create a new profile if it doesn't exist
-          const { data, error } = await supabase
-            .from('profiles')
-            .insert({
-              id: session.user.id,
-              email: session.user.email,
-              team_role: 'manager',
-              inserted_at: new Date().toISOString(),
-            })
-            .select();
-
-          if (error) {
-            console.error('Error creating/updating user profile:', error.message);
-          } else {
-            setUserProfile(data[0] as UserProfile);
-            router.push('/user/logistics-management');
-          }
-        }
-      }
-    };
-
-    checkUserRole();
-  }, [session, router, supabase]);
-
-  const handleResendOtp = async () => {
-    setResendLoading(true);
-    setResendSuccess(false);
-    setError(null);
-
-    if (session?.user?.email) {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email: session.user.email,
-        options: {
-          emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}`
-        }
-      });
-
-      if (error) {
-        setError(error.message);
-      } else {
-        setResendSuccess(true);
-      }
-    } else {
-      setError('No email found for the current session.');
-    }
-
-    setResendLoading(false);
-  };
-
-  if (!session) {
     return (
       <>
         <Head>
@@ -167,44 +93,5 @@ const LoginPage = () => {
       </>
     );
   }
-
-  if (!session.user.email_confirmed_at) {
-    return (
-      <Layout>
-        <Head>
-          <title>NTS Client Portal</title>
-          <meta name="description" content="Welcome to SSTA Reminders & Tasks" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <link rel="icon" href="/hc-28.png" />
-        </Head>
-        <div className="w-full h-full bg-200">
-          <div className="min-w-full min-h-screen flex items-center justify-center">
-            <div className="w-full h-full flex justify-center items-center p-4">
-              <div className="w-full h-full sm:h-auto sm:w-2/5 max-w-sm p-5 bg-white shadow flex flex-col text-base">
-                <span className="font-sans text-4xl text-center pb-2 mb-1 border-b mx-4 align-center">
-                  Verify Your Email
-                </span>
-                <div className="mt-4 text-center">
-                  <p>Please verify your email address to access the application.</p>
-                  <button
-                    onClick={handleResendOtp}
-                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-                    disabled={resendLoading}
-                  >
-                    {resendLoading ? 'Resending...' : 'Resend OTP'}
-                  </button>
-                  {resendSuccess && <div className="text-green-500 mt-2">OTP resent successfully!</div>}
-                  {error && <div className="text-red-500 mt-2">{error}</div>}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
-
-  return null;
-};
 
 export default LoginPage;
