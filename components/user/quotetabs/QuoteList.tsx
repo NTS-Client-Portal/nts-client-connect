@@ -488,7 +488,8 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
             .insert({
                 ...quote,
                 id: undefined, // Let the database generate a new ID
-                due_date: null, // Require the user to fill out a new shipping date
+                due_date: null,
+                price: null,
             })
             .select();
 
