@@ -140,7 +140,7 @@ export default function SignUpPage() {
                             {error && <div className="text-red-500 text-center mb-4">{error}</div>}
                             {success && currentStep === 1 ? (
                                 <div className="text-green-500 text-center mb-4 border border-zinc-900 p-4 rounded">
-                                    Your sign up was successful! Please check your email to confirm your account. Make sure to check your spam or junk folder if you don't see it within a few minutes!
+                                    Your sign up was successful! Please check your email to confirm your account. Make sure to check your spam or junk folder if you don&apos;t see it within a few minutes!
                                 </div>
                             ) : (
                                 <>
