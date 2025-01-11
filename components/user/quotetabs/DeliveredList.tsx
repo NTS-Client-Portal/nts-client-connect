@@ -300,12 +300,12 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
             destination_zip: quote.destination_zip,
             destination_city: quote.destination_city,
             destination_state: quote.destination_state,
-            due_date: null, // Require the user to fill out a new shipping date
+            due_date: null,
             freight_type: quote.freight_type,
-            status: 'Quote', // Set the status back to 'Quote'
-            inserted_at: new Date().toISOString(), // Set the inserted_at date
-            is_complete: false, // Ensure the new quote is not marked as complete
-            is_archived: false, // Ensure the new quote is not marked as archived
+            status: 'Quote',
+            inserted_at: new Date().toISOString(),
+            is_complete: false,
+            is_archived: false,
             year: quote.year,
             make: quote.make,
             model: quote.model,
@@ -317,7 +317,6 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
             pallet_count: quote.pallet_count,
             price: quote.price,
             notes: quote.notes,
-            // Add any other fields that are required
         };
 
         const { data, error } = await supabase
@@ -340,7 +339,7 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
         <div className="w-full bg-white max-h-max flex-grow">
             {!!errorText && <div className="text-red-500">{errorText}</div>}
             {!!popupMessage && <div className="text-green-500">{popupMessage}</div>}
-            <div className="hidden 2xl:block overflow-x-auto">
+            <div className="hidden lg:block overflow-x-auto">
                 <DeliveredTable
                     quotes={deliveredQuotes}
                     fetchDeliveredQuotes={() => fetchDeliveredQuotesForCompany(companyId)}

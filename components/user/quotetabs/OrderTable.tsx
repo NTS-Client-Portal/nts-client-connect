@@ -199,7 +199,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
     }
 
     return (
-        <div className='w-full'>
+        <div className='w-full  overflow-x-auto'>
             <div className="flex justify-start gap-4 my-4 ml-4">
                 <div className="flex items-center">
                     <label className="mr-2">Search by:</label>
@@ -222,7 +222,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                     className="border border-gray-300 pl-2 rounded-md shadow-sm"
                 />
             </div>
-            <table className="min-w-full divide-y divide-zinc-200 border">
+            <table className="min-w-full divide-y divide-zinc-200 border overflow-x-auto">
                 <thead className="bg-ntsBlue border-2 border-t-orange-500 static top-0 w-full text-white">
                     <tr >
                         <th className="px-6 py-3 text-left text-xs text-nowrap font-semibold uppercase tracking-wider">
@@ -289,7 +289,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                                             <span className='text-normal text-zinc-900 text-start w-min'>
                                                                 {`${order.length} ${order.length_unit} x ${order.width} ${order.width_unit} x ${order.height} ${order.height_unit}, 
                                                                 ${order.weight} ${order.weight_unit}`}
-                                                                </span>
+                                                            </span>
                                                         </>
                                                     )}
                                                 </div>
@@ -333,37 +333,37 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                             Edit Order
                                         </button>
                                         {isAdmin && (
-                                <>
-                                    <select
-                                        value={order.brokers_status}
-                                        onChange={(e) => {
-                                            e.stopPropagation();
-                                            handleStatusChange(e, order.id);
-                                        }}
-                                        className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(order.brokers_status)}`}
-                                    >
-                                        <option value="" disabled>Select Status</option>
-                                        <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
-                                        <option value="Dispatched" className={getStatusClasses('Dispatched')}>Dispatched</option>
-                                        <option value="Picked Up" className={getStatusClasses('Picked Up')}>Picked Up</option>
-                                        <option value="Delivered" className={getStatusClasses('Delivered')}>Delivered</option>
-                                        <option value="Completed" className={getStatusClasses('Completed')}>Completed</option>
-                                        <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
-                                    </select>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleMarkAsComplete(order.id)(e);
-                                        }}
-                                        className="text-green-600 ml-2 relative z-50"
-                                    >
-                                        Mark as Complete
-                                    </button>
-                                    <button onClick={() => archiveOrder(order.id)} className="text-red-500 mt-3 font-semibold underline text-sm">
-                                        Archive Order
-                                    </button>
-                                </>
-                            )}
+                                            <>
+                                                <select
+                                                    value={order.brokers_status}
+                                                    onChange={(e) => {
+                                                        e.stopPropagation();
+                                                        handleStatusChange(e, order.id);
+                                                    }}
+                                                    className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(order.brokers_status)}`}
+                                                >
+                                                    <option value="" disabled>Select Status</option>
+                                                    <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
+                                                    <option value="Dispatched" className={getStatusClasses('Dispatched')}>Dispatched</option>
+                                                    <option value="Picked Up" className={getStatusClasses('Picked Up')}>Picked Up</option>
+                                                    <option value="Delivered" className={getStatusClasses('Delivered')}>Delivered</option>
+                                                    <option value="Completed" className={getStatusClasses('Completed')}>Completed</option>
+                                                    <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
+                                                </select>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleMarkAsComplete(order.id)(e);
+                                                    }}
+                                                    className="text-green-600 ml-2 relative z-50"
+                                                >
+                                                    Mark as Complete
+                                                </button>
+                                                <button onClick={() => archiveOrder(order.id)} className="text-red-500 mt-3 font-semibold underline text-sm">
+                                                    Archive Order
+                                                </button>
+                                            </>
+                                        )}
                                     </div>
                                 </td>
                             </tr>
@@ -387,7 +387,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                             </div>
                                             {activeTab === 'orderdetails' && (
                                                 <div className='border border-gray-200 p-6 h-full'>
-                                                   {renderAdditionalDetails(order)}
+                                                    {renderAdditionalDetails(order)}
                                                     <div className='flex gap-2 items-center h-full'>
                                                         <button onClick={(e) => { e.stopPropagation(); /* duplicateOrder(order); */ }} className="body-btn ml-2">
                                                             Duplicate Order

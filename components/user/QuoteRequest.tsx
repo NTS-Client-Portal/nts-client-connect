@@ -259,7 +259,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
         <div className="w-full h-full overflow-auto">
             <div className="w-full">
                 <div className='flex flex-col justify-center items-center gap-2 mb-4'>
-                    <button onClick={() => setIsModalOpen(true)} className="body-btn">
+                    <button onClick={() => setIsModalOpen(true)} className="text-ntsLightBlue text-base underline cursor-point font-semibold md:body-btn">
                         {ntsUser ? 'Create Shipping Quote for Customer' : profilesUser ? 'Request a Shipping Estimate' : 'Request a Shipping Estimate'}
                     </button>
                 </div>
@@ -310,7 +310,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                     </select>
                 </div>
             ) : (
-                <div className="flex gap-1 relative z-0 border-b border-gray-300">
+                <div className="flex gap-1 relative z-0 border-b text-nowrap border-gray-300">
                     <button
                         className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'requests' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
                         onClick={() => handleTabChange('requests')}
@@ -381,11 +381,11 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                 )} */}
                 {activeTab === 'rejected' && (
                     <RejectedList
-                    session={session}
-                    isAdmin={isAdmin}
-                    fetchQuotes={fetchQuotes}
-                    selectedUserId={selectedUserId}
-                    companyId={companyId}
+                        session={session}
+                        isAdmin={isAdmin}
+                        fetchQuotes={fetchQuotes}
+                        selectedUserId={selectedUserId}
+                        companyId={companyId}
                     />
                 )}
             </div>

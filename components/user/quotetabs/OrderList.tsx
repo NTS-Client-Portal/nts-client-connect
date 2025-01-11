@@ -58,11 +58,11 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
             }
 
             const { data: orders, error: ordersError } = await supabase
-            .from('shippingquotes')
-            .select('*')
-            .eq('company_id', companyId)
-            .eq('status', 'Order')
-            .not('is_complete', 'is', true);
+                .from('shippingquotes')
+                .select('*')
+                .eq('company_id', companyId)
+                .eq('status', 'Order')
+                .not('is_complete', 'is', true);
 
             if (ordersError) {
                 console.error(
@@ -372,7 +372,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
     return (
         <div className="w-full bg-white  shadow rounded-md max-h-max flex-grow">
             {!!errorText && <div className="text-red-500">{errorText}</div>}
-            <div className="hidden 2xl:block overflow-x-auto">
+            <div className="hidden lg:block overflow-x-auto">
                 <OrderTable
                     sortConfig={{ column: 'id', order: 'asc' }}
                     handleSort={handleSort}

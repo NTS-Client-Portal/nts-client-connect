@@ -92,7 +92,7 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
     return (
         <ProfilesUserProvider>
             <NtsUsersProvider>
-                <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] lg:grid-cols-[200px_1fr] min-h-screen">
+                <div className="lg:grid grid-cols-1 md:grid-cols-[200px_1fr] lg:grid-cols-[200px_1fr] min-h-screen">
                     <UserSideNav
                         isSidebarOpen={isSidebarOpen}
                         toggleSidebar={toggleSidebar}

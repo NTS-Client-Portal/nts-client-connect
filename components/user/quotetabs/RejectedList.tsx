@@ -61,7 +61,7 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
     return (
         <div className="w-full bg-white0 max-h-max flex-grow">
             {!!errorText && <div className="text-red-500">{errorText}</div>}
-            <div className="hidden 2xl:block overflow-x-auto">
+            <div className="hidden lg:block overflow-x-auto">
                 <RejectedTable
                     quotes={rejectedQuotes}
                     sortConfig={{ column: 'id', order: 'asc' }}
