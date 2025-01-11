@@ -887,6 +887,7 @@ export type Database = {
       messages: {
         Row: {
           broker_id: string | null
+          chat_id: string | null
           id: number
           message_body: string
           message_time: string | null
@@ -895,6 +896,7 @@ export type Database = {
         }
         Insert: {
           broker_id?: string | null
+          chat_id?: string | null
           id?: number
           message_body: string
           message_time?: string | null
@@ -903,6 +905,7 @@ export type Database = {
         }
         Update: {
           broker_id?: string | null
+          chat_id?: string | null
           id?: number
           message_body?: string
           message_time?: string | null
@@ -974,7 +977,6 @@ export type Database = {
       nts_users: {
         Row: {
           address: string | null
-          auth_uid: string | null
           company_id: string | null
           email: string
           email_notifications: boolean | null
@@ -991,7 +993,6 @@ export type Database = {
         }
         Insert: {
           address?: string | null
-          auth_uid?: string | null
           company_id?: string | null
           email: string
           email_notifications?: boolean | null
@@ -1008,7 +1009,6 @@ export type Database = {
         }
         Update: {
           address?: string | null
-          auth_uid?: string | null
           company_id?: string | null
           email?: string
           email_notifications?: boolean | null

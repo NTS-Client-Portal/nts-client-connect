@@ -54,7 +54,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId }) => {
         }
 
         return quotes;
-    }, [supabase]);
+    }, []);
 
     const fetchQuotesForCompany = useCallback(async (companyId: string) => {
         const { data: quotes, error: quotesError } = await supabase
@@ -70,7 +70,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId }) => {
         }
 
         return quotes;
-    }, [supabase]);
+    }, []);
 
     const fetchArchivedQuotes = useCallback(async () => {
         if (!session?.user?.id) return;
@@ -84,7 +84,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId }) => {
         }
 
         setIsLoading(false);
-    }, [session, supabase, fetchQuotesForCompany, fetchQuotesForNtsUsers, isAdmin, companyId]);
+    }, [session, fetchQuotesForCompany, fetchQuotesForNtsUsers, isAdmin, companyId]);
 
     useEffect(() => {
         const checkUserType = async () => {
@@ -148,7 +148,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId }) => {
         return () => {
             supabase.removeChannel(channel); // Cleanup subscription
         };
-    }, [supabase, fetchArchivedQuotes]);
+    }, [fetchArchivedQuotes]);
 
     const unArchive = async (quote: Database['public']['Tables']['shippingquotes']['Row']) => {
         const { data, error } = await supabase
@@ -172,9 +172,9 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId }) => {
     };
 
     return (
-        <div className="w-full bg-white0 max-h-max flex-grow">
+        <div className="w-full bg-white max-h-max flex-grow">
             {!!errorText && <div className="text-red-500">{errorText}</div>}
-            <div className="hidden 2xl:block overflow-x-auto">
+            <div className="hidden lg:block overflow-x-auto">
                 <ArchivedTable
                     quotes={archivedQuotes}
                     sortConfig={sortConfig}

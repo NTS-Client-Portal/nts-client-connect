@@ -69,7 +69,7 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
 
             return quotes;
         },
-        [supabase]
+        []
     );
 
     const fetchDeliveredQuotesForCompany = useCallback(async (companyId: string) => {
@@ -124,7 +124,7 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
         };
 
         checkUserType();
-    }, [session, fetchQuotes, fetchDeliveredQuotesForNtsUsers, fetchDeliveredQuotesForCompany]);
+    }, [session, fetchQuotes, fetchDeliveredQuotesForNtsUsers, fetchDeliveredQuotesForCompany, companyId]);
 
     useEffect(() => {
         const channel = supabase

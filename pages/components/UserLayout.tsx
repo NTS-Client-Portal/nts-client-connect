@@ -91,24 +91,23 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
 
     return (
         <ProfilesUserProvider>
-            <NtsUsersProvider>
-                <div className="lg:grid grid-cols-1 md:grid-cols-[200px_1fr] lg:grid-cols-[200px_1fr] min-h-screen">
-                    <UserSideNav
-                        isSidebarOpen={isSidebarOpen}
-                        toggleSidebar={toggleSidebar}
-                        className="col-span-1"
+            <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] lg:grid-cols-[200px_1fr] min-h-screen">
+                <UserSideNav
+                    isSidebarOpen={isSidebarOpen}
+                    toggleSidebar={toggleSidebar}
+                    className="col-span-1"
+                />
+                <div className="fixed w-full top-0 left-0 z-10">
+                    <UserTopNav
                     />
-                    <div className="fixed w-full top-0 left-0 z-10">
-                        <UserTopNav />
-                    </div>
-                    <div className="col-span-1">
-
-                        <main className="mt-16 md:mt-24 p-4">
-                            {children}
-                        </main>
-                    </div>
                 </div>
-            </NtsUsersProvider>
+                <div className="col-span-1">
+
+                    <main className="mt-16 md:mt-24 p-4">
+                        {children}
+                    </main>
+                </div>
+            </div>
         </ProfilesUserProvider>
     );
 };

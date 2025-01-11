@@ -95,7 +95,7 @@ const ChatRequestsPage: React.FC = () => {
                 const { data, error } = await supabase
                     .from('chat_requests')
                     .select('*')
-                    .eq('broker_id', userProfile.id);
+                    .eq('shipper_id', userProfile.id);
 
                 if (error) {
                     console.error('Error fetching chat requests:', error.message);
@@ -215,23 +215,23 @@ const ChatRequestsPage: React.FC = () => {
                 <div className=" p-4">
                     <h1 className="text-2xl font-bold mb-2 text-zinc-900 underline">Chat Requests</h1>
                     <ul>
-                     {chatRequests && chatRequests.length > 0 ? (
-                        chatRequests.map((request) => (
-                        <li key={request.id} className="mb-4 p-4 bg-white dark:bg-zinc-900 rounded-lg shadow-lg">
-                                <p><strong>Topic:</strong> {request.topic}</p>
-                                <p><strong>Priority:</strong> {request.priority}</p>
-                                <p><strong>Shipper ID:</strong> {request.shipper_id}</p>
-                                <div className="flex space-x-2">
-                                    <button className='body-btn' onClick={() => handleAcceptChat(request.id)}>Accept Chat</button>
-                                    <button className='body-btn' onClick={() => handleRescheduleChat(request.id)}>Reschedule</button>
-                                    <button className='body-btn' onClick={() => handleDeleteChat(request.id)}>Delete</button>
-                                </div>
-                            </li>
-                        ))
-                    ) : (
-                        <li className='text-gray-500 italic'>No chat requests found</li>
-                    )}
-                </ul>
+                        {chatRequests && chatRequests.length > 0 ? (
+                            chatRequests.map((request) => (
+                                <li key={request.id} className="mb-4 p-4 bg-white dark:bg-zinc-900 rounded-lg shadow-lg">
+                                    <p><strong>Topic:</strong> {request.topic}</p>
+                                    <p><strong>Priority:</strong> {request.priority}</p>
+                                    <p><strong>Shipper ID:</strong> {request.shipper_id}</p>
+                                    <div className="flex space-x-2">
+                                        <button className='body-btn' onClick={() => handleAcceptChat(request.id)}>Accept Chat</button>
+                                        <button className='body-btn' onClick={() => handleRescheduleChat(request.id)}>Reschedule</button>
+                                        <button className='body-btn' onClick={() => handleDeleteChat(request.id)}>Delete</button>
+                                    </div>
+                                </li>
+                            ))
+                        ) : (
+                            <li className='text-gray-500 italic'>No chat requests found</li>
+                        )}
+                    </ul>
                 </div>
             </div>
 

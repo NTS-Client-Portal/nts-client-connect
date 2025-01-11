@@ -3,6 +3,7 @@ import { supabase } from '@/lib/initSupabase';
 import { Database } from '@/lib/database.types';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { v4 as uuidv4 } from 'uuid';
+import Image from 'next/image';
 
 interface AddNtsUserFormProps {
     isOpen: boolean;
@@ -94,7 +95,6 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
 
             const { error: insertError } = await supabase.from('nts_users').insert({
                 id: user?.user?.id,
-                auth_uid: user?.user?.id,
                 email: newNtsUser.email,
                 role: newNtsUser.role,
                 first_name: newNtsUser.first_name,
@@ -219,10 +219,12 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                                 className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                             {profilePicture && (
-                                <img
+                                <Image
                                     src={URL.createObjectURL(profilePicture)}
                                     alt="Profile Preview"
-                                    className="mt-2 w-32 h-32 object-cover rounded-full"
+                                    width={128}
+                                    height={128}
+                                    className="mt-2 object-cover rounded-full"
                                 />
                             )}
                         </div>

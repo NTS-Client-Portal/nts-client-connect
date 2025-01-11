@@ -15,7 +15,7 @@ const supabase = createClient(supabaseUrl, serviceRoleKey);
 export const assignSalesUser = async (companyId: string) => {
     try {
         // Default sales user ID
-        const defaultSalesUserId = '52a7d630-a8cc-48cf-be7d-5188a956e2e5';
+        const defaultSalesUserId = 'e0718128-235b-4f41-ac6c-31ee0435c64e';
 
         // Assign the default sales user to the new company
         const { error: assignError } = await supabase

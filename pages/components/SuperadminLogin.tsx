@@ -27,11 +27,10 @@ const SuperadminLogin = () => {
             return;
         }
 
-        // Check if the user has the superadmin role using auth_uid
         const { data: userProfile, error: profileError } = await supabase
             .from('nts_users')
             .select('role')
-            .eq('auth_uid', authData.user.id)
+            .eq('id', authData.user.id)
             .single();
 
         setLoading(false);

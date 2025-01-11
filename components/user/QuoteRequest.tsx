@@ -8,11 +8,6 @@ import DeliveredList from './quotetabs/DeliveredList';
 import OrderList from './quotetabs/OrderList';
 import Archived from './quotetabs/Archived';
 import RejectedList from './quotetabs/RejectedList';
-import EditHistory from '../EditHistory'; // Adjust the import path as needed
-import { NtsUsersProvider } from '@/context/NtsUsersContext';
-import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
-import { useProfilesUser } from '@/context/ProfilesUserContext'; // Import ProfilesUserContext
-import { useNtsUsers } from '@/context/NtsUsersContext';
 
 interface QuoteRequestProps {
     session: Session | null;
@@ -22,8 +17,6 @@ interface QuoteRequestProps {
 
 const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], companyId }) => {
     const supabase = useSupabaseClient<Database>();
-    const { userProfile: profilesUser } = useProfilesUser(); // Use ProfilesUserContext
-    const { userProfile: ntsUser } = useNtsUsers(); // Use NtsUsersContext
     const [quotes, setQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
     const [orders, setOrders] = useState<Database['public']['Tables']['orders']['Row'][]>([]);
     const [editHistory, setEditHistory] = useState<Database['public']['Tables']['edit_history']['Row'][]>([]);
@@ -38,31 +31,15 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
     const [searchTerm, setSearchTerm] = useState<string>(searchTermParam as string || '');
     const [searchColumn, setSearchColumn] = useState<string>(searchColumnParam as string || 'id');
 
-    const fetchUserProfile = useCallback(async () => {
-        if (!session?.user?.id) return;
-
-        const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('company_id')
-            .eq('id', session.user.id)
-            .single();
-
-        if (error) {
-            console.error('Error fetching user profile:', error.message);
-            return;
-        }
-
-        setSelectedUserId(profile.company_id);
-    }, [session, supabase]);
-
     const fetchQuotes = useCallback(async () => {
         if (!session?.user?.id || !companyId) return;
+
+        console.log('Fetching quotes for companyId:', companyId); // Add log to check companyId
 
         const { data, error } = await supabase
             .from('shippingquotes')
             .select('*')
-            .eq('company_id', companyId)
-            .eq('is_archived', false); // Fetch only non-archived quotes
+            .eq('company_id', companyId);
 
         if (error) {
             setErrorText(error.message);
@@ -71,36 +48,6 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
             setQuotes(data);
         }
     }, [session, companyId, supabase]);
-
-    const fetchEditHistory = useCallback(async () => {
-        if (!companyId) return;
-
-        const { data, error } = await supabase
-            .from('edit_history')
-            .select('*')
-            .eq('company_id', companyId)
-            .order('edited_at', { ascending: false });
-
-        if (error) {
-            console.error('Error fetching edit history:', error.message);
-        } else {
-            console.log('Fetched Edit History:', data);
-            setEditHistory(data);
-        }
-    }, [companyId, supabase]);
-
-    useEffect(() => {
-        if (session?.user?.id) {
-            fetchUserProfile();
-        }
-    }, [session, fetchUserProfile]);
-
-    useEffect(() => {
-        if (session?.user?.id) {
-            fetchQuotes();
-            fetchEditHistory();
-        }
-    }, [session, fetchQuotes, fetchEditHistory]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -127,8 +74,10 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
 
             if (error) {
                 console.error('Error fetching user role:', error.message);
+            } else if (data) {
+                setIsAdmin(true);
             } else {
-                setIsAdmin(!!data);
+                setIsAdmin(false);
             }
         };
 
@@ -166,13 +115,13 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                 inserted_at: quote.inserted_at || new Date().toISOString(),
                 is_complete: quote.is_complete || false,
                 is_archived: quote.is_archived || false,
-                year: quote.year?.toString() || null, // Ensure year is a string
+                year: quote.year?.toString() || null,
                 make: quote.make || null,
                 model: quote.model || null,
-                length: quote.length?.toString() || null, // Ensure length is a string
-                width: quote.width?.toString() || null, // Ensure width is a string
-                height: quote.height?.toString() || null, // Ensure height is a string
-                weight: quote.weight?.toString() || null, // Ensure weight is a string
+                length: quote.length?.toString() || null,
+                width: quote.width?.toString() || null,
+                height: quote.height?.toString() || null,
+                weight: quote.weight?.toString() || null,
                 status: quote.status || 'Quote',
             }])
             .select();
@@ -187,72 +136,13 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
         setQuotes([...quotes, ...(shippingQuoteData || [])]);
 
         setErrorText('');
-        setIsModalOpen(false); // Close the modal after adding the quote
-        fetchQuotes(); // Fetch quotes after adding a new one
-    };
-
-    const archiveQuote = async (id: number) => {
-        if (!session?.user?.id) return;
-
-        const { error } = await supabase
-            .from('shippingquotes')
-            .update({ is_archived: true } as Database['public']['Tables']['shippingquotes']['Update']) // Mark the quote as archived
-            .eq('id', id);
-
-        if (error) {
-            console.error('Error archiving quote:', error.message);
-            setErrorText('Error archiving quote');
-        } else {
-            setQuotes(quotes.filter(quote => quote.id !== id));
-        }
-    };
-
-    const transferToOrderList = async (quoteId: number) => {
-        if (!session?.user?.id) {
-            setErrorText('User is not authenticated');
-            return;
-        }
-
-        try {
-            // Logic to transfer the quote to the order list
-            const { data, error } = await supabase
-                .from('shippingquotes')
-                .insert([{ quote_id: quoteId, user_id: session.user.id }]);
-
-            if (error) {
-                console.error('Error transferring quote to shippingquotes list:', error);
-                setErrorText('Error transferring quote to shippingquotes list');
-            } else {
-                console.log('Quote transferred to shippingquotes list:', data);
-                // Remove the transferred quote from the quotes array
-                setQuotes(quotes.filter(quote => quote.id !== quoteId));
-            }
-        } catch (error) {
-            console.error('Error transferring quote to shippingquotes list:', error);
-            setErrorText('Error transferring quote to shippingquotes list');
-        }
-    };
-
-    const formatDate = (dateString: string | null) => {
-        if (!dateString) return 'No due date';
-        const date = new Date(dateString);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
+        setIsModalOpen(false);
+        fetchQuotes();
     };
 
     const handleTabChange = (tab: string) => {
         setActiveTab(tab);
-        if (profilesUser) {
-            if (tab === 'orders') {
-                router.push(`/user/logistics-management?tab=orders&searchTerm=${searchTerm}&searchColumn=${searchColumn}`, undefined, { shallow: true });
-            } else {
-                router.push(`/user/logistics-management?tab=${tab}`, undefined, { shallow: true });
-            }
-        } else if (ntsUser) {
-            router.push(`/companies/${companyId}`, undefined, { shallow: true });
-        }
+        router.push(`/user/logistics-management?tab=${tab}`, undefined, { shallow: true });
     };
 
     return (
@@ -260,40 +150,22 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
             <div className="w-full">
                 <div className='flex flex-col justify-center items-center gap-2 mb-4'>
                     <button onClick={() => setIsModalOpen(true)} className="text-ntsLightBlue text-base underline cursor-point font-semibold md:body-btn">
-                        {ntsUser ? 'Create Shipping Quote for Customer' : profilesUser ? 'Request a Shipping Estimate' : 'Request a Shipping Estimate'}
+                        Request a Shipping Estimate
                     </button>
                 </div>
-                <div className="flex justify-center mb-4 relative z-0">
-                    <label className="mr-2">Select User:</label>
-                    <select
-                        value={selectedUserId || ''}
-                        onChange={(e) => setSelectedUserId(e.target.value)}
-                        className="border relative z-0 border-gray-300 rounded-md shadow-sm"
-                    >
-                        <option value="">All Users</option>
-                        {profiles.map((profile) => (
-                            <option key={profile.id} value={profile.id}>
-                                {profile.first_name} {profile.last_name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <NtsUsersProvider>
-                    <ProfilesUserProvider>
-                        <QuoteForm
-                            session={session}
-                            isOpen={isModalOpen}
-                            onClose={() => setIsModalOpen(false)}
-                            addQuote={addQuote}
-                            errorText={errorText}
-                            setErrorText={setErrorText}
-                            assignedSalesUser={session?.user?.id || ''} // Pass assignedSalesUser to QuoteForm
-                            fetchQuotes={fetchQuotes}
-
-                        />
-                    </ProfilesUserProvider>
-                </NtsUsersProvider>
             </div>
+
+            <QuoteForm
+                session={session}
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                addQuote={addQuote}
+                errorText={errorText}
+                setErrorText={setErrorText}
+                assignedSalesUser={session?.user?.id || ''} // Pass assignedSalesUser to QuoteForm
+                fetchQuotes={fetchQuotes}
+                companyId={companyId}
+            />
 
             {isMobile ? (
                 <div className="relative z-0">
@@ -329,12 +201,12 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                     >
                         Completed Orders
                     </button>
-                    {/* <button
+                    <button
                         className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'archived' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
                         onClick={() => handleTabChange('archived')}
                     >
                         Archived
-                    </button> */}
+                    </button>
                     <button
                         className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'rejected' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
                         onClick={() => handleTabChange('rejected')}
@@ -371,14 +243,14 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                         companyId={companyId}
                     />
                 )}
-                {/* {activeTab === 'archived' && (
+                {activeTab === 'archived' && (
                     <Archived
                         session={session}
                         isAdmin={isAdmin}
                         selectedUserId={selectedUserId}
                         companyId={companyId}
                     />
-                )} */}
+                )}
                 {activeTab === 'rejected' && (
                     <RejectedList
                         session={session}

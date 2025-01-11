@@ -72,7 +72,6 @@ exports.handler = async (event, context) => {
             office,
             company_id, // Use the dynamic company_id
             inserted_at: new Date().toISOString(),
-            auth_uid: authUserId,
             profile_picture,
         });
 

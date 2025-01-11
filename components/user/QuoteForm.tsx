@@ -3,8 +3,6 @@ import { Session } from '@supabase/auth-helpers-react';
 import SelectOption from './SelectOption';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
-import { useProfilesUser } from '@/context/ProfilesUserContext'; // Import ProfilesUserContext
-import { useNtsUsers } from '@/context/NtsUsersContext'; // Import NtsUsersContext
 import axios from 'axios';
 
 interface QuoteFormProps {
@@ -14,14 +12,13 @@ interface QuoteFormProps {
     errorText: string;
     setErrorText: (value: string) => void;
     session: Session;
-    fetchQuotes: () => void; // Add fetchQuotes pro
-    assignedSalesUser: string; // Add assignedSalesUser prop
+    fetchQuotes: () => void; // Add fetchQuotes prop
+    assignedSalesUser: string;
+    companyId: string;
 }
 
-const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorText, setErrorText, session, fetchQuotes, assignedSalesUser }) => {
+const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorText, setErrorText, session, companyId, fetchQuotes, assignedSalesUser }) => {
     const supabase = useSupabaseClient<Database>();
-    const { userProfile: profilesUser } = useProfilesUser(); // Use ProfilesUserContext
-    const { userProfile: ntsUser } = useNtsUsers(); // Use NtsUsersContext
     const [selectedOption, setSelectedOption] = useState('');
     const [originInput, setOriginInput] = useState('');
     const [originCity, setOriginCity] = useState('');
@@ -54,7 +51,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
         if (session) {
             fetchInventoryItems();
         }
-    }, [session]);
+    }, [session, supabase]);
 
     const handleOriginInputBlur = async () => {
         if (originInput.match(/^\d{5}$/)) {
@@ -190,6 +187,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                 const { data: brokerData, error: brokerError } = await supabase
                     .from('company_sales_users')
                     .select('sales_user_id')
+                    .eq('company_id', companyId) // Ensure the correct company_id is used
                     .single();
 
                 if (brokerError) {
@@ -197,17 +195,21 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                 } else if (brokerData) {
                     const brokerUserId = brokerData.sales_user_id;
 
-                    // Send notification to the broker
-                    const notificationMessage = `A new quote has been submitted by ${assignedSalesUser}`;
-                    const { error: notificationError } = await supabase
-                        .from('notifications')
-                        .insert({
-                            user_id: brokerUserId,
-                            message: notificationMessage,
-                        });
+                    if (brokerUserId) {
+                        // Send notification to the broker
+                        const notificationMessage = `A new quote has been submitted by ${assignedSalesUser}`;
+                        const { error: notificationError } = await supabase
+                            .from('notifications')
+                            .insert({
+                                user_id: brokerUserId,
+                                message: notificationMessage,
+                            });
 
-                    if (notificationError) {
-                        console.error('Error sending notification to broker:', notificationError.message);
+                        if (notificationError) {
+                            console.error('Error sending notification to broker:', notificationError.message);
+                        }
+                    } else {
+                        console.error('Broker user ID is undefined');
                     }
                 }
             }
@@ -248,7 +250,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
     return (
         <div className="fixed z-50 inset-0 bg-zinc-600 bg-opacity-50 flex justify-center  h-fit-content items-center  ">
             <div className="border-2 bg-ntsBlue border-t-orange-500 border-x-0 border-b-0 drop-shadow-xl pt-2 rounded w-sm w-[95vw] md:w-1/2 md:max-w-none overflow-y-auto relative  z-50">
-                <h2 className="text-xl text-white font-semibold pl-4 mb-2">{ntsUser ? 'Create Shipping Quote for Customer' : profilesUser ? 'Request a Shipping Estimate' : 'Request a Shipping Estimate'}</h2>
+                <h2 className="text-xl text-white font-semibold pl-4 mb-2">Request a Shipping Estimate</h2>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3 bg-white relative z-50 p-4 ">
                     <label className='dark:text-zinc-100 font-medium'>Select Inventory Item
                         <select
@@ -342,7 +344,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                     <div className='flex justify-center'>
                         <div className='flex gap-2 w-full justify-around'>
                             <button type="submit" className="body-btn w-2/3 text-sm place-self-center">
-                                {ntsUser ? 'Create Quote for Customer' : profilesUser ? 'Request a Shipping Estimate' : 'Request a Shipping Estimate'}
+                                Request a Shipping Estimate
                             </button>
                             <button onClick={onClose} className="cancel-btn mt-4 w-1/4 place-self-center">
                                 Close

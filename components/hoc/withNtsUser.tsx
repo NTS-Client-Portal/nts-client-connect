@@ -19,7 +19,7 @@ const withNtsUser = (WrappedComponent: React.FC) => {
                     return;
                 }
 
-                console.log(`Checking user in nts_users table with auth_uid: ${session.user.id}`);
+                console.log(`Checking user in nts_users table with id: ${session.user.id}`);
 
                 const { data, error } = await supabase
                     .from('nts_users')

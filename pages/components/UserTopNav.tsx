@@ -6,8 +6,6 @@ import NotificationBell from '@/components/NotificationBell';
 import FeedBack from '@/components/ui/FeedBack';
 import Link from 'next/link';
 import { useSession } from '@supabase/auth-helpers-react';
-import Router from 'next/router';
-import ShipperBrokerConnect from '@/components/chat/ShipperBrokerConnect';
 import { useRouter } from 'next/router';
 
 interface UserTopNavProps {
@@ -28,17 +26,6 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
     const [profilePictureUrl, setProfilePictureUrl] = useState<string>('https://www.gravatar.com/avatar?d=mp&s=100');
     const [assignedSalesUsers, setAssignedSalesUsers] = useState<AssignedSalesUser[]>([]);
     const [dropdownOpen, setDropdownOpen] = useState(false);
-
-    useEffect(() => {
-        const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-        setDarkMode(savedDarkMode);
-        if (savedDarkMode) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    }, []);
-
 
     useEffect(() => {
         if (userProfile?.profile_picture) {
@@ -81,17 +68,6 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
         sessionStorage.clear();
         localStorage.clear();
         router.push('/');
-    };
-
-    const toggleDarkMode = () => {
-        setDarkMode(!darkMode);
-        if (!darkMode) {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('darkMode', 'true');
-        } else {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('darkMode', 'false');
-        }
     };
 
     const toggleDropdown = () => {
@@ -166,6 +142,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                             width={40}
                             height={40}
                             onClick={toggleDropdown}
+                            priority
                         />
                         {dropdownOpen && (
                             <div className="absolute right-0 mt-2 w-fit text-sm bg-white border border-gray-200 rounded shadow-lg">

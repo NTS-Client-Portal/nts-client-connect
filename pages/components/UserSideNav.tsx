@@ -29,33 +29,32 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
     const [assignedSalesUsers, setAssignedSalesUsers] = useState<AssignedSalesUser[]>([]);
     const [ntsUserProfile, setNtsUserProfile] = useState<AssignedSalesUser | null>(null);
 
-   useEffect(() => {
-           const fetchAssignedSalesUsers = async () => {
-               if (userProfile?.company_id) {
-                   const { data, error } = await supabase
-                       .from('company_sales_users')
-                       .select(`
-                           sales_user_id,
-                           nts_users (
-                               first_name,
-                               last_name,
-                               email,
-                               phone_number
-                           )
-                       `)
-                       .eq('company_id', userProfile.company_id);
-   
-                   if (error) {
-                       console.error('Error fetching assigned sales users:', error.message);
-                   } else if (data) {
-                       setAssignedSalesUsers(data.map((item: any) => item.nts_users));
-                   }
-               }
-           };
-           fetchAssignedSalesUsers();
+    useEffect(() => {
+        const fetchAssignedSalesUsers = async () => {
+            if (userProfile?.company_id) {
+                const { data, error } = await supabase
+                    .from('company_sales_users')
+                    .select(`
+                        sales_user_id,
+                        nts_users (
+                            first_name,
+                            last_name,
+                            email,
+                            phone_number
+                        )
+                    `)
+                    .eq('company_id', userProfile.company_id);
+
+                if (error) {
+                    console.error('Error fetching assigned sales users:', error.message);
+                } else if (data) {
+                    setAssignedSalesUsers(data.map((item: any) => item.nts_users));
+                }
+            }
+        };
+        fetchAssignedSalesUsers();
     }, [userProfile, supabase]);
 
-   
     const handleLogout = async () => {
         await supabase.auth.signOut();
         sessionStorage.clear();
@@ -86,6 +85,7 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                             width={150}
                             height={50}
                             className="object-contain"
+                            priority
                         />
                     </div>
                     <span className="w-full flex flex-col items-center gap-1 justify-center mb-6 border-b border-stone-100/40 pb-4">

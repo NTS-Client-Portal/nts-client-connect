@@ -1,73 +1,77 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Session } from '@supabase/auth-helpers-react';
-import { supabase } from '@lib/initSupabase';
+import React, { useEffect, useState, useRef } from 'react';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 
 interface ChatInterfaceProps {
     brokerId: string;
     shipperId: string;
-    session: Session | null;
-    activeChatId: string;
+    session: any;
+    activeChatId: string | null;
 }
 
 interface Message {
     id: number;
-    broker_id: string | null;
-    shipper_id: string | null;
     message_body: string;
     message_time: string | null;
     user_type: string | null;
 }
 
+const isValidUUID = (id: string) => {
+    const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return regex.test(id);
+};
+
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ brokerId, shipperId, session, activeChatId }) => {
+    const supabase = useSupabaseClient<Database>();
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState('');
     const [isChatEnded, setIsChatEnded] = useState(false);
+    const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
-        if (!brokerId || !shipperId) {
+        if (!isValidUUID(brokerId) || !isValidUUID(shipperId)) {
             console.error('Invalid brokerId or shipperId');
             return;
         }
 
         const fetchMessages = async () => {
+            if (!activeChatId || !isValidUUID(activeChatId)) {
+                console.error('Invalid activeChatId');
+                return;
+            }
+
             const { data, error } = await supabase
                 .from('messages')
                 .select('*')
-                .or(`broker_id.eq.${brokerId},shipper_id.eq.${shipperId}`)
-                .order('message_time', { ascending: true });
+                .eq('chat_id', activeChatId);
 
             if (error) {
                 console.error('Error fetching messages:', error.message);
             } else {
-                setMessages(data);
+                setMessages(data as Message[]);
             }
         };
 
         fetchMessages();
 
         const subscription = supabase
-            .channel(`public:messages:broker_id=eq.${brokerId},shipper_id=eq.${shipperId}`)
-            .on(
-                'postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'messages' },
-                (payload) => {
-                    setMessages((prevMessages) => [...prevMessages, payload.new as Message]);
-                }
-            )
+            .channel('public:messages')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
+                setMessages((prevMessages) => [...prevMessages, payload.new as Message]);
+            })
             .subscribe();
 
         return () => {
             supabase.removeChannel(subscription);
         };
-    }, [brokerId, shipperId]);
+    }, [brokerId, shipperId, activeChatId, supabase]);
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newMessage.trim()) return;
 
         // Ensure brokerId and shipperId are valid UUIDs
-        if (!brokerId || !shipperId) {
+        if (!isValidUUID(brokerId) || !isValidUUID(shipperId)) {
             console.error('Invalid brokerId or shipperId');
             return;
         }
@@ -79,33 +83,35 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ brokerId, shipperId, sess
             .eq('id', brokerId)
             .single();
 
+        if (brokerError || !brokerData) {
+            console.error('Invalid brokerId:', brokerError?.message);
+            return;
+        }
+
         const { data: shipperData, error: shipperError } = await supabase
             .from('profiles')
             .select('id')
             .eq('id', shipperId)
             .single();
 
-        if (brokerError || !brokerData) {
-            console.error('Broker ID does not exist:', brokerError?.message);
-            return;
-        }
-
         if (shipperError || !shipperData) {
-            console.error('Shipper ID does not exist:', shipperError?.message);
+            console.error('Invalid shipperId:', shipperError?.message);
             return;
         }
-
-        // Determine the user type based on the session user ID
-        const userType = session?.user.id === brokerId ? 'broker' : 'shipper';
 
         const { error } = await supabase
             .from('messages')
-            .insert([{ broker_id: brokerId, shipper_id: shipperId, message_body: newMessage, user_type: userType }]);
+            .insert({
+                chat_id: activeChatId,
+                message_body: newMessage,
+                user_type: 'shipper',
+                message_time: new Date().toISOString(),
+            });
 
         if (error) {
             console.error('Error sending message:', error.message);
         } else {
-            setNewMessage(''); // Clear the input box
+            setNewMessage('');
         }
     };
 
@@ -130,8 +136,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ brokerId, shipperId, sess
             setMessages((prevMessages) => [...prevMessages, endMessage]);
         }
     };
-
-    const messagesEndRef = useRef(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

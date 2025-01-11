@@ -60,7 +60,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
             const { data: orders, error: ordersError } = await supabase
                 .from('shippingquotes')
                 .select('*')
-                .eq('company_id', companyId)
+                .in('company_id', companyIds)
                 .eq('status', 'Order')
                 .not('is_complete', 'is', true);
 
@@ -74,7 +74,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
 
             return orders;
         },
-        [supabase]
+        []
     );
 
     const fetchQuotesForCompany = useCallback(async (companyId: string) => {
@@ -124,7 +124,6 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
         }
     }, [
         session,
-        supabase,
         fetchQuotesForCompany,
         fetchOrdersForNtsUsers,
         isAdmin,

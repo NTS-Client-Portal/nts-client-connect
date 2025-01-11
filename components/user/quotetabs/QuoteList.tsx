@@ -46,7 +46,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
     const archiveQuote = async (quoteId: number) => {
         const { error } = await supabase
             .from("shippingquotes")
-            .update({ is_archived: true })
+            .update({ is_archived: true, status: "Archived" })
             .eq("id", quoteId);
 
         if (error) {
@@ -86,6 +86,8 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
 
     const fetchEditHistory = useCallback(
         async (companyId: string) => {
+            console.log('Fetching edit history for companyId:', companyId); // Add log to check companyId
+
             const { data, error } = await supabase
                 .from("edit_history")
                 .select("*")
@@ -127,6 +129,8 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
 
     const fetchProfiles = useCallback(
         async (companyId: string) => {
+            console.log('Fetching profiles for companyId:', companyId); // Add log to check companyId
+
             const { data: profiles, error } = await supabase
                 .from("profiles")
                 .select("*")
@@ -162,48 +166,50 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
     );
 
     const fetchQuotesForNtsUsers = useCallback(
-		async (userId: string, companyId: string) => {
-			const { data: companySalesUsers, error: companySalesUsersError } = await supabase
-				.from("company_sales_users")
-				.select("company_id")
-				.eq("sales_user_id", userId);
-	
-			if (companySalesUsersError) {
-				console.error(
-					"Error fetching company_sales_users for nts_user:",
-					companySalesUsersError.message
-				);
-				return [];
-			}
-	
-			const companyIds = companySalesUsers.map(
-				(companySalesUser) => companySalesUser.company_id
-			);
-	
-			if (!companyIds.includes(companyId)) {
-				console.error("Company ID not assigned to the user");
-				return [];
-			}
-	
-			const { data: quotes, error: quotesError } = await supabase
-				.from("shippingquotes")
-				.select("*")
-				.eq("company_id", companyId)
-				.eq("status", "Quote")
-				.or("is_archived.is.null,is_archived.eq.false");
-	
-			if (quotesError) {
-				console.error(
-					"Error fetching quotes for nts_user:",
-					quotesError.message
-				);
-				return [];
-			}
-	
-			return quotes;
-		},
-		[supabase]
-	);
+        async (userId: string, companyId: string) => {
+            console.log('Fetching quotes for nts_user with companyId:', companyId); // Add log to check companyId
+
+            const { data: companySalesUsers, error: companySalesUsersError } = await supabase
+                .from("company_sales_users")
+                .select("company_id")
+                .eq("sales_user_id", userId);
+
+            if (companySalesUsersError) {
+                console.error(
+                    "Error fetching company_sales_users for nts_user:",
+                    companySalesUsersError.message
+                );
+                return [];
+            }
+
+            const companyIds = companySalesUsers.map(
+                (companySalesUser) => companySalesUser.company_id
+            );
+
+            if (!companyIds.includes(companyId)) {
+                console.error("Company ID not assigned to the user");
+                return [];
+            }
+
+            const { data: quotes, error: quotesError } = await supabase
+                .from("shippingquotes")
+                .select("*")
+                .eq("company_id", companyId)
+                .eq("status", "Quote")
+                .or("is_archived.is.null,is_archived.eq.false");
+
+            if (quotesError) {
+                console.error(
+                    "Error fetching quotes for nts_user:",
+                    quotesError.message
+                );
+                return [];
+            }
+
+            return quotes;
+        },
+        [supabase]
+    );
 
     const fetchInitialQuotes = useCallback(async () => {
         if (!session?.user?.id) return;
@@ -246,6 +252,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
         fetchShippingQuotes,
         fetchQuotesForNtsUsers,
         isAdmin,
+        companyId,
     ]);
 
     useEffect(() => {
@@ -534,107 +541,107 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
         }
     }, [popupMessage]);
 
-	const getStatusClasses = (status: string) => {
-		switch (status) {
-			case "In Progress":
-				return "bg-blue-50 text-blue-700";
-			case "Need More Info":
-				return "bg-amber-50 text-amber-700";
-			case "Priced":
-				return "bg-green-50 text-green-700";
-			case "Cancelled":
-				return "bg-red-50 text-red-700";
-			default:
-				return "bg-gray-50 text-gray-700";
-		}
-	};
+    const getStatusClasses = (status: string) => {
+        switch (status) {
+            case "In Progress":
+                return "bg-blue-50 text-blue-700";
+            case "Need More Info":
+                return "bg-amber-50 text-amber-700";
+            case "Priced":
+                return "bg-green-50 text-green-700";
+            case "Cancelled":
+                return "bg-red-50 text-red-700";
+            default:
+                return "bg-gray-50 text-gray-700";
+        }
+    };
 
-	const handleStatusChange = async (
-		e: React.ChangeEvent<HTMLSelectElement>,
-		quoteId: number
-	) => {
-		const newStatus = e.target.value;
+    const handleStatusChange = async (
+        e: React.ChangeEvent<HTMLSelectElement>,
+        quoteId: number
+    ) => {
+        const newStatus = e.target.value;
 
-		// Update the status in the database
-		const { error } = await supabase
-			.from("shippingquotes")
-			.update({ brokers_status: newStatus })
-			.eq("id", quoteId);
+        // Update the status in the database
+        const { error } = await supabase
+            .from("shippingquotes")
+            .update({ brokers_status: newStatus })
+            .eq("id", quoteId);
 
-		if (error) {
-			console.error("Error updating status:", error.message);
-		}
-	};
+        if (error) {
+            console.error("Error updating status:", error.message);
+        }
+    };
 
-	return (
-		<div className="w-full bg-white max-h-max flex-grow">
-			{popupMessage && (
-				<div className="absolute top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg animate-fade-in-out">
-					{popupMessage}
-				</div>
-			)}
-			<OrderFormModal
-				isOpen={isModalOpen}
-				onClose={() => setIsModalOpen(false)}
-				onSubmit={handleModalSubmit}
-				quote={quote}
-			/>
-			<RejectReasonModal
-				isOpen={isRejectedModalOpen}
-				onClose={() => setIsRejectedModalOpen(false)}
-				onSubmit={handleRejectSubmit}
-				quote={quote}
-			/>
-			<EditQuoteModal
-				isOpen={isEditModalOpen}
-				onClose={() => setIsEditModalOpen(false)}
-				onSubmit={handleEditModalSubmit}
-				quote={quoteToEdit}
-			/>
-			<div className="hidden lg:block overflow-x-auto">
-				<QuoteTable
-					sortConfig={sortConfig}
-					handleSort={handleSort}
-					quotes={sortedQuotes}
-					setActiveTab={setActiveTab}
-					activeTab={activeTab}
-					editHistory={editHistory}
-					expandedRow={expandedRow}
-					handleRowClick={handleRowClick}
-					archiveQuote={archiveQuote}
-					handleEditClick={handleEditClick}
-					duplicateQuote={duplicateQuote}
-					reverseQuote={reverseQuote}
-					quoteToEdit={quoteToEdit}
-					quote={quote}
-					companyId={session?.user?.id}
-					fetchEditHistory={fetchEditHistory}
-					handleCreateOrderClick={handleCreateOrderClick}
-					handleRespond={handleRespond}
-					isAdmin={isAdmin}
-					handleRejectClick={handleRejectClick}
-				/>
-			</div>
-			<div className="block md:hidden">
-				<QuoteDetailsMobile
-					quotes={quotes}
-					handleStatusChange={handleStatusChange}
-					getStatusClasses={getStatusClasses}
-					formatDate={formatDate}
-					archiveQuote={archiveQuote}
-					handleEditClick={handleEditClick}
-					handleCreateOrderClick={handleCreateOrderClick}
-					handleRespond={handleRespond}
-					isAdmin={isAdmin} // Replace with actual isAdmin value
-					setShowPriceInput={setShowPriceInput}
-					showPriceInput={showPriceInput}
-					priceInput={priceInput}
-					setPriceInput={setPriceInput}
-					handleRejectClick={handleRejectClick}
-				/>
-			</div>
-		</div>
-	);
+    return (
+        <div className="w-full bg-white max-h-max flex-grow">
+            {popupMessage && (
+                <div className="absolute top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg animate-fade-in-out">
+                    {popupMessage}
+                </div>
+            )}
+            <OrderFormModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSubmit={handleModalSubmit}
+                quote={quote}
+            />
+            <RejectReasonModal
+                isOpen={isRejectedModalOpen}
+                onClose={() => setIsRejectedModalOpen(false)}
+                onSubmit={handleRejectSubmit}
+                quote={quote}
+            />
+            <EditQuoteModal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                onSubmit={handleEditModalSubmit}
+                quote={quoteToEdit}
+            />
+            <div className="hidden lg:block overflow-x-auto">
+                <QuoteTable
+                    sortConfig={sortConfig}
+                    handleSort={handleSort}
+                    quotes={sortedQuotes}
+                    setActiveTab={setActiveTab}
+                    activeTab={activeTab}
+                    editHistory={editHistory}
+                    expandedRow={expandedRow}
+                    handleRowClick={handleRowClick}
+                    archiveQuote={archiveQuote}
+                    handleEditClick={handleEditClick}
+                    duplicateQuote={duplicateQuote}
+                    reverseQuote={reverseQuote}
+                    quoteToEdit={quoteToEdit}
+                    quote={quote}
+                    companyId={session?.user?.id}
+                    fetchEditHistory={fetchEditHistory}
+                    handleCreateOrderClick={handleCreateOrderClick}
+                    handleRespond={handleRespond}
+                    isAdmin={isAdmin}
+                    handleRejectClick={handleRejectClick}
+                />
+            </div>
+            <div className="block md:hidden">
+                <QuoteDetailsMobile
+                    quotes={quotes}
+                    handleStatusChange={handleStatusChange}
+                    getStatusClasses={getStatusClasses}
+                    formatDate={formatDate}
+                    archiveQuote={archiveQuote}
+                    handleEditClick={handleEditClick}
+                    handleCreateOrderClick={handleCreateOrderClick}
+                    handleRespond={handleRespond}
+                    isAdmin={isAdmin} // Replace with actual isAdmin value
+                    setShowPriceInput={setShowPriceInput}
+                    showPriceInput={showPriceInput}
+                    priceInput={priceInput}
+                    setPriceInput={setPriceInput}
+                    handleRejectClick={handleRejectClick}
+                />
+            </div>
+        </div>
+    );
 };
 
 export default QuoteList;

@@ -11,10 +11,15 @@ const NotificationBell = ({ session }) => {
 
     useEffect(() => {
         const fetchNotifications = async () => {
+            if (!session?.user?.id) {
+                console.error('User ID is undefined');
+                return;
+            }
+
             const { data, error } = await supabase
                 .from('notifications')
                 .select('*')
-                .eq('user_id', session?.user?.id)
+                .eq('user_id', session.user.id)
                 .order('created_at', { ascending: false });
 
             if (error) {
@@ -24,7 +29,9 @@ const NotificationBell = ({ session }) => {
             }
         };
 
-        fetchNotifications();
+        if (session?.user?.id) {
+            fetchNotifications();
+        }
     }, [session]);
 
     const toggleDropdown = () => {
