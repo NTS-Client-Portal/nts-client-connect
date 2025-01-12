@@ -3,9 +3,7 @@ import SalesSideNav from './SalesSideNav';
 import SalesTopNav from './SalesTopNav';
 import { useSession } from '@supabase/auth-helpers-react';
 import { useNtsUsers } from '@/context/NtsUsersContext';
-import ChatRequestListener from '@components/chat/ChatRequestListener';
 import { useChat } from '@/context/ChatContext';
-import Link from 'next/link';
 
 interface SalesLayoutProps {
     children: ReactNode;

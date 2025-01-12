@@ -47,7 +47,7 @@ const SalesTopNav: React.FC<SalesTopNavProps> = ({ session, className = '' }) =>
     return (
         <>
             <nav className={`md:hidden w-full  max-h-max absolute top-0 bg-white dark:bg-zinc-700 flex flex-col md:flex-row gap-1 justify-end px-4 z-50 py-1 drop-shadow ${className}`}>
-                <ul className='flex gap-2 md:gap-4 items-center z-50 justify-start ml-4'>
+                <ul className='flex gap-2 md:gap-4 items-end z-50 justify-end ml-4'>
                     <li>
                         <NotificationBell session={session} />
                     </li>
