@@ -47,6 +47,8 @@ const OrderTable: React.FC<OrderTableProps> = ({
     const [currentPage, setCurrentPage] = useState(1);
     const [activeTab, setActiveTab] = useState<'orderdetails' | 'editHistory'>('orderdetails');
     const [localOrders, setLocalOrders] = useState(orders);
+    const [loadDates, setLoadDates] = useState<{ [key: number]: string }>({});
+    const [deliveryDates, setDeliveryDates] = useState<{ [key: number]: string }>({});
     const rowsPerPage = 10;
 
     const router = useRouter();
@@ -198,9 +200,67 @@ const OrderTable: React.FC<OrderTableProps> = ({
         }
     }
 
+    async function handleDateChange(e: React.ChangeEvent<HTMLInputElement>, id: number, dateType: 'load' | 'delivery'): Promise<void> {
+        const newDate = e.target.value;
+        try {
+            const updateData = dateType === 'load' ? { load_date: newDate } : { delivery_date: newDate };
+            const { error } = await supabase
+                .from('shippingquotes')
+                .update(updateData)
+                .eq('id', id);
+
+            if (error) {
+                console.error(`Error updating ${dateType} date:`, error);
+                return;
+            }
+
+            // Update the local state to reflect the change immediately
+            if (dateType === 'load') {
+                setLoadDates(prevDates => ({
+                    ...prevDates,
+                    [id]: newDate,
+                }));
+            } else {
+                setDeliveryDates(prevDates => ({
+                    ...prevDates,
+                    [id]: newDate,
+                }));
+            }
+        } catch (error) {
+            console.error(`Error updating ${dateType} date:`, error);
+        }
+    }
+
+    async function handleSubmitDates(id: number): Promise<void> {
+        try {
+            const loadDate = loadDates[id];
+            const deliveryDate = deliveryDates[id];
+
+            const { error } = await supabase
+                .from('shippingquotes')
+                .update({ load_date: loadDate, delivery_date: deliveryDate })
+                .eq('id', id);
+
+            if (error) {
+                console.error('Error updating dates:', error);
+                return;
+            }
+
+            // Update the local state to reflect the change immediately
+            setLocalOrders(prevOrders =>
+                prevOrders.map(order =>
+                    order.id === id ? { ...order, load_date: loadDate, delivery_date: deliveryDate } : order
+                )
+            );
+        } catch (error) {
+            console.error('Error updating dates:', error);
+        }
+    }
+
     return (
-        <div className='w-full  overflow-x-auto'>
-            <div className="flex justify-start gap-4 my-4 ml-4">
+        <div className='w-full py-4'>
+        <div className='flex flex-col items-center justify-center'>
+            <div className="flex justify-start gap-4 my-4 ml-52 w-full">
                 <div className="flex items-center">
                     <label className="mr-2">Search by:</label>
                     <select
@@ -222,201 +282,240 @@ const OrderTable: React.FC<OrderTableProps> = ({
                     className="border border-gray-300 pl-2 rounded-md shadow-sm"
                 />
             </div>
-            <table className="min-w-full divide-y divide-zinc-200 border overflow-x-auto">
-                <thead className="bg-ntsBlue border-2 border-t-orange-500 static top-0 w-full text-white">
-                    <tr >
-                        <th className="px-6 py-3 text-left text-xs text-nowrap font-semibold uppercase tracking-wider">
-                            <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
-                            <TableHeaderSort column="freight_type" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
-                            <TableHeaderSort column="origin_destination" sortOrder={sortConfig.column === 'origin_city' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
-                            <TableHeaderSort column="due_date" sortOrder={sortConfig.column === 'pickup_date_range' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
-                            <TableHeaderSort column="price" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                    {currentRows.map((order, index) => (
-                        <React.Fragment key={order.id}>
-                            <tr
-                                onClick={() => {
-                                    handleRowClick(order.id);
-                                    setActiveTab('orderdetails');
-                                }}
-                                className={`cursor-pointer mb-4 w-max ${index % 2 === 0 ? 'bg-white h-fit w-full' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}
-                            >
-                                <td className="px-6 py-3 w-[30px] whitespace-nowrap text-sm font-medium text-gray-900  border border-gray-200">
-                                    {order.id}
-                                </td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900  border border-gray-200">
-                                    <div className=''>
-                                        {Array.isArray(order.shipment_items) ? order.shipment_items.map((item: any, index) => (
-                                            <React.Fragment key={index}>
-                                                {item.container_length && item.container_type && typeof item === 'object' && (
-                                                    <span className='flex flex-col gap-0'>
-                                                        <span className='font-semibold text-sm text-gray-700 p-0'>Shipment Item {index + 1}:</span>
-                                                        <span className='text-base text-zinc-900 p-0'>{`${item.container_length} ft ${item.container_type}`}</span>
-                                                    </span>
-                                                )}
-                                                {item.year && item.make && item.model && (
-                                                    <span className='flex flex-col gap-0 w-min'>
-                                                        <span className='font-semibold text-sm text-gray-700 p-0 w-min'>Shipment Item {index + 1}:</span>
-                                                        <span className='text-base text-zinc-900 p-0 w-min'>{`${item.year} ${item.make} ${item.model}`}</span>
-                                                    </span>
-                                                )}
-                                            </React.Fragment>
-                                        )) : (
-                                            <>
-                                                <div className='text-start w-min'>
-                                                    {order.container_length && order.container_type && (
-                                                        <>
-                                                            <span className='font-semibold text-sm text-gray-700 p-0 text-start w-min'>Shipment Item:</span><br />
-                                                            <span className='text-normal text-zinc-900 w-min text-start'>{`${order.container_length} ft ${order.container_type}`}</span>
-                                                        </>
+           
+                <table className="w-[90%] divide-y divide-zinc-200 border">
+                    <thead className="bg-ntsBlue border-2 border-t-orange-500 static top-0 w-full text-white">
+                        <tr >
+                            <th className="px-6 py-3 text-left text-xs text-nowrap font-semibold uppercase ">
+                                <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold uppercase ">
+                                <TableHeaderSort column="freight_type" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold uppercase ">
+                                <TableHeaderSort column="origin_destination" sortOrder={sortConfig.column === 'origin_city' ? sortConfig.order : null} onSort={handleSort} />
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold uppercase ">
+                                <TableHeaderSort column="due_date" sortOrder={sortConfig.column === 'pickup_date_range' ? sortConfig.order : null} onSort={handleSort} />
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold uppercase ">Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold uppercase ">
+                                <TableHeaderSort column="price" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold uppercase track-widest">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {currentRows.map((order, index) => (
+                            <React.Fragment key={order.id}>
+                                <tr
+                                    onClick={() => {
+                                        handleRowClick(order.id);
+                                        setActiveTab('orderdetails');
+                                    }}
+                                    className={`cursor-pointer mb-4 w-max ${index % 2 === 0 ? 'bg-white h-fit w-full' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}
+                                >
+                                    <td className="px-6 py-3 w-[30px] whitespace-nowrap text-sm font-medium text-gray-900  border border-gray-200">
+                                        {order.id}
+                                    </td>
+                                    <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900  border border-gray-200">
+                                        <div className=''>
+                                            {Array.isArray(order.shipment_items) ? order.shipment_items.map((item: any, index) => (
+                                                <React.Fragment key={index}>
+                                                    {item.container_length && item.container_type && typeof item === 'object' && (
+                                                        <span className='flex flex-col gap-0'>
+                                                            <span className='font-semibold text-sm text-gray-700 p-0'>Shipment Item {index + 1}:</span>
+                                                            <span className='text-base text-zinc-900 p-0'>{`${item.container_length} ft ${item.container_type}`}</span>
+                                                        </span>
                                                     )}
-                                                    {order.year && order.make && order.model && (
-                                                        <>
-                                                            <span className='font-semibold text-sm text-gray-700 p-0 text-start w-min'>Shipment Item:</span><br />
-                                                            <span className='text-normal text-zinc-900 text-start w-min'>{`${order.year} ${order.make} ${order.model}`}</span><br />
-                                                            <span className='text-normal text-zinc-900 text-start w-min'>
-                                                                {`${order.length} ${order.length_unit} x ${order.width} ${order.width_unit} x ${order.height} ${order.height_unit}, 
-                                                                ${order.weight} ${order.weight_unit}`}
-                                                            </span>
-                                                        </>
+                                                    {item.year && item.make && item.model && (
+                                                        <span className='flex flex-col gap-0 w-min'>
+                                                            <span className='font-semibold text-sm text-gray-700 p-0 w-min'>Shipment Item {index + 1}:</span>
+                                                            <span className='text-base text-zinc-900 p-0 w-min'>{`${item.year} ${item.make} ${item.model}`}</span>
+                                                        </span>
                                                     )}
-                                                </div>
-                                            </>
-                                        )}
-                                        <div className='text-start pt-1 w-min'>
-                                            <span className='font-semibold text-xs text-gray-700 text-start w-min'>Freight Type:</span>
-                                            <span className='text-xs text-zinc-900 text-start px-1 w-min'>{freightTypeMapping[order.freight_type] || (order.freight_type ? order.freight_type.toUpperCase() : 'N/A')}</span>
+                                                </React.Fragment>
+                                            )) : (
+                                                <>
+                                                    <div className='text-start w-min'>
+                                                        {order.container_length && order.container_type && (
+                                                            <>
+                                                                <span className='font-semibold text-sm text-gray-700 p-0 text-start w-min'>Shipment Item:</span><br />
+                                                                <span className='text-normal text-zinc-900 w-min text-start'>{`${order.container_length} ft ${order.container_type}`}</span>
+                                                            </>
+                                                        )}
+                                                        {order.year && order.make && order.model && (
+                                                            <>
+                                                                <span className='font-semibold text-sm text-gray-700 p-0 text-start w-min'>Shipment Item:</span><br />
+                                                                <span className='text-normal text-zinc-900 text-start w-min'>{`${order.year} ${order.make} ${order.model}`}</span><br />
+                                                                <span className='text-normal text-zinc-900 text-start w-min'>
+                                                                    {`${order.length} ${order.length_unit} x ${order.width} ${order.width_unit} x ${order.height} ${order.height_unit}, 
+                                                                    ${order.weight} ${order.weight_unit}`}
+                                                                </span>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </>
+                                            )}
+                                            <div className='text-start pt-1 w-min'>
+                                                <span className='font-semibold text-xs text-gray-700 text-start w-min'>Freight Type:</span>
+                                                <span className='text-xs text-zinc-900 text-start px-1 w-min'>{freightTypeMapping[order.freight_type] || (order.freight_type ? order.freight_type.toUpperCase() : 'N/A')}</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
-                                    <a
-                                        href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${order.origin_city}, ${order.origin_state} ${order.origin_zip}`)}&destination=${encodeURIComponent(`${order.destination_city}, ${order.destination_state} ${order.destination_zip}`)}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-blue-500 hover:underline"
-                                    >
-                                        {order.origin_city}, {order.origin_state} {order.origin_zip} / <br />
-                                        {order.destination_city}, {order.destination_state} {order.destination_zip}
-                                        <br />[map it]
-                                    </a>
-                                </td>
-
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
-                                    <strong>Earliest: </strong>{order.earliest_pickup_date} <br />
-                                    <strong>Latest: </strong>{order.latest_pickup_date}
-                                </td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
-                                    {order.price ? `$${order.price}` : 'Pending'}
-                                </td>
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200 relative z-50">
-                                    <div className='flex flex-col gap-2'>
+                                    </td>
+                                    <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
+                                        <a
+                                            href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${order.origin_city}, ${order.origin_state} ${order.origin_zip}`)}&destination=${encodeURIComponent(`${order.destination_city}, ${order.destination_state} ${order.destination_zip}`)}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-500 hover:underline"
+                                        >
+                                            {order.origin_city}, {order.origin_state} {order.origin_zip} / <br />
+                                            {order.destination_city}, {order.destination_state} {order.destination_zip}
+                                            <br />[map it]
+                                        </a>
+                                    </td>
+    
+                                    <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
+                                        <span className='flex flex-col gap-1 w-min'>
+                                            <p><strong>Earliest: </strong>{order.earliest_pickup_date}</p>
+                                            <p><strong>Latest: </strong>{order.latest_pickup_date}</p>
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <span className={getStatusClasses(order.brokers_status)}>
+                                    {order.brokers_status}
+                                </span>
+                                {order.brokers_status === 'Dispatched' && (
+                                    <div className="mt-2">
+                                        <input
+                                            type="date"
+                                            value={loadDates[order.id] || ''}
+                                            onChange={(e) => handleDateChange(e, order.id, 'load')}
+                                            className="mb-2 p-2 border border-gray-300 rounded-md"
+                                        />
+                                        <input
+                                            type="date"
+                                            value={deliveryDates[order.id] || ''}
+                                            onChange={(e) => handleDateChange(e, order.id, 'delivery')}
+                                            className="mb-2 p-2 border border-gray-300 rounded-md"
+                                        />
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                handleEditClick(order);
+                                                handleSubmitDates(order.id);
                                             }}
-                                            className="text-ntsLightBlue font-medium underline"
+                                            className="p-2 bg-blue-500 text-white rounded-md"
                                         >
-                                            Edit Order
+                                            Submit Dates
                                         </button>
-                                        {isAdmin && (
-                                            <>
-                                                <select
-                                                    value={order.brokers_status}
-                                                    onChange={(e) => {
-                                                        e.stopPropagation();
-                                                        handleStatusChange(e, order.id);
-                                                    }}
-                                                    className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(order.brokers_status)}`}
-                                                >
-                                                    <option value="" disabled>Select Status</option>
-                                                    <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
-                                                    <option value="Dispatched" className={getStatusClasses('Dispatched')}>Dispatched</option>
-                                                    <option value="Picked Up" className={getStatusClasses('Picked Up')}>Picked Up</option>
-                                                    <option value="Delivered" className={getStatusClasses('Delivered')}>Delivered</option>
-                                                    <option value="Completed" className={getStatusClasses('Completed')}>Completed</option>
-                                                    <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
-                                                </select>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleMarkAsComplete(order.id)(e);
-                                                    }}
-                                                    className="text-green-600 ml-2 relative z-50"
-                                                >
-                                                    Mark as Complete
-                                                </button>
-                                                <button onClick={() => archiveOrder(order.id)} className="text-red-500 mt-3 font-semibold underline text-sm">
-                                                    Archive Order
-                                                </button>
-                                            </>
-                                        )}
                                     </div>
-                                </td>
-                            </tr>
-                            {expandedRow === order.id && (
-                                <tr className='my-4'>
-                                    <td colSpan={7}>
-                                        <div className="p-4 bg-white border-x border-b border-ntsLightBlue/30 rounded-b-md">
-                                            <div className="flex gap-1">
-                                                <button
-                                                    className={`px-4 py-2 ${activeTab === 'orderdetails' ? 'bg-gray-200 border-t border-ntsLightBlue' : 'bg-gray-200'}`}
-                                                    onClick={() => setActiveTab('orderdetails')}
-                                                >
-                                                    Order Details
-                                                </button>
-                                                <button
-                                                    className={`px-4 py-2 ${activeTab === 'editHistory' ? 'bg-gray-200 border-t border-ntsLightBlue' : 'bg-gray-200'}`}
-                                                    onClick={() => setActiveTab('editHistory')}
-                                                >
-                                                    Edit History
-                                                </button>
-                                            </div>
-                                            {activeTab === 'orderdetails' && (
-                                                <div className='border border-gray-200 p-6 h-full'>
-                                                    {renderAdditionalDetails(order)}
-                                                    <div className='flex gap-2 items-center h-full'>
-                                                        <button onClick={(e) => { e.stopPropagation(); /* duplicateOrder(order); */ }} className="body-btn ml-2">
-                                                            Duplicate Order
-                                                        </button>
-                                                        <button onClick={(e) => { e.stopPropagation(); /* reverseOrder(order); */ }} className="body-btn ml-2">
-                                                            Flip Route Duplicate
-                                                        </button>
-                                                    </div>
-                                                    <div className='flex gap-2 items-center'>
-                                                        <button onClick={() => handleEditClick(order)} className="text-ntsLightBlue mt-3 font-semibold text-base underline h-full">
-                                                            Edit Order
-                                                        </button>
-
-                                                    </div>
-                                                </div>
+                                )}
+                            </td>
+                                    <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
+                                        {order.price ? `$${order.price}` : 'Pending'}
+                                    </td>
+                                    <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200 relative z-50">
+                                        <div className='flex flex-col gap-2'>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleEditClick(order);
+                                                }}
+                                                className="text-ntsLightBlue font-medium underline"
+                                            >
+                                                Edit Order
+                                            </button>
+    
+                                            {isAdmin && (
+                                                <>
+                                                    <select
+                                        value={order.brokers_status}
+                                        onChange={(e) => {
+                                            e.stopPropagation();
+                                            handleStatusChange(e, order.id);
+                                        }}
+                                        className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(order.brokers_status)}`}
+                                    >
+                                        <option value="" disabled>Select Status</option>
+                                        <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
+                                        <option value="Dispatched" className={getStatusClasses('Dispatched')}>Dispatched</option>
+                                        <option value="Picked Up" className={getStatusClasses('Picked Up')}>Picked Up</option>
+                                        <option value="Delivered" className={getStatusClasses('Delivered')}>Delivered</option>
+                                        <option value="Completed" className={getStatusClasses('Completed')}>Completed</option>
+                                        <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
+                                    </select>
+                                    
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleMarkAsComplete(order.id)(e);
+                                        }}
+                                        className="text-green-600 ml-2 relative z-50"
+                                    >
+                                        Mark as Complete
+                                    </button>
+                                    <button onClick={() => archiveOrder(order.id)} className="text-red-500 mt-3 font-semibold underline text-sm">
+                                        Archive Order
+                                    </button>
+                                                </>
                                             )}
-                                            {activeTab === 'editHistory' && (
-                                                <div className="max-h-96">
-                                                    {/* Render edit history here */}
-                                                </div>
-                                            )}
+                                            
+    
                                         </div>
                                     </td>
                                 </tr>
-                            )}
-                        </React.Fragment>
-                    ))}
-                </tbody>
-            </table>
+                                {expandedRow === order.id && (
+                                    <tr className='my-4'>
+                                        <td colSpan={7}>
+                                            <div className="p-4 bg-white border-x border-b border-ntsLightBlue/30 rounded-b-md">
+                                                <div className="flex gap-1">
+                                                    <button
+                                                        className={`px-4 py-2 ${activeTab === 'orderdetails' ? 'bg-gray-200 border-t border-ntsLightBlue' : 'bg-gray-200'}`}
+                                                        onClick={() => setActiveTab('orderdetails')}
+                                                    >
+                                                        Order Details
+                                                    </button>
+                                                    <button
+                                                        className={`px-4 py-2 ${activeTab === 'editHistory' ? 'bg-gray-200 border-t border-ntsLightBlue' : 'bg-gray-200'}`}
+                                                        onClick={() => setActiveTab('editHistory')}
+                                                    >
+                                                        Edit History
+                                                    </button>
+                                                </div>
+                                                {activeTab === 'orderdetails' && (
+                                                    <div className='border border-gray-200 p-6 h-full'>
+                                                        {renderAdditionalDetails(order)}
+                                                        <div className='flex gap-2 items-center h-full'>
+                                                            <button onClick={(e) => { e.stopPropagation(); /* duplicateOrder(order); */ }} className="body-btn ml-2">
+                                                                Duplicate Order
+                                                            </button>
+                                                            <button onClick={(e) => { e.stopPropagation(); /* reverseOrder(order); */ }} className="body-btn ml-2">
+                                                                Flip Route Duplicate
+                                                            </button>
+                                                        </div>
+                                                        <div className='flex gap-2 items-center'>
+                                                            <button onClick={() => handleEditClick(order)} className="text-ntsLightBlue mt-3 font-semibold text-base underline h-full">
+                                                                Edit Order
+                                                            </button>
+    
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {activeTab === 'editHistory' && (
+                                                    <div className="max-h-96">
+                                                        {/* Render edit history here */}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
+                            </React.Fragment>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
             <div className="flex justify-center mt-4">
                 {Array.from({ length: totalPages }, (_, index) => (
                     <button

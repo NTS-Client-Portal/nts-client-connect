@@ -76,7 +76,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
 
     useEffect(() => {
         const handleResize = () => {
-            setIsMobile(window.innerWidth <= 768);
+            setIsMobile(window.innerWidth <= 1230);
         };
 
         handleResize();

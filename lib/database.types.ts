@@ -1533,6 +1533,7 @@ export type Database = {
           contents_description: string | null
           cradle: boolean | null
           created_at: string | null
+          delivery_date: string | null
           deposit: number | null
           destination_city: string | null
           destination_name: string | null
@@ -1563,6 +1564,7 @@ export type Database = {
           latest_pickup_date: string | null
           length: string | null
           length_unit: string | null
+          load_date: string | null
           load_description: string | null
           loading_assistance: string | null
           loading_by: boolean | null
@@ -1621,6 +1623,7 @@ export type Database = {
           contents_description?: string | null
           cradle?: boolean | null
           created_at?: string | null
+          delivery_date?: string | null
           deposit?: number | null
           destination_city?: string | null
           destination_name?: string | null
@@ -1651,6 +1654,7 @@ export type Database = {
           latest_pickup_date?: string | null
           length?: string | null
           length_unit?: string | null
+          load_date?: string | null
           load_description?: string | null
           loading_assistance?: string | null
           loading_by?: boolean | null
@@ -1709,6 +1713,7 @@ export type Database = {
           contents_description?: string | null
           cradle?: boolean | null
           created_at?: string | null
+          delivery_date?: string | null
           deposit?: number | null
           destination_city?: string | null
           destination_name?: string | null
@@ -1739,6 +1744,7 @@ export type Database = {
           latest_pickup_date?: string | null
           length?: string | null
           length_unit?: string | null
+          load_date?: string | null
           load_description?: string | null
           loading_assistance?: string | null
           loading_by?: boolean | null

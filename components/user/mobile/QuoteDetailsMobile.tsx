@@ -71,7 +71,7 @@ const QuoteDetailsMobile: React.FC<QuoteDetailsMobileProps> = ({
     };
 
     return (
-        <div className="block md:hidden">
+        <div className="w-[95%] mx-auto">
             {loading ? (
                 <div className="text-center text-gray-500">Loading...</div>
             ) : quotes.length === 0 ? (

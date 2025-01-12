@@ -385,7 +385,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
     return (
         <div className="w-full bg-white  shadow rounded-md max-h-max flex-grow">
             {!!errorText && <div className="text-red-500">{errorText}</div>}
-            <div className="hidden lg:block overflow-x-auto">
+            <div className="hidden xl:block overflow-x-auto">
                 <OrderTable
                     sortConfig={{ column: 'id', order: 'asc' }}
                     handleSort={handleSort}
@@ -402,7 +402,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                     setSearchColumn={setSearchColumn}
                 />
             </div>
-            <div className="block md:hidden">
+            <div className="block xl:hidden">
                 <div className='mt-1'>
                     {quotes.map((quote) => (
                         <div key={quote.id} className="bg-white dark:bg-zinc-800 shadow rounded-md mb-4 p-4 border border-zinc-400 dark:text-white">

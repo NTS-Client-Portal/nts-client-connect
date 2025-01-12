@@ -612,7 +612,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
                 onSubmit={handleEditModalSubmit}
                 quote={quoteToEdit}
             />
-            <div className="hidden lg:block overflow-x-auto">
+            <div className="hidden xl:block">
                 <QuoteTable
                     sortConfig={sortConfig}
                     handleSort={handleSort}
@@ -637,7 +637,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
                     isUser={isUser}
                 />
             </div>
-            <div className="block md:hidden">
+            <div className="block xl:hidden">
                 <QuoteDetailsMobile
                     quotes={quotes}
                     handleStatusChange={handleStatusChange}

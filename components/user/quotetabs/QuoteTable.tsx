@@ -264,11 +264,8 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
         );
     };
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedQuoteId, setSelectedQuoteId] = useState<number | null>(null);
-
     return (
-        <div className='w-full'>
+        <div className='md:w-fit lg:w-full'>
             <div className="flex justify-start gap-4 my-4 ml-4">
                 <div className="flex items-center">
                     <label className="mr-2">Search by:</label>
@@ -462,7 +459,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                 </td>
                                 <td className="pl-3 py-3 whitespace-nowrap text-left text-sm text-gray-500 border border-gray-200 w-80">
                                     <div className='flex flex-col gap-1 justify-start text-left items-start'>
-                                        <div className='flex gap-2 items-center'>
+                                        <div className='flex flex-col lg:flex-row gap-2 items-center'>
                                             {quote.price ? (
                                                 <button
                                                     onClick={(e) => {
