@@ -71,7 +71,7 @@ const NtsSettings: React.FC<UserProfileFormProps> = () => {
     const uploadProfilePicture = async (file: File, userId: string) => {
         const { data, error } = await supabase.storage
             .from('profile-pictures')
-            .upload(`${userId}/${file.name}`, file, {
+            .upload(`public/${userId}/${file.name}`, file, {
                 cacheControl: '3600',
                 upsert: true,
             });
@@ -82,6 +82,31 @@ const NtsSettings: React.FC<UserProfileFormProps> = () => {
         }
 
         return data?.path || '';
+    };
+
+    const updateProfilePicture = async (userId: string, file: File) => {
+        try {
+            const profilePicturePath = await uploadProfilePicture(file, userId);
+            const fullUrl = `${process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL}${profilePicturePath}`;
+
+            const { error: updateError } = await supabase
+                .from('nts_users')
+                .update({ profile_picture: fullUrl })
+                .eq('id', userId);
+
+            if (updateError) {
+                console.error('Error updating user profile:', updateError.message);
+                setProfileError('Error updating user profile');
+            } else {
+                setProfileError('');
+                setProfileSuccess('Profile updated successfully');
+                setProfilePictureUrl(fullUrl);
+                setIsEditing(false);
+            }
+        } catch (error) {
+            console.error('Error:', error.message);
+            setProfileError('Error updating profile picture');
+        }
     };
 
     const getSignedUrl = async (path: string) => {
@@ -203,8 +228,9 @@ const NtsSettings: React.FC<UserProfileFormProps> = () => {
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setProfilePicture(e.target.files[0]);
+        const file = e.target.files?.[0];
+        if (file && userId) {
+            updateProfilePicture(userId, file);
         }
     };
 

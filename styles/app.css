@@ -1334,6 +1334,10 @@ body:is(.dark *) {
   width: min-content;
 }
 
+.w-24 {
+  width: 6rem;
+}
+
 .min-w-\[8rem\] {
   min-width: 8rem;
 }

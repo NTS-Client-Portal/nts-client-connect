@@ -72,14 +72,29 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                 const { data, error: uploadError } = await supabase
                     .storage
                     .from('profile-pictures')
-                    .upload(`public/${profilePicture.name}`, profilePicture);
+                    .upload(`public/${profilePicture.name}`, profilePicture, {
+                        cacheControl: '3600',
+                        upsert: true,
+                    });
 
                 if (uploadError) {
-                    throw new Error(uploadError.message);
+                    if (uploadError.message.includes('The resource already exists')) {
+                        // If the resource already exists, get the public URL
+                        const { data: existingFileData } = await supabase
+                            .storage
+                            .from('profile-pictures')
+                            .getPublicUrl(`public/${profilePicture.name}`);
+                        profilePictureUrl = existingFileData.publicUrl;
+                    } else {
+                        throw new Error(uploadError.message);
+                    }
+                } else {
+                    const { data: newFileData } = await supabase
+                        .storage
+                        .from('profile-pictures')
+                        .getPublicUrl(data.path);
+                    profilePictureUrl = newFileData.publicUrl;
                 }
-
-                const { publicUrl } = supabase.storage.from('profile-pictures').getPublicUrl(data.path).data;
-                profilePictureUrl = publicUrl;
             }
 
             const { data: user, error: signUpError } = await supabase.auth.signUp({
