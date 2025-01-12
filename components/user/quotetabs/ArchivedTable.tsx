@@ -13,8 +13,8 @@ interface ArchivedTableProps {
     handleStatusChange: (e: React.ChangeEvent<HTMLSelectElement>, id: number) => void;
     isAdmin: boolean;
     isNtsUser: boolean;
-    isCompanyUser: boolean; // Add isCompanyUser prop
-    companyId: string; // Add companyId prop
+    isCompanyUser: boolean;
+    companyId: string;
 }
 
 const ArchivedTable: React.FC<ArchivedTableProps> = ({
@@ -26,22 +26,25 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
     isAdmin,
     isNtsUser,
     isCompanyUser,
-    companyId, // Add companyId prop
+    companyId,
 }) => {
-    const [archivedQuotes, setArchivedQuotes] = useState<ShippingQuotesRow[]>([]);
-    const [showArchived, setShowArchived] = useState(false);
+    const [archivedQuotes, setArchivedQuotes] = useState<ShippingQuotesRow[]>(quotes);
     const [searchTerm, setSearchTerm] = useState('');
     const [searchColumn, setSearchColumn] = useState('id');
 
+    useEffect(() => {
+        setArchivedQuotes(quotes);
+    }, [quotes]);
+
     const filteredOrders = useMemo(() => {
-        return quotes.filter((order) => {
+        return archivedQuotes.filter((order) => {
             const value = order[searchColumn]?.toString().toLowerCase() || '';
             return value.includes(searchTerm.toLowerCase());
         });
-    }, [searchTerm, searchColumn, quotes]);
+    }, [searchTerm, searchColumn, archivedQuotes]);
 
     const sortedQuotes = useMemo(() => {
-        const sortedQuotes = [...archivedQuotes];
+        const sortedQuotes = [...filteredOrders];
         if (sortConfig.column) {
             sortedQuotes.sort((a, b) => {
                 if (a[sortConfig.column] < b[sortConfig.column]) {
@@ -54,7 +57,7 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
             });
         }
         return sortedQuotes;
-    }, [archivedQuotes, sortConfig]);
+    }, [filteredOrders, sortConfig]);
 
     const handleStatusChangeWrapper = (e: React.ChangeEvent<HTMLSelectElement>, id: number) => {
         handleStatusChange(e, id);

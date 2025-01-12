@@ -10,10 +10,11 @@ interface ArchivedProps {
     session: Session | null;
     selectedUserId: string;
     isAdmin: boolean;
-    companyId: string | null; // Allow companyId to be null
+    companyId: string | null;
+    fetchQuotes: () => void;
 }
 
-const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId }) => {
+const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQuotes }) => {
     const [errorText, setErrorText] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [archivedQuotes, setArchivedQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
@@ -45,8 +46,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId }) => {
             .from('shippingquotes')
             .select('*')
             .in('company_id', companyIds)
-            .eq('status', 'Archived')
-            .is('is_archived', true);
+            .eq('status', 'Archived');
 
         if (quotesError) {
             console.error('Error fetching quotes for nts_user:', quotesError.message);
@@ -66,8 +66,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId }) => {
             .from('shippingquotes')
             .select('*')
             .eq('company_id', companyId)
-            .eq('status', 'Archived')
-            .is('is_archived', true);
+            .eq('status', 'Archived');
 
         if (quotesError) {
             console.error('Error fetching quotes for company:', quotesError.message);
@@ -143,7 +142,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId }) => {
                 { event: '*', schema: 'public', table: 'shippingquotes' },
                 (payload) => {
                     console.log('Change received!', payload);
-                    if (payload.eventType === 'UPDATE' && payload.new.is_archived) {
+                    if (payload.eventType === 'UPDATE' && payload.new.status === 'Archived') {
                         fetchArchivedQuotes();
                     }
                 }

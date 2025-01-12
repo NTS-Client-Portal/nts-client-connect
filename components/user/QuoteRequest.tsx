@@ -279,6 +279,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                     <Archived
                         session={session}
                         isAdmin={isAdmin}
+                        fetchQuotes={fetchQuotes}
                         selectedUserId={selectedUserId}
                         companyId={companyId}
                     />
