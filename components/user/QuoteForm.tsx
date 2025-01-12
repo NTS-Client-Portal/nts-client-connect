@@ -156,7 +156,6 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
 
         const quote = {
             user_id: session.user.id,
-            assigned_sales_user: assignedSalesUser,
             origin_zip: originZip,
             origin_city: originCity,
             origin_state: originState,

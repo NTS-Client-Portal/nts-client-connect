@@ -157,17 +157,49 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         setError(null);
         setSuccess(null);
 
-        const { error } = await supabase
-            .from('company_sales_users')
-            .insert({ company_id: selectedCompanyId, sales_user_id: selectedSalesUserId });
+        try {
+            // Check if the company already has an assigned sales user
+            const { data: existingAssignment, error: fetchError } = await supabase
+                .from('company_sales_users')
+                .select('id')
+                .eq('company_id', selectedCompanyId)
+                .single();
 
-        if (error) {
-            setError(error.message);
-        } else {
+            if (fetchError && fetchError.code !== 'PGRST116') {
+                throw new Error(fetchError.message);
+            }
+
+            if (existingAssignment) {
+                // Update the existing assignment
+                const { error: updateError } = await supabase
+                    .from('company_sales_users')
+                    .update({ sales_user_id: selectedSalesUserId })
+                    .eq('id', existingAssignment.id);
+
+                if (updateError) {
+                    throw new Error(updateError.message);
+                }
+            } else {
+                // Insert a new assignment
+                const { error: insertError } = await supabase
+                    .from('company_sales_users')
+                    .insert({
+                        company_id: selectedCompanyId,
+                        sales_user_id: selectedSalesUserId,
+                    });
+
+                if (insertError) {
+                    throw new Error(insertError.message);
+                }
+            }
+
             fetchCompanies();
             setSuccess('Sales user assigned successfully');
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     if (!isSessionChecked) {

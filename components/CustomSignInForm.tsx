@@ -14,7 +14,6 @@ interface UserProfile {
   profile_picture?: string | null;
   address?: string | null;
   phone_number?: string | null;
-  assigned_sales_user?: string | null;
   company_id?: string | null;
   company_size?: string | null;
   email_notifications?: boolean | null;

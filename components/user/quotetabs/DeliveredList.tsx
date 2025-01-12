@@ -293,7 +293,6 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
         const newQuote = {
             user_id: quote.user_id,
             company_id: quote.company_id,
-            assigned_sales_user: quote.assigned_sales_user,
             origin_zip: quote.origin_zip,
             origin_city: quote.origin_city,
             origin_state: quote.origin_state,

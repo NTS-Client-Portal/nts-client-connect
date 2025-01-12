@@ -7,7 +7,6 @@ import { Mail, PhoneForwarded } from 'lucide-react'
 
 interface Profile {
   address: string | null;
-  assigned_sales_user: string | null;
   company_id: string | null;
   company_name: string | null;
   company_size: string | null;
@@ -25,7 +24,6 @@ interface Profile {
 
 interface Company {
   assigned_at: string | null;
-  assigned_sales_user: string | null;
   company_name: string | null;
   company_size: string | null;
   id: string;
