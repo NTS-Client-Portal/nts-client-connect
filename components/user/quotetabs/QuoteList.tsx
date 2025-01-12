@@ -278,7 +278,19 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
         fetchInitialQuotes();
     }, [fetchInitialQuotes]);
 
-    const handleModalSubmit = async (data) => {
+    interface ModalSubmitData {
+        originStreet: string;
+        originName: string;
+        originPhone: string;
+        destinationStreet: string;
+        destinationName: string;
+        destinationPhone: string;
+        earliestPickupDate: string;
+        latestPickupDate: string;
+        notes: string;
+    }
+
+    const handleModalSubmit = async (data: ModalSubmitData) => {
         if (selectedQuoteId !== null && session?.user?.id) {
             const { error } = await supabase
                 .from("shippingquotes")

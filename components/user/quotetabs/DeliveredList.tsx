@@ -30,7 +30,7 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
     const [deliveredQuotes, setDeliveredQuotes] = useState<ShippingQuotesRow[]>([]);
 
     const fetchDeliveredQuotesForNtsUsers = useCallback(
-        async (userId: string) => {
+        async (userId: string, companyId: string) => {
             const { data: companySalesUsers, error: companySalesUsersError } = await supabase
                 .from("company_sales_users")
                 .select("company_id")
@@ -48,10 +48,15 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
                 (companySalesUser) => companySalesUser.company_id
             );
 
+            if (!companyIds.includes(companyId)) {
+                console.error("Company ID not assigned to the user");
+                return [];
+            }
+
             const { data: quotes, error: quotesError } = await supabase
                 .from("shippingquotes")
                 .select("*")
-                .in("company_id", companyIds)
+                .eq("company_id", companyId)
                 .eq("is_complete", true); // Fetch only delivered quotes
 
             if (quotesError) {
@@ -72,7 +77,7 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
             .from('shippingquotes')
             .select('*')
             .eq('company_id', companyId)
-            .eq('is_complete', true);
+            .eq('is_complete', true); // Fetch only delivered quotes
 
         if (quotesError) {
             console.error('Error fetching delivered quotes for company:', quotesError.message);
@@ -95,7 +100,7 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
                     console.error('Error fetching nts_user role:', ntsUserError.message);
                 } else if (ntsUserData) {
                     setIsNtsUser(true);
-                    const quotes = await fetchDeliveredQuotesForNtsUsers(session.user.id);
+                    const quotes = await fetchDeliveredQuotesForNtsUsers(session.user.id, companyId);
                     setDeliveredQuotes(quotes);
                     return;
                 }
@@ -119,7 +124,7 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
         };
 
         checkUserType();
-    }, [session, fetchDeliveredQuotesForNtsUsers, fetchDeliveredQuotesForCompany, companyId]);
+    }, [session, fetchQuotes, fetchDeliveredQuotesForNtsUsers, fetchDeliveredQuotesForCompany, companyId]);
 
     useEffect(() => {
         const channel = supabase
@@ -140,49 +145,6 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
             supabase.removeChannel(channel); // Cleanup subscription
         };
     }, [fetchDeliveredQuotesForCompany, companyId]);
-
-    const generatePDF = (quote: ShippingQuotesRow) => {
-        const doc = new jsPDF();
-        doc.text(`Order Receipt`, 10, 10);
-        doc.text(`Quote ID: ${quote.id}`, 10, 20);
-        doc.text(`Origin: ${quote.origin_street}, ${quote.origin_city}, ${quote.origin_state} ${quote.origin_zip}`, 10, 30);
-        doc.text(`Destination: ${quote.destination_street}, ${quote.destination_city}, ${quote.destination_state} ${quote.destination_zip}`, 10, 40);
-        doc.text(`Freight: ${quote.year} ${quote.make} ${quote.model}`, 10, 50);
-        doc.text(`Shipping Date: ${quote.due_date || 'No due date'}`, 10, 60);
-        doc.text(`Price: ${quote.price ? `$${quote.price}` : 'Not priced yet'}`, 10, 70);
-        return doc;
-    };
-
-    const uploadPDFToSupabase = async (pdf: jsPDF, quote: ShippingQuotesRow) => {
-        const pdfBlob = pdf.output('blob');
-        const fileName = `receipts/${quote.id}.pdf`;
-        const { data, error } = await supabase.storage
-            .from('documents')
-            .upload(fileName, pdfBlob);
-
-        if (error) {
-            throw new Error(error.message);
-        }
-
-        return data.path;
-    };
-
-    const insertDocumentRecord = async (filePath: string, quote: ShippingQuotesRow) => {
-        const { error } = await supabase
-            .from('documents')
-            .insert({
-                user_id: quote.user_id,
-                title: `Receipt for Quote ${quote.id}`,
-                description: `Receipt for Quote ${quote.id}`,
-                file_name: `${quote.id}.pdf`,
-                file_type: 'application/pdf',
-                file_url: filePath,
-            });
-
-        if (error) {
-            throw new Error(error.message);
-        }
-    };
 
     const handleMarkAsComplete = async (quoteId: number): Promise<void> => {
         try {
@@ -288,6 +250,7 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
         const newQuote = {
             user_id: quote.user_id,
             company_id: quote.company_id,
+            assigned_sales_user: quote.assigned_sales_user,
             origin_zip: quote.origin_zip,
             origin_city: quote.origin_city,
             origin_state: quote.origin_state,

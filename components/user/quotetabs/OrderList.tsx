@@ -33,8 +33,48 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
     const [searchColumn, setSearchColumn] = useState<string>('id');
     const router = useRouter();
 
+    const fetchProfiles = useCallback(
+        async (companyId: string) => {
+            console.log('Fetching profiles for companyId:', companyId); // Add log to check companyId
+
+            const { data: profiles, error } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("company_id", companyId);
+
+            if (error) {
+                console.error("Error fetching profiles:", error.message);
+                return [];
+            }
+
+            return profiles;
+        },
+        [supabase]
+    );
+
+    const fetchOrders = useCallback(
+        async (profileIds: string[]) => {
+            const { data: orders, error } = await supabase
+                .from("shippingquotes")
+                .select("*")
+                .in("user_id", profileIds)
+                .eq("status", "Order")
+                .not('is_complete', 'is', true);
+
+            if (error) {
+                console.error("Error fetching orders:", error.message);
+                return [];
+            }
+
+            return orders;
+        },
+        [supabase]
+    );
+
     const fetchOrdersForNtsUsers = useCallback(
-        async (userId: string) => {
+        async (userId: string, companyId: string) => {
+            console.log('Fetching orders for nts_user with companyId:', companyId); // Add log to check companyId
+
             const { data: companySalesUsers, error: companySalesUsersError } = await supabase
                 .from("company_sales_users")
                 .select("company_id")
@@ -52,16 +92,16 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                 (companySalesUser) => companySalesUser.company_id
             );
 
-            if (companyIds.length === 0) {
-                console.error("No companies assigned to the user");
+            if (!companyIds.includes(companyId)) {
+                console.error("Company ID not assigned to the user");
                 return [];
             }
 
             const { data: orders, error: ordersError } = await supabase
-                .from('shippingquotes')
-                .select('*')
-                .in('company_id', companyIds)
-                .eq('status', 'Order')
+                .from("shippingquotes")
+                .select("*")
+                .eq("company_id", companyId)
+                .eq("status", "Order")
                 .not('is_complete', 'is', true);
 
             if (ordersError) {
@@ -74,30 +114,14 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
 
             return orders;
         },
-        []
+        [supabase]
     );
-
-    const fetchQuotesForCompany = useCallback(async (companyId: string) => {
-        const { data: orders, error: ordersError } = await supabase
-            .from('shippingquotes')
-            .select('*')
-            .eq('company_id', companyId)
-            .eq('status', 'Order')
-            .not('is_complete', 'is', true);
-
-        if (ordersError) {
-            console.error('Error fetching orders for company:', ordersError.message);
-            return [];
-        }
-
-        return orders;
-    }, []);
 
     const fetchInitialQuotes = useCallback(async () => {
         if (!session?.user?.id) return;
 
         if (isAdmin) {
-            const ordersData = await fetchOrdersForNtsUsers(session.user.id);
+            const ordersData = await fetchOrdersForNtsUsers(session.user.id, companyId);
             setQuotes(ordersData);
         } else {
             // Fetch the user's profile
@@ -118,15 +142,21 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
             }
 
             const companyId = userProfile.company_id;
-            const ordersData = await fetchQuotesForCompany(companyId);
+            const profilesData = await fetchProfiles(companyId);
+
+            const profileIds = profilesData.map((profile) => profile.id);
+            const ordersData = await fetchOrders(profileIds);
 
             setQuotes(ordersData);
         }
     }, [
         session,
-        fetchQuotesForCompany,
+        supabase,
+        fetchProfiles,
+        fetchOrders,
         fetchOrdersForNtsUsers,
         isAdmin,
+        companyId,
     ]);
 
     useEffect(() => {
@@ -145,7 +175,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                 if (ntsUserError) {
                     console.error('Error fetching nts_user role:', ntsUserError.message);
                 } else if (ntsUserData) {
-                    const orders = await fetchOrdersForNtsUsers(session.user.id);
+                    const orders = await fetchOrdersForNtsUsers(session.user.id, companyId);
                     setQuotes(orders);
                     return;
                 }
@@ -159,7 +189,9 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                 if (profileError) {
                     console.error('Error fetching profile:', profileError.message);
                 } else if (profileData?.company_id) {
-                    const orders = await fetchQuotesForCompany(profileData.company_id);
+                    const profilesData = await fetchProfiles(profileData.company_id);
+                    const profileIds = profilesData.map((profile) => profile.id);
+                    const orders = await fetchOrders(profileIds);
                     setQuotes(orders);
                     return;
                 }
@@ -169,7 +201,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
         };
 
         checkUserType();
-    }, [session, fetchQuotes, fetchOrdersForNtsUsers, fetchQuotesForCompany]);
+    }, [session, fetchQuotes, fetchOrdersForNtsUsers, fetchOrders, companyId]);
 
     useEffect(() => {
         const filteredAndSorted = quotes
@@ -330,43 +362,25 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
         }
     };
 
-    const handleGeneratePDF = async (quoteId: number) => {
-        try {
-            const quote = quotes.find(q => q.id === quoteId);
-            if (quote) {
-                // Fetch the template for order completion
-                const { data: templateData, error: templateError } = await supabase
-                    .from('templates')
-                    .select('content, title')
-                    .eq('context', 'order')
-                    .single();
-
-                if (templateError) {
-                    console.error('Error fetching template:', templateError.message);
-                    return;
+    useEffect(() => {
+        const channel = supabase
+            .channel('shippingquotes')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'shippingquotes' },
+                (payload) => {
+                    console.log('Change received!', payload);
+                    if (payload.eventType === 'UPDATE' && payload.new.status === 'Order') {
+                        fetchInitialQuotes();
+                    }
                 }
+            )
+            .subscribe();
 
-                // Generate PDF and upload to Supabase
-                const pdf = await generatePDF(quote, templateData.content);
-                const fileName = `${templateData.title.replace(/\s+/g, '_')}_for_Quote_${quote.id}.pdf`;
-                const filePath = await uploadPDFToSupabase(pdf, fileName);
-                await insertDocumentRecord(filePath, quote, templateData.title);
-
-                // Create a notification for the user
-                const notificationMessage = `Quote ID ${quote.id} was delivered. <a class="text-ntsLightBlue underline font-semibold" href="/user/documents">View Quote</a>`;
-                await supabase
-                    .from('notifications')
-                    .insert({
-                        user_id: quote.user_id,
-                        message: notificationMessage,
-                        is_read: false,
-                    });
-            }
-        } catch (error) {
-            console.error('Error generating PDF:', error);
-            setErrorText('Error generating PDF. Please check your internet connection and try again.');
-        }
-    };
+        return () => {
+            supabase.removeChannel(channel); // Cleanup subscription
+        };
+    }, [fetchInitialQuotes]);
 
     return (
         <div className="w-full bg-white  shadow rounded-md max-h-max flex-grow">
