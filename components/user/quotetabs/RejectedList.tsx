@@ -20,29 +20,112 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [rejectedQuotes, setRejectedQuotes] = useState<Quote[]>([]);
 
+    const fetchQuotesForNtsUsers = useCallback(async (userId: string) => {
+        const { data: companyIdsData, error: companyIdsError } = await supabase
+            .from('company_sales_users')
+            .select('company_id')
+            .eq('sales_user_id', userId);
+
+        if (companyIdsError) {
+            console.error('Error fetching company IDs:', companyIdsError.message);
+            return [];
+        }
+
+        const companyIds = companyIdsData.map((item: any) => item.company_id);
+
+        if (companyIds.length === 0) {
+            return [];
+        }
+
+        const { data: quotes, error: quotesError } = await supabase
+            .from('shippingquotes')
+            .select('*')
+            .in('company_id', companyIds)
+            .eq('status', 'Rejected');
+
+        if (quotesError) {
+            console.error('Error fetching quotes for nts_user:', quotesError.message);
+            return [];
+        }
+
+        return quotes;
+    }, []);
+
+    const fetchQuotesForCompany = useCallback(async (companyId: string) => {
+        if (!companyId) {
+            console.error('Invalid company ID');
+            return [];
+        }
+
+        const { data: quotes, error: quotesError } = await supabase
+            .from('shippingquotes')
+            .select('*')
+            .eq('company_id', companyId)
+            .eq('status', 'Rejected');
+
+        if (quotesError) {
+            console.error('Error fetching quotes for company:', quotesError.message);
+            return [];
+        }
+
+        return quotes;
+    }, []);
+
+    const fetchRejectedQuotes = useCallback(async () => {
+        if (!session?.user?.id) return;
+
+        if (isAdmin) {
+            const quotesData = await fetchQuotesForNtsUsers(session.user.id);
+            setRejectedQuotes(quotesData);
+        } else if (companyId) {
+            const quotesData = await fetchQuotesForCompany(companyId);
+            setRejectedQuotes(quotesData);
+        }
+
+        setIsLoading(false);
+    }, [session, fetchQuotesForCompany, fetchQuotesForNtsUsers, isAdmin, companyId]);
+
     useEffect(() => {
-        if (!session) {
-            return;
-        }
+        const checkUserType = async () => {
+            if (session?.user?.id) {
+                const { data: ntsUserData, error: ntsUserError } = await supabase
+                    .from('nts_users')
+                    .select('id')
+                    .eq('id', session.user.id)
+                    .single();
 
-        const fetchRejectedQuotes = async () => {
-            const { data, error } = await supabase
-                .from('shippingquotes')
-                .select('*')
-                .eq('status', 'Rejected')
-                .eq('user_id', session.user.id);
+                if (ntsUserError) {
+                    console.error('Error fetching nts_user role:', ntsUserError.message);
+                } else if (ntsUserData) {
+                    const quotes = await fetchQuotesForNtsUsers(session.user.id);
+                    setRejectedQuotes(quotes);
+                    return;
+                }
 
-            if (error) {
-                setErrorText('Error fetching rejected quotes');
-                return;
+                const { data: profileData, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('company_id')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (profileError) {
+                    console.error('Error fetching profile:', profileError.message);
+                } else if (profileData?.company_id) {
+                    const quotes = await fetchQuotesForCompany(profileData.company_id);
+                    setRejectedQuotes(quotes);
+                    return;
+                }
+
+                fetchRejectedQuotes();
             }
+        };
 
-            setRejectedQuotes(data as any);
-            setIsLoading(false);
-        }
+        checkUserType();
+    }, [session, fetchQuotesForNtsUsers, fetchRejectedQuotes, fetchQuotesForCompany, companyId]);
 
+    useEffect(() => {
         fetchRejectedQuotes();
-    }, [session]);
+    }, [fetchRejectedQuotes]);
 
     const unRejectQuote = async (quote: Quote) => {
         const { error } = await supabase
@@ -113,4 +196,3 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
 };
 
 export default RejectedList;
-

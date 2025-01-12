@@ -391,7 +391,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
 
             const { error } = await supabase
                 .from("shippingquotes")
-                .update({ status: "rejected", notes: data.notes })
+                .update({ status: "Rejected", notes: data.notes })
                 .eq("id", quote.id);
 
             if (error) {
