@@ -33,7 +33,7 @@ export default function ConfirmSignup() {
                     setError(error.message);
                 } else {
                     setSuccess(true);
-                    router.push(redirect_to as string || '/profile-setup');
+                    router.push(redirect_to as string || '/user/logistics-management');
                 }
             } catch (err) {
                 setError('An unexpected error occurred');

@@ -50,7 +50,7 @@ export default function SignUpPage() {
                 email,
                 password,
                 options: {
-                    emailRedirectTo: `${window.location.origin}/confirm-signup`, // Redirect to the confirmation page
+                    emailRedirectTo: `https://www.shipper-connect.com/confirm-signup`, // Redirect to the confirmation page
                     data: {
                         first_name: firstName,
                         last_name: lastName,
