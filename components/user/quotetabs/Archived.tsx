@@ -10,7 +10,7 @@ interface ArchivedProps {
     session: Session | null;
     selectedUserId: string;
     isAdmin: boolean;
-    companyId: string; // Add companyId as a prop
+    companyId: string | null; // Allow companyId to be null
 }
 
 const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId }) => {
@@ -57,6 +57,11 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId }) => {
     }, []);
 
     const fetchQuotesForCompany = useCallback(async (companyId: string) => {
+        if (!companyId) {
+            console.error('Invalid company ID');
+            return [];
+        }
+
         const { data: quotes, error: quotesError } = await supabase
             .from('shippingquotes')
             .select('*')
@@ -78,7 +83,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId }) => {
         if (isAdmin) {
             const quotesData = await fetchQuotesForNtsUsers(session.user.id);
             setArchivedQuotes(quotesData);
-        } else {
+        } else if (companyId) {
             const quotesData = await fetchQuotesForCompany(companyId);
             setArchivedQuotes(quotesData);
         }

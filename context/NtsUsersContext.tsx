@@ -1,4 +1,3 @@
-// filepath: /home/adam/Desktop/nts-client-connect/context/NtsUsersContext.tsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { NtsUser } from '@/lib/schema'; // Import the NtsUser type from schema.ts
@@ -26,26 +25,19 @@ export const NtsUsersProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 return;
             }
 
-            console.log('Session user ID:', session.user.id); // Add log to check session user ID
-
             try {
                 const { data, error } = await supabase
                     .from('nts_users')
                     .select('*')
-                    .eq('id', session.user.id) // Use id to match the ID from the auth.users table
+                    .eq('id', session.user.id)
                     .single();
 
                 if (error) {
                     console.error('Error fetching user profile from nts_users:', error.message);
                     setError('Error fetching user profile');
                 } else {
-                    if (data) {
-                        console.log('Fetched user profile from nts_users:', data);
-                        setUserProfile(data);
-                    } else {
-                        console.error('No user profile found for the given ID');
-                        setError('No user profile found for the given ID');
-                    }
+                    console.log('Fetched user profile from nts_users:', data);
+                    setUserProfile(data);
                 }
             } catch (err) {
                 console.error('Unexpected error fetching user profile:', err);

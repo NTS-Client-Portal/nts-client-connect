@@ -30,7 +30,7 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
     const [deliveredQuotes, setDeliveredQuotes] = useState<ShippingQuotesRow[]>([]);
 
     const fetchDeliveredQuotesForNtsUsers = useCallback(
-        async (userId: string, companyId: string) => {
+        async (userId: string) => {
             const { data: companySalesUsers, error: companySalesUsersError } = await supabase
                 .from("company_sales_users")
                 .select("company_id")
@@ -48,15 +48,10 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
                 (companySalesUser) => companySalesUser.company_id
             );
 
-            if (!companyIds.includes(companyId)) {
-                console.error("Company ID not assigned to the user");
-                return [];
-            }
-
             const { data: quotes, error: quotesError } = await supabase
                 .from("shippingquotes")
                 .select("*")
-                .eq("company_id", companyId)
+                .in("company_id", companyIds)
                 .eq("is_complete", true); // Fetch only delivered quotes
 
             if (quotesError) {
@@ -77,7 +72,7 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
             .from('shippingquotes')
             .select('*')
             .eq('company_id', companyId)
-            .eq('is_complete', true); // Fetch only delivered quotes
+            .eq('is_complete', true);
 
         if (quotesError) {
             console.error('Error fetching delivered quotes for company:', quotesError.message);
@@ -100,7 +95,7 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
                     console.error('Error fetching nts_user role:', ntsUserError.message);
                 } else if (ntsUserData) {
                     setIsNtsUser(true);
-                    const quotes = await fetchDeliveredQuotesForNtsUsers(session.user.id, companyId);
+                    const quotes = await fetchDeliveredQuotesForNtsUsers(session.user.id);
                     setDeliveredQuotes(quotes);
                     return;
                 }
@@ -124,7 +119,7 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
         };
 
         checkUserType();
-    }, [session, fetchQuotes, fetchDeliveredQuotesForNtsUsers, fetchDeliveredQuotesForCompany, companyId]);
+    }, [session, fetchDeliveredQuotesForNtsUsers, fetchDeliveredQuotesForCompany, companyId]);
 
     useEffect(() => {
         const channel = supabase

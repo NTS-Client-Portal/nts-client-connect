@@ -8,6 +8,11 @@ import DeliveredList from './quotetabs/DeliveredList';
 import OrderList from './quotetabs/OrderList';
 import Archived from './quotetabs/Archived';
 import RejectedList from './quotetabs/RejectedList';
+import EditHistory from '../EditHistory'; // Adjust the import path as needed
+import { NtsUsersProvider } from '@/context/NtsUsersContext';
+import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
+import { useProfilesUser } from '@/context/ProfilesUserContext'; // Import ProfilesUserContext
+import { useNtsUsers } from '@/context/NtsUsersContext';
 
 interface QuoteRequestProps {
     session: Session | null;
@@ -17,6 +22,8 @@ interface QuoteRequestProps {
 
 const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], companyId }) => {
     const supabase = useSupabaseClient<Database>();
+    const { userProfile: profilesUser } = useProfilesUser(); // Use ProfilesUserContext
+    const { userProfile: ntsUser } = useNtsUsers(); // Use NtsUsersContext
     const [quotes, setQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
     const [orders, setOrders] = useState<Database['public']['Tables']['orders']['Row'][]>([]);
     const [editHistory, setEditHistory] = useState<Database['public']['Tables']['edit_history']['Row'][]>([]);
@@ -30,6 +37,23 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState<string>(searchTermParam as string || '');
     const [searchColumn, setSearchColumn] = useState<string>(searchColumnParam as string || 'id');
+
+    const fetchUserProfile = useCallback(async () => {
+        if (!session?.user?.id) return;
+
+        const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('company_id')
+            .eq('id', session.user.id)
+            .single();
+
+        if (error) {
+            console.error('Error fetching user profile:', error.message);
+            return;
+        }
+
+        setSelectedUserId(profile.company_id);
+    }, [session, supabase]);
 
     const fetchQuotes = useCallback(async () => {
         if (!session?.user?.id || !companyId) return;
@@ -142,7 +166,15 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
 
     const handleTabChange = (tab: string) => {
         setActiveTab(tab);
-        router.push(`/user/logistics-management?tab=${tab}`, undefined, { shallow: true });
+        if (profilesUser) {
+            if (tab === 'orders') {
+                router.push(`/user/logistics-management?tab=orders&searchTerm=${searchTerm}&searchColumn=${searchColumn}`, undefined, { shallow: true });
+            } else {
+                router.push(`/user/logistics-management?tab=${tab}`, undefined, { shallow: true });
+            }
+        } else if (ntsUser) {
+            router.push(`/companies/${companyId}`);
+        }
     };
 
     return (

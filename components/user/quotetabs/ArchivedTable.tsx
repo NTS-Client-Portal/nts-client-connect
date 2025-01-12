@@ -40,14 +40,6 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
         });
     }, [searchTerm, searchColumn, quotes]);
 
-    useEffect(() => {
-        setArchivedQuotes(quotes.filter((quote) => quote.is_archived && quote.company_id === companyId));
-    }, [quotes, companyId]);
-
-    const handleShowArchived = () => {
-        setShowArchived(!showArchived);
-    };
-
     const sortedQuotes = useMemo(() => {
         const sortedQuotes = [...archivedQuotes];
         if (sortConfig.column) {
