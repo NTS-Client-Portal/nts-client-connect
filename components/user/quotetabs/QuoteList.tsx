@@ -15,9 +15,10 @@ interface QuoteListProps {
     isAdmin: boolean;
     fetchQuotes: () => void;
     companyId: string; // Add companyId as a prop
+    isUser: boolean;
 }
 
-const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, companyId }) => {
+const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, companyId, isUser }) => {
     const supabase = useSupabaseClient<Database>();
     const [quotes, setQuotes] = useState<Database["public"]["Tables"]["shippingquotes"]["Row"][]>([]);
     const [profiles, setProfiles] = useState<Database["public"]["Tables"]["profiles"]["Row"][]>([]);
@@ -621,6 +622,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
                     handleRespond={handleRespond}
                     isAdmin={isAdmin}
                     handleRejectClick={handleRejectClick}
+                    isUser={isUser}
                 />
             </div>
             <div className="block md:hidden">

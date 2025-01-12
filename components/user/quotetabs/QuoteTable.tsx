@@ -25,6 +25,7 @@ interface QuoteTableProps {
     handleEditClick: (quote: Database['public']['Tables']['shippingquotes']['Row']) => void;
     handleRespond: (quoteId: number, price: number) => void;
     isAdmin: boolean;
+    isUser: boolean;
     duplicateQuote: (quote: Database['public']['Tables']['shippingquotes']['Row']) => void;
     reverseQuote: (quote: Database['public']['Tables']['shippingquotes']['Row']) => void;
     handleRejectClick: (id: number) => void;
@@ -52,6 +53,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
     handleEditClick,
     handleCreateOrderClick,
     isAdmin,
+    isUser,
     duplicateQuote,
     reverseQuote,
 }) => {
@@ -484,28 +486,29 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                             </button>
                                         </div>
                                         {isAdmin ? (
-                                            <>
-                                                <select
-                                                    value={quote.brokers_status}
-                                                    onChange={(e) => handleStatusChange(e, quote.id)}
-                                                    className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(quote.brokers_status)}`}>
-                                                    <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
-                                                    <option value="Need More Info" className={getStatusClasses('Need More Info')}>Need More Info</option>
-                                                    <option value="Priced" className={getStatusClasses('Priced')}>Priced</option>
-                                                    <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
-                                                </select>
-                                                <SelectTemplate quoteId={quote.id} />
-                                            </>
-                                        ) : (
-                                            <span><strong>Status: </strong>{quote.brokers_status ? quote.brokers_status : 'Pending'}</span>
-                                        )}
-                                        {quote.price ? (
-                                            <>
-                                                <div className='flex flex-col gap-2 items-center justify-between'>
-                                                    <button onClick={() => handleRejectClick(quote.id)} className='text-red-500 underline font-light'>Reject Quote</button>
-                                                </div>
-                                            </>
-                                        ) : null}
+                        <>
+                            <select
+                                value={quote.brokers_status}
+                                onChange={(e) => handleStatusChange(e, quote.id)}
+                                className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(quote.brokers_status)}`}>
+                                <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
+                                <option value="Need More Info" className={getStatusClasses('Need More Info')}>Need More Info</option>
+                                <option value="Priced" className={getStatusClasses('Priced')}>Priced</option>
+                                <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
+                            </select>
+                            <SelectTemplate quoteId={quote.id} />
+                            <button onClick={() => archiveQuote(quote.id)} className="text-red-500 mt-3 font-semibold underline text-sm">
+                                Archive Quote
+                            </button>
+                        </>
+                    ) : (
+                        <span><strong>Status: </strong>{quote.brokers_status ? quote.brokers_status : 'Pending'}</span>
+                    )}
+                    {isUser && quote.price ? (
+                        <div className='flex flex-col gap-2 items-center justify-between'>
+                            <button onClick={() => handleRejectClick(quote.id)} className='text-red-500 underline font-light'>Reject Quote</button>
+                        </div>
+                    ) : null}
                                     </div>
                                 </td>
                             </tr>
@@ -541,9 +544,6 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                     <div className='flex gap-2 items-center'>
                                                         <button onClick={() => handleEditClick(quote)} className="text-ntsLightBlue mt-3 font-semibold text-base underline h-full">
                                                             Edit Quote
-                                                        </button>
-                                                        <button onClick={() => archiveQuote(quote.id)} className="text-red-500 mt-3 font-semibold underline text-sm">
-                                                            Archive Quote
                                                         </button>
                                                     </div>
                                                 </div>

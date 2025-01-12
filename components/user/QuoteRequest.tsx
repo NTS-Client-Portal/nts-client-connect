@@ -24,6 +24,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
     const supabase = useSupabaseClient<Database>();
     const { userProfile: profilesUser } = useProfilesUser(); // Use ProfilesUserContext
     const { userProfile: ntsUser } = useNtsUsers(); // Use NtsUsersContext
+    const isUser = !ntsUser;
     const [quotes, setQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
     const [orders, setOrders] = useState<Database['public']['Tables']['orders']['Row'][]>([]);
     const [editHistory, setEditHistory] = useState<Database['public']['Tables']['edit_history']['Row'][]>([]);
@@ -254,6 +255,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                         fetchQuotes={fetchQuotes}
                         isAdmin={isAdmin}
                         selectedUserId={selectedUserId}
+                        isUser={isUser}
                         companyId={companyId}
                     />
                 )}
