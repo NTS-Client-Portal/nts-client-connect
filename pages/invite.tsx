@@ -8,9 +8,6 @@ export default function InvitePage() {
     const router = useRouter();
     const { token } = router.query;
     const [email, setEmail] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -62,9 +59,6 @@ export default function InvitePage() {
             const { error: profileError } = await supabase
                 .from('profiles')
                 .update({
-                    first_name: firstName,
-                    last_name: lastName,
-                    phone_number: phoneNumber,
                     profile_complete: true,
                 })
                 .eq('email', email);
@@ -111,33 +105,6 @@ export default function InvitePage() {
                                             value={email}
                                             readOnly
                                             className="w-full p-2 mt-2 border rounded bg-gray-200"
-                                        />
-                                        <label htmlFor="firstName" className="mt-4">First Name</label>
-                                        <input
-                                            type="text"
-                                            id="firstName"
-                                            value={firstName}
-                                            onChange={(e) => setFirstName(e.target.value)}
-                                            required
-                                            className="w-full p-2 mt-2 border rounded"
-                                        />
-                                        <label htmlFor="lastName" className="mt-4">Last Name</label>
-                                        <input
-                                            type="text"
-                                            id="lastName"
-                                            value={lastName}
-                                            onChange={(e) => setLastName(e.target.value)}
-                                            required
-                                            className="w-full p-2 mt-2 border rounded"
-                                        />
-                                        <label htmlFor="phoneNumber" className="mt-4">Phone Number</label>
-                                        <input
-                                            type="text"
-                                            id="phoneNumber"
-                                            value={phoneNumber}
-                                            onChange={(e) => setPhoneNumber(e.target.value)}
-                                            required
-                                            className="w-full p-2 mt-2 border rounded"
                                         />
                                         <label htmlFor="password" className="mt-4">Password</label>
                                         <input

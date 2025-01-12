@@ -1,5 +1,4 @@
 const { createClient } = require('@supabase/supabase-js');
-const { v4: uuidv4 } = require('uuid');
 const sgMail = require('@sendgrid/mail');
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -14,33 +13,27 @@ exports.handler = async function (event, context) {
 
         try {
             for (const invite of inviteEmails) {
-                const token = uuidv4();
-                const id = uuidv4(); // Generate a unique ID for the invitation
-
-                const { error } = await supabase
-                    .from('invitations')
-                    .insert({
-                        id, // Set the id field
-                        email: invite.email,
-                        team_role: invite.role,
-                        company_id: companyId,
-                        invited_by: userId,
-                        token, // Set the token field
-                    });
+                const { data, error } = await supabase.auth.api.generateLink({
+                    type: 'magiclink',
+                    email: invite.email,
+                    options: {
+                        emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/invite`,
+                    },
+                });
 
                 if (error) {
-                    console.error('Error inserting invitation:', error.message);
+                    console.error('Error generating magic link:', error.message);
                     throw new Error(error.message);
                 }
 
-                const inviteLink = `${process.env.NEXT_PUBLIC_BASE_URL}/invite?token=${token}`;
+                const magicLink = data.action_link;
 
                 const msg = {
                     to: invite.email,
                     from: process.env.EMAIL_USER, // Use your verified SendGrid sender email
                     subject: 'You are invited to join our team',
-                    text: `You have been invited to join our team. Please click the following link to complete your registration: ${inviteLink}`,
-                    html: `<p>You have been invited to join our team. Please click the following link to complete your registration:</p><p><a href="${inviteLink}">${inviteLink}</a></p>`,
+                    text: `You have been invited to join our team. Please click the following link to complete your registration: ${magicLink}`,
+                    html: `<p>You have been invited to join our team. Please click the following link to complete your registration:</p><p><a href="${magicLink}">${magicLink}</a></p>`,
                 };
 
                 try {

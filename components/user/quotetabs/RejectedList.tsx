@@ -82,10 +82,13 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
                 return [];
             }
 
+            const profilesData = await fetchProfiles(companyId);
+            const profileIds = profilesData.map((profile) => profile.id);
+
             const { data: quotes, error: quotesError } = await supabase
                 .from("shippingquotes")
                 .select("*")
-                .eq("company_id", companyId)
+                .in("user_id", profileIds)
                 .eq("status", "Rejected");
 
             if (quotesError) {
@@ -98,7 +101,7 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
 
             return quotes;
         },
-        [supabase]
+        [supabase, fetchProfiles]
     );
 
     const fetchInitialQuotes = useCallback(async () => {
@@ -183,30 +186,9 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
                 fetchInitialQuotes();
             }
         };
-        
 
         checkUserType();
     }, [session, fetchRejectedQuotesForNtsUsers, fetchRejectedQuotes, fetchInitialQuotes, companyId]);
-
-    useEffect(() => {
-        const channel = supabase
-            .channel('shippingquotes')
-            .on(
-                'postgres_changes',
-                { event: '*', schema: 'public', table: 'shippingquotes' },
-                (payload) => {
-                    console.log('Change received!', payload);
-                    if (payload.eventType === 'UPDATE' && payload.new.status === 'Archived') {
-                        fetchInitialQuotes();
-                    }
-                }
-            )
-            .subscribe();
-
-        return () => {
-            supabase.removeChannel(channel); // Cleanup subscription
-        };
-    }, [fetchInitialQuotes]);
 
     const unRejectQuote = async (quote: Quote) => {
         const { error } = await supabase
