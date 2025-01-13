@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@lib/initSupabase';
-import { useProfilesUser } from '@/context/ProfilesUserContext';
+import { useNtsUsers } from '@/context/NtsUsersContext';
 import { Database } from '@/lib/database.types';
 import { useSession } from '@supabase/auth-helpers-react';
 import dynamic from 'next/dynamic';
@@ -9,48 +9,36 @@ import ForumInterface from './ForumInterface';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
-type ChatRequest = Database['public']['Tables']['chat_requests']['Row'];
-type AssignedSalesUser = Database['public']['Tables']['nts_users']['Row'];
+type SupportTicket = Database['public']['Tables']['support_ticket']['Row'];
 
-const ShipperChatRequestsPage: React.FC = () => {
+const NtsChatRequestsPage: React.FC = () => {
     const session = useSession();
-    const { userProfile } = useProfilesUser();
-    const [chatRequests, setChatRequests] = useState<ChatRequest[]>([]);
-    const [activeChatId, setActiveChatId] = useState<number | null>(null);
-    const [assignedSalesUsers, setAssignedSalesUsers] = useState<AssignedSalesUser[]>([]);
-    const [supportType, setSupportType] = useState('broker_support');
+    const { userProfile } = useNtsUsers();
+    const [supportTickets, setSupportTickets] = useState<SupportTicket[]>([]);
+    const [activeTicketId, setActiveTicketId] = useState<number | null>(null);
+    const [supportType, setSupportType] = useState('customer_support');
     const [topic, setTopic] = useState('');
     const [message, setMessage] = useState('');
     const [file, setFile] = useState<File | null>(null);
     const [ticketSubmitted, setTicketSubmitted] = useState(false);
 
     useEffect(() => {
-        const fetchAssignedSalesUsers = async () => {
-            if (userProfile?.company_id) {
+        const fetchSupportTickets = async () => {
+            if (userProfile?.id) {
                 const { data, error } = await supabase
-                    .from('company_sales_users')
-                    .select(`
-                        sales_user_id,
-                        nts_users (
-                            id,
-                            first_name,
-                            last_name,
-                            email,
-                            phone_number,
-                            profile_picture
-                        )
-                    `)
-                    .eq('company_id', userProfile.company_id);
+                    .from('support_ticket')
+                    .select('*')
+                    .eq('broker_id', userProfile.id);
 
                 if (error) {
-                    console.error('Error fetching assigned sales users:', error.message);
-                } else if (data) {
-                    setAssignedSalesUsers(data.map((item: any) => item.nts_users));
+                    console.error('Error fetching support tickets:', error.message);
+                } else {
+                    setSupportTickets(data);
                 }
             }
         };
 
-        fetchAssignedSalesUsers();
+        fetchSupportTickets();
     }, [userProfile]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,39 +49,6 @@ const ShipperChatRequestsPage: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        let assignedUserId = '';
-        let assignedUserEmails: string[] = [];
-
-        if (supportType === 'broker_support' && assignedSalesUsers.length > 0) {
-            assignedUserId = assignedSalesUsers[0].id;
-            assignedUserEmails.push(assignedSalesUsers[0].email);
-        } else {
-            const { data: supportRolesData, error: supportRolesError } = await supabase
-                .from('user_support_roles')
-                .select('user_id')
-                .eq('support_type', supportType);
-
-            if (supportRolesError || !supportRolesData || supportRolesData.length === 0) {
-                console.error(`Error fetching ${supportType} users:`, supportRolesError?.message);
-                return;
-            }
-
-            const userIds = supportRolesData.map((item: any) => item.user_id);
-
-            const { data: usersData, error: usersError } = await supabase
-                .from('nts_users')
-                .select('id, email')
-                .in('id', userIds);
-
-            if (usersError || !usersData || usersData.length === 0) {
-                console.error(`Error fetching ${supportType} users:`, usersError?.message);
-                return;
-            }
-
-            assignedUserId = usersData[0].id;
-            assignedUserEmails = usersData.map((item: any) => item.email);
-        }
 
         // Upload file if exists
         let fileUrl = '';
@@ -110,18 +65,17 @@ const ShipperChatRequestsPage: React.FC = () => {
         }
 
         // Insert support ticket
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('support_ticket')
             .insert({
-                message,
-                broker_id: assignedUserId,
-                shipper_id: userProfile?.id,
+                broker_id: userProfile?.id,
+                shipper_id: null, // Assuming this is a support ticket without a specific shipper
                 file_url: fileUrl,
                 support_type: supportType,
                 request_time: new Date().toISOString(),
                 topic,
-            })
-            .select();
+                message,
+            });
 
         if (error) {
             console.error('Error creating support ticket:', error.message);
@@ -129,36 +83,11 @@ const ShipperChatRequestsPage: React.FC = () => {
             setMessage('');
             setFile(null);
             setTicketSubmitted(true);
-            setActiveChatId(data[0].id);
-            for (const email of assignedUserEmails) {
-                await sendEmailNotification(email, message);
-            }
-        }
-    };
-
-    const sendEmailNotification = async (email: string, message: string) => {
-        const response = await fetch('/.netlify/functions/sendEmail', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                to: email,
-                subject: 'New Support Ticket',
-                text: message,
-                html: `<p>${message}</p>`,
-            }),
-        });
-
-        if (!response.ok) {
-            console.error('Error sending email:', await response.text());
         }
     };
 
     const getTopics = () => {
         switch (supportType) {
-            case 'broker_support':
-                return ['Quote Request', 'Dispatched order', 'Issue with Carrier', 'Change in Order'];
             case 'customer_support':
                 return ['Broker is not responsive', 'Damages/Claims', 'General Complaint'];
             case 'tech_support':
@@ -166,6 +95,13 @@ const ShipperChatRequestsPage: React.FC = () => {
             default:
                 return [];
         }
+    };
+
+    const handleAcceptTicket = async (ticketId: number) => {
+        setActiveTicketId(ticketId);
+
+        // Remove the accepted ticket from the list
+        setSupportTickets(supportTickets.filter(ticket => ticket.id !== ticketId));
     };
 
     return (
@@ -178,7 +114,6 @@ const ShipperChatRequestsPage: React.FC = () => {
                         onChange={(e) => setSupportType(e.target.value)}
                         className="w-full p-2 border border-gray-300 rounded-md"
                     >
-                        <option value="broker_support">Broker Support</option>
                         <option value="customer_support">Customer Support</option>
                         <option value="tech_support">Technical Support</option>
                     </select>
@@ -215,11 +150,29 @@ const ShipperChatRequestsPage: React.FC = () => {
                    </div>
                 </form>
             </div>
-            {ticketSubmitted && activeChatId && (
+            <div className="w-full p-4 bg-white rounded-lg shadow-lg mt-4">
+                <h2 className="text-2xl font-semibold mb-4">NTS Support Tickets</h2>
+                <ul>
+                    {supportTickets.map((ticket) => (
+                        <li key={ticket.id} className="mb-2">
+                            <div className="flex justify-between items-center">
+                                <span>{ticket.topic}</span>
+                                <button
+                                    onClick={() => handleAcceptTicket(ticket.id)}
+                                    className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                                >
+                                    Accept
+                                </button>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+            {activeTicketId && (
                 <div className="w-full pt-6 md:pt-6 mb-6 md:p-6 shadow-lg bg-zinc-50">
                     <ForumInterface
-                        brokerId={assignedSalesUsers[0]?.id || ''}
-                        shipperId={userProfile?.id || ''}
+                        brokerId={userProfile?.id || ''}
+                        shipperId={supportTickets.find((ticket) => ticket.id === activeTicketId)?.shipper_id || ''}
                         session={session}
                     />
                 </div>
@@ -228,4 +181,4 @@ const ShipperChatRequestsPage: React.FC = () => {
     );
 };
 
-export default ShipperChatRequestsPage;
+export default NtsChatRequestsPage;

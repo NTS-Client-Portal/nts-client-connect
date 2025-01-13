@@ -14,4 +14,4 @@ const EquipmentDirectoryPage: React.FC = () => {
     );
 };
 
-export default withNtsUser(EquipmentDirectoryPage);
+export default EquipmentDirectoryPage;

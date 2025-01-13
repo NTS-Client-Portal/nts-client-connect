@@ -3,9 +3,6 @@ import { useSession } from '@supabase/auth-helpers-react';
 import UserLayout from '@/pages/components/UserLayout';
 import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
 import UserSettings from '@/components/user/UserSettings';
-import ManagerPanel from '@/components/user/ManagerPanel';
-import withManagerRole from '@/components/hoc/withManagerRole';
-import withProfileCheck from '@/components/hoc/withProfileCheck';
 
 const UserProfilePage: React.FC = () => {
     const session = useSession();
@@ -28,5 +25,4 @@ const UserProfilePage: React.FC = () => {
     );
 };
 
-// Compose the HOCs
 export default UserProfilePage;

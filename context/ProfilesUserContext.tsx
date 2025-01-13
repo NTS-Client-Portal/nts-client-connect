@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
-import { Profile } from '@/lib/schema'; // Import the Profile type from schema.ts
+import { Database } from '@/lib/database.types';
 
 interface ProfilesUserContextType {
-    userProfile: Profile | null;
-    setUserProfile: React.Dispatch<React.SetStateAction<Profile | null>>;
+    userProfile: Database['public']['Tables']['profiles']['Row'] | null;
+    setUserProfile: React.Dispatch<React.SetStateAction<Database['public']['Tables']['profiles']['Row'] | null>>;
     loading: boolean;
     error: string | null;
 }
@@ -13,8 +13,8 @@ const ProfilesUserContext = createContext<ProfilesUserContextType | undefined>(u
 
 export const ProfilesUserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const session = useSession();
-    const supabase = useSupabaseClient();
-    const [userProfile, setUserProfile] = useState<Profile | null>(null);
+    const supabase = useSupabaseClient<Database>();
+    const [userProfile, setUserProfile] = useState<Database['public']['Tables']['profiles']['Row'] | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -36,8 +36,13 @@ export const ProfilesUserProvider: React.FC<{ children: React.ReactNode }> = ({ 
                     console.error('Error fetching user profile from profiles:', error.message);
                     setError('Error fetching user profile');
                 } else {
-                    console.log('Fetched user profile from profiles:', data);
-                    setUserProfile(data);
+                    if (data) {
+                        console.log('Fetched user profile from profiles:', data);
+                        setUserProfile(data);
+                    } else {
+                        console.error('No user profile found');
+                        setError('No user profile found');
+                    }
                 }
             } catch (err) {
                 console.error('Unexpected error fetching user profile:', err);

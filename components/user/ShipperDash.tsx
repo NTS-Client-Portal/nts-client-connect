@@ -2,14 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/initSupabase';
 import { useSession } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
-import Link from 'next/link';
 import Image from 'next/image';
 import { useProfilesUser } from '@/context/ProfilesUserContext';
-import ShipperBrokerConnect from '@/components/chat/ShipperBrokerConnect';
-import FloatingChatWidget from '@/components/chat/FloatingChatWidget';
 import ShippingCalendar from './ShippingCalendar';
-import { ChatProvider } from '@/context/ChatContext';
-
 type NtsUsersRow = Database['public']['Tables']['nts_users']['Row'];
 type AssignedSalesUser = Database['public']['Tables']['nts_users']['Row'];
 
@@ -141,15 +136,6 @@ const ShipperDash = () => {
                             <p><strong>Email:</strong> {user.email}</p>
                             <p><strong>Phone: </strong>{user.phone_number}</p>
                         </span>
-                        {userProfile && session && (
-                            <>
-                                <ShipperBrokerConnect
-                                    brokerId={assignedSalesUsers[0]?.id || ''}
-                                    shipperId={userProfile.id}
-                                    session={session}
-                                />
-                            </>
-                        )}
                     </div>
                 ))}
             </div>

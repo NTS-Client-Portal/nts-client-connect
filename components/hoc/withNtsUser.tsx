@@ -16,37 +16,44 @@ const withNtsUser = (WrappedComponent: React.FC) => {
                 if (!session) {
                     console.log('No session found');
                     setLoading(false);
+                    router.push('/unauthorized');
                     return;
                 }
 
-                console.log(`Checking user in nts_users table with id: ${session.user.id}`);
+                console.log(`Checking user in nts_users table with email: ${session.user.email}`);
 
                 const { data, error } = await supabase
                     .from('nts_users')
                     .select('id')
-                    .eq('id', session.user.id)
+                    .eq('email', session.user.email)
                     .single();
 
                 if (error) {
                     console.error(`Error checking user in nts_users:`, error.message);
                     setUserExists(false);
+                    router.push('/unauthorized');
                 } else {
-                    console.log(`User found in nts_users:`, data);
-                    setUserExists(!!data);
+                    if (data) {
+                        console.log(`User found in nts_users:`, data);
+                        setUserExists(true);
+                    } else {
+                        console.log('No user found in nts_users');
+                        setUserExists(false);
+                        router.push('/unauthorized');
+                    }
                 }
 
                 setLoading(false);
             };
 
             checkUserExists();
-        }, [session, supabase]);
+        }, [session, supabase, router]);
 
         if (loading) {
             return <p>Loading...</p>;
         }
 
         if (!userExists) {
-            router.push('/unauthorized'); // Redirect to an unauthorized page
             return null;
         }
 

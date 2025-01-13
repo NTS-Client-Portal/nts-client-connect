@@ -3,7 +3,6 @@ import SalesSideNav from './SalesSideNav';
 import SalesTopNav from './SalesTopNav';
 import { useSession } from '@supabase/auth-helpers-react';
 import { useNtsUsers } from '@/context/NtsUsersContext';
-import { useChat } from '@/context/ChatContext';
 
 interface SalesLayoutProps {
     children: ReactNode;
@@ -13,7 +12,6 @@ const SalesLayout: React.FC<SalesLayoutProps> = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const session = useSession();
     const { userProfile } = useNtsUsers();
-    const { activeChatId, isChatOpen } = useChat();
 
     useEffect(() => {
         const mediaQuery = window.matchMedia('(min-width: 1024px)');
@@ -46,12 +44,6 @@ const SalesLayout: React.FC<SalesLayoutProps> = ({ children }) => {
                 <SalesTopNav session={session} />
             </div>
             <main className="ml-0 mt-32 md:mt-20 xl:ml-52 p-4 z-0 relative">
-                {/* {userProfile && session && (
-                    <ChatRequestListener />
-                )}
-                <Link className="body-btn" href="/nts/sales/chat-requests">
-                    View All Chat Requests
-                </Link> */}
                 {children}
             </main>
         </div>

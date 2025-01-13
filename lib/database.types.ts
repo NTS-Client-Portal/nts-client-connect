@@ -1821,6 +1821,54 @@ export type Database = {
           },
         ]
       }
+      support_ticket: {
+        Row: {
+          broker_id: string | null
+          file_url: string | null
+          id: number
+          message: string | null
+          request_time: string | null
+          shipper_id: string | null
+          support_type: string | null
+          topic: string | null
+        }
+        Insert: {
+          broker_id?: string | null
+          file_url?: string | null
+          id?: number
+          message?: string | null
+          request_time?: string | null
+          shipper_id?: string | null
+          support_type?: string | null
+          topic?: string | null
+        }
+        Update: {
+          broker_id?: string | null
+          file_url?: string | null
+          id?: number
+          message?: string | null
+          request_time?: string | null
+          shipper_id?: string | null
+          support_type?: string | null
+          topic?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_ticket_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "nts_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_ticket_shipper_id_fkey"
+            columns: ["shipper_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       templates: {
         Row: {
           content: string
