@@ -5,7 +5,8 @@ import Modal from './Modal';
 import { generateAndUploadPDF, replaceShortcodes } from '@/components/GeneratePDF';
 import dynamic from 'next/dynamic';
 import 'react-quill/dist/quill.snow.css';
-import ReactQuill from 'react-quill';
+
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 export interface Template {
     id: string;
