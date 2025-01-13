@@ -34,17 +34,17 @@ const NtsSettings: React.FC<UserProfileFormProps> = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [userId, setUserId] = useState<string | null>(null); // State to store user ID
-
+    
     useEffect(() => {
         const fetchUserProfile = async () => {
             if (!session) return;
-
+    
             const { data, error } = await supabase
                 .from('nts_users')
                 .select('id, first_name, last_name, company_id, address, phone_number, profile_picture, email_notifications')
                 .eq('email', session.user.email) // Use the email for matching
                 .single();
-
+    
             if (error) {
                 console.error('Error fetching user profile:', error.message);
                 setProfileError('Error fetching user profile');
@@ -55,16 +55,21 @@ const NtsSettings: React.FC<UserProfileFormProps> = () => {
                 setCompanyName(data.company_id || '');
                 setAddress(data.address || '');
                 setPhoneNumber(data.phone_number || '');
-                const profilePicUrl = data.profile_picture
-                    ? await getSignedUrl(data.profile_picture)
-                    : 'https://www.gravatar.com/avatar?d=mp&s=100';
-                setProfilePictureUrl(profilePicUrl);
+                try {
+                    const profilePicUrl = data.profile_picture
+                        ? await getSignedUrl(data.profile_picture)
+                        : 'https://www.gravatar.com/avatar?d=mp&s=100';
+                    setProfilePictureUrl(profilePicUrl);
+                } catch (error) {
+                    console.error('Error fetching profile picture URL:', error.message);
+                    setProfileError('Error fetching profile picture URL');
+                }
                 setEmail(session.user.email || '');
                 setEmailNotifications(data.email_notifications || false);
                 setProfilePicture(null); // Reset the profile picture input
             }
         };
-
+    
         fetchUserProfile();
     }, [session, supabase]);
 
@@ -110,15 +115,19 @@ const NtsSettings: React.FC<UserProfileFormProps> = () => {
     };
 
     const getSignedUrl = async (path: string) => {
+        // Ensure the path does not include /public
+        const cleanedPath = path.replace('/public', '');
+    
         const { data, error } = await supabase.storage
             .from('profile-pictures')
-            .createSignedUrl(path, 60); // URL valid for 60 seconds
-
+            .createSignedUrl(cleanedPath, 60); // URL valid for 60 seconds
+    
         if (error) {
             console.error('Error creating signed URL:', error.message);
+            console.error('Path:', cleanedPath); // Log the path for debugging
             throw new Error('Error creating signed URL');
         }
-
+    
         return data.signedUrl;
     };
 

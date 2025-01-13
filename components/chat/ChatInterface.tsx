@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 interface ChatInterfaceProps {
     brokerId: string;
@@ -14,6 +16,7 @@ interface Message {
     message_body: string;
     message_time: string | null;
     user_type: string | null;
+    file_url: string | null;
 }
 
 const isValidUUID = (id: string) => {
@@ -25,7 +28,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ brokerId, shipperId, sess
     const supabase = useSupabaseClient<Database>();
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState('');
-    const [isChatEnded, setIsChatEnded] = useState(false);
+    const [file, setFile] = useState<File | null>(null);
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -43,7 +46,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ brokerId, shipperId, sess
             const { data, error } = await supabase
                 .from('messages')
                 .select('*')
-                .eq('chat_id', activeChatId);
+                .eq('chat_id', activeChatId)
+                .order('message_time', { ascending: true });
 
             if (error) {
                 console.error('Error fetching messages:', error.message);
@@ -68,7 +72,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ brokerId, shipperId, sess
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newMessage.trim()) return;
+        if (!newMessage.trim() && !file) return;
 
         // Ensure brokerId and shipperId are valid UUIDs
         if (!isValidUUID(brokerId) || !isValidUUID(shipperId)) {
@@ -99,41 +103,40 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ brokerId, shipperId, sess
             return;
         }
 
+        let fileUrl = '';
+        if (file) {
+            const { data, error } = await supabase.storage
+                .from('feedback-support')
+                .upload(`public/${file.name}`, file);
+
+            if (error) {
+                console.error('Error uploading file:', error.message);
+            } else {
+                fileUrl = data.path;
+            }
+        }
+
         const { error } = await supabase
             .from('messages')
             .insert({
                 chat_id: activeChatId,
                 message_body: newMessage,
-                user_type: 'shipper',
+                user_type: session.user.id === brokerId ? 'broker' : 'shipper',
                 message_time: new Date().toISOString(),
+                file_url: fileUrl,
             });
 
         if (error) {
             console.error('Error sending message:', error.message);
         } else {
             setNewMessage('');
+            setFile(null);
         }
     };
 
-    const handleEndChat = async () => {
-        setIsChatEnded(true);
-        const endMessage = {
-            broker_id: brokerId,
-            shipper_id: shipperId,
-            id: Date.now(), // or any unique identifier
-            message_body: 'Chat session has ended.',
-            user_type: 'system',
-            message_time: new Date().toISOString(),
-        };
-
-        const { error } = await supabase
-            .from('messages')
-            .insert([endMessage]);
-
-        if (error) {
-            console.error('Error ending chat:', error.message);
-        } else {
-            setMessages((prevMessages) => [...prevMessages, endMessage]);
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setFile(e.target.files[0]);
         }
     };
 
@@ -154,6 +157,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ brokerId, shipperId, sess
                             <div key={message.id} className={`p-2 flex ${message.user_type === 'broker' ? 'justify-start' : 'justify-end'}`}>
                                 <div className={`p-2 rounded-lg ${message.user_type === 'broker' ? 'bg-blue-100 w-3/4 sm:w-1/2 ml-2' : message.user_type === 'system' ? 'bg-red-100' : 'bg-gray-100 w-3/4 sm:w-1/2 mr-2'}`}>
                                     <p>{message.message_body}</p>
+                                    {message.file_url && (
+                                        <a href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${message.file_url}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+                                            View Attachment
+                                        </a>
+                                    )}
                                     {message.user_type !== 'system' && (
                                         <p className="text-xs text-gray-500 mt-1">
                                             {message.user_type === 'broker' ? 'Broker' : 'Shipper'} - {new Date(message.message_time || '').toLocaleTimeString()}
@@ -162,38 +170,23 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ brokerId, shipperId, sess
                                 </div>
                             </div>
                         ))}
-                        {isChatEnded && (
-                            <div className="flex justify-center items-center w-full my-4">
-                                <div className="border-t border-gray-300 w-full text-center">
-                                    <span className="bg-white px-4 text-gray-500">Chat session has ended</span>
-                                </div>
-                            </div>
-                        )}
                         <div ref={messagesEndRef} />
                     </div>
-
-                    {!isChatEnded && (
-                        <>
-                            <form onSubmit={handleSendMessage} className="send-message-form rounded-b-md flex w-full">
-                                <input
-                                    type="text"
-                                    value={newMessage}
-                                    onChange={(e) => setNewMessage(e.target.value)}
-                                    placeholder="Type a message..."
-                                    className="flex-grow p-2 border border-gray-300 rounded-l-lg"
-                                />
-                                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-r-lg">
-                                    Send
-                                </button>
-                            </form>
-                            <button
-                                onClick={handleEndChat}
-                                className="bg-red-500 w-full sm:w-fit text-white px-4 py-2 mt-2 rounded-lg"
-                            >
-                                End Chat
-                            </button>
-                        </>
-                    )}
+                    <form onSubmit={handleSendMessage} className="send-message-form rounded-b-md flex flex-col w-full mt-2">
+                        <ReactQuill
+                            value={newMessage}
+                            onChange={setNewMessage}
+                            className="flex-grow p-2 border border-gray-300 rounded-t-lg"
+                        />
+                        <input
+                            type="file"
+                            onChange={handleFileChange}
+                            className="w-full p-2 mt-2 border border-gray-300 rounded-b-lg"
+                        />
+                        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-2">
+                            Post
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

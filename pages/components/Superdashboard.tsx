@@ -5,6 +5,8 @@ import { Database } from '@/lib/database.types';
 import AdminAnalytics from '@components/admin/AdminAnalytics';
 import AddNtsUserForm from './AddNtsUserForm';
 import TemplateManager from './TemplateManager';
+import EditNtsUserForm from './EditNtsUserForm';
+import ShipperUserManagement from './ShipperUserManagement';
 
 interface SuperadminDashboardProps {
     session: Session | null;
@@ -25,8 +27,11 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
     const [isNtsUserModalOpen, setIsNtsUserModalOpen] = useState(false);
     const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
     const [selectedSalesUserId, setSelectedSalesUserId] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState<'analytics' | 'userManagement' | 'templateManager'>('analytics');
-    const [isSessionChecked, setIsSessionChecked] = useState(false); // Add state to track session check
+    const [activeTab, setActiveTab] = useState<'analytics' | 'shipperUserManagement' | 'templateManager' | 'userManagement' >('userManagement');
+    const [isSessionChecked, setIsSessionChecked] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<NtsUser | null>(null);
+    const [userToDelete, setUserToDelete] = useState<NtsUser | null>(null);
+    const [deleteConfirmation, setDeleteConfirmation] = useState<string>('');
 
     const checkSession = useCallback(async () => {
         if (!session) {
@@ -34,7 +39,6 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
             return;
         }
 
-        // Check if the user has the superadmin role
         const { data: userProfile, error: profileError } = await supabase
             .from('nts_users')
             .select('role')
@@ -44,7 +48,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         if (profileError || userProfile?.role !== 'superadmin') {
             router.push('/superadmin-login');
         } else {
-            setIsSessionChecked(true); // Set session check as completed
+            setIsSessionChecked(true);
         }
     }, [session, router, supabase]);
 
@@ -58,7 +62,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         setLoading(true);
         const { data, error } = await supabase
             .from('nts_users')
-            .select('id, email, first_name, last_name, role, office, phone_number, extension');
+            .select('email, first_name, last_name, role, office, phone_number, extension');
         if (error) {
             setError(error.message);
         } else {
@@ -93,7 +97,6 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         setSuccess(null);
 
         try {
-            // Delete related records in the chat_requests table
             const { error: deleteChatRequestsError } = await supabase
                 .from('chat_requests')
                 .delete()
@@ -103,7 +106,6 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                 throw new Error(deleteChatRequestsError.message);
             }
 
-            // Delete related records in the company_sales_users table
             const { error: deleteCompanySalesUsersError } = await supabase
                 .from('company_sales_users')
                 .delete()
@@ -113,7 +115,6 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                 throw new Error(deleteCompanySalesUsersError.message);
             }
 
-            // Delete the user from the nts_users table
             const { error: deleteUserError } = await supabase
                 .from('nts_users')
                 .delete()
@@ -129,22 +130,22 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
             setError(error.message);
         } finally {
             setLoading(false);
+            setUserToDelete(null);
+            setDeleteConfirmation('');
         }
     };
 
-    const handleEditNtsUser = async (id: string, updatedUser: Partial<NtsUser>) => {
-        setLoading(true);
-        setError(null);
-        setSuccess(null);
+    const handleEditNtsUser = (user: NtsUser) => {
+        setSelectedUser(user);
+    };
 
-        const { error } = await supabase.from('nts_users').update(updatedUser).eq('id', id);
-        if (error) {
-            setError(error.message);
-        } else {
-            fetchNtsUsers();
-            setSuccess('NTS User updated successfully');
-        }
-        setLoading(false);
+    const handleCloseEditForm = () => {
+        setSelectedUser(null);
+    };
+
+    const handleSaveEditForm = () => {
+        fetchNtsUsers();
+        setSelectedUser(null);
     };
 
     const handleAssignSalesUser = async () => {
@@ -158,7 +159,6 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         setSuccess(null);
 
         try {
-            // Check if the company already has an assigned sales user
             const { data: existingAssignment, error: fetchError } = await supabase
                 .from('company_sales_users')
                 .select('id')
@@ -170,7 +170,6 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
             }
 
             if (existingAssignment) {
-                // Update the existing assignment
                 const { error: updateError } = await supabase
                     .from('company_sales_users')
                     .update({ sales_user_id: selectedSalesUserId })
@@ -180,7 +179,6 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                     throw new Error(updateError.message);
                 }
             } else {
-                // Insert a new assignment
                 const { error: insertError } = await supabase
                     .from('company_sales_users')
                     .insert({
@@ -203,105 +201,69 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
     };
 
     if (!isSessionChecked) {
-        return <p>Loading...</p>; // or a loading spinner
+        return <p>Loading...</p>;
     }
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-gray-200">
             <h1 className="text-3xl font-bold mb-6 text-center">Superadmin Dashboard</h1>
             {error && <div className="text-red-500 mb-4">{error}</div>}
             {success && <div className="text-green-500 mb-4">{success}</div>}
             <div className="h-full">
                 <div className="flex justify-center gap-1">
                     <button
-                        onClick={() => setActiveTab('analytics')}
-                        className={`px-4 py-2 border  rounded-t-lg ${activeTab === 'analytics' ? 'bg-blue-500 shadow-md text-white' : 'bg-gray-200 text-gray-700'}`}
+                        onClick={() => setActiveTab('userManagement')}
+                        className={`px-4 py-2 rounded-t-lg ${activeTab === 'userManagement' ? 'bg-blue-500 shadow-md text-white' : 'bg-gray-300 text-zinc-700'}`}
                     >
-                        Analytics
+                        NTS User Management
                     </button>
                     <button
-                        onClick={() => setActiveTab('userManagement')}
-                        className={`px-4 py-2 rounded-t-lg ${activeTab === 'userManagement' ? 'bg-blue-500 shadow-md text-white' : 'bg-gray-200 text-gray-700'}`}
-                    >
-                        User Management
+                        onClick={() => setActiveTab('shipperUserManagement')}
+                        className={`px-4 py-2 rounded-t-lg ${activeTab === 'shipperUserManagement' ? 'bg-blue-500 shadow-md text-white' : 'bg-zinc-300 text-zinc-700'}`}
+                    > 
+                        Shipper User Management
                     </button>
                     <button
                         onClick={() => setActiveTab('templateManager')}
-                        className={`px-4 py-2 rounded-t-lg ${activeTab === 'templateManager' ? 'bg-blue-500 shadow-md text-white' : 'bg-gray-200 text-gray-700'}`}
+                        className={`px-4 py-2 rounded-t-lg ${activeTab === 'templateManager' ? 'bg-blue-500 shadow-md text-white' : 'bg-zinc-300 text-zinc-700'}`}
                     >
                         Template Manager
                     </button>
+                    <button
+                        onClick={() => setActiveTab('analytics')}
+                        className={`px-4 py-2 border  rounded-t-lg ${activeTab === 'analytics' ? 'bg-blue-500 shadow-md text-white' : 'bg-zinc-300 text-zinc-700'}`}
+                    >
+                        Analytics
+                    </button>
                 </div>
-                {activeTab === 'analytics' && (
-                    <AdminAnalytics />
-                )}
+
                 {activeTab === 'userManagement' && (
-                    <div className='bg-ntsBlue/10 w-full h-screen p-4'>
-                        <h2 className="text-2xl font-semibold mb-4">NTS Users</h2>
-                        <div className='flex gap-2 justify-evenly'>
-                            <div className="mt-2 gap-6 flex flex-col items-start justify-around">
-                                <div>
-                                    <h3 className="text-xl font-semibold mb-1">Add New NTS User</h3>
-                                    <button
-                                        onClick={() => setIsNtsUserModalOpen(true)}
-                                        className="body-btn text-white transition duration-200"
-                                    >
-                                        Add NTS User
-                                    </button>
-                                    <AddNtsUserForm
-                                        isOpen={isNtsUserModalOpen}
-                                        onClose={() => setIsNtsUserModalOpen(false)}
-                                        onSuccess={() => {
-                                            setSuccess('NTS User added successfully');
-                                            fetchNtsUsers();
-                                        }}
-                                        ntsUsers={ntsUsers}
-                                    />
-                                </div>
-                                <div>
-                                    <div className="mb-4">
-                                        <h3 className="text-xl font-semibold mb-4">Assign Sales User to Company</h3>
-                                        <label className="block text-gray-700">Select Company</label>
-                                        <select
-                                            value={selectedCompanyId || ''}
-                                            onChange={(e) => setSelectedCompanyId(e.target.value)}
-                                            className="w-full px-3 bg-white py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    <div className='bg-zinc-50 w-full h-screen p-4'>
+                        <h2 className="text-2xl font-semibold mb-4 text-center">NTS Users</h2>
+                        <div className='flex flex-col items-center gap-2 justify-evenly'>
+                                <div className='flex items-start justify-start w-full'>
+                                    <div className='flex flex-col items-center w-1/2'>
+                                        <h3 className="text-xl font-semibold mb-1">Add New NTS User</h3>
+                                        <button
+                                            onClick={() => setIsNtsUserModalOpen(true)}
+                                            className="body-btn text-white transition duration-200"
                                         >
-                                            <option value="">Select a company</option>
-                                            {companies.map((company) => (
-                                                <option key={company.id} value={company.id}>
-                                                    {company.name}
-                                                </option>
-                                            ))}
-                                        </select>
+                                            Add NTS User
+                                        </button>
+                                        <AddNtsUserForm
+                                            isOpen={isNtsUserModalOpen}
+                                            onClose={() => setIsNtsUserModalOpen(false)}
+                                            onSuccess={() => {
+                                                setSuccess('NTS User added successfully');
+                                                fetchNtsUsers();
+                                            }}
+                                            ntsUsers={ntsUsers}
+                                        />
                                     </div>
-                                    <div className="mb-4">
-                                        <label className="block text-gray-700">Select Sales User</label>
-                                        <select
-                                            value={selectedSalesUserId || ''}
-                                            onChange={(e) => setSelectedSalesUserId(e.target.value)}
-                                            className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        >
-                                            <option value="">Select a sales user</option>
-                                            {ntsUsers
-                                                .filter((user) => user.role === 'sales')
-                                                .map((user) => (
-                                                    <option key={user.id} value={user.id}>
-                                                        {user.first_name} {user.last_name}
-                                                    </option>
-                                                ))}
-                                        </select>
-                                    </div>
-                                    <button
-                                        onClick={handleAssignSalesUser}
-                                        className="body-btn shadow-md border-none text-white transition duration-200"
-                                    >
-                                        Assign NTS Sales User
-                                    </button>
                                 </div>
-                            </div>
-                            <table className="w-2/3 max-h-2/3 overflow-auto bg-white rounded-lg shadow-md">
-                                <thead className="bg-gray-200">
+                            
+                            <table className="w-2/3 max-h-2/3 overflow-auto rounded-lg shadow-md">
+                                <thead className=" bg-ntsBlue text-white">
                                     <tr>
                                         {ntsUsers.length > 0 &&
                                             Object.keys(ntsUsers[0]).map((key) => (
@@ -316,19 +278,20 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                                             {Object.entries(user).map(([key, value]) => (
                                                 <td key={key} className="py-1 px-4">{String(value)}</td>
                                             ))}
-                                            <td className="py-2 px-4">
-                                                <button
-                                                    onClick={() => handleDeleteNtsUser(user.id)}
-                                                    className="bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600 transition duration-200 mr-2"
-                                                >
-                                                    Delete
-                                                </button>
-                                                <button
-                                                    onClick={() => handleEditNtsUser(user.id, user)}
+                                            <td className="py-2 px-4 flex flex-col justify-center gap-2">
+                                            <button
+                                                    onClick={() => handleEditNtsUser(user)}
                                                     className="bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600 transition duration-200"
                                                 >
                                                     Edit
                                                 </button>
+                                                <button
+                                                    onClick={() => setUserToDelete(user)}
+                                                    className="bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600 transition duration-200"
+                                                >
+                                                    Delete
+                                                </button>
+
                                             </td>
                                         </tr>
                                     ))}
@@ -337,10 +300,57 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                         </div>
                     </div>
                 )}
+                {activeTab === 'shipperUserManagement' && (
+                    <ShipperUserManagement />
+                )}
                 {activeTab === 'templateManager' && (
                     <TemplateManager />
                 )}
             </div>
+            {selectedUser && (
+                <EditNtsUserForm
+                    user={selectedUser}
+                    onClose={handleCloseEditForm}
+                    onSave={handleSaveEditForm}
+                />
+            )}
+            {userToDelete && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+                        <h2 className="text-2xl font-semibold text-ntsBlue mb-4">Confirm Deletion</h2>
+                        <p className="mb-4">
+                            Are you sure you want to delete the user with email{' '}
+                            <strong>{userToDelete.email}</strong>? Please type the email address to confirm.
+                        </p>
+                        <input
+                            type="text"
+                            value={deleteConfirmation}
+                            onChange={(e) => setDeleteConfirmation(e.target.value)}
+                            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-ntsBlue mb-4"
+                        />
+                        <div className="flex justify-end gap-4">
+                            <button
+                                type="button"
+                                onClick={() => setUserToDelete(null)}
+                                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition duration-200"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleDeleteNtsUser(userToDelete.id)}
+                                disabled={deleteConfirmation !== userToDelete.email}
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-200"
+                            >
+                                Confirm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {activeTab === 'analytics' && (
+                    <AdminAnalytics />
+                )}
         </div>
     );
 };

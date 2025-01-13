@@ -18,18 +18,8 @@ const SalesTopNav: React.FC<SalesTopNavProps> = ({ session, className = '' }) =>
     const [profilePictureUrl, setProfilePictureUrl] = useState<string>('https://www.gravatar.com/avatar?d=mp&s=100');
 
     useEffect(() => {
-        const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-        setDarkMode(savedDarkMode);
-        if (savedDarkMode) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    }, []);
-
-    useEffect(() => {
         if (userProfile?.profile_picture) {
-            const profilePicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL}${userProfile.profile_picture}`;
+            const profilePicUrl = `${userProfile.profile_picture}`;
             setProfilePictureUrl(profilePicUrl);
         }
     }, [userProfile]);

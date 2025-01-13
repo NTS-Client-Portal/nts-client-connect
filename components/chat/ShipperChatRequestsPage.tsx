@@ -4,8 +4,8 @@ import { useProfilesUser } from '@/context/ProfilesUserContext';
 import { Database } from '@/lib/database.types';
 import { useSession } from '@supabase/auth-helpers-react';
 import ChatInterface from './ChatInterface';
-import Image from 'next/image';
-import ShipperBrokerConnect from './ShipperBrokerConnect';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 type ChatRequest = Database['public']['Tables']['chat_requests']['Row'];
 type AssignedSalesUser = Database['public']['Tables']['nts_users']['Row'];
@@ -16,6 +16,11 @@ const ShipperChatRequestsPage: React.FC = () => {
     const [chatRequests, setChatRequests] = useState<ChatRequest[]>([]);
     const [activeChatId, setActiveChatId] = useState<number | null>(null);
     const [assignedSalesUsers, setAssignedSalesUsers] = useState<AssignedSalesUser[]>([]);
+    const [supportType, setSupportType] = useState('broker_support');
+    const [topic, setTopic] = useState('');
+    const [message, setMessage] = useState('');
+    const [file, setFile] = useState<File | null>(null);
+    const [ticketSubmitted, setTicketSubmitted] = useState(false);
 
     useEffect(() => {
         const fetchAssignedSalesUsers = async () => {
@@ -65,88 +70,176 @@ const ShipperChatRequestsPage: React.FC = () => {
         fetchChatRequests();
     }, [userProfile]);
 
-    const handleAcceptChat = async (chatId: number) => {
-        setActiveChatId(chatId);
-
-        // Update the chat request to indicate it has been accepted
-        const { error } = await supabase
-            .from('chat_requests')
-            .update({ accepted: true })
-            .eq('id', chatId);
-
-        if (error) {
-            console.error('Error accepting chat:', error.message);
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setFile(e.target.files[0]);
         }
     };
 
-    const handleRescheduleChat = async (chatId: number) => {
-        // Implement reschedule logic here
-        console.log('Reschedule chat:', chatId);
-    };
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
 
-    const handleDeleteChat = async (chatId: number) => {
-        // Delete the chat request
-        const { error } = await supabase
-            .from('chat_requests')
-            .delete()
-            .eq('id', chatId);
+        let assignedUserId = '';
+        let assignedUserEmails: string[] = [];
 
-        if (error) {
-            console.error('Error deleting chat request:', error.message);
+        if (supportType === 'broker_support' && assignedSalesUsers.length > 0) {
+            assignedUserId = assignedSalesUsers[0].id;
+            assignedUserEmails.push(assignedSalesUsers[0].email);
         } else {
-            setChatRequests((prevRequests) => prevRequests.filter(request => request.id !== chatId));
+            const { data: supportRolesData, error: supportRolesError } = await supabase
+                .from('user_support_roles')
+                .select('user_id')
+                .eq('support_type', supportType);
+
+            if (supportRolesError || !supportRolesData || supportRolesData.length === 0) {
+                console.error(`Error fetching ${supportType} users:`, supportRolesError?.message);
+                return;
+            }
+
+            const userIds = supportRolesData.map((item: any) => item.user_id);
+
+            const { data: usersData, error: usersError } = await supabase
+                .from('nts_users')
+                .select('id, email')
+                .in('id', userIds);
+
+            if (usersError || !usersData || usersData.length === 0) {
+                console.error(`Error fetching ${supportType} users:`, usersError?.message);
+                return;
+            }
+
+            assignedUserId = usersData[0].id;
+            assignedUserEmails = usersData.map((item: any) => item.email);
+        }
+
+        // Upload file if exists
+        let fileUrl = '';
+        if (file) {
+            const { data, error } = await supabase.storage
+                .from('feedback-support')
+                .upload(`public/${file.name}`, file);
+
+            if (error) {
+                console.error('Error uploading file:', error.message);
+            } else {
+                fileUrl = data.path;
+            }
+        }
+
+        // Insert chat request
+        const { error } = await supabase
+            .from('chat_requests')
+            .insert({
+                shipper_id: userProfile?.id,
+                broker_id: assignedUserId,
+                file_url: fileUrl,
+                support_type: supportType,
+                request_time: new Date().toISOString(),
+                topic,
+                session: session?.access_token || '',
+            });
+
+        if (error) {
+            console.error('Error creating chat request:', error.message);
+        } else {
+            setMessage('');
+            setFile(null);
+            setTicketSubmitted(true);
+            for (const email of assignedUserEmails) {
+                await sendEmailNotification(email, message);
+            }
         }
     };
 
-    const NtsBrokerPicture = `${process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL}/nts_users/noah-profile.png?t=2024-12-24T23%3A54%3A10.034Z`;
+    const sendEmailNotification = async (email: string, message: string) => {
+        const response = await fetch('/.netlify/functions/sendEmail', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                to: email,
+                subject: 'New Support Ticket',
+                text: message,
+                html: `<p>${message}</p>`,
+            }),
+        });
+
+        if (!response.ok) {
+            console.error('Error sending email:', await response.text());
+        }
+    };
+
+    const getTopics = () => {
+        switch (supportType) {
+            case 'broker_support':
+                return ['Quote Request', 'Dispatched order', 'Issue with Carrier', 'Change in Order'];
+            case 'customer_support':
+                return ['Broker is not responsive', 'Damages/Claims', 'General Complaint'];
+            case 'tech_support':
+                return ['Bug Report', 'General Technical Assistance'];
+            default:
+                return [];
+        }
+    };
 
     return (
-        <div className="md:container md:mx-auto md:p-4 flex flex-col md:flex-row items-center md:items-start gap-2">
-            <div className=" md:p-4 bg-white dark:bg-zinc-900 rounded-lg shadow-lg">
-                {assignedSalesUsers.map((user, index) => (
-                    <div key={index} className="broker-card flex text-nowrap flex-col justify-center items-center p-4 bg-white shadow rounded-lg w-[95vw] md:w-fit max-h-96">
-                        <h2 className='md:text-xl underline font-bold mb-4'>Your Logistics Representative</h2>
-                        <Image src={NtsBrokerPicture} alt="Profile Picture" className="avatar" width={100} height={100} />
-                        <h2 className='text-base md:text-xl underline font-semibold mb-4'>{(user.first_name)} {user.last_name}</h2>
-                        <span className="flex flex-col-reverse md:flex-col gap-1 justify-center md:justify-start items-center md:items-start text-sm md:text-base font-semibold">
-                            <p>{(user.email).charAt(0).toUpperCase() + (user.email).slice(1)}</p>
-                            <p>{user.phone_number}</p>
-                        </span>
-                        {userProfile && session && (
-                            <>
-                                <ShipperBrokerConnect
-                                    brokerId={assignedSalesUsers[0]?.id || ''}
-                                    shipperId={userProfile.id}
-                                    session={session}
-                                />
-                            </>
-                        )}
-                    </div>
-                ))}
+        <div className="md:container md:mx-auto md:p-4 flex flex-col justify-center items-center gap-2">
+            <div className="md:p-4 bg-white dark:bg-zinc-900 rounded-lg shadow-lg w-full">
+                <form onSubmit={handleSubmit}>
+                    <label className="block text-gray-700 font-semibold">Support Type</label>
+                    <select
+                        value={supportType}
+                        onChange={(e) => setSupportType(e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded-md"
+                    >
+                        <option value="broker_support">Broker Support</option>
+                        <option value="customer_support">Customer Support</option>
+                        <option value="tech_support">Technical Support</option>
+                    </select>
+                    <label className="block text-gray-700 font-semibold mt-4">Topic</label>
+                    <select
+                        value={topic}
+                        onChange={(e) => setTopic(e.target.value)}
+                        className="w-full p-2 mt-2 border border-gray-300 rounded-md"
+                    >
+                        <option value="" disabled>Select Topic</option>
+                        {getTopics().map((topicOption) => (
+                            <option key={topicOption} value={topicOption}>
+                                {topicOption}
+                            </option>
+                        ))}
+                    </select>
+                    <ReactQuill
+                        value={message}
+                        onChange={setMessage}
+                        className="w-full h-24 p-2 mt-2 rounded-md"
+                    />
+                    <input
+                        type="file"
+                        onChange={handleFileChange}
+                        className="w-full p-2 mt-12 rounded-md"
+                    />
+                   <div className='w-full flex justify-center'>
+                        <button
+                            type="submit"
+                            className="w-1/4 p-2 mt-2 bg-blue-500 text-white rounded-md"
+                        >
+                            Submit
+                        </button>
+                   </div>
+                </form>
             </div>
-            <div className="w-[98vw] md:w-2/3 pt-6 md:pt-6 mb-6 md:p-6 shadow-lg bg-zinc-50">
-                <h1 className="text-2xl font-bold mb-4 md:mb-0 text-center md:text-start">Live Chat With {assignedSalesUsers[0]?.first_name}</h1>
-                <ul>
-                    {chatRequests.map((request) => (
-                        <li key={request.id} className="mb-4 md:p-4 bg-white rounded-lg shadow-lg">
-                            <p><strong>Topic:</strong> {request.topic}</p>
-                            <p><strong>Priority:</strong> {request.priority}</p>
-                            <p><strong>Broker ID:</strong> {request.broker_id}</p>
-                            <div className="flex space-x-2">
-                                <button className='body-btn' onClick={() => handleAcceptChat(request.id)}>Accept Chat</button>
-                                <button className='body-btn' onClick={() => handleRescheduleChat(request.id)}>Reschedule</button>
-                                <button className='body-btn' onClick={() => handleDeleteChat(request.id)}>Delete</button>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-                <ChatInterface
-                    brokerId={assignedSalesUsers[0]?.id || ''}
-                    shipperId={userProfile?.id || ''}
-                    session={session}
-                    activeChatId={activeChatId?.toString() || ''}
-                />
-            </div>
+            {ticketSubmitted && (
+                <div className="w-full pt-6 md:pt-6 mb-6 md:p-6 shadow-lg bg-zinc-50">
+                    <ChatInterface
+                        brokerId={assignedSalesUsers[0]?.id || ''}
+                        shipperId={userProfile?.id || ''}
+                        session={session}
+                        activeChatId={activeChatId?.toString() || ''}
+                    />
+                </div>
+            )}
         </div>
     );
 };

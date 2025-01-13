@@ -4,8 +4,8 @@ import TemplateList from './TemplateList';
 import Modal from './Modal';
 import { generateAndUploadPDF, replaceShortcodes } from '@/components/GeneratePDF';
 import dynamic from 'next/dynamic';
-
-const CKEditorComponent = dynamic(() => import('./CKEditorComponent'), { ssr: false });
+import 'react-quill/dist/quill.snow.css';
+import ReactQuill from 'react-quill';
 
 export interface Template {
     id: string;
@@ -100,7 +100,7 @@ const TemplateManager: React.FC = () => {
     };
 
     return (
-        <div className='h-full w-full bg-ntsBlue/10 p-8'>
+        <div className='h-full w-full bg-zinc-50 p-8'>
             <h1 className="text-2xl font-bold mb-4">Template Manager</h1>
             <div className='grid grid-cols-3 gap-8 mt-8 justify-items-center'>
                 <TemplateList
@@ -181,7 +181,7 @@ const TemplateManager: React.FC = () => {
                         <div className="flex justify-between items-center h-fit">
                             <button
                                 onClick={handleSaveTemplate}
-                                className="py-2 px-4 mt-4 rounded-md text-sm font-medium text-white bg-ntsLightBlue hover:bg-ntsLightBlue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ntsLightBlue"
+                                className="py-2 px-4 my-4 rounded-md text-sm font-medium text-white bg-ntsLightBlue hover:bg-ntsLightBlue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ntsLightBlue"
                             >
                                 {selectedTemplate ? 'Update Template' : 'Create Template'}
                             </button>
@@ -190,7 +190,7 @@ const TemplateManager: React.FC = () => {
 
                             <button
                                 onClick={() => setIsHtmlView(!isHtmlView)}
-                                className="py-1 px-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-ntsLightBlue hover:bg-ntsLightBlue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ntsLightBlue"
+                                className="py-2 px-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-ntsLightBlue hover:bg-ntsLightBlue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ntsLightBlue"
                             >
                                 {isHtmlView ? 'Switch to Editor' : 'Switch to HTML'}
                             </button>
@@ -203,7 +203,12 @@ const TemplateManager: React.FC = () => {
                                 className="mt-1 block p-2 w-full h-full bg-white border border-zinc-600 focus:border-ntsLightBlue focus:ring focus:ring-ntsLightBlue focus:ring-opacity-50"
                             />
                         ) : (
-                            <CKEditorComponent content={content} setContent={setContent} />
+                            <ReactQuill
+                                value={content}
+                                onChange={setContent}
+                                className="bg-white"
+                                style={{ height: '400px' }} // Increase height to 4x
+                            />
                         )}
                     </div>
 

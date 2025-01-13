@@ -188,31 +188,37 @@ export type Database = {
         Row: {
           accepted: boolean | null
           broker_id: string | null
+          file_url: string | null
           id: number
           priority: string | null
           request_time: string | null
           session: string
           shipper_id: string | null
+          support_type: string | null
           topic: string
         }
         Insert: {
           accepted?: boolean | null
           broker_id?: string | null
+          file_url?: string | null
           id?: number
           priority?: string | null
           request_time?: string | null
           session: string
           shipper_id?: string | null
+          support_type?: string | null
           topic: string
         }
         Update: {
           accepted?: boolean | null
           broker_id?: string | null
+          file_url?: string | null
           id?: number
           priority?: string | null
           request_time?: string | null
           session?: string
           shipper_id?: string | null
+          support_type?: string | null
           topic?: string
         }
         Relationships: [
@@ -888,6 +894,7 @@ export type Database = {
         Row: {
           broker_id: string | null
           chat_id: string | null
+          file_url: string | null
           id: number
           message_body: string
           message_time: string | null
@@ -897,6 +904,7 @@ export type Database = {
         Insert: {
           broker_id?: string | null
           chat_id?: string | null
+          file_url?: string | null
           id?: number
           message_body: string
           message_time?: string | null
@@ -906,6 +914,7 @@ export type Database = {
         Update: {
           broker_id?: string | null
           chat_id?: string | null
+          file_url?: string | null
           id?: number
           message_body?: string
           message_time?: string | null
@@ -1870,6 +1879,32 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_support_roles: {
+        Row: {
+          id: number
+          support_type: string
+          user_id: string | null
+        }
+        Insert: {
+          id?: number
+          support_type: string
+          user_id?: string | null
+        }
+        Update: {
+          id?: number
+          support_type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_support_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "nts_users"
             referencedColumns: ["id"]
           },
         ]

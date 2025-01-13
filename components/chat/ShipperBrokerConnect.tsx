@@ -138,9 +138,9 @@ const ShipperBrokerConnect: React.FC<ShipperBrokerConnectProps> = ({ brokerId, s
                                 <div>
                                     <label htmlFor="priority" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Priority</label>
                                     <select id="priority" name="priority" value={priority} onChange={(e) => setPriority(e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-ntsLightBlue focus:ring focus:ring-ntsLightBlue focus:ring-opacity-50 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-50">
-                                        <option value="low">Low</option>
-                                        <option value="normal">Normal</option>
-                                        <option value="high">High</option>
+                                        <option value="low">Broker Support</option>
+                                        <option value="normal">Customer Support</option>
+                                        <option value="high">Technical Support</option>
                                     </select>
                                 </div>
                                 <div>
