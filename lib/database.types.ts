@@ -899,6 +899,7 @@ export type Database = {
           message_body: string
           message_time: string | null
           shipper_id: string | null
+          ticket_id: number | null
           user_type: string | null
         }
         Insert: {
@@ -909,6 +910,7 @@ export type Database = {
           message_body: string
           message_time?: string | null
           shipper_id?: string | null
+          ticket_id?: number | null
           user_type?: string | null
         }
         Update: {
@@ -919,6 +921,7 @@ export type Database = {
           message_body?: string
           message_time?: string | null
           shipper_id?: string | null
+          ticket_id?: number | null
           user_type?: string | null
         }
         Relationships: [
@@ -1829,6 +1832,7 @@ export type Database = {
           message: string | null
           request_time: string | null
           shipper_id: string | null
+          status: string | null
           support_type: string | null
           topic: string | null
         }
@@ -1839,6 +1843,7 @@ export type Database = {
           message?: string | null
           request_time?: string | null
           shipper_id?: string | null
+          status?: string | null
           support_type?: string | null
           topic?: string | null
         }
@@ -1849,6 +1854,7 @@ export type Database = {
           message?: string | null
           request_time?: string | null
           shipper_id?: string | null
+          status?: string | null
           support_type?: string | null
           topic?: string | null
         }

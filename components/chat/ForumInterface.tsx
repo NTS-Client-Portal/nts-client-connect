@@ -10,46 +10,96 @@ interface ForumInterfaceProps {
     brokerId: string;
     shipperId: string;
     session: any;
+    ticketId: number;
 }
 
 interface Message {
     id: number;
     message_body: string;
     message_time: string | null;
+    broker_id: string;
+    shipper_id: string;
     user_type: string | null;
     file_url: string | null;
 }
 
-const ForumInterface: React.FC<ForumInterfaceProps> = ({ brokerId, shipperId, session }) => {
+interface UserProfile {
+    id: string;
+    first_name: string;
+    last_name: string;
+}
+
+const ForumInterface: React.FC<ForumInterfaceProps> = ({ brokerId, shipperId, session, ticketId }) => {
     const supabase = useSupabaseClient<Database>();
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState('');
     const [file, setFile] = useState<File | null>(null);
+    const [userProfiles, setUserProfiles] = useState<{ [key: string]: UserProfile }>({});
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
     const fetchMessages = async () => {
         const { data, error } = await supabase
-            .from('support_ticket')
+            .from('messages')
             .select('*')
-            .or(`broker_id.eq.${brokerId},shipper_id.eq.${shipperId}`)
-            .order('request_time', { ascending: true });
+            .eq('ticket_id', ticketId)
+            .order('message_time', { ascending: true });
 
         if (error) {
             console.error('Error fetching messages:', error.message);
         } else {
             setMessages(data.map((msg) => ({
                 id: msg.id,
-                message_body: msg.message,
-                message_time: msg.request_time,
-                user_type: session.user.id === brokerId ? 'broker' : 'shipper',
+                message_body: msg.message_body,
+                message_time: msg.message_time,
+                broker_id: msg.broker_id,
+                shipper_id: msg.shipper_id,
+                user_type: msg.user_type,
                 file_url: msg.file_url,
             })));
         }
     };
 
+    const fetchUserProfiles = async (userIds: string[], userType: string) => {
+        const table = userType === 'broker' ? 'nts_users' : 'profiles';
+        const { data, error } = await supabase
+            .from(table)
+            .select('id, first_name, last_name')
+            .in('id', userIds);
+
+        if (error) {
+            console.error(`Error fetching ${userType} profiles:`, error.message);
+        } else {
+            const profiles = data.reduce((acc: { [key: string]: UserProfile }, profile: UserProfile) => {
+                acc[profile.id] = profile;
+                return acc;
+            }, {});
+            setUserProfiles((prevProfiles) => ({ ...prevProfiles, ...profiles }));
+        }
+    };
+
     useEffect(() => {
         fetchMessages();
-    }, [brokerId, shipperId, supabase, session.user.id]);
+    }, [ticketId, supabase, session.user.id]);
+
+    useEffect(() => {
+        const brokerIds = messages.filter((msg) => msg.user_type === 'broker').map((msg) => msg.broker_id);
+        const shipperIds = messages.filter((msg) => msg.user_type === 'shipper').map((msg) => msg.shipper_id);
+        if (brokerIds.length > 0) fetchUserProfiles(brokerIds, 'broker');
+        if (shipperIds.length > 0) fetchUserProfiles(shipperIds, 'shipper');
+    }, [messages]);
+
+    useEffect(() => {
+        const subscription = supabase
+            .channel('public:messages')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+                setMessages((prevMessages) => [...prevMessages, payload.new as Message]);
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(subscription);
+        };
+    }, [supabase]);
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -69,15 +119,15 @@ const ForumInterface: React.FC<ForumInterfaceProps> = ({ brokerId, shipperId, se
         }
 
         const { error } = await supabase
-            .from('support_ticket')
+            .from('messages')
             .insert({
-                message: newMessage,
+                message_body: newMessage,
+                ticket_id: ticketId,
                 broker_id: brokerId,
                 shipper_id: shipperId,
+                user_type: session.user.id === brokerId ? 'broker' : 'shipper',
                 file_url: fileUrl,
-                support_type: 'broker_support', // Adjust this as needed
-                request_time: new Date().toISOString(),
-                topic: 'Chat Message', // Adjust this as needed
+                message_time: new Date().toISOString(),
             });
 
         if (error) {
@@ -104,49 +154,49 @@ const ForumInterface: React.FC<ForumInterfaceProps> = ({ brokerId, shipperId, se
     }, [messages]);
 
     return (
-        <div className="container mx-auto p-4 sm:p-6">
-            <div className="bg-ntsBlue/90 p-3 w-full">
+        <div className="p-4 sm:p-6">
+            <div className="p-3 w-full">
                 <div className="flex flex-col h-full w-full">
-                    <form onSubmit={handleSendMessage} className="bg-white rounded-md flex flex-col w-full mt-2">
+                    <form onSubmit={handleSendMessage} className="bg-white py-2 flex flex-col w-full my-2">
                         <div className="flex-grow">
                             <ReactQuill
                                 value={newMessage}
                                 onChange={setNewMessage}
                                 className="flex-grow p-2 rounded-t-lg"
-                                style={{ height: '200px' }} // Double the height of the text area
+                                style={{ height: '150px' }} // Double the height of the text area
                             />
                         </div>
-                        <div className='flex justify-around items-center w-full mt-10'>
-                            <div>
-                            <label className="text-white">
+                        <div className='flex justify-between items-center h-full w-full mt-10'>
+                            <div className='w-full'>
                                 <input
                                     type="file"
                                     onChange={handleFileChange}
-                                    className="p-2 mt-2 bg-ntsBlue text-white rounded-lg"
+                                    className="text-ntsBlue"
                                 />
-                                Upload related files</label>
+                               
                             </div>
-                            <div className='w-1/4'>
-                                <button type="submit" className="bg-ntsLightBlue text-white w-full px-4 py-2 rounded-lg mt-2">
+                            <div className='w-full flex justify-end'>
+                                <button type="submit" className="bg-ntsLightBlue text-white w-5/6 px-4 py-2 rounded-lg">
                                     Post
                                 </button>
                             </div>
                         </div>
                     </form>
-                    <div className="flex-grow border border-zinc-300 h-full w-full">
+                    <div className="flex-grow border-2 shadow-md  h-full w-full mt-4">
                         {messages.map((message) => (
-                            <div key={message.id} className={`p-2 flex w-full bg-white border border-zinc-300`}>
+                            <div key={message.id} className={`p-1 flex w-full mb-2 bg-ntsBlue/80 border-2 border-t-orange-500 text-white`}>
                                 <div className={`p-2 rounded-lg w-full`}>
-                                    <div dangerouslySetInnerHTML={{ __html: message.message_body }} />
+
+                                    {message.user_type && userProfiles[message.user_type === 'broker' ? message.broker_id : message.shipper_id] && (
+                                        <p className="text-xs text-gray-200 italic underline">
+                                            {userProfiles[message.user_type === 'broker' ? message.broker_id : message.shipper_id].first_name} {userProfiles[message.user_type === 'broker' ? message.broker_id : message.shipper_id].last_name} - {new Date(message.message_time || '').toLocaleTimeString()}
+                                        </p>
+                                    )}
+                                <div dangerouslySetInnerHTML={{ __html: message.message_body }} />
                                     {message.file_url && (
                                         <a href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${message.file_url}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
                                             View Attachment
                                         </a>
-                                    )}
-                                    {message.user_type !== 'system' && (
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            {message.user_type === 'broker' ? 'Broker' : 'Shipper'} - {new Date(message.message_time || '').toLocaleTimeString()}
-                                        </p>
                                     )}
                                 </div>
                             </div>

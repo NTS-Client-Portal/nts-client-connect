@@ -6,23 +6,27 @@ import { useSession } from '@supabase/auth-helpers-react';
 import dynamic from 'next/dynamic';
 import 'react-quill/dist/quill.snow.css';
 import ForumInterface from './ForumInterface';
+import RatingModal from './RatingModal';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
-type ChatRequest = Database['public']['Tables']['chat_requests']['Row'];
 type AssignedSalesUser = Database['public']['Tables']['nts_users']['Row'];
+type SupportTicket = Database['public']['Tables']['support_ticket']['Row'];
 
 const ShipperChatRequestsPage: React.FC = () => {
     const session = useSession();
     const { userProfile } = useProfilesUser();
-    const [chatRequests, setChatRequests] = useState<ChatRequest[]>([]);
     const [activeChatId, setActiveChatId] = useState<number | null>(null);
     const [assignedSalesUsers, setAssignedSalesUsers] = useState<AssignedSalesUser[]>([]);
+    const [supportTickets, setSupportTickets] = useState<SupportTicket[]>([]);
     const [supportType, setSupportType] = useState('broker_support');
     const [topic, setTopic] = useState('');
     const [message, setMessage] = useState('');
     const [file, setFile] = useState<File | null>(null);
     const [ticketSubmitted, setTicketSubmitted] = useState(false);
+    const [showTicketForm, setShowTicketForm] = useState(true);
+    const [acceptedTickets, setAcceptedTickets] = useState<Set<number>>(new Set());
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchAssignedSalesUsers = async () => {
@@ -52,6 +56,42 @@ const ShipperChatRequestsPage: React.FC = () => {
 
         fetchAssignedSalesUsers();
     }, [userProfile]);
+
+    useEffect(() => {
+        const fetchSupportTickets = async () => {
+            if (userProfile?.id) {
+                const { data, error } = await supabase
+                    .from('support_ticket')
+                    .select('*')
+                    .eq('shipper_id', userProfile.id)
+                    .eq('status', 'open'); // Fetch only open tickets
+
+                if (error) {
+                    console.error('Error fetching support tickets:', error.message);
+                } else {
+                    setSupportTickets(data);
+                }
+            }
+        };
+
+        fetchSupportTickets();
+    }, [userProfile]);
+
+    useEffect(() => {
+        const savedTicketSubmitted = localStorage.getItem('ticketSubmitted');
+        const savedActiveChatId = localStorage.getItem('activeChatId');
+        if (savedTicketSubmitted) {
+            setTicketSubmitted(JSON.parse(savedTicketSubmitted));
+        }
+        if (savedActiveChatId) {
+            setActiveChatId(Number(savedActiveChatId));
+        }
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem('ticketSubmitted', JSON.stringify(ticketSubmitted));
+        localStorage.setItem('activeChatId', JSON.stringify(activeChatId));
+    }, [ticketSubmitted, activeChatId]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -120,6 +160,7 @@ const ShipperChatRequestsPage: React.FC = () => {
                 support_type: supportType,
                 request_time: new Date().toISOString(),
                 topic,
+                status: 'open', // Set status to open
             })
             .select();
 
@@ -130,6 +171,33 @@ const ShipperChatRequestsPage: React.FC = () => {
             setFile(null);
             setTicketSubmitted(true);
             setActiveChatId(data[0].id);
+            setShowTicketForm(false);
+            setSupportTickets((prevTickets) => {
+                const newTickets = [...prevTickets];
+                const existingTicketIndex = newTickets.findIndex(ticket => ticket.id === data[0].id);
+                if (existingTicketIndex === -1) {
+                    newTickets.push(data[0]);
+                }
+                return newTickets;
+            });
+
+            // Insert initial message into messages table
+            const { error: messageError } = await supabase
+                .from('messages')
+                .insert({
+                    message_body: message,
+                    ticket_id: data[0].id,
+                    broker_id: assignedUserId,
+                    shipper_id: userProfile?.id,
+                    user_type: 'shipper',
+                    file_url: fileUrl,
+                    message_time: new Date().toISOString(),
+                });
+
+            if (messageError) {
+                console.error('Error creating initial message:', messageError.message);
+            }
+
             for (const email of assignedUserEmails) {
                 await sendEmailNotification(email, message);
             }
@@ -168,62 +236,143 @@ const ShipperChatRequestsPage: React.FC = () => {
         }
     };
 
+    const handleAcceptTicket = (ticketId: number) => {
+        setActiveChatId(ticketId);
+        setAcceptedTickets((prev) => new Set(prev).add(ticketId));
+    };
+
+    const handleCloseTicket = (ticketId: number) => {
+        setIsModalOpen(true);
+    };
+
+    const handleModalSubmit = async (rating: number, resolved: boolean, explanation: string) => {
+        // Update the status of the ticket to closed
+        const { error } = await supabase
+            .from('support_ticket')
+            .update({ status: 'closed', rating, resolved, explanation })
+            .eq('id', activeChatId);
+
+        if (error) {
+            console.error('Error closing support ticket:', error.message);
+        } else {
+            // Remove the closed ticket from the local state
+            setSupportTickets(supportTickets.filter(ticket => ticket.id !== activeChatId));
+            setActiveChatId(null);
+            setAcceptedTickets((prev) => {
+                const newSet = new Set(prev);
+                newSet.delete(activeChatId);
+                return newSet;
+            });
+        }
+    };
+
     return (
-        <div className="md:container md:mx-auto md:p-4 flex flex-col justify-center items-center gap-2">
-            <div className="md:p-4 bg-white dark:bg-zinc-900 rounded-lg shadow-lg w-full">
-                <form onSubmit={handleSubmit}>
-                    <label className="block text-gray-700 font-semibold">Support Type</label>
-                    <select
-                        value={supportType}
-                        onChange={(e) => setSupportType(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md"
+        <div className="md:p-4 bg-gray-50 flex flex-col justify-center items-center gap-2">
+            <h1 className='font-semibold text-zinc-900 text-2xl'>NTS Ticket Support</h1>
+            {showTicketForm ? (
+                <div className="md:p-4  rounded-lg shadow-lg w-[90%]">
+                    <form onSubmit={handleSubmit}>
+                        <div className='flex gap-4 items-center w-full'>
+                            <label className="block text-gray-700 font-semibold">Support Type
+                            <select
+                                value={supportType}
+                                onChange={(e) => setSupportType(e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                            >
+                                <option value="broker_support">Broker Support</option>
+                                <option value="customer_support">Customer Support</option>
+                                <option value="tech_support">Technical Support</option>
+                            </select></label>
+                            <label className="block text-gray-700 font-semibold">Topic
+                            <select
+                                value={topic}
+                                onChange={(e) => setTopic(e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                            >
+                                <option value="" disabled>Select Topic</option>
+                                {getTopics().map((topicOption) => (
+                                    <option key={topicOption} value={topicOption}>
+                                        {topicOption}
+                                    </option>
+                                ))}
+                            </select></label>
+                        </div>
+                        <ReactQuill
+                            value={message}
+                            onChange={setMessage}
+                            className="w-full h-24 p-2 mt-2 rounded-md"
+                        />
+                        <input
+                            type="file"
+                            onChange={handleFileChange}
+                            className="w-full p-2 mt-12 rounded-md"
+                        />
+                       <div className='w-full flex justify-center'>
+                            <button
+                                type="submit"
+                                className="w-1/4 p-2 mt-2 bg-ntsLightBlue text-white rounded-md"
+                            >
+                                Submit
+                            </button>
+                       </div>
+                    </form>
+                </div>
+            ) : (
+                <div className="md:p-4 flex justify-center rounded-lg shadow-lg w-[90%]">
+                    <button
+                        onClick={() => setShowTicketForm(true)}
+                        className="w-1/3 p-2 mt-2 bg-ntsLightBlue text-white rounded-md"
                     >
-                        <option value="broker_support">Broker Support</option>
-                        <option value="customer_support">Customer Support</option>
-                        <option value="tech_support">Technical Support</option>
-                    </select>
-                    <label className="block text-gray-700 font-semibold mt-4">Topic</label>
-                    <select
-                        value={topic}
-                        onChange={(e) => setTopic(e.target.value)}
-                        className="w-full p-2 mt-2 border border-gray-300 rounded-md"
-                    >
-                        <option value="" disabled>Select Topic</option>
-                        {getTopics().map((topicOption) => (
-                            <option key={topicOption} value={topicOption}>
-                                {topicOption}
-                            </option>
-                        ))}
-                    </select>
-                    <ReactQuill
-                        value={message}
-                        onChange={setMessage}
-                        className="w-full h-24 p-2 mt-2 rounded-md"
-                    />
-                    <input
-                        type="file"
-                        onChange={handleFileChange}
-                        className="w-full p-2 mt-12 rounded-md"
-                    />
-                   <div className='w-full flex justify-center'>
-                        <button
-                            type="submit"
-                            className="w-1/4 p-2 mt-2 bg-blue-500 text-white rounded-md"
-                        >
-                            Submit
-                        </button>
-                   </div>
-                </form>
-            </div>
-            {ticketSubmitted && activeChatId && (
-                <div className="w-full pt-6 md:pt-6 mb-6 md:p-6 shadow-lg bg-zinc-50">
-                    <ForumInterface
-                        brokerId={assignedSalesUsers[0]?.id || ''}
-                        shipperId={userProfile?.id || ''}
-                        session={session}
-                    />
+                        Submit another ticket
+                    </button>
                 </div>
             )}
+            {supportTickets.length > 0 && (
+                <div className='grid grid-cols-[200px_1fr] w-full gap-4'>
+                    <div className="w-fit h-fit px-3 py-6 bg-zinc-50 rounded-lg shadow-lg mt-4">
+                        <h2 className="text-lg text-nowrap font-semibold mb-4">Support Tickets</h2>
+                        <ul>
+                            {supportTickets.map((ticket) => (
+                                <li key={ticket.id} className="mb-2">
+                                    <div className="flex flex-col justify-between items-start">
+                                        <span className='flex flex-col justify-start gap-1'><strong>Ticket Topic:</strong> {ticket.topic}</span>
+                                        <button
+                                            onClick={() => handleAcceptTicket(ticket.id)}
+                                            className={`px-4 py-2 my-3 text-nowrap rounded-md ${acceptedTickets.has(ticket.id) ? 'bg-gray-400/90' : 'bg-blue-500'} text-white`}
+                                            disabled={acceptedTickets.has(ticket.id)}
+                                        >
+                                            {acceptedTickets.has(ticket.id) ? 'Ticket session opened' : 'Open'}
+                                        </button>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    {activeChatId && supportTickets.some(ticket => ticket.id === activeChatId) && (
+                        <div className="w-full pt-6 md:pt-6 mb-6 md:p-6">
+                            <ForumInterface
+                                brokerId={supportTickets.find(ticket => ticket.id === activeChatId)?.broker_id || ''}
+                                shipperId={userProfile?.id || ''}
+                                session={session}
+                                ticketId={activeChatId}
+                            />
+                            <div className="flex justify-center mt-4">
+                                <button
+                                    onClick={() => handleCloseTicket(activeChatId)}
+                                    className="bg-red-500 text-white px-4 py-2 rounded-md"
+                                >
+                                    Close Ticket
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+            <RatingModal
+                isOpen={isModalOpen}
+                onRequestClose={() => setIsModalOpen(false)}
+                onSubmit={handleModalSubmit}
+            />
         </div>
     );
 };
