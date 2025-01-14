@@ -16,7 +16,7 @@ exports.handler = async function (event, context) {
         console.log('Parsed request body:', { to, subject, text, html, attachments });
 
         const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: process.env.EMAIL_USER, // Ensure this is a verified sender identity
             to,
             subject,
             text,
