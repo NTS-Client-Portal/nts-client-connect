@@ -949,6 +949,8 @@ export type Database = {
           is_read: boolean | null
           message: string | null
           nts_user_id: string | null
+          ticket_id: number | null
+          type: string | null
           user_id: string | null
         }
         Insert: {
@@ -958,6 +960,8 @@ export type Database = {
           is_read?: boolean | null
           message?: string | null
           nts_user_id?: string | null
+          ticket_id?: number | null
+          type?: string | null
           user_id?: string | null
         }
         Update: {
@@ -967,6 +971,8 @@ export type Database = {
           is_read?: boolean | null
           message?: string | null
           nts_user_id?: string | null
+          ticket_id?: number | null
+          type?: string | null
           user_id?: string | null
         }
         Relationships: [

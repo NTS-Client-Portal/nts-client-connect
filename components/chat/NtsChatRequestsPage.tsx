@@ -6,7 +6,6 @@ import { useSession } from '@supabase/auth-helpers-react';
 import dynamic from 'next/dynamic';
 import 'react-quill/dist/quill.snow.css';
 import ForumInterface from './ForumInterface';
-import RatingModal from './RatingModal';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
@@ -23,7 +22,6 @@ const NtsChatRequestsPage: React.FC = () => {
     const [file, setFile] = useState<File | null>(null);
     const [ticketSubmitted, setTicketSubmitted] = useState(false);
     const [showTicketForm, setShowTicketForm] = useState(true);
-    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchSupportTickets = async () => {
@@ -164,6 +162,9 @@ const NtsChatRequestsPage: React.FC = () => {
             for (const email of assignedUserEmails) {
                 await sendEmailNotification(email, message);
             }
+
+            // Send notification to nts_user
+            await sendNotification(userProfile?.id, `A new support ticket has been submitted by ${userProfile?.first_name} ${userProfile?.last_name}.`);
         }
     };
 
@@ -183,6 +184,21 @@ const NtsChatRequestsPage: React.FC = () => {
 
         if (!response.ok) {
             console.error('Error sending email:', await response.text());
+        }
+    };
+
+    const sendNotification = async (ntsUserId: string, message: string) => {
+        const { error } = await supabase
+            .from('notifications')
+            .insert({
+                nts_user_id: ntsUserId,
+                message,
+                is_read: false,
+                created_at: new Date().toISOString(),
+            });
+
+        if (error) {
+            console.error('Error sending notification:', error.message);
         }
     };
 
@@ -227,21 +243,6 @@ const NtsChatRequestsPage: React.FC = () => {
             // Remove the closed ticket from the local state
             setSupportTickets(supportTickets.filter(ticket => ticket.id !== ticketId));
             setActiveTicketId(null);
-            setIsModalOpen(true); // Open the rating modal
-        }
-    };
-
-    const handleModalSubmit = async (rating: number, resolved: boolean, explanation: string) => {
-        // Update the status of the ticket to closed
-        const { error } = await supabase
-            .from('support_ticket')
-            .update({ rating, resolved, explanation })
-            .eq('id', activeTicketId);
-
-        if (error) {
-            console.error('Error updating support ticket:', error.message);
-        } else {
-            setIsModalOpen(false);
         }
     };
 
@@ -346,11 +347,6 @@ const NtsChatRequestsPage: React.FC = () => {
                     )}
                 </div>
             )}
-            <RatingModal
-                isOpen={isModalOpen}
-                onRequestClose={() => setIsModalOpen(false)}
-                onSubmit={handleModalSubmit}
-            />
         </div>
     );
 };

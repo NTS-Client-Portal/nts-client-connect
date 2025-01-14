@@ -6,19 +6,30 @@ import { useSession } from '@supabase/auth-helpers-react';
 import dynamic from 'next/dynamic';
 import 'react-quill/dist/quill.snow.css';
 import ForumInterface from './ForumInterface';
-import RatingModal from './RatingModal';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
-type AssignedSalesUser = Database['public']['Tables']['nts_users']['Row'];
 type SupportTicket = Database['public']['Tables']['support_ticket']['Row'];
+type AssignedSalesUser = Database['public']['Tables']['nts_users']['Row'];
+type Notification = {
+    id: number;
+    message: string;
+    created_at: string;
+    is_read: boolean;
+    type: string;
+    user_id: string;
+    document_id?: number;
+    nts_user_id?: string;
+    ticket_id?: number;
+};
 
 const ShipperChatRequestsPage: React.FC = () => {
     const session = useSession();
     const { userProfile } = useProfilesUser();
-    const [activeChatId, setActiveChatId] = useState<number | null>(null);
-    const [assignedSalesUsers, setAssignedSalesUsers] = useState<AssignedSalesUser[]>([]);
     const [supportTickets, setSupportTickets] = useState<SupportTicket[]>([]);
+    const [assignedSalesUsers, setAssignedSalesUsers] = useState<AssignedSalesUser[]>([]);
+    const [activeChatId, setActiveChatId] = useState<number | null>(null);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
     const [supportType, setSupportType] = useState('broker_support');
     const [topic, setTopic] = useState('');
     const [message, setMessage] = useState('');
@@ -26,7 +37,6 @@ const ShipperChatRequestsPage: React.FC = () => {
     const [ticketSubmitted, setTicketSubmitted] = useState(false);
     const [showTicketForm, setShowTicketForm] = useState(true);
     const [acceptedTickets, setAcceptedTickets] = useState<Set<number>>(new Set());
-    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchAssignedSalesUsers = async () => {
@@ -75,6 +85,26 @@ const ShipperChatRequestsPage: React.FC = () => {
         };
 
         fetchSupportTickets();
+    }, [userProfile]);
+
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            if (userProfile?.id) {
+                const { data, error } = await supabase
+                    .from('notifications')
+                    .select('id, message, created_at, is_read, type, user_id')
+                    .eq('user_id', userProfile.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error('Error fetching notifications:', error.message);
+                } else {
+                    setNotifications(data);
+                }
+            }
+        };
+
+        fetchNotifications();
     }, [userProfile]);
 
     useEffect(() => {
@@ -201,6 +231,9 @@ const ShipperChatRequestsPage: React.FC = () => {
             for (const email of assignedUserEmails) {
                 await sendEmailNotification(email, message);
             }
+
+            // Send notification to nts_user
+            await sendNotification(assignedUserId, `A new support ticket has been submitted by ${userProfile?.first_name} ${userProfile?.last_name}.`, 'ticket_submitted');
         }
     };
 
@@ -223,6 +256,22 @@ const ShipperChatRequestsPage: React.FC = () => {
         }
     };
 
+    const sendNotification = async (ntsUserId: string, message: string, type: string) => {
+        const { error } = await supabase
+            .from('notifications')
+            .insert({
+                nts_user_id: ntsUserId,
+                message,
+                is_read: false,
+                created_at: new Date().toISOString(),
+                type,
+            });
+
+        if (error) {
+            console.error('Error sending notification:', error.message);
+        }
+    };
+
     const getTopics = () => {
         switch (supportType) {
             case 'broker_support':
@@ -241,30 +290,28 @@ const ShipperChatRequestsPage: React.FC = () => {
         setAcceptedTickets((prev) => new Set(prev).add(ticketId));
     };
 
-    const handleCloseTicket = (ticketId: number) => {
-        setIsModalOpen(true);
-    };
-
-    const handleModalSubmit = async (rating: number, resolved: boolean, explanation: string) => {
+    const handleCloseTicket = async (ticketId: number) => {
         // Update the status of the ticket to closed
         const { error } = await supabase
             .from('support_ticket')
-            .update({ status: 'closed', rating, resolved, explanation })
-            .eq('id', activeChatId);
+            .update({ status: 'closed' })
+            .eq('id', ticketId);
 
         if (error) {
             console.error('Error closing support ticket:', error.message);
         } else {
+            // Notify the shipper about the closed ticket
+            const ticket = supportTickets.find(ticket => ticket.id === ticketId);
+            if (ticket) {
+                await sendNotification(ticket.shipper_id, 'Your support ticket has been closed.', 'ticket_closed');
+            }
+
             // Remove the closed ticket from the local state
-            setSupportTickets(supportTickets.filter(ticket => ticket.id !== activeChatId));
+            setSupportTickets(supportTickets.filter(ticket => ticket.id !== ticketId));
             setActiveChatId(null);
-            setAcceptedTickets((prev) => {
-                const newSet = new Set(prev);
-                newSet.delete(activeChatId);
-                return newSet;
-            });
         }
     };
+
 
     return (
         <div className="md:p-4 bg-gray-50 flex flex-col justify-center items-center gap-2">
@@ -368,11 +415,6 @@ const ShipperChatRequestsPage: React.FC = () => {
                     )}
                 </div>
             )}
-            <RatingModal
-                isOpen={isModalOpen}
-                onRequestClose={() => setIsModalOpen(false)}
-                onSubmit={handleModalSubmit}
-            />
         </div>
     );
 };

@@ -19,7 +19,7 @@ const NotificationBell = ({ session }) => {
             const { data, error } = await supabase
                 .from('notifications')
                 .select('*')
-                .eq('user_id', session.user.id)
+                .or(`user_id.eq.${session.user.id},nts_user_id.eq.${session.user.id}`) // Fetch notifications for both user_id and nts_user_id
                 .order('created_at', { ascending: false });
 
             if (error) {
@@ -38,7 +38,7 @@ const NotificationBell = ({ session }) => {
         setDropdownOpen(!dropdownOpen);
     };
 
-    const markAsRead = async (notificationId) => {
+    const markAsRead = async (notificationId: number) => {
         const { error } = await supabase
             .from('notifications')
             .update({ is_read: true })
@@ -55,7 +55,7 @@ const NotificationBell = ({ session }) => {
         }
     };
 
-    const deleteNotification = async (notificationId) => {
+    const deleteNotification = async (notificationId: number) => {
         const { error } = await supabase
             .from('notifications')
             .delete()

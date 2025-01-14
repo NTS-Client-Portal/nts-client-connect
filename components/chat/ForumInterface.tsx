@@ -135,7 +135,7 @@ const ForumInterface: React.FC<ForumInterfaceProps> = ({ brokerId, shipperId, se
         } else {
             setNewMessage('');
             setFile(null);
-            fetchMessages(); // Fetch messages again to update the list
+            // No need to fetch messages again as the subscription will handle it
         }
     };
 
