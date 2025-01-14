@@ -37,6 +37,7 @@ const ShipperChatRequestsPage: React.FC = () => {
     const [ticketSubmitted, setTicketSubmitted] = useState(false);
     const [showTicketForm, setShowTicketForm] = useState(true);
     const [acceptedTickets, setAcceptedTickets] = useState<Set<number>>(new Set());
+    const [userProfiles, setUserProfiles] = useState<{ [key: string]: AssignedSalesUser }>({});
 
     useEffect(() => {
         const fetchAssignedSalesUsers = async () => {
@@ -122,6 +123,30 @@ const ShipperChatRequestsPage: React.FC = () => {
         localStorage.setItem('ticketSubmitted', JSON.stringify(ticketSubmitted));
         localStorage.setItem('activeChatId', JSON.stringify(activeChatId));
     }, [ticketSubmitted, activeChatId]);
+
+    useEffect(() => {
+        const fetchUserProfiles = async () => {
+            const userIds = supportTickets.map(ticket => ticket.broker_id);
+            if (userIds.length > 0) {
+                const { data, error } = await supabase
+                    .from('nts_users')
+                    .select('id, first_name, last_name')
+                    .in('id', userIds);
+
+                if (error) {
+                    console.error('Error fetching user profiles:', error.message);
+                } else {
+                    const profiles = data.reduce((acc: { [key: string]: AssignedSalesUser }, profile: AssignedSalesUser) => {
+                        acc[profile.id] = profile;
+                        return acc;
+                    }, {});
+                    setUserProfiles(profiles);
+                }
+            }
+        };
+
+        fetchUserProfiles();
+    }, [supportTickets]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -378,7 +403,7 @@ const ShipperChatRequestsPage: React.FC = () => {
                 </div>
             )}
             {supportTickets.length > 0 && (
-                <div className='grid grid-cols-1 md:grid-cols-[250px_1fr] w-full gap-1'>
+                <div className='grid grid-cols-1 md:grid-cols-[300px_1fr] w-full gap-1'>
                     <div className="w-full h-fit px-3 py-6 bg-zinc-50 rounded-lg shadow-lg mt-4">
                         <h2 className="text-lg text-nowrap font-semibold mb-4 text-center">Support Tickets</h2>
                         <ul>
@@ -387,6 +412,11 @@ const ShipperChatRequestsPage: React.FC = () => {
                                     <div className="flex flex-col justify-center items-center w-full">
                                         <span className='flex flex-col justify-center items-center gap-1'><strong>Ticket #{ticket.id}</strong></span>
                                         <span className='flex justify-center items-center gap-1 flex-nowrap'><strong>Topic:</strong> {ticket.topic}</span>
+                                        {userProfiles[ticket.broker_id] && (
+                                            <span className='flex justify-center items-center gap-1 flex-nowrap'>
+                                                <strong>Responding User:</strong> {userProfiles[ticket.broker_id].first_name} {userProfiles[ticket.broker_id].last_name}
+                                            </span>
+                                        )}
                                         <button
                                             onClick={() => handleAcceptTicket(ticket.id)}
                                             className={`px-4 py-2 my-3 text-nowrap rounded-md ${acceptedTickets.has(ticket.id) ? 'bg-gray-400/90' : 'bg-blue-500'} text-white`}
