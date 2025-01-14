@@ -414,7 +414,7 @@ const ShipperChatRequestsPage: React.FC = () => {
                                         <span className='flex justify-center items-center gap-1 flex-nowrap'><strong>Topic:</strong> {ticket.topic}</span>
                                         {userProfiles[ticket.broker_id] && (
                                             <span className='flex justify-center items-center gap-1 flex-nowrap'>
-                                                <strong>Responding User:</strong> {userProfiles[ticket.broker_id].first_name} {userProfiles[ticket.broker_id].last_name}
+                                                <strong>Representative:</strong> {userProfiles[ticket.broker_id].first_name} {userProfiles[ticket.broker_id].last_name}
                                             </span>
                                         )}
                                         <button
