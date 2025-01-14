@@ -6,6 +6,8 @@ import { Database } from '@/lib/database.types';
 import { useProfilesUser } from '@/context/ProfilesUserContext';
 import Image from 'next/image';
 import { PanelLeftOpen, PanelRightClose, Workflow, MessageSquareMore, Folders, NotebookTabs, Settings, TruckIcon } from 'lucide-react';
+import { TfiWrite } from "react-icons/tfi";
+import { GrDocumentVerified } from "react-icons/gr";
 import { useDocumentNotification } from '@/context/DocumentNotificationContext';
 
 interface UserSideNavProps {
@@ -97,9 +99,19 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                                 <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><Workflow size={'20px'} /> Dashboard</span>
                             </Link>
                         </li>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/' ? "active" : ""}`}>
+                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/logistics-management' || router.pathname === '/user/quote-request' || router.pathname === '/user/order-request' ? "active" : ""}`}>
                             <Link href="/user/logistics-management" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/logistics-management' || router.pathname === '/' ? "active" : ""}`}>
-                                <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><TruckIcon size={'20px'} /> <span className='text-xs md:text-sm '>Logistics RFQ </span></span>
+                                <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><TruckIcon size={'20px'} /> <span className='text-xs md:text-sm '>Logistics Management </span></span>
+                            </Link>
+                        </li>
+                        <li className={`w-full flex justify-normal m-0 pl-6 ${router.pathname === '/user/quote-request' ? "active" : ""}`}>
+                            <Link href="/user/quote-request" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/quote-request' ? "active" : ""}`}>
+                                <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><TfiWrite size={'20px'} /> <span className='text-xs md:text-sm '>Quote Form </span></span>
+                            </Link>
+                        </li>
+                        <li className={`w-full flex justify-normal m-0 pl-6 ${router.pathname === '/user/order-form' ? "active" : ""}`}>
+                            <Link href="/user/order-form" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/order-form' ? "active" : ""}`}>
+                                <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><GrDocumentVerified size={'20px'} /> <span className='text-xs md:text-sm '>Order Form </span></span>
                             </Link>
                         </li>
                         <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/inventory' ? "active" : ""}`}>

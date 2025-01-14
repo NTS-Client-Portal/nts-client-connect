@@ -94,10 +94,11 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                     />
                 </label>
             </div>
-
+            <h2 className='text-base font-semibold'>Dimensions</h2>
             <div className='flex flex-col md:flex-row gap-2'>
+               
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Length
-                    <div className="flex items-center">
+                    <div className="flex flex-col gap-1 items-center">
                         <input
                             className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                             type="text"
@@ -109,7 +110,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                             }}
                         />
                         <select
-                            className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900 ml-2"
+                            className="rounded text-zinc-900 w-full p-1 border border-zinc-900"
                             value={lengthUnit}
                             onChange={(e) => setLengthUnit(e.target.value)}
                         >
@@ -119,7 +120,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                     </div>
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Width
-                    <div className="flex items-center">
+                    <div className="flex flex-col gap-1 items-center">
                         <input
                             className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                             type="text"
@@ -131,7 +132,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                             }}
                         />
                         <select
-                            className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900 ml-2"
+                            className="rounded text-zinc-900 w-full p-1 border border-zinc-900"
                             value={widthUnit}
                             onChange={(e) => setWidthUnit(e.target.value)}
                         >
@@ -141,7 +142,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                     </div>
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Height
-                    <div className="flex items-center">
+                    <div className="flex flex-col gap-1 items-center">
                         <input
                             className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                             type="text"
@@ -153,7 +154,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                             }}
                         />
                         <select
-                            className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900 ml-2"
+                            className="rounded text-zinc-900 w-full p-1 border border-zinc-900"
                             value={heightUnit}
                             onChange={(e) => setHeightUnit(e.target.value)}
                         >
@@ -162,11 +163,8 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                         </select>
                     </div>
                 </label>
-            </div>
-
-            <div className='flex flex-col md:flex-row gap-2'>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Weight
-                    <div className="flex items-center">
+                    <div className="flex flex-col gap-1 items-center">
                         <input
                             className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                             type="text"
@@ -178,7 +176,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                             }}
                         />
                         <select
-                            className="rounded bg-white p-1 border border-zinc-900/30 shadow-md ml-2"
+                            className="rounded text-zinc-900 w-full p-1 border border-zinc-900"
                             value={weightUnit}
                             onChange={(e) => setWeightUnit(e.target.value)}
                         >

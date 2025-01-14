@@ -79,7 +79,7 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
                 </div>
                 <div className="col-span-1">
 
-                    <main className="mt-16 md:mt-24 p-4">
+                    <main className="mt-12 md:mt-20 p-4">
                         {children}
                     </main>
                 </div>

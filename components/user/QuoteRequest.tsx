@@ -3,14 +3,12 @@ import { useRouter } from 'next/router';
 import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import QuoteForm from './QuoteForm';
+import OrderForm from './OrderForm';
 import QuoteList from './quotetabs/QuoteList';
 import DeliveredList from './quotetabs/DeliveredList';
 import OrderList from './quotetabs/OrderList';
 import Archived from './quotetabs/Archived';
 import RejectedList from './quotetabs/RejectedList';
-import EditHistory from '../EditHistory'; // Adjust the import path as needed
-import { NtsUsersProvider } from '@/context/NtsUsersContext';
-import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
 import { useProfilesUser } from '@/context/ProfilesUserContext'; // Import ProfilesUserContext
 import { useNtsUsers } from '@/context/NtsUsersContext';
 
@@ -38,6 +36,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState<string>(searchTermParam as string || '');
     const [searchColumn, setSearchColumn] = useState<string>(searchColumnParam as string || 'id');
+    const [assignedSalesUser, setAssignedSalesUser] = useState<string>('');
 
     const fetchUserProfile = useCallback(async () => {
         if (!session?.user?.id) return;
@@ -73,6 +72,28 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
             setQuotes(data);
         }
     }, [session, companyId, supabase]);
+
+    const fetchAssignedSalesUser = useCallback(async () => {
+        if (!companyId) return;
+
+        const { data, error } = await supabase
+            .from('company_sales_users')
+            .select('sales_user_id')
+            .eq('company_id', companyId)
+            .single();
+
+        if (error) {
+            console.error('Error fetching assigned sales user:', error.message);
+            return;
+        }
+
+        setAssignedSalesUser(data.sales_user_id);
+    }, [companyId, supabase]);
+
+    useEffect(() => {
+        fetchUserProfile();
+        fetchAssignedSalesUser();
+    }, [fetchUserProfile, fetchAssignedSalesUser]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -165,6 +186,56 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
         fetchQuotes();
     };
 
+    const addOrder = async (order: Partial<Database['public']['Tables']['shippingquotes']['Insert'] & { containerLength?: number | null; containerType?: string | null; contentsDescription?: string | null; selectedOption?: string | null; origin_address?: string | null; origin_name?: string | null; origin_phone?: string | null; earliest_pickup_date?: string | null; latest_pickup_date?: string | null; destination_street?: string | null; destination_name?: string | null; destination_phone?: string | null; }>) => {
+        if (!session?.user?.id) return;
+
+        console.log('Adding order:', order);
+
+        const { data: shippingQuoteData, error: shippingQuoteError } = await supabase
+            .from('shippingquotes')
+            .insert([{
+                ...order,
+                user_id: session.user.id,
+                company_id: order.company_id || companyId,
+                first_name: order.first_name || null,
+                last_name: order.last_name || null,
+                email: order.email || null,
+                inserted_at: order.inserted_at || new Date().toISOString(),
+                is_complete: order.is_complete || false,
+                is_archived: order.is_archived || false,
+                year: order.year?.toString() || null,
+                make: order.make || null,
+                model: order.model || null,
+                length: order.length?.toString() || null,
+                width: order.width?.toString() || null,
+                height: order.height?.toString() || null,
+                weight: order.weight?.toString() || null,
+                status: order.status || 'Order',
+                origin_address: order.origin_address || null,
+                origin_name: order.origin_name || null,
+                origin_phone: order.origin_phone || null,
+                earliest_pickup_date: order.earliest_pickup_date || null,
+                latest_pickup_date: order.latest_pickup_date || null,
+                destination_street: order.destination_street || null,
+                destination_name: order.destination_name || null,
+                destination_phone: order.destination_phone || null,
+            }])
+            .select();
+
+        if (shippingQuoteError) {
+            console.error('Error adding order:', shippingQuoteError.message);
+            setErrorText('Error adding order');
+            return;
+        }
+
+        console.log('Order added successfully:', shippingQuoteData);
+        setOrders([...orders, ...(shippingQuoteData || [])]);
+
+        setErrorText('');
+        setIsModalOpen(false);
+        fetchQuotes();
+    };
+
     const handleTabChange = (tab: string) => {
         setActiveTab(tab);
         if (profilesUser) {
@@ -182,23 +253,37 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
         <div className="w-full h-full overflow-auto">
             <div className="w-full">
                 <div className='flex flex-col justify-center items-center gap-2 mb-4'>
-                    <button onClick={() => setIsModalOpen(true)} className="text-ntsLightBlue text-base underline cursor-point font-semibold md:body-btn">
-                        Request a Shipping Estimate
+                    <button onClick={() => setIsModalOpen(true)} className="text-ntsLightBlue text-lg underline cursor-point font-semibold md:body-btn">
+                        {activeTab === 'orders' ? 'Request a Shipping Order' : 'Request a Shipping Estimate'}
                     </button>
                 </div>
             </div>
 
-            <QuoteForm
-                session={session}
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                addQuote={addQuote}
-                errorText={errorText}
-                setErrorText={setErrorText}
-                assignedSalesUser={session?.user?.id || ''} // Pass assignedSalesUser to QuoteForm
-                fetchQuotes={fetchQuotes}
-                companyId={companyId}
-            />
+            {activeTab === 'orders' ? (
+                <OrderForm
+                    session={session}
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    addOrder={addOrder}
+                    errorText={errorText}
+                    setErrorText={setErrorText}
+                    companyId={companyId}
+                    fetchOrders={fetchQuotes}
+                    assignedSalesUser={assignedSalesUser}
+                />
+            ) : (
+                <QuoteForm
+                    session={session}
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    addQuote={addQuote}
+                    errorText={errorText}
+                    setErrorText={setErrorText}
+                    assignedSalesUser={assignedSalesUser}
+                    fetchQuotes={fetchQuotes}
+                    companyId={companyId}
+                />
+            )}
 
             {isMobile ? (
                 <div className="relative z-0">
