@@ -245,26 +245,26 @@ const ShipperChatRequestsPage: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    // const handleModalSubmit = async (rating: number, resolved: boolean, explanation: string) => {
-    //     // Update the status of the ticket to closed
-    //     const { error } = await supabase
-    //         .from('support_ticket')
-    //         .update({ status: 'closed', rating, resolved, explanation })
-    //         .eq('id', activeChatId);
+    const handleModalSubmit = async (rating: number, resolved: boolean, explanation: string) => {
+        // Update the status of the ticket to closed
+        const { error } = await supabase
+            .from('support_ticket')
+            .update({ status: 'closed', rating, resolved, explanation })
+            .eq('id', activeChatId);
 
-    //     if (error) {
-    //         console.error('Error closing support ticket:', error.message);
-    //     } else {
-    //         // Remove the closed ticket from the local state
-    //         setSupportTickets(supportTickets.filter(ticket => ticket.id !== activeChatId));
-    //         setActiveChatId(null);
-    //         setAcceptedTickets((prev) => {
-    //             const newSet = new Set(prev);
-    //             newSet.delete(activeChatId);
-    //             return newSet;
-    //         });
-    //     }
-    // };
+        if (error) {
+            console.error('Error closing support ticket:', error.message);
+        } else {
+            // Remove the closed ticket from the local state
+            setSupportTickets(supportTickets.filter(ticket => ticket.id !== activeChatId));
+            setActiveChatId(null);
+            setAcceptedTickets((prev) => {
+                const newSet = new Set(prev);
+                newSet.delete(activeChatId);
+                return newSet;
+            });
+        }
+    };
 
     return (
         <div className="md:p-4 bg-gray-50 flex flex-col justify-center items-center gap-2">
@@ -368,11 +368,6 @@ const ShipperChatRequestsPage: React.FC = () => {
                     )}
                 </div>
             )}
-            {/* <RatingModal
-                isOpen={isModalOpen}
-                onRequestClose={() => setIsModalOpen(false)}
-                onSubmit={handleModalSubmit}
-            /> */}
         </div>
     );
 };

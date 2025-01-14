@@ -25,6 +25,21 @@ export const ProfilesUserProvider: React.FC<{ children: React.ReactNode }> = ({ 
                 return;
             }
 
+            // Check if the user is an nts_user
+            const { data: ntsUserData, error: ntsUserError } = await supabase
+                .from('nts_users')
+                .select('id')
+                .eq('id', session.user.id)
+                .single();
+
+            if (ntsUserError) {
+                console.error('Error checking nts_user:', ntsUserError.message);
+            } else if (ntsUserData) {
+                console.log('User is an nts_user, skipping profile fetch.');
+                setLoading(false);
+                return;
+            }
+
             try {
                 const { data, error } = await supabase
                     .from('profiles')
