@@ -6,7 +6,6 @@ import { useSession } from '@supabase/auth-helpers-react';
 import dynamic from 'next/dynamic';
 import 'react-quill/dist/quill.snow.css';
 import ForumInterface from './ForumInterface';
-import RatingModal from './RatingModal';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
@@ -26,7 +25,6 @@ const ShipperChatRequestsPage: React.FC = () => {
     const [ticketSubmitted, setTicketSubmitted] = useState(false);
     const [showTicketForm, setShowTicketForm] = useState(true);
     const [acceptedTickets, setAcceptedTickets] = useState<Set<number>>(new Set());
-    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchAssignedSalesUsers = async () => {
@@ -241,26 +239,22 @@ const ShipperChatRequestsPage: React.FC = () => {
         setAcceptedTickets((prev) => new Set(prev).add(ticketId));
     };
 
-    const handleCloseTicket = (ticketId: number) => {
-        setIsModalOpen(true);
-    };
-
-    const handleModalSubmit = async (rating: number, resolved: boolean, explanation: string) => {
+    const handleCloseTicket = async (ticketId: number) => {
         // Update the status of the ticket to closed
         const { error } = await supabase
             .from('support_ticket')
-            .update({ status: 'closed', rating, resolved, explanation })
-            .eq('id', activeChatId);
+            .update({ status: 'closed' })
+            .eq('id', ticketId);
 
         if (error) {
             console.error('Error closing support ticket:', error.message);
         } else {
             // Remove the closed ticket from the local state
-            setSupportTickets(supportTickets.filter(ticket => ticket.id !== activeChatId));
+            setSupportTickets(supportTickets.filter(ticket => ticket.id !== ticketId));
             setActiveChatId(null);
             setAcceptedTickets((prev) => {
                 const newSet = new Set(prev);
-                newSet.delete(activeChatId);
+                newSet.delete(ticketId);
                 return newSet;
             });
         }
@@ -357,12 +351,12 @@ const ShipperChatRequestsPage: React.FC = () => {
                                 ticketId={activeChatId}
                             />
                             <div className="flex justify-center mt-4">
-                                <button
+                                {/* <button
                                     onClick={() => handleCloseTicket(activeChatId)}
                                     className="bg-red-500 text-white px-4 py-2 rounded-md"
                                 >
                                     Close Ticket
-                                </button>
+                                </button> */}
                             </div>
                         </div>
                     )}
