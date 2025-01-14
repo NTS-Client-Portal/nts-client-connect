@@ -263,13 +263,13 @@ const ShipperChatRequestsPage: React.FC = () => {
         }
     };
 
-    const handleModalSubmit = (rating: number, resolved: boolean, comments: string) => {
-        // Handle the submission of the rating modal
-        console.log('Rating:', rating);
-        console.log('Resolved:', resolved);
-        console.log('Comments:', comments);
-        // You can add logic here to save the rating and comments to the database
-    };
+    // const handleModalSubmit = (rating: number, resolved: boolean, comments: string) => {
+    //     // Handle the submission of the rating modal
+    //     console.log('Rating:', rating);
+    //     console.log('Resolved:', resolved);
+    //     console.log('Comments:', comments);
+    //     // You can add logic here to save the rating and comments to the database
+    // };
 
     return (
         <div className="md:p-4 bg-gray-50 flex flex-col justify-center items-center gap-2">
@@ -373,11 +373,7 @@ const ShipperChatRequestsPage: React.FC = () => {
                     )}
                 </div>
             )}
-            <RatingModal
-                isOpen={isModalOpen}
-                onRequestClose={() => setIsModalOpen(false)}
-                onSubmit={handleModalSubmit}
-            />
+
         </div>
     );
 };
