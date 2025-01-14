@@ -10,6 +10,8 @@ import ForumInterface from './ForumInterface';
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 type SupportTicket = Database['public']['Tables']['support_ticket']['Row'];
+type UserProfile = Database['public']['Tables']['nts_users']['Row'];
+type Company = Database['public']['Tables']['companies']['Row'];
 
 const NtsChatRequestsPage: React.FC = () => {
     const session = useSession();
@@ -22,6 +24,8 @@ const NtsChatRequestsPage: React.FC = () => {
     const [file, setFile] = useState<File | null>(null);
     const [ticketSubmitted, setTicketSubmitted] = useState(false);
     const [showTicketForm, setShowTicketForm] = useState(true);
+    const [userProfiles, setUserProfiles] = useState<{ [key: string]: UserProfile }>({});
+    const [companies, setCompanies] = useState<{ [key: string]: Company }>({});
 
     useEffect(() => {
         const fetchSupportTickets = async () => {
@@ -58,6 +62,54 @@ const NtsChatRequestsPage: React.FC = () => {
         localStorage.setItem('ticketSubmitted', JSON.stringify(ticketSubmitted));
         localStorage.setItem('activeChatId', JSON.stringify(activeTicketId));
     }, [ticketSubmitted, activeTicketId]);
+
+    useEffect(() => {
+        const fetchUserProfiles = async () => {
+            const userIds = supportTickets.map(ticket => ticket.shipper_id);
+            if (userIds.length > 0) {
+                const { data, error } = await supabase
+                    .from('nts_users')
+                    .select('id, first_name, last_name, company_id')
+                    .in('id', userIds);
+
+                if (error) {
+                    console.error('Error fetching user profiles:', error.message);
+                } else {
+                    const profiles = data.reduce((acc: { [key: string]: UserProfile }, profile: UserProfile) => {
+                        acc[profile.id] = profile;
+                        return acc;
+                    }, {});
+                    setUserProfiles(profiles);
+                }
+            }
+        };
+
+        fetchUserProfiles();
+    }, [supportTickets]);
+
+    useEffect(() => {
+        const fetchCompanies = async () => {
+            const companyIds = Object.values(userProfiles).map(profile => profile.company_id);
+            if (companyIds.length > 0) {
+                const { data, error } = await supabase
+                    .from('companies')
+                    .select('id, name')
+                    .in('id', companyIds);
+
+                if (error) {
+                    console.error('Error fetching companies:', error.message);
+                } else {
+                    const companyData = data.reduce((acc: { [key: string]: Company }, company: Company) => {
+                        acc[company.id] = company;
+                        return acc;
+                    }, {});
+                    setCompanies(companyData);
+                }
+            }
+        };
+
+        fetchCompanies();
+    }, [userProfiles]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -317,8 +369,18 @@ const NtsChatRequestsPage: React.FC = () => {
                         <ul>
                             {supportTickets.map((ticket) => (
                                 <li key={ticket.id} className="mb-2">
-                                   <div className="flex flex-col justify-center items-center w-full">
-                                   <span className='flex flex-col justify-center items-center gap-1'><strong>Ticket #{ticket.id}- Topic:</strong> {ticket.topic}</span>
+                                    <div className="flex flex-col justify-center items-center w-full">
+                                        <span className='flex flex-col justify-center items-center gap-1'>
+                                            <strong>Ticket #{ticket.id} - Topic:</strong> {ticket.topic}
+                                            {userProfiles[ticket.shipper_id] && (
+                                                <>
+                                                    <strong>User:</strong> {userProfiles[ticket.shipper_id].first_name} {userProfiles[ticket.shipper_id].last_name}
+                                                    {companies[userProfiles[ticket.shipper_id].company_id] && (
+                                                        <span><strong>Company:</strong> {companies[userProfiles[ticket.shipper_id].company_id].name}</span>
+                                                    )}
+                                                </>
+                                            )}
+                                        </span>
                                         <button
                                             onClick={() => handleAcceptTicket(ticket.id)}
                                             className={`px-4 py-2 my-3 text-nowrap rounded-md ${activeTicketId === ticket.id ? 'bg-gray-400/90' : 'bg-blue-500'} text-white`}

@@ -154,10 +154,10 @@ const ForumInterface: React.FC<ForumInterfaceProps> = ({ brokerId, shipperId, se
     }, [messages]);
 
     return (
-        <div className="md:p-4">
-            <div className="md:p-3 w-full">
+        <div className="">
+            <div className=" w-full">
                 <div className="flex flex-col h-full w-full">
-                    <form onSubmit={handleSendMessage} className="bg-white py-2 flex flex-col w-full my-2">
+                    <form onSubmit={handleSendMessage} className="bg-white shadow-md p-2 flex flex-col w-full my-2">
                         <div className="flex-grow">
                             <ReactQuill
                                 value={newMessage}
@@ -183,7 +183,7 @@ const ForumInterface: React.FC<ForumInterfaceProps> = ({ brokerId, shipperId, se
                     </form>
                     <div className="flex-grow border-2 shadow-md h-full w-full mt-4 overflow-y-auto">
                         {messages.map((message) => (
-                            <div key={message.id} className={`p-1 flex w-full mb-2 bg-ntsBlue/80 border-2 border-t-orange-500 text-white`}>
+                            <div key={message.id} className={`p-1 flex w-full bg-ntsBlue/80 border-2 border-t-orange-500 text-white`}>
                                 <div className={`p-2 rounded-lg w-full`}>
                                     {message.user_type && userProfiles[message.user_type === 'broker' ? message.broker_id : message.shipper_id] && (
                                         <p className="text-xs text-gray-200 italic underline">

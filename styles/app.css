@@ -4533,6 +4533,14 @@ main:is(.dark *) {
     grid-template-columns: 100px 1fr;
   }
 
+  .md\:grid-cols-\[150px_1fr\] {
+    grid-template-columns: 150px 1fr;
+  }
+
+  .md\:grid-cols-\[250px_1fr\] {
+    grid-template-columns: 250px 1fr;
+  }
+
   .md\:flex-row {
     flex-direction: row;
   }

@@ -378,14 +378,15 @@ const ShipperChatRequestsPage: React.FC = () => {
                 </div>
             )}
             {supportTickets.length > 0 && (
-                <div className='grid grid-cols-1 md:grid-cols-[200px_1fr] w-full gap-1'>
+                <div className='grid grid-cols-1 md:grid-cols-[250px_1fr] w-full gap-1'>
                     <div className="w-full h-fit px-3 py-6 bg-zinc-50 rounded-lg shadow-lg mt-4">
                         <h2 className="text-lg text-nowrap font-semibold mb-4 text-center">Support Tickets</h2>
                         <ul>
                             {supportTickets.map((ticket) => (
                                 <li key={ticket.id} className="mb-2">
                                     <div className="flex flex-col justify-center items-center w-full">
-                                        <span className='flex flex-col justify-center items-center gap-1'><strong>Ticket #{ticket.id}- Topic:</strong> {ticket.topic}</span>
+                                        <span className='flex flex-col justify-center items-center gap-1'><strong>Ticket #{ticket.id}</strong></span>
+                                        <span className='flex justify-center items-center gap-1 flex-nowrap'><strong>Topic:</strong> {ticket.topic}</span>
                                         <button
                                             onClick={() => handleAcceptTicket(ticket.id)}
                                             className={`px-4 py-2 my-3 text-nowrap rounded-md ${acceptedTickets.has(ticket.id) ? 'bg-gray-400/90' : 'bg-blue-500'} text-white`}
