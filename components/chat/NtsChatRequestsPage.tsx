@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@lib/initSupabase';
-import { useProfilesUser } from '@/context/ProfilesUserContext';
+import { useNtsUsers } from '@/context/NtsUsersContext';
 import { Database } from '@/lib/database.types';
 import { useSession } from '@supabase/auth-helpers-react';
 import dynamic from 'next/dynamic';
 import 'react-quill/dist/quill.snow.css';
 import ForumInterface from './ForumInterface';
+import RatingModal from './RatingModal';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
@@ -13,7 +14,7 @@ type SupportTicket = Database['public']['Tables']['support_ticket']['Row'];
 
 const NtsChatRequestsPage: React.FC = () => {
     const session = useSession();
-    const { userProfile } = useProfilesUser();
+    const { userProfile } = useNtsUsers();
     const [supportTickets, setSupportTickets] = useState<SupportTicket[]>([]);
     const [activeTicketId, setActiveTicketId] = useState<number | null>(null);
     const [supportType, setSupportType] = useState('customer_support');
@@ -22,6 +23,7 @@ const NtsChatRequestsPage: React.FC = () => {
     const [file, setFile] = useState<File | null>(null);
     const [ticketSubmitted, setTicketSubmitted] = useState(false);
     const [showTicketForm, setShowTicketForm] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchSupportTickets = async () => {
@@ -209,9 +211,37 @@ const NtsChatRequestsPage: React.FC = () => {
         if (error) {
             console.error('Error closing support ticket:', error.message);
         } else {
+            // Notify the shipper about the closed ticket
+            const ticket = supportTickets.find(ticket => ticket.id === ticketId);
+            if (ticket) {
+                await supabase
+                    .from('notifications')
+                    .insert({
+                        user_id: ticket.shipper_id,
+                        type: 'ticket_closed',
+                        message: 'Your support ticket has been closed. Please provide your feedback.',
+                        ticket_id: ticketId,
+                    });
+            }
+
             // Remove the closed ticket from the local state
             setSupportTickets(supportTickets.filter(ticket => ticket.id !== ticketId));
             setActiveTicketId(null);
+            setIsModalOpen(true); // Open the rating modal
+        }
+    };
+
+    const handleModalSubmit = async (rating: number, resolved: boolean, explanation: string) => {
+        // Update the status of the ticket to closed
+        const { error } = await supabase
+            .from('support_ticket')
+            .update({ rating, resolved, explanation })
+            .eq('id', activeTicketId);
+
+        if (error) {
+            console.error('Error updating support ticket:', error.message);
+        } else {
+            setIsModalOpen(false);
         }
     };
 
@@ -316,6 +346,11 @@ const NtsChatRequestsPage: React.FC = () => {
                     )}
                 </div>
             )}
+            <RatingModal
+                isOpen={isModalOpen}
+                onRequestClose={() => setIsModalOpen(false)}
+                onSubmit={handleModalSubmit}
+            />
         </div>
     );
 };

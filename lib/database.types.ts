@@ -1827,10 +1827,13 @@ export type Database = {
       support_ticket: {
         Row: {
           broker_id: string | null
+          explanation: string | null
           file_url: string | null
           id: number
           message: string | null
+          rating: number | null
           request_time: string | null
+          resolved: boolean | null
           shipper_id: string | null
           status: string | null
           support_type: string | null
@@ -1838,10 +1841,13 @@ export type Database = {
         }
         Insert: {
           broker_id?: string | null
+          explanation?: string | null
           file_url?: string | null
           id?: number
           message?: string | null
+          rating?: number | null
           request_time?: string | null
+          resolved?: boolean | null
           shipper_id?: string | null
           status?: string | null
           support_type?: string | null
@@ -1849,10 +1855,13 @@ export type Database = {
         }
         Update: {
           broker_id?: string | null
+          explanation?: string | null
           file_url?: string | null
           id?: number
           message?: string | null
+          rating?: number | null
           request_time?: string | null
+          resolved?: boolean | null
           shipper_id?: string | null
           status?: string | null
           support_type?: string | null

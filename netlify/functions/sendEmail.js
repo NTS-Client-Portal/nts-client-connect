@@ -1,4 +1,13 @@
-const { sendEmail } = require('../../lib/sgEmail');
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: 587,
+    auth: {
+        user: process.env.SENDGRID_USER,
+        pass: process.env.SENDGRID_API_KEY,
+    },
+});
 
 exports.handler = async function (event, context) {
     console.log('Received event:', event);
@@ -6,8 +15,17 @@ exports.handler = async function (event, context) {
         const { to, subject, text, html, attachments } = JSON.parse(event.body || '{}');
         console.log('Parsed request body:', { to, subject, text, html, attachments });
 
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to,
+            subject,
+            text,
+            html,
+            attachments: attachments || [],
+        };
+
         try {
-            await sendEmail(to, subject, text, html, attachments);
+            await transporter.sendMail(mailOptions);
             return {
                 statusCode: 200,
                 body: JSON.stringify({ message: 'Email sent successfully' }),
