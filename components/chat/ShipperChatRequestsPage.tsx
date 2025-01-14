@@ -312,37 +312,40 @@ const ShipperChatRequestsPage: React.FC = () => {
         }
     };
 
-
     return (
-        <div className="md:p-4 bg-gray-50 flex flex-col justify-center items-center gap-2">
+        <div className="p-4 bg-gray-50 flex flex-col justify-center items-center gap-2">
             <h1 className='font-semibold text-zinc-900 text-2xl'>NTS Ticket Support</h1>
             {showTicketForm ? (
-                <div className="md:p-4  rounded-lg shadow-lg w-[90%]">
+                <div className="p-4 rounded-lg shadow-lg w-full md:w-[90%]">
                     <form onSubmit={handleSubmit}>
-                        <div className='flex gap-4 items-center w-full'>
-                            <label className="block text-gray-700 font-semibold">Support Type
-                            <select
-                                value={supportType}
-                                onChange={(e) => setSupportType(e.target.value)}
-                                className="w-full p-2 border border-gray-300 rounded-md"
-                            >
-                                <option value="broker_support">Broker Support</option>
-                                <option value="customer_support">Customer Support</option>
-                                <option value="tech_support">Technical Support</option>
-                            </select></label>
-                            <label className="block text-gray-700 font-semibold">Topic
-                            <select
-                                value={topic}
-                                onChange={(e) => setTopic(e.target.value)}
-                                className="w-full p-2 border border-gray-300 rounded-md"
-                            >
-                                <option value="" disabled>Select Topic</option>
-                                {getTopics().map((topicOption) => (
-                                    <option key={topicOption} value={topicOption}>
-                                        {topicOption}
-                                    </option>
-                                ))}
-                            </select></label>
+                        <div className='flex flex-col md:flex-row gap-4 items-center w-full'>
+                            <label className="block text-gray-700 font-semibold w-full">
+                                Support Type
+                                <select
+                                    value={supportType}
+                                    onChange={(e) => setSupportType(e.target.value)}
+                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                >
+                                    <option value="broker_support">Broker Support</option>
+                                    <option value="customer_support">Customer Support</option>
+                                    <option value="tech_support">Technical Support</option>
+                                </select>
+                            </label>
+                            <label className="block text-gray-700 font-semibold w-full">
+                                Topic
+                                <select
+                                    value={topic}
+                                    onChange={(e) => setTopic(e.target.value)}
+                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                >
+                                    <option value="" disabled>Select Topic</option>
+                                    {getTopics().map((topicOption) => (
+                                        <option key={topicOption} value={topicOption}>
+                                            {topicOption}
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
                         </div>
                         <ReactQuill
                             value={message}
@@ -354,35 +357,35 @@ const ShipperChatRequestsPage: React.FC = () => {
                             onChange={handleFileChange}
                             className="w-full p-2 mt-12 rounded-md"
                         />
-                       <div className='w-full flex justify-center'>
+                        <div className='w-full flex justify-center'>
                             <button
                                 type="submit"
-                                className="w-1/4 p-2 mt-2 bg-ntsLightBlue text-white rounded-md"
+                                className="w-full md:w-1/4 p-2 mt-2 bg-ntsLightBlue text-white rounded-md"
                             >
                                 Submit
                             </button>
-                       </div>
+                        </div>
                     </form>
                 </div>
             ) : (
-                <div className="md:p-4 flex justify-center rounded-lg shadow-lg w-[90%]">
+                <div className="p-4 flex justify-center rounded-lg shadow-lg w-full md:w-[90%]">
                     <button
                         onClick={() => setShowTicketForm(true)}
-                        className="w-1/3 p-2 mt-2 bg-ntsLightBlue text-white rounded-md"
+                        className="w-full md:w-1/3 p-2 mt-2 bg-ntsLightBlue text-white rounded-md"
                     >
                         Submit another ticket
                     </button>
                 </div>
             )}
             {supportTickets.length > 0 && (
-                <div className='grid grid-cols-[200px_1fr] w-full gap-4'>
-                    <div className="w-fit h-fit px-3 py-6 bg-zinc-50 rounded-lg shadow-lg mt-4">
-                        <h2 className="text-lg text-nowrap font-semibold mb-4">Support Tickets</h2>
+                <div className='grid grid-cols-1 md:grid-cols-[200px_1fr] w-full gap-1'>
+                    <div className="w-full h-fit px-3 py-6 bg-zinc-50 rounded-lg shadow-lg mt-4">
+                        <h2 className="text-lg text-nowrap font-semibold mb-4 text-center">Support Tickets</h2>
                         <ul>
                             {supportTickets.map((ticket) => (
                                 <li key={ticket.id} className="mb-2">
-                                    <div className="flex flex-col justify-between items-start">
-                                        <span className='flex flex-col justify-start gap-1'><strong>Ticket Topic:</strong> {ticket.topic}</span>
+                                    <div className="flex flex-col justify-center items-center w-full">
+                                        <span className='flex flex-col justify-center items-center gap-1'><strong>Ticket #{ticket.id}- Topic:</strong> {ticket.topic}</span>
                                         <button
                                             onClick={() => handleAcceptTicket(ticket.id)}
                                             className={`px-4 py-2 my-3 text-nowrap rounded-md ${acceptedTickets.has(ticket.id) ? 'bg-gray-400/90' : 'bg-blue-500'} text-white`}

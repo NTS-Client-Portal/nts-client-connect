@@ -1018,6 +1018,10 @@ body:is(.dark *) {
   margin-top: auto;
 }
 
+.mt-24 {
+  margin-top: 6rem;
+}
+
 .block {
   display: block;
 }
@@ -1667,6 +1671,14 @@ body:is(.dark *) {
 
 .gap-9 {
   gap: 2.25rem;
+}
+
+.gap-5 {
+  gap: 1.25rem;
+}
+
+.gap-7 {
+  gap: 1.75rem;
 }
 
 .gap-y-10 {
@@ -4415,6 +4427,10 @@ main:is(.dark *) {
     margin-top: 4rem;
   }
 
+  .md\:mt-10 {
+    margin-top: 2.5rem;
+  }
+
   .md\:block {
     display: block;
   }
@@ -4472,6 +4488,18 @@ main:is(.dark *) {
     width: 100%;
   }
 
+  .md\:w-4\/6 {
+    width: 66.666667%;
+  }
+
+  .md\:w-5\/6 {
+    width: 83.333333%;
+  }
+
+  .md\:w-\[90\%\] {
+    width: 90%;
+  }
+
   .md\:max-w-none {
     max-width: none;
   }
@@ -4495,6 +4523,14 @@ main:is(.dark *) {
 
   .md\:grid-cols-\[200px_1fr\] {
     grid-template-columns: 200px 1fr;
+  }
+
+  .md\:grid-cols-\[300px_1fr\] {
+    grid-template-columns: 300px 1fr;
+  }
+
+  .md\:grid-cols-\[100px_1fr\] {
+    grid-template-columns: 100px 1fr;
   }
 
   .md\:flex-row {
@@ -4553,6 +4589,10 @@ main:is(.dark *) {
     gap: 1.5rem;
   }
 
+  .md\:gap-5 {
+    gap: 1.25rem;
+  }
+
   .md\:p-4 {
     padding: 1rem;
   }
@@ -4563,6 +4603,10 @@ main:is(.dark *) {
 
   .md\:p-8 {
     padding: 2rem;
+  }
+
+  .md\:p-3 {
+    padding: 0.75rem;
   }
 
   .md\:px-8 {

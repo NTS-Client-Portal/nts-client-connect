@@ -154,8 +154,8 @@ const ForumInterface: React.FC<ForumInterfaceProps> = ({ brokerId, shipperId, se
     }, [messages]);
 
     return (
-        <div className="p-4 sm:p-6">
-            <div className="p-3 w-full">
+        <div className="md:p-4">
+            <div className="md:p-3 w-full">
                 <div className="flex flex-col h-full w-full">
                     <form onSubmit={handleSendMessage} className="bg-white py-2 flex flex-col w-full my-2">
                         <div className="flex-grow">
@@ -166,33 +166,31 @@ const ForumInterface: React.FC<ForumInterfaceProps> = ({ brokerId, shipperId, se
                                 style={{ height: '150px' }} // Double the height of the text area
                             />
                         </div>
-                        <div className='flex justify-between items-center h-full w-full mt-10'>
-                            <div className='w-full'>
+                        <div className='flex flex-col md:flex-row md:justify-between items-center h-full w-full mt-20 md:mt-10'>
+                            <div className='w-full md:w-1/2'>
                                 <input
                                     type="file"
                                     onChange={handleFileChange}
-                                    className="text-ntsBlue"
+                                    className="text-ntsBlue mt-10 md:mt-0"
                                 />
-                               
                             </div>
-                            <div className='w-full flex justify-end'>
-                                <button type="submit" className="bg-ntsLightBlue text-white w-5/6 px-4 py-2 rounded-lg">
+                            <div className='w-full md:w-1/2 flex justify-end mt-8 md:mt-0'>
+                                <button type="submit" className="bg-ntsLightBlue text-white w-full md:w-5/6 px-4 py-2 rounded-lg">
                                     Post
                                 </button>
                             </div>
                         </div>
                     </form>
-                    <div className="flex-grow border-2 shadow-md  h-full w-full mt-4">
+                    <div className="flex-grow border-2 shadow-md h-full w-full mt-4 overflow-y-auto">
                         {messages.map((message) => (
                             <div key={message.id} className={`p-1 flex w-full mb-2 bg-ntsBlue/80 border-2 border-t-orange-500 text-white`}>
                                 <div className={`p-2 rounded-lg w-full`}>
-
                                     {message.user_type && userProfiles[message.user_type === 'broker' ? message.broker_id : message.shipper_id] && (
                                         <p className="text-xs text-gray-200 italic underline">
                                             {userProfiles[message.user_type === 'broker' ? message.broker_id : message.shipper_id].first_name} {userProfiles[message.user_type === 'broker' ? message.broker_id : message.shipper_id].last_name} - {new Date(message.message_time || '').toLocaleTimeString()}
                                         </p>
                                     )}
-                                <div dangerouslySetInnerHTML={{ __html: message.message_body }} />
+                                    <div dangerouslySetInnerHTML={{ __html: message.message_body }} />
                                     {message.file_url && (
                                         <a href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${message.file_url}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
                                             View Attachment
