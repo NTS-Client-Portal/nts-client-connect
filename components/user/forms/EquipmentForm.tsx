@@ -29,6 +29,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
     const [auction, setAuction] = useState(formData.auction || '');
     const [buyerNumber, setBuyerNumber] = useState(formData.buyer_number || '');
     const [lotNumber, setLotNumber] = useState(formData.lot_number || '');
+    const [value, setValue] = useState(formData.value || '');
 
     useEffect(() => {
         const updatedFormData = {
@@ -49,10 +50,11 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
             auction,
             buyer_number: buyerNumber,
             lot_number: lotNumber,
+            goods_value: value.toString(),
         };
 
         setFormData(updatedFormData);
-    }, [year, make, model, length, lengthUnit, width, widthUnit, height, heightUnit, weight, weightUnit, operationalCondition, loadingUnloadingRequirements, tarping, isAuction, auction, buyerNumber, lotNumber, setFormData]);
+    }, [year, make, model, length, value, lengthUnit, width, widthUnit, height, heightUnit, weight, weightUnit, operationalCondition, loadingUnloadingRequirements, tarping, isAuction, auction, buyerNumber, lotNumber, setFormData]);
 
     return (
         <div className="flex flex-col gap-3">
@@ -90,6 +92,18 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                         onChange={(e) => {
                             setErrorText('');
                             setModel(e.target.value);
+                        }}
+                    />
+                </label>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Equipment Value
+                    <input
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                        type="text"
+                        placeholder='e.g. $55,000'
+                        value={value}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setValue(e.target.value);
                         }}
                     />
                 </label>
@@ -190,6 +204,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
             </div>
 
             <div className='flex flex-col md:flex-row gap-2'>
+
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Equipment Condition
                     <select
                         className="rounded bg-white w-full py-1.5 px-1 border border-zinc-900/30 shadow-md"
@@ -220,22 +235,6 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                     </select>
                 </label>
             </div>
-
-            <div className='flex flex-col gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Loading/Unloading Requirements
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                        type="text"
-                        placeholder='e.g. Tarp, Forklift, Ramp, Dock'
-                        value={loadingUnloadingRequirements}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setLoadingUnloadingRequirements(e.target.value);
-                        }}
-                    />
-                </label>
-            </div>
-
             {isAuction && (
                 <div className='flex flex-col md:flex-row gap-2'>
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Auction/Dealer Name
@@ -273,6 +272,22 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                     </label>
                 </div>
             )}
+            <div className='flex flex-col gap-2'>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Loading/Unloading Requirements
+                    <input
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                        type="text"
+                        placeholder='e.g. Tarp, Forklift, Ramp, Dock'
+                        value={loadingUnloadingRequirements}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setLoadingUnloadingRequirements(e.target.value);
+                        }}
+                    />
+                </label>
+            </div>
+
+
         </div>
     );
 };

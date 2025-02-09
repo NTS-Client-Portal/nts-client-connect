@@ -43,7 +43,7 @@ const SelectOption: React.FC<SelectOptionProps> = ({
                     <option value="semi_trucks">Semi Trucks</option>
                     <option value="ltl_ftl">LTL/FTL</option>
                     <option value="auto">Auto</option>
-                    <option value="rv_trailers">RV Trailers</option>
+                    <option value="rv_trailers">Trailers/RV/Camplers</option>
                     <option value="boats">Boats</option>
                 </select>
             </label>

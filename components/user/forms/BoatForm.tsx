@@ -16,6 +16,7 @@ const BoatForm: React.FC<BoatFormProps> = ({
     const [trailer, setTrailer] = useState<string | null>(null);
     const [boatType, setBoatType] = useState<string | null>(null); // Rename type to boatType
     const [weight, setWeight] = useState<string | null>(null);
+    const [value, setValue] = useState<string | null>(null);
 
     useEffect(() => {
         const formData = {
@@ -26,13 +27,68 @@ const BoatForm: React.FC<BoatFormProps> = ({
             trailer: trailer === 'yes',
             type: boatType, // Use boatType here
             weight,
+            value,
         };
 
         setFormData(formData);
-    }, [beam, cradle, height, length, trailer, boatType, weight, setFormData]);
+    }, [beam, cradle, height, length, value, trailer, boatType, weight, setFormData]);
 
     return (
         <div className="flex flex-col gap-3">
+                        <div className='flex flex-col md:flex-row gap-2'>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Boat Type
+                    <input
+                        className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
+                        type="text"
+                        placeholder='Sailboat, Houseboat, Yacht, etc.'
+                        value={boatType || ''} // Use boatType here
+                        onChange={(e) => {
+                            setErrorText('');
+                            setBoatType(e.target.value);
+                        }}
+                    />
+                </label>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>On Trailer?
+                    <select
+                        className="rounded w-full p-1 py-1.5 bg-white border border-zinc-900/30 shadow-md"
+                        value={trailer || ''}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setTrailer(e.target.value);
+                        }}
+                    >
+                        <option value="">Select...</option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                </label>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Cradle Needed?
+                    <select
+                        className="rounded bg-white w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
+                        value={cradle || ''}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setCradle(e.target.value);
+                        }}
+                    >
+                        <option value="">Select...</option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                </label>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Value
+                    <input
+                        className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
+                        type="text"
+                        placeholder='e.g. $80,000'
+                        value={value || ''}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setValue(e.target.value);
+                        }}
+                    />
+                </label>
+            </div>
             <div className='flex flex-col md:flex-row gap-2'>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Length
                     <input
@@ -84,48 +140,7 @@ const BoatForm: React.FC<BoatFormProps> = ({
                 </label>
             </div>
 
-            <div className='flex flex-col md:flex-row gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Boat Type
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
-                        type="text"
-                        placeholder='Sailboat, Houseboat, Yacht, etc.'
-                        value={boatType || ''} // Use boatType here
-                        onChange={(e) => {
-                            setErrorText('');
-                            setBoatType(e.target.value);
-                        }}
-                    />
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>On Trailer?
-                    <select
-                        className="rounded w-full p-1 py-1.5 bg-white border border-zinc-900/30 shadow-md"
-                        value={trailer || ''}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setTrailer(e.target.value);
-                        }}
-                    >
-                        <option value="">Select...</option>
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
-                    </select>
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Cradle Needed?
-                    <select
-                        className="rounded bg-white w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
-                        value={cradle || ''}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setCradle(e.target.value);
-                        }}
-                    >
-                        <option value="">Select...</option>
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
-                    </select>
-                </label>
-            </div>
+
         </div>
     );
 };

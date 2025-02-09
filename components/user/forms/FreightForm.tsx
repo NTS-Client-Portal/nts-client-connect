@@ -20,6 +20,7 @@ const FreightForm: React.FC<FreightFormProps> = ({
     const [packagingType, setPackagingType] = useState('');
     const [weightPerPalletUnit, setWeightPerPalletUnit] = useState('');
     const [dockNoDock, setDockNoDock] = useState('');
+    const [value , setValue] = useState('');
 
     useEffect(() => {
         const formData = {
@@ -34,10 +35,11 @@ const FreightForm: React.FC<FreightFormProps> = ({
             packaging_type: packagingType,
             weight_per_pallet_unit: weightPerPalletUnit,
             dock_no_dock: dockNoDock,
+            goods_value: value,
         };
 
         setFormData(formData);
-    }, [loadDescription, length, height, width, weight, weightUnit, freightClass, loadingAssistance, packagingType, weightPerPalletUnit, dockNoDock, setFormData]);
+    }, [loadDescription, length, height, width, value, weight, weightUnit, freightClass, loadingAssistance, packagingType, weightPerPalletUnit, dockNoDock, setFormData]);
 
     return (
         <div className="flex flex-col gap-3">
@@ -77,6 +79,18 @@ const FreightForm: React.FC<FreightFormProps> = ({
                             setHeight(e.target.value);
                         }}
                     />
+                </label>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Total Freight Value
+                    <input
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                        type="text"
+                        placeholder='e.g. 20,000'
+                        value={value}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setValue(e.target.value);
+                        }}
+                    /> 
                 </label>
             </div>
 

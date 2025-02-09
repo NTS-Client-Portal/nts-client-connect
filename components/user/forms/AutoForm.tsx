@@ -10,7 +10,7 @@ const AutoForm: React.FC<AutoFormProps> = ({
     setFormData,
     setErrorText,
 }) => {
-    const [items, setItems] = useState([{ year: '', make: '', model: '', vin: '', operationalCondition: null, isAuction: null, auction: '', buyerNumber: '', lotNumber: '' }]);
+    const [items, setItems] = useState([{ year: '', make: '', model: '', vin: '', operationalCondition: null, isAuction: null, auction: '', buyerNumber: '', lotNumber: '', goods_value: '' }]);
     const [models, setModels] = useState<{ Model_ID: string; Model_Name: string }[]>([]);
     const [filteredMakes, setFilteredMakes] = useState<string[]>([]);
     const [filteredModels, setFilteredModels] = useState<{ Model_ID: string; Model_Name: string }[]>([]);
@@ -46,7 +46,7 @@ const AutoForm: React.FC<AutoFormProps> = ({
     }, [items]);
 
     const handleAddItem = () => {
-        setItems([...items, { year: '', make: '', model: '', vin: '', operationalCondition: null, isAuction: null, auction: '', buyerNumber: '', lotNumber: '' }]);
+        setItems([...items, { year: '', make: '', model: '', vin: '', operationalCondition: null, isAuction: null, auction: '', buyerNumber: '', lotNumber: '', goods_value: '' }]);
     };
 
     const handleRemoveItem = (index: number) => {
@@ -81,6 +81,11 @@ const AutoForm: React.FC<AutoFormProps> = ({
 
     const handleModelSelect = (index: number, model: string) => {
         handleChange(index, 'model', model);
+        setShowModelDropdown(false);
+    };
+
+    const handleValueSelect = (index: number, value: string) => {
+        handleChange(index, 'value', value);
         setShowModelDropdown(false);
     };
 
@@ -174,6 +179,15 @@ const AutoForm: React.FC<AutoFormProps> = ({
                         </div>
                     </div>
                     <div className='flex flex-col md:flex-row gap-2 mt-3'>
+                        <div className='flex flex-col w-full md:w-1/4'>
+                            <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Vehicle Value</label>
+                            <input
+                                className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                                value={item.goods_value}
+                                placeholder='e.g. $20,000'
+                                onChange={(e) => { handleChange(index, 'value', e.target.value); setErrorText(''); }}
+                            />
+                        </div>
                         <div className='flex flex-col w-full md:w-1/2'>
                             <label className='text-zinc-900 dark:text-zinc-100 font-medium'>VIN #</label>
                             <input

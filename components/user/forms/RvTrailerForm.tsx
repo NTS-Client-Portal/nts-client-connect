@@ -16,6 +16,11 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
     const [roadworthy, setRoadworthy] = useState<boolean | null>(null);
     const [vin, setVin] = useState<string | null>(null);
     const [year, setYear] = useState<number | null>(null);
+    const [value, setValue] = useState<string | null>(null);
+    const [height, setHeight] = useState<string | null>(null);
+    const [length, setLength] = useState<string | null>(null);
+    const [width, setWidth] = useState<string | null>(null);
+    const [weight, setWeight] = useState<string | null>(null);
 
     useEffect(() => {
         const formData = {
@@ -26,10 +31,15 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
             roadworthy,
             vin,
             year: year?.toString() || '',
+            goods_value: value,
+            height,
+            length,
+            width,
+            weight,
         };
 
         setFormData(formData);
-    }, [classType, make, model, motorizedOrTrailer, roadworthy, vin, year, setFormData]);
+    }, [classType, make, model, motorizedOrTrailer, roadworthy, height, length, width, weight, vin, value, year, setFormData]);
 
     return (
         <div className="flex flex-col gap-3">
@@ -71,9 +81,60 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
                     />
                 </label>
             </div>
+            <div className='flex flex-col md:flex-row gap-2'>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Length
+                    <input
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                        type="text"
+                        placeholder='e.g. 30ft'
+                        value={length || ''}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setLength(e.target.value);
+                        }}
+                    />
+                </label>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Width
+                    <input
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                        type="text"
+                        placeholder='e.g. 8ft'
+                        value={width || ''}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setWidth(e.target.value);
+                        }}
+                    />
+                </label>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Height
+                    <input
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                        type="text"
+                        placeholder='e.g. 9ft'
+                        value={height || ''}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setHeight(e.target.value);
+                        }}
+                    />
+                </label>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Weight
+                    <input
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                        type="text"
+                        placeholder='e.g. 20,000'
+                        value={weight || ''}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setWeight(e.target.value);
+                        }}
+                    />
+                </label>
+            </div>
+            
 
             <div className='flex flex-col md:flex-row gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Class Type
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Class Type (if applicable)
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
@@ -100,18 +161,6 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
             </div>
 
             <div className='flex flex-col md:flex-row gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>VIN
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                        type="text"
-                        placeholder='(optional)'
-                        value={vin || ''}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setVin(e.target.value);
-                        }}
-                    />
-                </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Vehicle Condition
                     <select
                         className="rounded bg-white w-full py-1.5 px-1 border border-zinc-900/30 shadow-md"
@@ -125,6 +174,30 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
                         <option value="operable">Operable</option>
                         <option value="inoperable">Inoperable</option>
                     </select>
+                </label>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>VIN
+                    <input
+                        className="rounded dark:text-zinc-800 w-full px-1 py-1.5 border border-zinc-900/30 shadow-md"
+                        type="text"
+                        placeholder='(optional)'
+                        value={vin || ''}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setVin(e.target.value);
+                        }}
+                    />
+                </label>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Trailer Value
+                    <input
+                        className="rounded dark:text-zinc-800 w-full px-1 py-1.5 border border-zinc-900/30 shadow-md"
+                        type="text"
+                        placeholder='e.g. $80,000'
+                        value={value || ''}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setValue(e.target.value);
+                        }}
+                    />
                 </label>
             </div>
         </div>

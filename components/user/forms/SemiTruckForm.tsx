@@ -24,6 +24,7 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
     const [buyerNumber, setBuyerNumber] = useState('');
     const [lotNumber, setLotNumber] = useState('');
     const [loadingUnloadingRequirements, setLoadingUnloadingRequirements] = useState('');
+    const [value, setValue] = useState<string | null>(null);
 
     useEffect(() => {
         const formData = {
@@ -42,10 +43,11 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
             buyer_number: buyerNumber,
             lot_number: lotNumber,
             loading_unloading_requirements: loadingUnloadingRequirements,
+            goods_value: value,
         };
 
         setFormData(formData);
-    }, [year, make, model, length, width, height, weight, weightUnit, vin, operationalCondition, isAuction, auction, buyerNumber, lotNumber, loadingUnloadingRequirements, setFormData]);
+    }, [year, make, model, length, width, height, weight, value, weightUnit, vin, operationalCondition, isAuction, auction, buyerNumber, lotNumber, loadingUnloadingRequirements, setFormData]);
 
     return (
         <div className="flex flex-col gap-3">
@@ -125,11 +127,8 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
                         }}
                     />
                 </label>
-            </div>
-
-            <div className='flex flex-col md:flex-row gap-2'>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Weight
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-center gap-1">
                         <input
                             className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                             type="text"
@@ -141,7 +140,7 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
                             }}
                         />
                         <select
-                            className="rounded bg-white p-1 border border-zinc-900/30 shadow-md ml-2"
+                            className="rounded bg-white p-1 border w-1/3 border-zinc-900/30 shadow-md"
                             value={weightUnit}
                             onChange={(e) => setWeightUnit(e.target.value)}
                         >
@@ -152,7 +151,10 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
                         </select>
                     </div>
                 </label>
+           
             </div>
+
+
 
             <div className='flex flex-col md:flex-row gap-2'>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Vehicle Condition
@@ -168,6 +170,19 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
                         <option value="operable">Operable</option>
                         <option value="inoperable">Inoperable</option>
                     </select>
+                </label>
+
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Shipment Value
+                    <input
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                        type="text"
+                        placeholder='e.g. $80,000'
+                        value={value || ''}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setValue(e.target.value);
+                        }}
+                    />
                 </label>
 
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Coming from an auction/dealer?
@@ -186,20 +201,7 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
                 </label>
             </div>
 
-            <div className='flex flex-col gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Loading/Unloading Requirements
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                        type="text"
-                        placeholder='e.g. Tarp, Forklift, Ramp, Dock'
-                        value={loadingUnloadingRequirements}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setLoadingUnloadingRequirements(e.target.value);
-                        }}
-                    />
-                </label>
-            </div>
+
 
             {isAuction && (
                 <div className='flex flex-col md:flex-row gap-2'>
@@ -238,6 +240,20 @@ const SemiTruckForm: React.FC<SemiTruckFormProps> = ({
                     </label>
                 </div>
             )}
+                        <div className='flex flex-col gap-2'>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Loading/Unloading Requirements
+                    <input
+                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                        type="text"
+                        placeholder='e.g. Tarp, Forklift, Ramp, Dock'
+                        value={loadingUnloadingRequirements}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setLoadingUnloadingRequirements(e.target.value);
+                        }}
+                    />
+                </label>
+            </div>
         </div>
     );
 };
