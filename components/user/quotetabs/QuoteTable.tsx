@@ -422,6 +422,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                         <>
                             <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
                             <span className='text-xs text-zinc-900 p-0 w-min'>{`${quote.year} ${quote.make} ${quote.model}`}</span><br />
+                            <span className='text-xs text-zinc-900 p-0 w-min'><strong>Dimensions: </strong>{`${quote.length} x ${quote.beam} x ${quote.height}`}</span><br />
                             <span className='text-xs text-zinc-900 p-0 w-min'><strong>Boat Type: </strong>{`${quote.type}`}</span>
                         </>
                     )}

@@ -157,9 +157,9 @@ const QuotePage: React.FC<QuotePageProps> = ({ onClose, addQuote, errorText, set
     };
 
     return (
-        <div className="container mx-auto w-full md:w-4/6 border border-x-zinc-300 border-b-zinc-300 shadow-md">
+        <div className="container mx-auto w-full md:w-3/5 h-fit border border-x-zinc-300 border-b-zinc-300 shadow-md md:mb-20">
             <h2 className="text-xl font-semibold w-full h-fit bg-ntsBlue text-white border-t-4 border-t-orange-500 pt-1 px-2 pb-4">Request a Shipping Estimate</h2>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-6 px-4 py-6 bg-white md:px-8 md:gap-12">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-2 px-4 py-4 bg-white md:px-8 md:gap-6">
                 <SelectOption
                     selectedOption={selectedOption}
                     setSelectedOption={(option) => {
@@ -171,7 +171,7 @@ const QuotePage: React.FC<QuotePageProps> = ({ onClose, addQuote, errorText, set
                     formData={formData} // Pass formData to SelectOption
                     disabled={false}
                 />
-                <div className='grid grid-cols-1 md:grid-cols-2 place-items-center gap-6 md:gap-12 w-full'>
+                <div className='grid grid-cols-1 md:grid-cols-2 place-items-center gap-x-4 md:gap-x-4 w-full m-0 p-0'>
                     <div className='flex flex-col gap-1 w-full'>
                         <h2 className='text-base font-semibold'>Origin</h2>
                         <div className='flex w-full items-center gap-4'>
@@ -236,6 +236,7 @@ const QuotePage: React.FC<QuotePageProps> = ({ onClose, addQuote, errorText, set
                         </div>
                     </div>
                 </div>
+            <div className='flex flex-col gap-1 items-center justify-center w-full'>
                 <div className='flex justify-center w-full'>
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Shipping Date
                         <input
@@ -249,22 +250,25 @@ const QuotePage: React.FC<QuotePageProps> = ({ onClose, addQuote, errorText, set
                         />
                     </label>
                 </div>
-                <div className='flex gap-2'>
+                <span>
                     <label className='text-zinc-900 dark:text-zinc-100 font-medium' />
-                    <input
-                        type="checkbox"
-                        checked={saveToInventory}
-                        onChange={(e) => setSaveToInventory(e.target.checked)}
-                    />
-                    Save to Inventory
+                        <input
+                             type="checkbox"
+                             checked={saveToInventory}
+                             onChange={(e) => setSaveToInventory(e.target.checked)}
+                             className=''
+                            />
+                           <span className='text-nowrap'> Save to Inventory</span>
+                       </span>
                 </div>
-                <div className='flex justify-center'>
-                    <div className='flex gap-2 w-full justify-around'>
-                        <button type="submit" className="body-btn text-sm place-self-center">
-                            Submit Quote
-                        </button>
+                <div className='flex justify-center items-start w-full'>
+                <button type="submit" className="body-btn text-sm place-self-start w-96">
+                                Submit Quote
+                            </button>
+
+        
+
                     </div>
-                </div>
             </form>
             {errorText && <p className="text-red-500 mt-2">{errorText}</p>}
         </div>

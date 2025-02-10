@@ -15,6 +15,8 @@ const BoatForm: React.FC<BoatFormProps> = ({
     const [heightUnit, setHeightUnit] = useState<string | null>(null);
     const [length, setLength] = useState<string | null>(null);
     const [lengthUnit, setLengthUnit] = useState<string | null>(null);
+    const [widthUnit, setWidthUnit] = useState<string | null>(null);
+    const [weightUnit, setWeightUnit] = useState<string | null>(null);
     const [year, setYear] = useState<string | null>(null);
     const [make, setMake] = useState<string | null>(null);
     const [model, setModel] = useState<string | null>(null);
@@ -37,11 +39,13 @@ const BoatForm: React.FC<BoatFormProps> = ({
             model,
             length_unit: lengthUnit,
             height_unit: heightUnit,
+            width_unit: widthUnit,
+            weight_unit: weightUnit,
             goods_value: value,
         };
 
         setFormData(formData);
-    }, [beam, year, make, model, lengthUnit, heightUnit, cradle, height, length, value, trailer, boatType, weight, setFormData]);
+    }, [beam, year, make, model, weightUnit, widthUnit, lengthUnit, heightUnit, cradle, height, length, value, trailer, boatType, weight, setFormData]);
 
     return (
         <div className="flex flex-col gap-3">
@@ -136,54 +140,107 @@ const BoatForm: React.FC<BoatFormProps> = ({
                 </label>
             </div>
             <div className='flex flex-col md:flex-row gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Length
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md placeholder:text-sm"
-                        type="text"
-                        placeholder="20&apos; 6&quot;"
-                        value={length || ''}
+                <div className='flex flex-col gap-1'>
+                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Length
+                        <input
+                            className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md placeholder:text-sm"
+                            type="text"
+                            placeholder="20&apos; 6&quot;"
+                            value={length || ''}
+                            onChange={(e) => {
+                                setErrorText('');
+                                setLength(e.target.value);
+                            }}
+                        />
+                    </label>
+                    <select className='rounded w-full p-1 py-1.5 bg-white border border-zinc-900/30 shadow-md'
+                        value={lengthUnit || ''}
                         onChange={(e) => {
                             setErrorText('');
-                            setLength(e.target.value);
+                            setLengthUnit(e.target.value);
                         }}
-                    />
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Beam
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md placeholder:text-sm"
-                        type="text"
-                        placeholder="8&apos; 6&quot;"
-                        value={beam || ''}
+                    >
+                        <option value="">Select...</option>
+                        <option value="ft">Feet</option>
+                        <option value="m">Meters</option>
+                    </select>
+                </div>
+                <div className='flex flex-col gap-1'>
+                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Beam
+                        <input
+                            className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md placeholder:text-sm"
+                            type="text"
+                            placeholder="8&apos; 6&quot;"
+                            value={beam || ''}
+                            onChange={(e) => {
+                                setErrorText('');
+                                setBeam(e.target.value);
+                            }}
+                        />
+                    </label>
+                    <select className='rounded w-full p-1 py-1.5 bg-white border border-zinc-900/30 shadow-md'
+                        value={widthUnit || ''}
                         onChange={(e) => {
                             setErrorText('');
-                            setBeam(e.target.value);
+                            setWidthUnit(e.target.value);
                         }}
-                    />
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Height
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md placeholder:text-sm"
-                        type="text"
-                        placeholder="9&apos; 6&quot;"
-                        value={height || ''}
+                    >
+                        <option value="">Select...</option>
+                        <option value="ft">Feet</option>
+                        <option value="m">Meters</option>
+                    </select>
+                </div>
+                
+                <div className='flex flex-col gap-1'>
+                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Height
+                        <input
+                            className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md placeholder:text-sm"
+                            type="text"
+                            placeholder="9&apos; 6&quot;"
+                            value={height || ''}
+                            onChange={(e) => {
+                                setErrorText('');
+                                setHeight(e.target.value);
+                            }}
+                        />
+                    </label>
+                    <select className='rounded w-full p-1 py-1.5 bg-white border border-zinc-900/30 shadow-md'
+                        value={heightUnit || ''}
                         onChange={(e) => {
                             setErrorText('');
-                            setHeight(e.target.value);
+                            setHeightUnit(e.target.value);
                         }}
-                    />
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Weight
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md placeholder:text-sm"
-                        type="text"
-                        placeholder='e.g. 20,000'
-                        value={weight || ''}
+                    >
+                        <option value="">Select...</option>
+                        <option value="ft">Feet</option>
+                        <option value="m">Meters</option>
+                    </select>
+                </div>
+                <div className='flex flex-col gap-1'>
+                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Weight
+                        <input
+                            className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md placeholder:text-sm"
+                            type="text"
+                            placeholder='e.g. 20,000'
+                            value={weight || ''}
+                            onChange={(e) => {
+                                setErrorText('');
+                                setWeight(e.target.value);
+                            }}
+                        />
+                    </label>
+                    <select className='rounded w-full p-1 py-1.5 bg-white border border-zinc-900/30 shadow-md'
+                        value={weightUnit || ''}
                         onChange={(e) => {
                             setErrorText('');
-                            setWeight(e.target.value);
+                            setWeightUnit(e.target.value);
                         }}
-                    />
-                </label>
+                    >
+                        <option value="">Select...</option>
+                        <option value="lbs">Pounds</option>
+                        <option value="kg">Kilograms</option>
+                    </select>
+                </div>
             </div>
 
 
