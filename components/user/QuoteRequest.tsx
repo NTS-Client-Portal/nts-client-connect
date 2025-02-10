@@ -146,9 +146,10 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
 
     const addQuote = async (quote: Partial<Database['public']['Tables']['shippingquotes']['Insert'] & { containerLength?: number | null; containerType?: string | null; contentsDescription?: string | null; selectedOption?: string | null; }>) => {
         if (!session?.user?.id) return;
-
+    
+        // Log the quote object to check if company_id is included
         console.log('Adding quote:', quote);
-
+    
         const { data: shippingQuoteData, error: shippingQuoteError } = await supabase
             .from('shippingquotes')
             .insert([{
@@ -181,16 +182,16 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                 status: quote.status || 'Quote',
             }])
             .select();
-
+    
         if (shippingQuoteError) {
             console.error('Error adding quote:', shippingQuoteError.message);
             setErrorText('Error adding quote');
             return;
         }
-
+    
         console.log('Quote added successfully:', shippingQuoteData);
         setQuotes([...quotes, ...(shippingQuoteData || [])]);
-
+    
         setErrorText('');
         setIsModalOpen(false);
         fetchQuotes();
@@ -281,7 +282,19 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                 </div>
             </div>
 
-            {activeTab === 'orders' ? (
+            {activeTab === 'requests' ? (
+                <QuoteForm
+                session={session}
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                addQuote={addQuote}
+                errorText={errorText}
+                setErrorText={setErrorText}
+                assignedSalesUser={assignedSalesUser}
+                fetchQuotes={fetchQuotes}
+                companyId={companyId}
+            />
+            ) : (
                 <OrderForm
                     session={session}
                     isOpen={isModalOpen}
@@ -292,18 +305,6 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                     companyId={companyId}
                     fetchOrders={fetchQuotes}
                     assignedSalesUser={assignedSalesUser}
-                />
-            ) : (
-                <QuoteForm
-                    session={session}
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    addQuote={addQuote}
-                    errorText={errorText}
-                    setErrorText={setErrorText}
-                    assignedSalesUser={assignedSalesUser}
-                    fetchQuotes={fetchQuotes}
-                    companyId={companyId}
                 />
             )}
 
