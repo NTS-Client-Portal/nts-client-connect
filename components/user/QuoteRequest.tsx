@@ -164,10 +164,20 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                 year: quote.year?.toString() || null,
                 make: quote.make || null,
                 model: quote.model || null,
+                auto_year: quote.auto_year?.toString() || null,
+                auto_make: quote.auto_make || null,
+                auto_model: quote.auto_model || null,
+                commodity: quote.commodity || null,
+                packaging_type: quote.packaging_type || null,
+                load_description: quote.load_description || null,
                 length: quote.length?.toString() || null,
+                length_unit: quote.length_unit || null,
                 width: quote.width?.toString() || null,
+                width_unit: quote.width_unit || null,
                 height: quote.height?.toString() || null,
+                height_unit: quote.height_unit || null,
                 weight: quote.weight?.toString() || null,
+                weight_unit: quote.weight_unit || null,
                 status: quote.status || 'Quote',
             }])
             .select();
@@ -206,10 +216,19 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                 year: order.year?.toString() || null,
                 make: order.make || null,
                 model: order.model || null,
+                auto_year: order.auto_year?.toString() || null,
+                auto_make: order.auto_make || null,
+                auto_model: order.auto_model || null,
+                commodity: order.commodity || null,
+                packaging_type: order.packaging_type || null,
+                load_description: order.load_description || null,
                 length: order.length?.toString() || null,
                 width: order.width?.toString() || null,
+                width_unit: order.width_unit || null,
                 height: order.height?.toString() || null,
+                height_unit: order.height_unit || null,
                 weight: order.weight?.toString() || null,
+                weight_unit: order.weight_unit || null,
                 status: order.status || 'Order',
                 origin_address: order.origin_address || null,
                 origin_name: order.origin_name || null,
@@ -229,7 +248,10 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
         }
 
         console.log('Order added successfully:', shippingQuoteData);
-        setOrders([...orders, ...(shippingQuoteData || [])]);
+        setOrders([...orders, ...(shippingQuoteData || []).map(order => ({
+            ...order,
+            dock_no_dock: order.dock_no_dock === 'true'
+        }))]);
 
         setErrorText('');
         setIsModalOpen(false);

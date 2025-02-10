@@ -1014,6 +1014,10 @@ body:is(.dark *) {
   margin-top: auto;
 }
 
+.mr-1 {
+  margin-right: 0.25rem;
+}
+
 .block {
   display: block;
 }
@@ -3717,6 +3721,16 @@ main:is(.dark *) {
 
 .file\:text-foreground::file-selector-button {
   color: hsl(var(--foreground));
+}
+
+.placeholder\:text-sm::-moz-placeholder {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.placeholder\:text-sm::placeholder {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 
 .placeholder\:text-muted-foreground::-moz-placeholder {

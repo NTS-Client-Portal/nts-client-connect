@@ -98,7 +98,12 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                     quote.destination_zip,
                     quote.due_date,
                     quote.price,
-                    ...shipmentItems?.map((item: { year: string; make: string; model: string; container_length: string; container_type: string }) => `${item.year} ${item.make} ${item.model} ${item.container_length} ft ${item.container_type}`) || []
+                    ...shipmentItems?.map((item: { 
+                        year: string; 
+                        make: string; 
+                        model: string; 
+                        container_length: string; container_type: string, 
+                        weight_per_pallet_unit: string, load_description: string, }) => `${item.year} ${item.make} ${item.model} ${item.container_length} ft ${item.container_type} ${item.load_description} ${item.load_description}`) || []
                 ].join(' ').toLowerCase();
                 return searchString.includes(searchTerm.toLowerCase());
             });
@@ -326,50 +331,110 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                 </td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.notes}</td>
                                 <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200">
-                                    <div className=''>
-                                        {Array.isArray(quote.shipment_items) ? quote.shipment_items.map((item: any, index) => (
-                                            <React.Fragment key={index}>
-                                                {item.container_length && item.container_type && typeof item === 'object' && (
-                                                    <span className='flex flex-col gap-0'>
-                                                        <span className='font-semibold text-sm text-gray-700 p-0'>Shipment Item {index + 1}:</span>
-                                                        <span className='text-base text-zinc-900 p-0'>{`${item.container_length} ft ${item.container_type}`}</span>
-                                                    </span>
-                                                )}
-                                                {item.year && item.make && item.model && (
-                                                    <span className='flex flex-col gap-0 w-min'>
-                                                        <span className='font-semibold text-sm text-gray-700 p-0 w-min'>Shipment Item {index + 1}:</span>
-                                                        <span className='text-base text-zinc-900 p-0 w-min'>{`${item.year} ${item.make} ${item.model}`}</span>
-                                                    </span>
-                                                )}
-                                            </React.Fragment>
-                                        )) : (
-                                            <>
-                                                <div className='text-start w-min'>
-                                                    {quote.container_length && quote.container_type && (
-                                                        <>
-                                                            <span className='font-semibold text-sm text-gray-700 p-0 text-start w-min'>Shipment Item:</span><br />
-                                                            <span className='text-normal text-zinc-900 w-min text-start'>{`${quote.container_length} ft ${quote.container_type}`}</span>
-                                                        </>
-                                                    )}
-                                                    {quote.year && quote.make && quote.model && (
-                                                        <>
-                                                            <span className='font-semibold text-sm text-gray-700 p-0 text-start w-min'>Shipment Item:</span><br />
-                                                            <span className='text-normal text-zinc-900 text-start w-min'>{`${quote.year} ${quote.make} ${quote.model}`}</span><br />
-                                                            <span className='text-normal text-zinc-900 text-start w-min'>
-                                                                {`${quote.length} ${quote.length_unit} x ${quote.width} ${quote.width_unit} x ${quote.height} ${quote.height_unit}, 
-                                                                ${quote.weight} ${quote.weight_unit}`}
-                                                                </span>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </>
-                                        )}
-                                        <div className='text-start pt-1 w-min'>
-                                            <span className='font-semibold text-xs text-gray-700 text-start w-min'>Freight Type:</span>
-                                            <span className='text-xs text-zinc-900 text-start px-1 w-min'>{quote.freight_type}</span>
-                                        </div>
-                                    </div>
-                                </td>
+    <div className=''>
+        {Array.isArray(quote.shipment_items) ? quote.shipment_items.map((item: any, index) => (
+            <React.Fragment key={index}>
+                {quote.freight_type === 'Container' && item.container_length && item.container_type && typeof item === 'object' && (
+                    <span className='flex gap-1'>
+                        <span className='font-semibold text-xs text-gray-700 p-0'>Shipment Item {index + 1}:</span>
+                        <span className='text-xs text-zinc-900 p-0'>{`${item.container_length}  ${item.container_type}`}</span>
+                    </span>
+                )}
+                {(quote.freight_type === 'Equipment' && item.length && item.width && item.height && item.weight && item.value) && (
+                    <span className='flex flex-col gap-0'>
+                        <span className='font-semibold text-xs text-gray-700 p-0'>Shipment Item {index + 1}:</span>
+                        <span className='text-xs text-zinc-900 p-0'>
+                            {`${item.length} ${item.length_unit} x ${item.width} ${item.width_unit} x ${item.height} ${item.height_unit}, ${item.weight} ${item.weight_unit}`}
+                        </span>
+                    </span>
+                )}
+                {quote.freight_type === 'Auto' && item.auto_year && item.auto_make && item.auto_model && (
+                    <span className='flex flex-col gap-0 w-min'>
+                        <span className='font-semibold text-sm text-gray-700 p-0 w-min'>Shipment Item {index + 1}:</span>
+                       
+                        <span className='text-xs text-zinc-900 p-0 w-min'>{`VIN: ${item.vin}`}</span>
+                        <span className='text-xs text-zinc-900 p-0 w-min'>{`Condition: ${item.operationalCondition ? 'Operable' : 'Inoperable'}`}</span>
+                    </span>
+                )}
+                {quote.freight_type === 'Boats' && item.boat_type && item.year && item.make && item.value && item.model && (
+                    <span className='flex flex-col gap-0'>
+                        <span className='font-semibold text-xs text-gray-700 p-0'>Shipment Item {index + 1}:</span>
+                        <span className='text-xs text-zinc-900 p-0'>{`${item.year} ${item.make} ${item.model}`}</span>
+                        <span className='text-xs text-zinc-900 p-0'>{item.boat_type}</span>
+
+                    </span>
+                )}
+                {quote.freight_type === 'LTL/FTL' && item.commodity && item.load_description && item.packaging_type && (
+                    <span className='flex flex-col gap-0'>
+                        <span className='font-semibold text-xs text-gray-700 p-0'>Shipment Item {index + 1}:</span>
+                        <span className='text-xs text-zinc-900 p-0'>
+                            {`${item.commodity} ${item.packaging_type}`}
+                        </span>
+                    </span>
+                )}
+            </React.Fragment>
+        )) : (
+            <>
+                <div className='text-start w-min'>
+                    {quote.container_length && quote.container_type && (
+                        <>
+                            <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
+                            <span className='text-xs text-zinc-900 w-min text-start'>{`${quote.container_length} ft ${quote.container_type}`}</span>
+                        </>
+                    )}
+                    {quote.freight_type === 'Trailers' &&  (
+                        <>
+                            <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
+                            <span className='text-normal text-zinc-900 text-start w-min'>{`${quote.year} ${quote.make} ${quote.model}`}</span><br />
+                            <span className='text-normal text-zinc-900 text-start w-min'>
+                                {`${quote.length} ${quote.length_unit} x ${quote.width} ${quote.width_unit} x ${quote.height} ${quote.height_unit}, ${quote.weight} ${quote.weight_unit}`}
+                            </span>
+                        </>
+                    )}
+                    {quote.freight_type === 'Equipment' &&  (
+                        <>
+                            <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
+                            <span className='text-xs text-zinc-900 text-start w-min'>{`${quote.year} ${quote.make} ${quote.model}`}<br /></span>
+                            <span className='text-xs text-zinc-900 text-start w-min'>
+                                {`${quote.length} ${quote.length_unit} x ${quote.width} ${quote.width_unit} x ${quote.height} ${quote.height_unit}, ${quote.weight} ${quote.weight_unit}`}<br />
+                            </span>
+                        </>
+                    )}
+                    {quote.freight_type === 'Auto' && (
+                        <>
+                        <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
+                         <span className='text-xs text-zinc-900 p-0 w-min'>{`${quote.auto_year} ${quote.auto_make} ${quote.auto_model}`}</span><br />
+                        <span className='text-xs text-zinc-900 text-start w-min'><strong>Condition: </strong>{` ${quote.operational_condition ? 'Operable' : 'Inoperable'}`}</span>
+                        </>
+                    )}
+                    {quote.freight_type === 'LTL/FTL' && (
+                        <>
+                            <span className='font-semibold  text-xs text-zinc-900 p-0 w-min'>Commodity Type: </span> 
+                            <span className='text-xs text-zinc-900 p-0 w-min'>{`${quote.commodity}`} </span> <br />
+                            <span className='text-xs text-zinc-900 p-0 w-min'>
+                                <strong>Unit Type: </strong>{`${quote.packaging_type}`} 
+                                <strong> - </strong>{`${quote.length} ${quote.length_unit} x ${quote.width} ${quote.width_unit} x ${quote.height} ${quote.height_unit}, ${quote.weight} ${quote.weight_unit}`}
+                            </span>
+
+                        </>
+                    )}
+                    {quote.freight_type === 'Boats' && (
+                        <>
+                            <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
+                            <span className='text-xs text-zinc-900 p-0 w-min'>{`${quote.year} ${quote.make} ${quote.model}`}</span><br />
+                            <span className='text-xs text-zinc-900 p-0 w-min'><strong>Boat Type: </strong>{`${quote.type}`}</span>
+                        </>
+                    )}
+                </div>
+            </>
+        )}
+        <div className='text-start pt-1 w-min'>
+            <span className='font-semibold text-xs text-gray-700 text-start w-min'>Freight Type:</span>
+            <span className='text-xs text-zinc-900 text-start px-1 w-min'>{quote.freight_type}</span>
+        </div>
+    </div>
+</td>
+
                                 <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
                                     <a
                                         href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${quote.origin_city}, ${quote.origin_state} ${quote.origin_zip}`)}&destination=${encodeURIComponent(`${quote.destination_city}, ${quote.destination_state} ${quote.destination_zip}`)}`}

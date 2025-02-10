@@ -393,7 +393,338 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                         </div>
                     </>
                 );
-            // Add more cases for other freight types as needed
+             case 'LTL/FTL':
+                return (
+                    <>
+                    <div className='block mb-4'>
+                        <label className='block text-sm font-medium text-gray-700'>Commodity</label>
+                        <input
+                            type='text'
+                            name='commodity'
+                            value={updatedQuote.commodity || ''}
+                            onChange={handleChange}
+                            className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
+                        />
+                    </div>
+                    <div className='block mb-4'>
+                        <label className='block text-sm font-medium text-gray-700'>Packaging</label>
+                        <input
+                            type='text'
+                            name='packaging'
+                            value={updatedQuote.packaging_type || ''}
+                            onChange={handleChange}
+                            className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
+                        />
+                    </div>
+                       <div className='flex gap-1 justify-center items-center'>
+                            <div className="flex flex-col gap-1 items-center">
+                                <label className="block text-sm font-medium text-gray-700">Length</label>
+                                <input
+                                    type="number"
+                                    name="length"
+                                    value={updatedQuote.length || ''}
+                                    onChange={handleChange}
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                />
+                            <select className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                name="length_unit"
+                                value={updatedQuote.length_unit || 'ft'}
+                                onChange={handleChange}
+                            >
+                                <option value='in'>Inches</option>
+                                <option value='ft'>Feet</option>
+                                <option value='m'>Meters</option>
+                                <option value='mm'>Millimeters</option>
+                            </select>
+                            </div>
+                            <div className="flex flex-col gap-1 items-center">
+                                <label className="block text-sm font-medium text-gray-700">Width</label>
+                                <input
+                                    type="number"
+                                    name="width"
+                                    value={updatedQuote.width || ''}
+                                    onChange={handleChange}
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                />
+                                <select className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                    name="width_unit"
+                                    value={updatedQuote.width_unit || 'ft'}
+                                    onChange={handleChange}
+                                    >
+                                    <option value='in'>Inches</option>
+                                    <option value='ft'>Feet</option>
+                                    <option value='m'>Meters</option>
+                                    <option value='mm'>Millimeters</option>
+                                    </select>
+                            </div>
+                            <div className="flex flex-col gap-1 items-center">
+                                <label className="block text-sm font-medium text-gray-700">Height</label>
+                                <input
+                                    type="number"
+                                    name="height"
+                                    value={updatedQuote.height || ''}
+                                    onChange={handleChange}
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                />
+                            <select
+                                name="height_unit"
+                                value={updatedQuote.height_unit || 'ft'}
+                                onChange={handleChange}
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                            >
+                                <option value='in'>Inches</option>
+                                <option value='ft'>Feet</option>
+                                <option value='m'>Meters</option>
+                                <option value='mm'>Millimeters</option>
+                            </select>
+                            </div>
+                            <div className="flex flex-col gap-1 items-center">
+                                <label className="block text-sm font-medium text-gray-700">Weight Per Unit</label>
+                                <input
+                                    type="number"
+                                    name="weight"
+                                    value={updatedQuote.weight || ''}
+                                    onChange={handleChange}
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                />
+                                <label className="block text-sm font-medium text-gray-700">Weight Unit</label>
+                                <select
+                                    name="weight_unit"
+                                    value={updatedQuote.weight_unit || 'lbs'}
+                                    onChange={handleChange}
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                >
+                                    <option value="lbs">lbs</option>
+                                    <option value="tons">tons</option>
+                                    <option value="kg">kg</option>
+                                    <option value="g">g</option>
+                                </select>
+                            </div>
+                       </div>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700">Freight Class</label>
+                            <input
+                                type="text"
+                                name="freight_class"
+                                value={updatedQuote.freight_class || ''}
+                                onChange={handleChange}
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700">Lift Gate</label>
+                            <select
+                                name="loading_assistance"
+                                value={updatedQuote.loading_assistance || ''}
+                                onChange={handleChange}
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                            >
+                                <option value="">Select...</option>
+                                <option value="At Origin">At Origin</option>
+                                <option value="At Destination">At Destination</option>
+                                <option value="Both Origin and Destination">Both Origin and Destination</option>
+                            </select>
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700">Dock / No Dock</label>
+                            <select
+                                name="dock_no_dock"
+                                value={updatedQuote.dock_no_dock || ''}
+                                onChange={handleChange}
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                            >
+                                <option value="">Select...</option>
+                                <option value="At Origin">At Origin</option>
+                                <option value="At Destination">At Destination</option>
+                            </select>
+                        </div>
+                    </>
+                );
+                case 'Trailers':
+                    return (
+                        <div className='flex gap-1 justify-center items-center'>
+
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700">Length</label>
+                            <input
+                                type="text"
+                                name="length"
+                                value={updatedQuote.length || ''}
+                                onChange={handleChange}
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                            />
+                            <select
+                                name="length_unit"
+                                value={updatedQuote.length_unit || 'ft'}
+                                onChange={handleChange}
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                            >
+                        <option value='ft'>Feet</option>
+                        <option value='in'>Inches</option>
+                        <option value='m'>Meters</option>
+                        <option value='mm'>Millimeters</option>
+                            </select>
+                            </div>
+                            <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700">Width</label>
+                            <input
+                                type="text"
+                                name="width"
+                                value={updatedQuote.width || ''}
+                                onChange={handleChange}
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                            />
+                            <select
+                                name="width_unit"
+                                value={updatedQuote.width_unit || 'ft'}
+                                onChange={handleChange}
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                            >
+                        <option value='ft'>Feet</option>
+                        <option value='in'>Inches</option>
+                        <option value='m'>Meters</option>
+                        <option value='mm'>Millimeters</option>
+                            </select>
+                            </div>
+                            <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700">Height</label>
+                            <input
+                                type="text"
+                                name="height"
+                                value={updatedQuote.height || ''}
+                                onChange={handleChange}
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                            />
+                            <select
+                                name="height_unit"
+                                value={updatedQuote.height_unit || 'ft'}
+                                onChange={handleChange}
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                            >
+                        <option value='ft'>Feet</option>
+                        <option value='in'>Inches</option>
+                        <option value='m'>Meters</option>
+                        <option value='mm'>Millimeters</option>
+                        </select>
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700">Weight</label>
+                            <input
+                                type="text"
+                                name="weight"
+                                value={updatedQuote.weight || ''}
+                                onChange={handleChange}
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                            />
+                            <label className="block text-sm font-medium text-gray-700">Weight Unit</label>
+                            <select
+                                name="weight_unit"
+                                value={updatedQuote.weight_unit || 'lbs'}
+                                onChange={handleChange}
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                            >
+                                <option value="lbs">lbs</option>
+                                <option value="tons">tons</option>
+                                <option value="kg">kg</option>
+                                <option value="g">g</option>
+                            </select>
+                        </div>
+                      
+                        </div>
+                    )
+                case 'Auto':
+                    return (
+                       <div>
+                            <div className='flex gap-1 justify-center items-center mt-4 '>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">Year</label>
+                                <input
+                                    type="text"
+                                    name="year"
+                                    value={updatedQuote.auto_year || ''}
+                                    onChange={handleChange}
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">Make</label>
+                                <input
+                                    type="text"
+                                    name="make"
+                                    value={updatedQuote.auto_make || ''}
+                                    onChange={handleChange}
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">Model</label>
+                                <input
+                                    type="text"
+                                    name="model"
+                                    value={updatedQuote.auto_model || ''}
+                                    onChange={handleChange}
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                />
+                            </div>
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">VIN</label>
+                                <input
+                                    type="text"
+                                    name="vin"
+                                    value={updatedQuote.vin || ''}
+                                    onChange={handleChange}
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">Operational Condition</label>
+                                <select
+                                    name="operational_condition"
+                                    value={updatedQuote.operational_condition === null ? '' : updatedQuote.operational_condition ? 'operable' : 'inoperable'}
+                                    onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'operable' ? 'true' : 'false' } })}
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                >
+                                    <option value="">Select...</option>
+                                    <option value="operable">Operable</option>
+                                    <option value="inoperable">Inoperable</option>
+                                </select>
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">Running</label>
+                                <select
+                                    name="running"
+                                    value={updatedQuote.operational_condition === null ? '' : updatedQuote.operational_condition ? 'yes' : 'no'}
+                                    onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'yes' ? 'true' : 'false' } })}
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                >
+                                    <option value="">Select...</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">Pickup Date</label>
+                                <input
+                                    type="date"
+                                    name="due_date"
+                                    value={updatedQuote.due_date || ''}
+                                    onChange={handleChange}
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">Notes</label>
+                                <textarea
+                                    name="notes"
+                                    value={updatedQuote.notes || ''}
+                                    onChange={handleChange}
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                />
+                            </div>
+                           
+                       </div>
+                    )
             default:
                 return null;
         }

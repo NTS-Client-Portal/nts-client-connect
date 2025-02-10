@@ -1539,6 +1539,9 @@ export type Database = {
         Row: {
           assigned_sales_user: string | null
           auction: string | null
+          auto_make: string | null
+          auto_model: string | null
+          auto_year: string | null
           beam: string | null
           brokers_status: string | null
           buyer_number: string | null
@@ -1562,7 +1565,7 @@ export type Database = {
           destination_type: boolean | null
           destination_type_description: string | null
           destination_zip: string | null
-          dock_no_dock: boolean | null
+          dock_no_dock: string | null
           driveaway_or_towaway: boolean | null
           due_date: string | null
           earliest_pickup_date: string | null
@@ -1629,6 +1632,9 @@ export type Database = {
         Insert: {
           assigned_sales_user?: string | null
           auction?: string | null
+          auto_make?: string | null
+          auto_model?: string | null
+          auto_year?: string | null
           beam?: string | null
           brokers_status?: string | null
           buyer_number?: string | null
@@ -1652,7 +1658,7 @@ export type Database = {
           destination_type?: boolean | null
           destination_type_description?: string | null
           destination_zip?: string | null
-          dock_no_dock?: boolean | null
+          dock_no_dock?: string | null
           driveaway_or_towaway?: boolean | null
           due_date?: string | null
           earliest_pickup_date?: string | null
@@ -1719,6 +1725,9 @@ export type Database = {
         Update: {
           assigned_sales_user?: string | null
           auction?: string | null
+          auto_make?: string | null
+          auto_model?: string | null
+          auto_year?: string | null
           beam?: string | null
           brokers_status?: string | null
           buyer_number?: string | null
@@ -1742,7 +1751,7 @@ export type Database = {
           destination_type?: boolean | null
           destination_type_description?: string | null
           destination_zip?: string | null
-          dock_no_dock?: boolean | null
+          dock_no_dock?: string | null
           driveaway_or_towaway?: boolean | null
           due_date?: string | null
           earliest_pickup_date?: string | null

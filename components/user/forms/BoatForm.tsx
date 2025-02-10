@@ -12,7 +12,12 @@ const BoatForm: React.FC<BoatFormProps> = ({
     const [beam, setBeam] = useState<string | null>(null);
     const [cradle, setCradle] = useState<string | null>(null);
     const [height, setHeight] = useState<string | null>(null);
+    const [heightUnit, setHeightUnit] = useState<string | null>(null);
     const [length, setLength] = useState<string | null>(null);
+    const [lengthUnit, setLengthUnit] = useState<string | null>(null);
+    const [year, setYear] = useState<string | null>(null);
+    const [make, setMake] = useState<string | null>(null);
+    const [model, setModel] = useState<string | null>(null);
     const [trailer, setTrailer] = useState<string | null>(null);
     const [boatType, setBoatType] = useState<string | null>(null); // Rename type to boatType
     const [weight, setWeight] = useState<string | null>(null);
@@ -27,18 +32,59 @@ const BoatForm: React.FC<BoatFormProps> = ({
             trailer: trailer === 'yes',
             type: boatType, // Use boatType here
             weight,
-            value,
+            year,
+            make,
+            model,
+            length_unit: lengthUnit,
+            height_unit: heightUnit,
+            goods_value: value,
         };
 
         setFormData(formData);
-    }, [beam, cradle, height, length, value, trailer, boatType, weight, setFormData]);
+    }, [beam, year, make, model, lengthUnit, heightUnit, cradle, height, length, value, trailer, boatType, weight, setFormData]);
 
     return (
         <div className="flex flex-col gap-3">
-                        <div className='flex flex-col md:flex-row gap-2'>
+            <div className='flex flex-col md:flex-row gap-2'>
+            <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Year
+                <input
+                    className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md placeholder:text-sm"
+                    type="text"
+                    placeholder='e.g. 2020'
+                    value={year || ''}
+                    onChange={(e) => {
+                        setErrorText('');
+                        setYear(e.target.value);
+                    }}
+                />
+            </label>
+            <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Manufacturer
+                <input
+                    className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md placeholder:text-sm"
+                    placeholder='Bayliner, Sea Ray, etc.'
+                    value={make || ''}
+                    onChange={(e) => {
+                        setErrorText('');
+                        setMake(e.target.value);
+                    }}
+                />
+            </label>
+            <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Model
+                <input
+                    className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md placeholder:text-sm"
+                    placeholder='185 Bowrider, 240 Sundancer, etc.'
+                    value={model || ''}
+                    onChange={(e) => {
+                        setErrorText('');
+                        setModel(e.target.value);
+                    }}
+                />
+            </label>    
+             </div>
+            <div className='flex flex-col md:flex-row gap-2'>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Boat Type
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
+                        className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md placeholder:text-sm"
                         type="text"
                         placeholder='Sailboat, Houseboat, Yacht, etc.'
                         value={boatType || ''} // Use boatType here
@@ -78,7 +124,7 @@ const BoatForm: React.FC<BoatFormProps> = ({
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Value
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
+                        className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md placeholder:text-sm"
                         type="text"
                         placeholder='e.g. $80,000'
                         value={value || ''}
@@ -92,7 +138,7 @@ const BoatForm: React.FC<BoatFormProps> = ({
             <div className='flex flex-col md:flex-row gap-2'>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Length
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
+                        className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md placeholder:text-sm"
                         type="text"
                         placeholder="20&apos; 6&quot;"
                         value={length || ''}
@@ -104,7 +150,7 @@ const BoatForm: React.FC<BoatFormProps> = ({
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Beam
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
+                        className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md placeholder:text-sm"
                         type="text"
                         placeholder="8&apos; 6&quot;"
                         value={beam || ''}
@@ -116,7 +162,7 @@ const BoatForm: React.FC<BoatFormProps> = ({
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Height
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
+                        className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md placeholder:text-sm"
                         type="text"
                         placeholder="9&apos; 6&quot;"
                         value={height || ''}
@@ -128,7 +174,7 @@ const BoatForm: React.FC<BoatFormProps> = ({
                 </label>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Weight
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
+                        className="rounded dark:text-zinc-800 w-full p-1 py-1.5 border border-zinc-900/30 shadow-md placeholder:text-sm"
                         type="text"
                         placeholder='e.g. 20,000'
                         value={weight || ''}

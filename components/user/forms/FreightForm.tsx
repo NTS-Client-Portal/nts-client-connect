@@ -11,8 +11,11 @@ const FreightForm: React.FC<FreightFormProps> = ({
 }) => {
     const [loadDescription, setLoadDescription] = useState('');
     const [length, setLength] = useState('');
+    const [lengthUnit, setLengthUnit] = useState('in');
     const [height, setHeight] = useState('');
+    const [heightUnit, setHeightUnit] = useState('in');
     const [width, setWidth] = useState('');
+    const [widthUnit, setWidthUnit] = useState('lbs');
     const [weight, setWeight] = useState('');
     const [weightUnit, setWeightUnit] = useState('lbs');
     const [freightClass, setFreightClass] = useState('');
@@ -24,7 +27,7 @@ const FreightForm: React.FC<FreightFormProps> = ({
 
     useEffect(() => {
         const formData = {
-            load_description: loadDescription,
+            commodity: loadDescription,
             length,
             width,
             height,
@@ -44,43 +47,96 @@ const FreightForm: React.FC<FreightFormProps> = ({
     return (
         <div className="flex flex-col gap-3">
             <div className='flex flex-col md:flex-row gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Length
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                        type="text"
-                        placeholder="20&apos; 6&quot;"
-                        value={length}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setLength(e.target.value);
-                        }}
-                    />
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Width
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                        type="text"
-                        placeholder="7&apos; 6&quot;"
-                        value={width}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setWidth(e.target.value);
-                        }}
-                    />
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Height
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                        type="text"
-                        placeholder="9&apos; 6&quot;"
-                        value={height}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setHeight(e.target.value);
-                        }}
-                    />
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Total Freight Value
+                <div className='flex flex-col gap-1'>
+                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Length
+                        <input
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                            type="text"
+                            placeholder="48"
+                            value={length}
+                            onChange={(e) => {
+                                setErrorText('');
+                                setLength(e.target.value);
+                            }}
+                        />
+                    </label>
+                    <select className='rounded bg-white p-1 border border-zinc-900/30 shadow-md' value={lengthUnit} onChange={(e) => setLengthUnit(e.target.value)}>
+                        <option value="in">in</option>
+                        <option value="ft">ft</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+                <div className='flex flex-col gap-1'>
+                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Width
+                        <input
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                            type="text"
+                            placeholder="48"
+                            value={width}
+                            onChange={(e) => {
+                                setErrorText('');
+                                setWidth(e.target.value);
+                            }}
+                        />
+                    </label>
+                    <select className='rounded bg-white p-1 border border-zinc-900/30 shadow-md' value={widthUnit} onChange={(e) => setWidthUnit(e.target.value)}>
+                        <option value="in">in</option>
+                        <option value="ft">ft</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+
+                <div className='flex flex-col gap-1'>
+                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Height
+                        <input
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                            type="text"
+                            placeholder="48"
+                            value={height}
+                            onChange={(e) => {
+                                setErrorText('');
+                                setHeight(e.target.value);
+                            }}
+                        />
+                    </label>
+                    <select className='rounded bg-white p-1 border border-zinc-900/30 shadow-md' value={heightUnit} onChange={(e) => setHeightUnit(e.target.value)}>
+                        <option value="in">in</option>
+                        <option value="ft">ft</option>
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+                <div className='flex flex-col gap-1'>
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Weight Per Unit
+                        <input
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                            type="text"
+                            placeholder='e.g. 1,500'
+                            value={weight}
+                            onChange={(e) => {
+                                setErrorText('');
+                                setWeight(e.target.value);
+                            }}
+                        /></label>
+                           
+                        <select
+                            className="rounded bg-white p-1 border border-zinc-900/30 shadow-md"
+                            value={weightUnit}
+                            onChange={(e) => setWeightUnit(e.target.value)}
+                        >
+                            <option value="lbs">lbs</option>
+                            <option value="tons">tons</option>
+                            <option value="kg">kg</option>
+                            <option value="g">g</option>
+                        </select>
+                </div>
+
+            </div>
+
+            <div className='flex flex-col md:flex-row gap-2'>
+            <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Total Freight Value
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
                         type="text"
@@ -92,33 +148,7 @@ const FreightForm: React.FC<FreightFormProps> = ({
                         }}
                     /> 
                 </label>
-            </div>
-
-            <div className='flex flex-col md:flex-row gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Weight Per Pallet
-                    <div className="flex items-center">
-                        <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                            type="text"
-                            placeholder='e.g. 30,000'
-                            value={weight}
-                            onChange={(e) => {
-                                setErrorText('');
-                                setWeight(e.target.value);
-                            }}
-                        />
-                        <select
-                            className="rounded bg-white p-1 border border-zinc-900/30 shadow-md ml-2"
-                            value={weightUnit}
-                            onChange={(e) => setWeightUnit(e.target.value)}
-                        >
-                            <option value="lbs">lbs</option>
-                            <option value="tons">tons</option>
-                            <option value="kg">kg</option>
-                            <option value="g">g</option>
-                        </select>
-                    </div>
-                </label>
+                
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Freight Class
                     <input
                         className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
@@ -149,7 +179,7 @@ const FreightForm: React.FC<FreightFormProps> = ({
                         <option value="Both Origin and Destination">Both Origin and Destination</option>
                     </select>
                 </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Dock / No Dock
+                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Docks Available?
                     <select
                         className="rounded bg-white w-full p-1 border border-zinc-900/30 shadow-md text-zinc-600"
                         value={dockNoDock}

@@ -38,17 +38,17 @@ const SelectOption: React.FC<SelectOptionProps> = ({
                     }}
                 >
                     <option value="">select...</option>
-                    <option value="equipment">Equipment/Machinery</option>
-                    <option value="containers">Containers</option>
-                    <option value="semi_trucks">Semi Trucks</option>
-                    <option value="ltl_ftl">LTL/FTL</option>
-                    <option value="auto">Auto</option>
-                    <option value="rv_trailers">Trailers/RV/Camplers</option>
-                    <option value="boats">Boats</option>
+                    <option value="Equipment">Equipment/Machinery</option>
+                    <option value="Containers">Containers</option>
+                    <option value="Semi/Heavy Duty Trucks">Semi Trucks</option>
+                    <option value="LTL/FTL">LTL/FTL</option>
+                    <option value="Auto">Auto</option>
+                    <option value="Trailers">Trailers/RV/Camplers</option>
+                    <option value="Boats">Boats</option>
                 </select>
             </label>
 
-            {selectedOption === 'equipment' && (
+            {selectedOption === 'Equipment' && (
                 <EquipmentForm
                     setFormData={setFormData}
                     setErrorText={setErrorText}
@@ -56,41 +56,42 @@ const SelectOption: React.FC<SelectOptionProps> = ({
                 />
             )}
 
-            {selectedOption === 'ltl_ftl' && (
+            {selectedOption === 'LTL/FTL' && (
                 <FreightForm
                     setFormData={setFormData}
                     setErrorText={setErrorText}
                 />
             )}
 
-            {selectedOption === 'containers' && (
+            {selectedOption === 'Containers' && (
                 <ContainerForm
                     setFormData={setFormData}
                     setErrorText={setErrorText}
                 />
             )}
 
-            {selectedOption === 'rv_trailers' && (
+            {selectedOption === 'Trailers' && (
                 <RvTrailerForm
                     setFormData={setFormData}
                     setErrorText={setErrorText}
                 />
             )}
 
-            {selectedOption === 'semi_trucks' && (
+            {selectedOption === 'Semi/Heavy Duty Trucks' && (
                 <SemiTruckForm
                     setFormData={setFormData}
                     setErrorText={setErrorText}
                 />
             )}
-            {selectedOption === 'auto' && (
+            {selectedOption === 'Auto' && (
                 <AutoForm
                     setFormData={setFormData}
                     setErrorText={setErrorText}
+                    formData={formData}
                 />
             )}
 
-            {selectedOption === 'boats' && (
+            {selectedOption === 'Boats' && (
                 <BoatForm
                     setFormData={setFormData}
                     setErrorText={setErrorText}

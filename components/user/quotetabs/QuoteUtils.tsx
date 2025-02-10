@@ -18,7 +18,7 @@ export const formatDate = (dateString: string | null) => {
 
 export const renderAdditionalDetails = (quote: any) => {
     switch (quote.freight_type) {
-        case 'equipment':
+        case 'Equipment':
             return (
                 <>
                     <div className="grid grid-cols-3">
@@ -28,6 +28,7 @@ export const renderAdditionalDetails = (quote: any) => {
                                 <div><strong>Year:</strong> {quote.year}</div>
                                 <div><strong>Make:</strong> {quote.make}</div>
                                 <div><strong>Model:</strong> {quote.model}</div>
+                          
                             </div>
                             <div className="flex flex-col">
                                 <h3 className="text-zinc-800 font-bold text-lg mt-1">Shipment Details</h3>
@@ -67,7 +68,7 @@ export const renderAdditionalDetails = (quote: any) => {
                     </div>
                 </>
             );
-        case 'containers':
+        case 'Containers':
             return (
                 <>
                     <div className="grid grid-cols-3">
@@ -90,7 +91,7 @@ export const renderAdditionalDetails = (quote: any) => {
                     </div>
                 </>
             );
-        case 'rv_trailers':
+        case 'Trailers':
             return (
                 <>
                     <div><strong>Class Type:</strong> {quote.class_type}</div>
@@ -102,7 +103,7 @@ export const renderAdditionalDetails = (quote: any) => {
                     <div><strong>Year:</strong> {quote.year}</div>
                 </>
             );
-        case 'semi_trucks':
+        case 'Semi/Heavy Duty Trucks':
             return (
                 <>
                     <div><strong>Driveaway or Towaway:</strong> {quote.driveaway_or_towaway ? 'Driveaway' : 'Towaway'}</div>
@@ -116,7 +117,7 @@ export const renderAdditionalDetails = (quote: any) => {
                     <div><strong>Year:</strong> {quote.year}</div>
                 </>
             );
-        case 'boats':
+        case 'Boats':
             return (
                 <>
                     <div><strong>Beam:</strong> {quote.beam}</div>
@@ -128,15 +129,32 @@ export const renderAdditionalDetails = (quote: any) => {
                     <div><strong>Weight:</strong> {quote.weight}</div>
                 </>
             );
-        case 'ltl_ftl':
+        case 'LTL/FTL':
             return (
                 <>
-                    <div><strong>Load Description:</strong> {quote.load_description}</div>
+                    <div><strong>Load Description:</strong> {quote.commodity}</div>
                     <div><strong>Freight Class:</strong> {quote.freight_class}</div>
                     <div><strong>Loading Assistance:</strong> {quote.loading_assistance}</div>
                     <div><strong>Packaging Type:</strong> {quote.packaging_type}</div>
+                    <div><strong>Length</strong>{quote.length}</div>
+                    <div><strong>Width</strong>{quote.width}</div>
+                    <div><strong>Height</strong>{quote.height}</div>
+
                     <div><strong>Weight per Pallet/Unit:</strong> {quote.weight_per_pallet_unit}</div>
+                    <div><strong>Number of Pallets/Units:</strong> {quote.number_of_pallets_units}</div>
+                    <div><strong>Stackable:</strong> {quote.stackable ? 'Yes' : 'No'}</div>
                     <div><strong>Dock / No Dock:</strong> {quote.dock_no_dock ? 'Dock' : 'No Dock'}</div>
+                </>
+            );
+        case 'Auto':
+            return (
+                <>
+                    <div><strong>Year:</strong> {quote.auto_year}</div>
+                    <div><strong>Make:</strong> {quote.auto_make}</div>
+                    <div><strong>Model:</strong> {quote.auto_model}</div>
+                    <div><span className="font-semibold text-zinc-900">Condition:</span> {quote.operational_condition ? 'Operable' : 'Inoperable'}</div>
+                    <div><strong>Value:</strong> {quote.value || 'N/A'}</div>
+                    <div><strong>VIN:</strong> {quote.vin || 'N/A'}</div>
                 </>
             );
         default:

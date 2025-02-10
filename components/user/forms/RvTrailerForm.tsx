@@ -21,6 +21,10 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
     const [length, setLength] = useState<string | null>(null);
     const [width, setWidth] = useState<string | null>(null);
     const [weight, setWeight] = useState<string | null>(null);
+    const [lengthUnit, setLengthUnit] = useState('ft');
+    const [weightUnit, setWeightUnit] = useState('lbs');
+    const [widthUnit, setWidthUnit] = useState('ft');
+    const [heightUnit, setHeightUnit] = useState('ft');
 
     useEffect(() => {
         const formData = {
@@ -36,10 +40,14 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
             length,
             width,
             weight,
+            length_unit: lengthUnit,
+            weight_unit: weightUnit,
+            width_unit: widthUnit,
+            height_unit: heightUnit,
         };
 
         setFormData(formData);
-    }, [classType, make, model, motorizedOrTrailer, roadworthy, height, length, width, weight, vin, value, year, setFormData]);
+    }, [classType, make, model, heightUnit, widthUnit, weightUnit, lengthUnit, motorizedOrTrailer, roadworthy, height, length, width, weight, vin, value, year, setFormData]);
 
     return (
         <div className="flex flex-col gap-3">
@@ -82,56 +90,111 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
                 </label>
             </div>
             <div className='flex flex-col md:flex-row gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Length
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                        type="text"
-                        placeholder='e.g. 30ft'
-                        value={length || ''}
+                <div className='flex flex-col md:flex-row gap-2'>
+                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Length
+                        <input
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                            type="text"
+                            placeholder='e.g. 30ft'
+                            value={length || ''}
+                            onChange={(e) => {
+                                setErrorText('');
+                                setLength(e.target.value);
+                            }}
+                        />
+                    <select className="rounded bg-white w-full py-1.5 px-1 border border-zinc-900/30 shadow-md"
+                        value={lengthUnit}
                         onChange={(e) => {
                             setErrorText('');
-                            setLength(e.target.value);
+                            setLengthUnit(e.target.value);
                         }}
-                    />
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Width
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                        type="text"
-                        placeholder='e.g. 8ft'
-                        value={width || ''}
+                        >
+                        <option value='ft'>Feet</option>
+                        <option value='in'>Inches</option>
+                        <option value='m'>Meters</option>
+                        <option value='mm'>Millimeters</option>
+                    </select>
+                        </label>
+                </div>
+               <div className='flex flex-col md:flex-row gap-2'>
+                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Width
+                        <input
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                            type="text"
+                            placeholder='e.g. 8ft'
+                            value={width || ''}
+                            onChange={(e) => {
+                                setErrorText('');
+                                setWidth(e.target.value);
+                            }}
+                        />
+                    <select className="rounded bg-white w-full py-1.5 px-1 border border-zinc-900/30 shadow-md"
+                        value={widthUnit}
                         onChange={(e) => {
                             setErrorText('');
-                            setWidth(e.target.value);
+                            setWidthUnit(e.target.value);
                         }}
-                    />
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Height
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                        type="text"
-                        placeholder='e.g. 9ft'
-                        value={height || ''}
+                        >
+                        <option value='ft'>Feet</option>
+                        <option value='in'>Inches</option>
+                        <option value='m'>Meters</option>
+                        <option value='mm'>Millimeters</option>
+                    </select>
+                        </label>
+               </div>
+               <div className='flex flex-col md:flex-row gap-2'>
+                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Height
+                        <input
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                            type="text"
+                            placeholder='e.g. 9ft'
+                            value={height || ''}
+                            onChange={(e) => {
+                                setErrorText('');
+                                setHeight(e.target.value);
+                            }}
+                        />
+                    <select className="rounded bg-white w-full py-1.5 px-1 border border-zinc-900/30 shadow-md"
+                        value={heightUnit}
                         onChange={(e) => {
                             setErrorText('');
-                            setHeight(e.target.value);
+                            setHeightUnit(e.target.value);
                         }}
-                    />
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Weight
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                        type="text"
-                        placeholder='e.g. 20,000'
-                        value={weight || ''}
+                        >
+                        <option value='ft'>Feet</option>
+                        <option value='in'>Inches</option>
+                        <option value='m'>Meters</option>
+                        <option value='mm'>Millimeters</option>
+                    </select>
+                        </label>
+               </div>
+                <div className='flex flex-col md:flex-row gap-2'>
+                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Weight
+                        <input
+                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                            type="text"
+                            placeholder='e.g. 20,000'
+                            value={weight || ''}
+                            onChange={(e) => {
+                                setErrorText('');
+                                setWeight(e.target.value);
+                            }}
+                        />
+                    <select className="rounded bg-white w-full py-1.5 px-1 border border-zinc-900/30 shadow-md"
+                        value={weightUnit}
                         onChange={(e) => {
                             setErrorText('');
-                            setWeight(e.target.value);
+                            setWeightUnit(e.target.value);
                         }}
-                    />
-                </label>
+                        >
+                        <option value='lbs'>Pounds</option>
+                        <option value='kg'>Kilograms</option>
+                        <option value='tons'>Tons</option>
+                    </select>
+                    </label>
+                </div>
             </div>
-            
+
 
             <div className='flex flex-col md:flex-row gap-2'>
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Class Type (if applicable)

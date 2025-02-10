@@ -30,12 +30,14 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
     const [buyerNumber, setBuyerNumber] = useState(formData.buyer_number || '');
     const [lotNumber, setLotNumber] = useState(formData.lot_number || '');
     const [value, setValue] = useState(formData.value || '');
+    const [vin, setVin] = useState(formData.vin || '');
 
     useEffect(() => {
         const updatedFormData = {
             year: year.toString(),
             make,
             model,
+            vin,
             length: length.toString(),
             length_unit: lengthUnit,
             width: width.toString(),
@@ -54,7 +56,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
         };
 
         setFormData(updatedFormData);
-    }, [year, make, model, length, value, lengthUnit, width, widthUnit, height, heightUnit, weight, weightUnit, operationalCondition, loadingUnloadingRequirements, tarping, isAuction, auction, buyerNumber, lotNumber, setFormData]);
+    }, [year, make, model, vin, length, value, lengthUnit, width, widthUnit, height, heightUnit, weight, weightUnit, operationalCondition, loadingUnloadingRequirements, tarping, isAuction, auction, buyerNumber, lotNumber, setFormData]);
 
     return (
         <div className="flex flex-col gap-3">
@@ -219,7 +221,20 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                         <option value="inoperable">Inoperable</option>
                     </select>
                 </label>
-
+                <label className='text-zinc-900 font-medium w-full'>Vin Number
+                    <input
+                        className="rounded dark:text-zinc-800 w-full px-1 py-1.5 border border-zinc-900/30 shadow-md"
+                        type="text"
+                        placeholder='op'
+                        value={vin}
+                        onChange={(e) => {
+                            setErrorText('');
+                            setVin(e.target.value);
+                        }}
+                    />
+                </label>
+                                   
+                    
                 <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Coming from an auction/dealer?
                     <select
                         className="rounded w-full bg-white px-1 py-1.5 border border-zinc-900/30 shadow-md"
