@@ -49,7 +49,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
 
             return profiles;
         },
-        [supabase]
+        []
     );
 
     const fetchOrders = useCallback(
@@ -68,7 +68,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
 
             return orders;
         },
-        [supabase]
+        []
     );
 
     const fetchOrdersForNtsUsers = useCallback(
@@ -114,7 +114,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
 
             return orders;
         },
-        [supabase]
+        []
     );
 
     const fetchInitialQuotes = useCallback(async () => {
@@ -151,7 +151,6 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
         }
     }, [
         session,
-        supabase,
         fetchProfiles,
         fetchOrders,
         fetchOrdersForNtsUsers,
@@ -201,7 +200,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
         };
 
         checkUserType();
-    }, [session, fetchQuotes, fetchOrdersForNtsUsers, fetchOrders, companyId]);
+    }, [session, fetchQuotes, fetchOrdersForNtsUsers, fetchOrders, fetchProfiles, companyId]);
 
     useEffect(() => {
         const filteredAndSorted = quotes
@@ -385,7 +384,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
     return (
         <div className="w-full bg-white  shadow rounded-md max-h-max flex-grow">
             {!!errorText && <div className="text-red-500">{errorText}</div>}
-            <div className="hidden xl:block overflow-x-auto">
+            <div className="hidden xl:block overflow-x-auto md:overflow-x-hidden">
                 <OrderTable
                     sortConfig={{ column: 'id', order: 'asc' }}
                     handleSort={handleSort}

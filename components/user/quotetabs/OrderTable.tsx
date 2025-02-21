@@ -283,12 +283,15 @@ const OrderTable: React.FC<OrderTableProps> = ({
                 />
             </div>
            
-                <table className="w-[90%] divide-y divide-zinc-200 border">
+                <table className="w-full divide-y divide-zinc-200 border">
                     <thead className="bg-ntsBlue border-2 border-t-orange-500 static top-0 w-full text-white">
                         <tr >
                             <th className="px-6 py-3 text-left text-xs text-nowrap font-semibold uppercase ">
                                 <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
                             </th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold tracking-wider">
+                            Notes
+                           </th>
                             <th className="px-6 py-3 text-left text-xs font-semibold uppercase ">
                                 <TableHeaderSort column="freight_type" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
                             </th>
@@ -317,6 +320,9 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                 >
                                     <td className="px-6 py-3 w-[30px] whitespace-nowrap text-sm font-medium text-gray-900  border border-gray-200">
                                         {order.id}
+                                    </td>
+                                    <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900  border border-gray-200">
+                                        {order.notes}
                                     </td>
                                     <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900  border border-gray-200">
                                         <div className=''>
