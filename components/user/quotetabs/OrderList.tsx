@@ -473,7 +473,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                 )}
             </Modal>
             {isEditMode && (
-                <Modal isOpen={isEditMode} onClose={() => setIsEditMode(false)}>
+                <Modal className='w-1/3' isOpen={isEditMode} onClose={() => setIsEditMode(false)}>
                     <h2 className="text-xl mb-4">Edit Quote</h2>
                     <form onSubmit={handleEditSubmit}>
                         <div className="mb-4">
@@ -486,7 +486,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                                 name="origin_street"
                                 value={editData.origin_street || ''}
                                 onChange={handleEditChange}
-                                className="mt-1 p-2 border border-zinc-300 rounded w-full"
+                                className="mt-1 p-2 border border-zinc-300 rounded w-fit-content"
                             />
                         </div>
                         <div className="mb-4">
@@ -499,10 +499,38 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                                 name="destination_street"
                                 value={editData.destination_street || ''}
                                 onChange={handleEditChange}
-                                className="mt-1 p-2 border border-zinc-300 rounded w-full"
+                                className="mt-1 p-2 border border-zinc-300 rounded w-fit-content"
                             />
                         </div>
-                        <button onClick={handleEditSubmit} className="btn-slate">
+                        <div className="mb-4 flex gap-4">
+                            <div className='flex flex-col gap-2'>
+                                <label htmlFor="earliest_pickup_date" className="block text-sm text-zinc-700">
+                                    Earlies Pickup Date
+                                </label>
+                                <input
+                                    type="date"
+                                    id="earliest_pickup_date"
+                                    name="earliest_pickup_date"
+                                    value={editData.earliest_pickup_date || ''}
+                                    onChange={handleEditChange}
+                                    className="mt-1 p-2 border border-zinc-300 rounded w-full"
+                                />
+                            </div>
+                            <div className='flex flex-col gap-2'>
+                                <label htmlFor="latest_pickup_date" className="block text-sm text-zinc-700">
+                                    Latest Pickup Date
+                                </label>
+                                <input
+                                    type="date"
+                                    id="latest_pickup_date"
+                                    name="latest_pickup_date"
+                                    value={editData.latest_pickup_date || ''}
+                                    onChange={handleEditChange}
+                                    className="mt-1 p-2 border border-zinc-300 rounded w-full"
+                                />  
+                            </div>                       
+                        </div>
+                        <button onClick={handleEditSubmit} className="px-4 py-2 bg-blue-500 text-white rounded">
                             Submit Changes
                         </button>
                     </form>

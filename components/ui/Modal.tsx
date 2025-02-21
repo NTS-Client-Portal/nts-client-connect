@@ -4,6 +4,7 @@ interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
     children: React.ReactNode;
+    className?: string;
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
@@ -11,7 +12,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
 
     return (
         <div className="fixed z-50 inset-0 w-full bg-zinc-600 dark:bg-zinc-300 dark:bg-opacity-50 bg-opacity-50 flex justify-center items-center">
-            <div className="relative z-50 bg-white dark:bg-zinc-900 dark:text-zinc-100 rounded-lg shadow-lg p-6 w-full max-w-4xl h-min">
+            <div className="relative z-50 bg-white dark:bg-zinc-900 dark:text-zinc-100 rounded-lg shadow-lg p-6 w-auto max-w-4xl h-min">
                 <div className="flex justify-end">
                     <button className="text-zinc-600 dark:text-white text-2xl" onClick={onClose}>
                         &times;

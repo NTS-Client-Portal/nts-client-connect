@@ -393,6 +393,71 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                         </div>
                     </>
                 );
+             case 'Boats':
+                return (
+                    <>
+                    <div className='block mb-4'>
+                        <label className='block text-sm font-medium text-gray-700'>Year</label>
+                        <input
+                            type='text'
+                            name='year'
+                            value={updatedQuote.year || ''}
+                            onChange={handleChange}
+                            className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
+                        />
+                    </div>
+                    <div className='block mb-4'>
+                        <label className='block text-sm font-medium text-gray-700'>Make</label>
+                        <input
+                            type='text'
+                            name='make'
+                            value={updatedQuote.make || ''}
+                            onChange={handleChange}
+                            className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
+                        />
+                    </div>
+                    <div className='block mb-4'>
+                        <label className='block text-sm font-medium text-gray-700'>Model</label>
+                        <input
+                            type='text'
+                            name='model'
+                            value={updatedQuote.model || ''}
+                            onChange={handleChange}
+                            className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
+                        />
+                    </div>
+                    <div className='block mb-4'>
+                        <label className='block text-sm font-medium text-gray-700'>Length</label>
+                        <input
+                            type='text'
+                            name='length'
+                            value={updatedQuote.length || ''}
+                            onChange={handleChange}
+                            className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
+                        />
+                    </div>
+                    <div className='block mb-4'>
+                        <label className='block text-sm font-medium text-gray-700'>Beam</label>
+                        <input
+                            type='text'
+                            name='width'
+                            value={updatedQuote.width || ''}
+                            onChange={handleChange}
+                            className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
+                        />
+                    </div>
+                    <div className='block mb-4'>
+                        <label className='block text-sm font-medium text-gray-700'>Height</label>
+                        <input
+                            type='text'
+                            name='height'
+                            value={updatedQuote.height || ''}
+                            onChange={handleChange}
+                            className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
+                        />
+                    </div>
+                    </>
+                );
              case 'LTL/FTL':
                 return (
                     <>
@@ -769,8 +834,18 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                             <input type="hidden" value={destinationZip} />
                         </div>
                     </div>
+                    <div>
+                        <label className='block text-sm font-medium text-gray-700'>Requested Shipping Date</label>
+                        <input
+                            type='date'
+                            name='due_date'
+                            value={updatedQuote.due_date || ''}
+                            onChange={handleChange}
+                            className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
+                        />
+                    </div>
                     {renderInputFields()}
-                    <div className="flex justify-end pb-4">
+                    <div className="flex justify-end py-4">
                         <button type="button" onClick={onClose} className="mr-2 px-4 py-2 bg-gray-300 rounded">
                             Cancel
                         </button>
