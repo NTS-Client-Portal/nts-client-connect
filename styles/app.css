@@ -970,6 +970,10 @@ body:is(.dark *) {
   margin-right: 1rem;
 }
 
+.mt-0 {
+  margin-top: 0px;
+}
+
 .mt-1 {
   margin-top: 0.25rem;
 }
@@ -988,6 +992,10 @@ body:is(.dark *) {
 
 .mt-20 {
   margin-top: 5rem;
+}
+
+.mt-28 {
+  margin-top: 7rem;
 }
 
 .mt-3 {
@@ -1096,6 +1104,10 @@ body:is(.dark *) {
 
 .h-3\.5 {
   height: 0.875rem;
+}
+
+.h-32 {
+  height: 8rem;
 }
 
 .h-4 {
@@ -1258,6 +1270,10 @@ body:is(.dark *) {
   width: 75%;
 }
 
+.w-32 {
+  width: 8rem;
+}
+
 .w-4 {
   width: 1rem;
 }
@@ -1351,6 +1367,10 @@ body:is(.dark *) {
 .w-min {
   width: -moz-min-content;
   width: min-content;
+}
+
+.w-screen {
+  width: 100vw;
 }
 
 .min-w-\[8rem\] {
@@ -2019,6 +2039,11 @@ body:is(.dark *) {
   background-color: rgb(249 250 251 / var(--tw-bg-opacity, 1));
 }
 
+.bg-gray-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(107 114 128 / var(--tw-bg-opacity, 1));
+}
+
 .bg-gray-950 {
   --tw-bg-opacity: 1;
   background-color: rgb(3 7 18 / var(--tw-bg-opacity, 1));
@@ -2481,6 +2506,34 @@ body:is(.dark *) {
   line-height: 1rem;
 }
 
+.text-\[14em\] {
+  font-size: 14em;
+}
+
+.text-\[14rem\] {
+  font-size: 14rem;
+}
+
+.text-\[2rem\] {
+  font-size: 2rem;
+}
+
+.text-\[1rem\] {
+  font-size: 1rem;
+}
+
+.text-\[1em\] {
+  font-size: 1em;
+}
+
+.text-\[1\.5em\] {
+  font-size: 1.5em;
+}
+
+.text-\[14px\] {
+  font-size: 14px;
+}
+
 .font-bold {
   font-weight: 700;
 }
@@ -2503,6 +2556,10 @@ body:is(.dark *) {
 
 .font-semibold {
   font-weight: 600;
+}
+
+.font-thin {
+  font-weight: 100;
 }
 
 .uppercase {
@@ -3799,6 +3856,11 @@ main:is(.dark *) {
   background-color: rgb(156 163 175 / var(--tw-bg-opacity, 1));
 }
 
+.hover\:bg-gray-600:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(75 85 99 / var(--tw-bg-opacity, 1));
+}
+
 .hover\:bg-indigo-700:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(67 56 202 / var(--tw-bg-opacity, 1));
@@ -4250,6 +4312,10 @@ main:is(.dark *) {
     margin-right: 0px;
   }
 
+  .sm\:mt-28 {
+    margin-top: 7rem;
+  }
+
   .sm\:h-auto {
     height: auto;
   }
@@ -4260,6 +4326,10 @@ main:is(.dark *) {
 
   .sm\:w-2\/3 {
     width: 66.666667%;
+  }
+
+  .sm\:w-2\/5 {
+    width: 40%;
   }
 
   .sm\:w-full {
@@ -4331,6 +4401,10 @@ main:is(.dark *) {
 
   .md\:mt-20 {
     margin-top: 5rem;
+  }
+
+  .md\:mt-24 {
+    margin-top: 6rem;
   }
 
   .md\:mt-4 {
@@ -4486,6 +4560,10 @@ main:is(.dark *) {
   .md\:gap-x-4 {
     -moz-column-gap: 1rem;
          column-gap: 1rem;
+  }
+
+  .md\:p-4 {
+    padding: 1rem;
   }
 
   .md\:p-6 {

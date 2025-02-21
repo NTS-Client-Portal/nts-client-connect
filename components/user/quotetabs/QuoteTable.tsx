@@ -171,30 +171,27 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
     const handlePriceSubmit = async (e: React.FormEvent<HTMLFormElement>, quoteId: number) => {
         e.preventDefault();
         const target = e.target as typeof e.target & {
-            carrierPay: HTMLInputElement;
-            deposit: HTMLInputElement;
+            quotePrice: HTMLInputElement;
         };
-        const carrierPay = parseFloat(target.carrierPay.value);
-        const deposit = parseFloat(target.deposit.value);
-        const totalPrice = carrierPay + deposit;
-
+        const quotePrice = parseFloat(target.quotePrice.value);
+    
         const { error: updateError } = await supabase
             .from('shippingquotes')
-            .update({ carrier_pay: carrierPay, deposit, price: totalPrice })
+            .update({ price: quotePrice })
             .eq('id', quoteId);
-
+    
         if (updateError) {
             console.error('Error updating price:', updateError.message);
             return;
         }
-
+    
         // Fetch the updated quote data
         const { data: updatedQuote, error: fetchError } = await supabase
             .from('shippingquotes')
             .select('*')
             .eq('id', quoteId)
             .single();
-
+    
         if (fetchError) {
             console.error('Error fetching updated quote:', fetchError.message);
             return;
@@ -455,31 +452,24 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                         <form onSubmit={(e) => handlePriceSubmit(e, quote.id)}>
                                             <div className='flex flex-col items-center gap-1'>
                                                 <span className='flex flex-col'>
-                                                    <label className='text-sm font-semibold text-ntsBlue'>Carrier Pay:</label>
+                                                    <label className='text-[14px] font-semibold text-ntsBlue'>Shippper Quote:</label>
+
                                                     <input
                                                         type="number"
-                                                        name="carrierPay"
+                                                        name="quotePrice"
                                                         value={carrierPayInput}
                                                         onChange={(e) => setCarrierPayInput(e.target.value)}
                                                         placeholder="Enter price"
                                                         className="border border-gray-300 rounded-md p-1"
                                                     />
-                                                </span>
-                                                <span className='flex flex-col'>
-                                                    <label className='text-sm font-semibold text-emerald-600'>Deposit:</label>
-                                                    <input
-                                                        type="number"
-                                                        name="deposit"
-                                                        value={depositInput}
-                                                        onChange={(e) => setDepositInput(e.target.value)}
-                                                        placeholder="Enter deposit"
-                                                        className="border border-gray-300 rounded-md p-1"
-                                                    />
+                                                <span className='text-sm text-gray-500 font-semibold'>note: <span className='text-xs italic font-medium text-gray-500'>Include both carrier pay and deposit</span></span>
                                                 </span>
                                             </div>
-                                            <button type="submit" className="pl-6 text-ntsLightBlue text-center text-sm font-semibold underline">
-                                                Submit
-                                            </button>
+                                           <div className='flex justify-center gap-1'>
+                                                <button type="submit" className="text-ntsLightBlue text-center text-sm font-semibold underline">
+                                                    Submit Quote
+                                                </button>
+                                           </div>
                                         </form>
                                         ) : (
                                             <div className='flex justify-center gap-1'>
@@ -616,7 +606,11 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                     <EditHistory quoteId={quote.id} searchTerm="" searchColumn="id" editHistory={editHistory} />
                                                 </div>
                                             )}
+                                <button onClick={() => archiveQuote(quote.id)} className="text-red-500 mt-3 font-medium underline text-sm">
+                                Archive Quote
+                            </button>
                                         </div>
+
                                     </td>
                                 </tr>
                             )}
