@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '@lib/initSupabase';
 import { Database } from '@lib/database.types';
-import { MoveHorizontal } from 'lucide-react';
+import { MoveHorizontal, X } from 'lucide-react';
 
 interface OrderFormModalProps {
     isOpen: boolean;
@@ -105,13 +105,18 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
     return (
         <div className="fixed inset-0 bg-zinc-600 bg-opacity-50 flex justify-center items-center">
             <div className=" bg-white p-8 rounded shadow-md w-full max-w-4xl h-[90vh] overflow-y-auto">
+                <button onClick={onClose} className="relative w-full z-50 top-1 right-1 inline-flex justify-end">
+                    <X size={28} />
+                </button>
                 <h2 className="text-2xl font-semibold underline underline-offset-8 text-center mb-4">Quote# {quote.id} - Order Form</h2>
+
                 {quote && (
                     <div className='flex flex-col items-center'>
                         <p><strong>Freight:</strong> {quote.year} {quote.make} {quote.model}</p>
                         <p><strong>Dimensions:</strong> {quote.length}&apos; x {quote.width}&apos; x {quote.height}&apos; {quote.weight} lbs</p>
                     </div>
                 )}
+
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div className='mt-4 grid grid-cols-1 md:grid-cols-2 gap-4'>
                         <div className='flex flex-col justify-between bg-zinc-200 p-4 rounded-md'>
