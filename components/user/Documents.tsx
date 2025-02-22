@@ -71,13 +71,18 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
 		fetchDocuments();
 	}, [session, fetchDocuments, supabase]); // Include 'supabase' in the dependency array
 
-	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files && e.target.files[0]) {
 			setFile(e.target.files[0]);
+			console.log('Selected file:', e.target.files[0]);
+			await handleUpload(e.target.files[0]); // Call handleUpload after setting the file
 		}
 	};
 
-	const handleUpload = async () => {
+	const handleUpload = async (file: File) => {
+		console.log('File:', file);
+		console.log('Session:', session);
+
 		if (!file || !session) return;
 
 		try {
@@ -112,6 +117,7 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
 			// Set the notification state
 			setNewDocumentAdded(true);
 		} catch (error) {
+			console.error('Error uploading document:', error);
 			setError(error.message);
 		}
 	};
@@ -227,51 +233,51 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
 
 	const handleViewDocument = async (templateId: string | null, documentId: number) => {
 		if (!templateId) {
-		  setError("Template ID is missing.");
-		  return;
+			setError("Template ID is missing.");
+			return;
 		}
-	  
+
 		// Fetch the document data to get the quote_id
 		const { data: document, error: documentError } = await supabase
-		  .from("documents")
-		  .select("id")
-		  .eq("id", documentId)
-		  .single();
-	  
+			.from("documents")
+			.select("id")
+			.eq("id", documentId)
+			.single();
+
 		if (documentError) {
-		  setError(documentError.message);
-		  return;
+			setError(documentError.message);
+			return;
 		}
-	  
+
 		const quoteId = document.id;
-	  
+
 		// Fetch the updated quote data
 		const { data: quote, error: quoteError } = await supabase
-		  .from("shippingquotes")
-		  .select("*")
-		  .eq("id", quoteId)
-		  .single();
-	  
+			.from("shippingquotes")
+			.select("*")
+			.eq("id", quoteId)
+			.single();
+
 		if (quoteError) {
-		  setError(quoteError.message);
-		  return;
+			setError(quoteError.message);
+			return;
 		}
-	  
+
 		// Fetch the template content
 		const { data: templateData, error: templateError } = await supabase
-		  .from("templates")
-		  .select("content")
-		  .eq("id", templateId)
-		  .single();
-	  
+			.from("templates")
+			.select("content")
+			.eq("id", templateId)
+			.single();
+
 		if (templateError) {
-		  setError(templateError.message);
-		  return;
+			setError(templateError.message);
+			return;
 		}
-	  
+
 		const content = replaceShortcodes(templateData.content, { quote });
 		setViewFileContent(content);
-	  };
+	};
 
 	const renderDocuments = (
 		docs: Database["public"]["Tables"]["documents"]["Row"][]
@@ -281,43 +287,43 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
 		const paginatedDocs = docs.slice(startIndex, endIndex);
 
 		return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {paginatedDocs.map((doc) => (
-                <div key={doc.id} className="bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md p-4 border border-zinc-400" >
-                  <div className="flex justify-between items-center mb-2">
-                    <div className="text-sm font-extrabold text-zinc-500 dark:text-white">
-                      {doc.title}
-                    </div>
-                    <div className="flex items-center">
-                      <button onClick={() => handleFavoriteToggle(doc.id, !doc.is_favorite)}  >
-                        {doc.is_favorite ? (
-                          <Star className="text-yellow-500" />
-                        ) : (
-                          <Star />
-                        )}
-                      </button>
-                      <button onClick={() => openDeleteModal(doc.id)} className="ml-2">
-                        <Trash2 className="text-red-500" />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="text-sm text-zinc-900 dark:text-white mb-2">
-                    {doc.description}
-                  </div>
-                  <div className="flex justify-between items-start gap-2">
-                    <button onClick={() => handleViewDocument(doc.template_id, doc.id)}
-                      className="text-ntsBlue border shadow-sm px-2 py-1 rounded-md flex items-center justify-start gap-1 font-semibold text-sm">
-                      <Eye className="h-4 w-auto" /> View
-                    </button>
-                    <button onClick={() => handleDownload(doc.file_url, doc.file_name)} className="text-ntsBlue border shadow-sm px-2 py-1 rounded-md flex items-center justify-start gap-1 font-semibold text-sm">
-                      <Download className="h-4 w-auto" />
-                      Download
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          );
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+				{paginatedDocs.map((doc) => (
+					<div key={doc.id} className="bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md p-4 border border-zinc-400" >
+						<div className="flex justify-between items-center mb-2">
+							<div className="text-sm font-extrabold text-zinc-500 dark:text-white">
+								{doc.title}
+							</div>
+							<div className="flex items-center">
+								<button onClick={() => handleFavoriteToggle(doc.id, !doc.is_favorite)}  >
+									{doc.is_favorite ? (
+										<Star className="text-yellow-500" />
+									) : (
+										<Star />
+									)}
+								</button>
+								<button onClick={() => openDeleteModal(doc.id)} className="ml-2">
+									<Trash2 className="text-red-500" />
+								</button>
+							</div>
+						</div>
+						<div className="text-sm text-zinc-900 dark:text-white mb-2">
+							{doc.description}
+						</div>
+						<div className="flex justify-between items-start gap-2">
+							<button onClick={() => handleViewDocument(doc.template_id, doc.id)}
+								className="text-ntsBlue border shadow-sm px-2 py-1 rounded-md flex items-center justify-start gap-1 font-semibold text-sm">
+								<Eye className="h-4 w-auto" /> View
+							</button>
+							<button onClick={() => handleDownload(doc.file_url, doc.file_name)} className="text-ntsBlue border shadow-sm px-2 py-1 rounded-md flex items-center justify-start gap-1 font-semibold text-sm">
+								<Download className="h-4 w-auto" />
+								Download
+							</button>
+						</div>
+					</div>
+				))}
+			</div>
+		);
 	};
 
 	const handlePageChange = (pageNumber: number) => {
@@ -330,9 +336,8 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
 		<div className="flex h-screen">
 			{/* Sidebar */}
 			<div
-				className={`fixed inset-y-0 left-0 transform ${
-					sidebarOpen ? "translate-x-0" : "-translate-x-full"
-				} transition-transform duration-300 ease-in-out w-64 bg-zinc-200 dark:bg-zinc-900 dark:text-white p-4 border-r border-t border-zinc-700/20 shadow-lg z-50 md:relative md:translate-x-0 h-screen`}
+				className={`fixed inset-y-0 left-0 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+					} transition-transform duration-300 ease-in-out w-64 bg-zinc-200 dark:bg-zinc-900 dark:text-white p-4 border-r border-t border-zinc-700/20 shadow-lg z-50 md:relative md:translate-x-0 h-screen`}
 			>
 				<div className="flex justify-between items-center mb-4">
 					<h2 className="text-xl font-bold">Documents</h2>
@@ -344,9 +349,8 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
 					<li className="flex gap-1 items-center">
 						<Folder />
 						<button
-							className={`w-full text-left p-2 ${
-								activeSection === "all" ? "bg-zinc-100 dark:text-zinc-800" : ""
-							}`}
+							className={`w-full text-left p-2 ${activeSection === "all" ? "bg-zinc-100 dark:text-zinc-800" : ""
+								}`}
 							onClick={() => setActiveSection("all")}
 						>
 							All Documents
@@ -355,11 +359,10 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
 					<li className="flex gap-1 items-center">
 						<FolderHeart />
 						<button
-							className={`w-full text-left p-2 ${
-								activeSection === "important"
-									? "bg-zinc-100 dark:text-zinc-800"
-									: ""
-							}`}
+							className={`w-full text-left p-2 ${activeSection === "important"
+								? "bg-zinc-100 dark:text-zinc-800"
+								: ""
+								}`}
 							onClick={() => setActiveSection("important")}
 						>
 							Important
@@ -377,18 +380,18 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
 						{activeSection === "important" && "Important"}
 					</h1>
 					<div className="md:hidden flex justify-between md:justify-normal gap-2">
-						<button
-							className="text-NtsBlue border shadow-sm px-2 py-1 rounded-md flex items-center justify-start gap-1 font-semibold text-sm mt-1"
-							onClick={handleUpload}
+						<input
+							type="file"
+							onChange={handleFileChange}
+							className="hidden"
+							id="file-upload-mobile"
+						/>
+						<label
+							htmlFor="file-upload-mobile"
+							className="text-NtsBlue border shadow-sm px-2 py-1 rounded-md flex items-center justify-start gap-1 font-semibold text-sm mt-1 cursor-pointer"
 						>
 							<Upload className="h-4" /> Upload Documents
-						</button>
-						<button
-							className="md:hidden bg-zinc-700 text-white shadow-md p-2 rounded-md"
-							onClick={() => setSidebarOpen(!sidebarOpen)}
-						>
-							<Menu className="h-6 w-6" />
-						</button>
+						</label>
 					</div>
 				</div>
 
@@ -429,12 +432,18 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
 						</div>
 					)}
 
-					<button
-						className="text-ntsBlue border shadow-sm px-2 py-2 rounded-md flex items-center justify-start gap-1 font-semibold text-sm mt-1"
-						onClick={handleUpload}
+					<input
+						type="file"
+						onChange={handleFileChange}
+						className="hidden"
+						id="file-upload-desktop"
+					/>
+					<label
+						htmlFor="file-upload-desktop"
+						className="text-NtsBlue border shadow-sm px-2 py-1 rounded-md flex items-center justify-start gap-1 font-semibold text-sm mt-1 cursor-pointer"
 					>
 						<Upload className="h-4" /> Upload Documents
-					</button>
+					</label>
 				</div>
 
 				{/* Documents List */}
@@ -462,11 +471,10 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
 						<button
 							key={index}
 							onClick={() => handlePageChange(index + 1)}
-							className={`px-4 py-2 mx-1 mt-4 mb-8 rounded ${
-								currentPage === index + 1
-									? "bg-blue-500 text-white"
-									: "bg-gray-200"
-							}`}
+							className={`px-4 py-2 mx-1 mt-4 mb-8 rounded ${currentPage === index + 1
+								? "bg-blue-500 text-white"
+								: "bg-gray-200"
+								}`}
 						>
 							{index + 1}
 						</button>

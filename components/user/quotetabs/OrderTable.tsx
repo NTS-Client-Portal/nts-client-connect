@@ -259,30 +259,30 @@ const OrderTable: React.FC<OrderTableProps> = ({
 
     return (
         <div className='w-full py-4'>
-        <div className='flex flex-col items-center justify-center'>
-            <div className="flex justify-start gap-4 my-4 ml-52 w-full">
-                <div className="flex items-center">
-                    <label className="mr-2">Search by:</label>
-                    <select
-                        value={searchColumn}
-                        onChange={(e) => setSearchColumn(e.target.value)}
-                        className="border border-gray-300 rounded-md shadow-sm"
-                    >
-                        <option value="id">ID</option>
-                        <option value="freight_type">Load Details</option>
-                        <option value="origin_destination">Origin/Destination</option>
-                        <option value="due_date">Date</option>
-                    </select>
+            <div className='flex flex-col items-center justify-center'>
+                <div className="flex justify-start gap-4 my-4 ml-52 w-full">
+                    <div className="flex items-center">
+                        <label className="mr-2">Search by:</label>
+                        <select
+                            value={searchColumn}
+                            onChange={(e) => setSearchColumn(e.target.value)}
+                            className="border border-gray-300 rounded-md shadow-sm"
+                        >
+                            <option value="id">ID</option>
+                            <option value="freight_type">Load Details</option>
+                            <option value="origin_destination">Origin/Destination</option>
+                            <option value="due_date">Date</option>
+                        </select>
+                    </div>
+                    <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Search..."
+                        className="border border-gray-300 pl-2 rounded-md shadow-sm"
+                    />
                 </div>
-                <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search..."
-                    className="border border-gray-300 pl-2 rounded-md shadow-sm"
-                />
-            </div>
-           
+
                 <table className="w-full divide-y divide-zinc-200 border">
                     <thead className="bg-ntsBlue border-2 border-t-orange-500 static top-0 w-full text-white">
                         <tr >
@@ -290,8 +290,8 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                 <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-semibold tracking-wider">
-                            Notes
-                           </th>
+                                Notes
+                            </th>
                             <th className="px-6 py-3 text-left text-xs font-semibold uppercase ">
                                 <TableHeaderSort column="freight_type" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
                             </th>
@@ -308,7 +308,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                             <th className="px-6 py-3 text-left text-xs font-semibold uppercase track-widest">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white divide-y divide-gray-200 ">
                         {currentRows.map((order, index) => (
                             <React.Fragment key={order.id}>
                                 <tr
@@ -316,9 +316,9 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                         handleRowClick(order.id);
                                         setActiveTab('orderdetails');
                                     }}
-                                    className={`cursor-pointer mb-4 w-max ${index % 2 === 0 ? 'bg-white h-fit w-full' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}
+                                    className={`cursor-pointer mb-4 w-max ${index % 2 === 0 ? 'bg-white h-fit w-max' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}
                                 >
-                                    <td className="px-6 py-3 w-[30px] whitespace-nowrap text-sm font-medium text-gray-900  border border-gray-200">
+                                    <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200 hover:border-gray-300">
                                         {order.id}
                                     </td>
                                     <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900  border border-gray-200">
@@ -381,7 +381,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                             <br />[map it]
                                         </a>
                                     </td>
-    
+
                                     <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
                                         <span className='flex flex-col gap-1 w-min'>
                                             <p><strong>Earliest: </strong>{order.earliest_pickup_date}</p>
@@ -389,85 +389,85 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                <span className={getStatusClasses(order.brokers_status)}>
-                                    {order.brokers_status}
-                                </span>
-                                {order.brokers_status === 'Dispatched' && (
-                                    <div className="mt-2">
-                                        <input
-                                            type="date"
-                                            value={loadDates[order.id] || ''}
-                                            onChange={(e) => handleDateChange(e, order.id, 'load')}
-                                            className="mb-2 p-2 border border-gray-300 rounded-md"
-                                        />
-                                        <input
-                                            type="date"
-                                            value={deliveryDates[order.id] || ''}
-                                            onChange={(e) => handleDateChange(e, order.id, 'delivery')}
-                                            className="mb-2 p-2 border border-gray-300 rounded-md"
-                                        />
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleSubmitDates(order.id);
-                                            }}
-                                            className="p-2 bg-blue-500 text-white rounded-md"
-                                        >
-                                            Submit Dates
-                                        </button>
-                                    </div>
-                                )}
-                            </td>
+                                        <span className={getStatusClasses(order.brokers_status)}>
+                                            {order.brokers_status}
+                                        </span>
+                                        {order.brokers_status === 'Dispatched' && (
+                                            <div className="mt-2">
+                                                <input
+                                                    type="date"
+                                                    value={loadDates[order.id] || ''}
+                                                    onChange={(e) => handleDateChange(e, order.id, 'load')}
+                                                    className="mb-2 p-2 border border-gray-300 rounded-md"
+                                                />
+                                                <input
+                                                    type="date"
+                                                    value={deliveryDates[order.id] || ''}
+                                                    onChange={(e) => handleDateChange(e, order.id, 'delivery')}
+                                                    className="mb-2 p-2 border border-gray-300 rounded-md"
+                                                />
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleSubmitDates(order.id);
+                                                    }}
+                                                    className="p-2 bg-blue-500 text-white rounded-md"
+                                                >
+                                                    Submit Dates
+                                                </button>
+                                            </div>
+                                        )}
+                                    </td>
                                     <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
                                         {order.price ? `$${order.price}` : 'Pending'}
                                     </td>
                                     <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200 relative z-50">
                                         <div className='flex flex-col gap-2'>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleEditClick(order);
-                                                }}
-                                                className="text-ntsLightBlue font-medium underline"
-                                            >
-                                                Edit Order
-                                            </button>
-    
+
+
                                             {isAdmin && (
                                                 <>
                                                     <select
-                                        value={order.brokers_status}
-                                        onChange={(e) => {
-                                            e.stopPropagation();
-                                            handleStatusChange(e, order.id);
-                                        }}
-                                        className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(order.brokers_status)}`}
-                                    >
-                                        <option value="" disabled>Select Status</option>
-                                        <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
-                                        <option value="Dispatched" className={getStatusClasses('Dispatched')}>Dispatched</option>
-                                        <option value="Picked Up" className={getStatusClasses('Picked Up')}>Picked Up</option>
-                                        <option value="Delivered" className={getStatusClasses('Delivered')}>Delivered</option>
-                                        <option value="Completed" className={getStatusClasses('Completed')}>Completed</option>
-                                        <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
-                                    </select>
-                                    
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleMarkAsComplete(order.id)(e);
-                                        }}
-                                        className="text-green-600 ml-2 relative z-50"
-                                    >
-                                        Mark as Complete
-                                    </button>
-                                    <button onClick={() => archiveOrder(order.id)} className="text-red-500 mt-3 font-semibold underline text-sm">
-                                        Archive Order
-                                    </button>
+                                                        value={order.brokers_status}
+                                                        onChange={(e) => {
+                                                            e.stopPropagation();
+                                                            handleStatusChange(e, order.id);
+                                                        }}
+                                                        className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(order.brokers_status)}`}
+                                                    >
+                                                        <option value="" disabled>Select Status</option>
+                                                        <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
+                                                        <option value="Dispatched" className={getStatusClasses('Dispatched')}>Dispatched</option>
+                                                        <option value="Picked Up" className={getStatusClasses('Picked Up')}>Picked Up</option>
+                                                        <option value="Delivered" className={getStatusClasses('Delivered')}>Delivered</option>
+                                                        <option value="Completed" className={getStatusClasses('Completed')}>Completed</option>
+                                                        <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
+                                                    </select>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleEditClick(order);
+                                                        }}
+                                                        className="text-ntsLightBlue font-medium underline"
+                                                    >
+                                                        Edit Order
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleMarkAsComplete(order.id)(e);
+                                                        }}
+                                                        className="text-green-600 ml-2 relative z-50"
+                                                    >
+                                                        Mark as Complete
+                                                    </button>
+                                                    <button onClick={() => archiveOrder(order.id)} className="text-red-500 mt-3 font-semibold underline text-sm">
+                                                        Archive Order
+                                                    </button>
                                                 </>
                                             )}
-                                            
-    
+
+
                                         </div>
                                     </td>
                                 </tr>
@@ -504,7 +504,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                                             <button onClick={() => handleEditClick(order)} className="text-ntsLightBlue mt-3 font-semibold text-base underline h-full">
                                                                 Edit Order
                                                             </button>
-    
+
                                                         </div>
                                                     </div>
                                                 )}

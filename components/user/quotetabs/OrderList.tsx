@@ -305,11 +305,14 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
     const handleEditQuote = (quote: ShippingQuotesRow) => {
         setIsEditMode(true);
         setEditData(quote);
+        setSelectedQuoteId(quote.id);
+        console.log('Editing quote:', quote); // Log the quote being edited
     };
 
     const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setEditData(prevData => ({ ...prevData, [name]: value }));
+        console.log('Edit data:', { ...editData, [name]: value }); // Log the updated editData
     };
 
     const handleEditSubmit = async (e: React.FormEvent) => {
@@ -327,7 +330,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                 setErrorText('Error editing quote');
             } else {
                 setQuotes(quotes.map(quote => (quote.id === selectedQuoteId ? { ...quote, ...editData } : quote)));
-                setIsModalOpen(false);
+                setIsEditMode(false);
                 setSelectedQuoteId(null);
                 setEditData({});
             }
@@ -472,9 +475,9 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                     </div>
                 )}
             </Modal>
-            {isEditMode && (
+            {isEditMode && isAdmin && (
                 <Modal className='w-1/3' isOpen={isEditMode} onClose={() => setIsEditMode(false)}>
-                    <h2 className="text-xl mb-4">Edit Quote</h2>
+                    <h2 className="text-xl mb-4">Edit Order</h2>
                     <form onSubmit={handleEditSubmit}>
                         <div className="mb-4">
                             <label htmlFor="origin_street" className="block text-sm text-zinc-700">
@@ -505,7 +508,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                         <div className="mb-4 flex gap-4">
                             <div className='flex flex-col gap-2'>
                                 <label htmlFor="earliest_pickup_date" className="block text-sm text-zinc-700">
-                                    Earlies Pickup Date
+                                    Earliest Pickup Date
                                 </label>
                                 <input
                                     type="date"
@@ -527,10 +530,10 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                                     value={editData.latest_pickup_date || ''}
                                     onChange={handleEditChange}
                                     className="mt-1 p-2 border border-zinc-300 rounded w-full"
-                                />  
-                            </div>                       
+                                />
+                            </div>
                         </div>
-                        <button onClick={handleEditSubmit} className="px-4 py-2 bg-blue-500 text-white rounded">
+                        <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">
                             Submit Changes
                         </button>
                     </form>
