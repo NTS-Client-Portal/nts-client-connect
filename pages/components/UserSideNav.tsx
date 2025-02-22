@@ -131,7 +131,7 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                         <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/shipper-broker-connect' ? "active" : ""}`}>
                             <Link href="/user/shipper-broker-connect" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/shipper-broker-connect' ? "active" : ""}`}>
                                 <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><MessageSquareMore size={'20px'} /> <span className='text-xs md:text-sm'>
-                                   NTS Support </span></span>
+                                    NTS Support </span></span>
                             </Link>
                         </li>
                         <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/equipment-directory' ? "active" : ""}`}>
@@ -153,7 +153,7 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                         </li>
                     </ul>
                 </nav>
-            </div>
+            </div >
         </>
     );
 };

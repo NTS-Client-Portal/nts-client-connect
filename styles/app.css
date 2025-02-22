@@ -830,6 +830,10 @@ body:is(.dark *) {
   z-index: 50;
 }
 
+.z-auto {
+  z-index: auto;
+}
+
 .col-span-1 {
   grid-column: span 1 / span 1;
 }
@@ -1184,6 +1188,10 @@ body:is(.dark *) {
   height: 100vh;
 }
 
+.h-\[85vh\] {
+  height: 85vh;
+}
+
 .max-h-60 {
   max-height: 15rem;
 }
@@ -1324,10 +1332,6 @@ body:is(.dark *) {
 
 .w-\[30px\] {
   width: 30px;
-}
-
-.w-\[90\%\] {
-  width: 90%;
 }
 
 .w-\[95\%\] {

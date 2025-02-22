@@ -134,7 +134,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                     <li>
                         <NotificationBell session={session} />
                     </li>
-                    <li className='relative right-0 z-10'>
+                    <li className='relative right-0 z-50'>
                         <Image
                             src={profilePictureUrl}
                             alt='profile-img'
@@ -145,7 +145,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
                             priority
                         />
                         {dropdownOpen && (
-                            <div className="absolute right-0 mt-2 w-fit text-sm bg-white border border-gray-200 rounded shadow-lg">
+                            <div className="absolute z-auto right-0 mt-2 w-fit text-sm bg-white border border-gray-200 rounded shadow-lg">
                                 <div className="p-4">
                                     <span className="text-sm font-bold">Assigned Representative:</span>
                                     {assignedSalesUsers.map((user, index) => (

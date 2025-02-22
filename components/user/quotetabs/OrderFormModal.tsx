@@ -104,7 +104,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
 
     return (
         <div className="fixed inset-0 bg-zinc-600 bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-8 rounded shadow-md w-full max-w-4xl h-[95vh] overflow-y-auto">
+            <div className=" bg-white p-8 rounded shadow-md w-full max-w-4xl h-[90vh] overflow-y-auto">
                 <h2 className="text-2xl font-semibold underline underline-offset-8 text-center mb-4">Quote# {quote.id} - Order Form</h2>
                 {quote && (
                     <div className='flex flex-col items-center'>
@@ -222,7 +222,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
                         />
                     </div>
                     <div className="mt-4 border border-zinc-900 pt-4 max-h-80 p-8 overflow-y-auto">
-                    <p>
+                        <p>
                             Customer-provided load descriptions and dimensions must be accurate, loading areas and pathways must be accessible to the carrier, and any unusual conditions on-site on pickup and delivery must be advised in advance. Failure to adequately describe and report the above information or give advance notice of special conditions will incur additional charges or truck cancellation fees.
                         </p>
                         <br />

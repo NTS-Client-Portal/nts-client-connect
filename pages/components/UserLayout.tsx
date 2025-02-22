@@ -62,7 +62,7 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
         };
 
         fetchAssignedSalesUsers();
-    }, [userProfile, supabase ]);
+    }, [userProfile, supabase]);
 
 
     return (
@@ -73,7 +73,7 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
                     toggleSidebar={toggleSidebar}
                     className="col-span-1"
                 />
-                <div className="fixed w-full top-0 left-0 z-10">
+                <div className="fixed w-full top-0 left-0">
                     <UserTopNav
                     />
                 </div>
