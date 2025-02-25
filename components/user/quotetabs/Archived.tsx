@@ -41,7 +41,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
 
             return profiles;
         },
-        [supabase]
+        []
     );
 
     const fetchArchivedQuotes = useCallback(
@@ -59,7 +59,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
 
             return quotes;
         },
-        [supabase]
+        []
     );
 
     const fetchArchivedQuotesForNtsUsers = useCallback(
@@ -104,7 +104,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
 
             return quotes;
         },
-        [supabase]
+        []
     );
 
     const fetchInitialQuotes = useCallback(async () => {
@@ -141,7 +141,6 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
         }
     }, [
         session,
-        supabase,
         fetchProfiles,
         fetchArchivedQuotes,
         fetchArchivedQuotesForNtsUsers,
@@ -191,7 +190,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
         };
 
         checkUserType();
-    }, [session, fetchArchivedQuotesForNtsUsers, fetchArchivedQuotes, fetchInitialQuotes, companyId]);
+    }, [fetchArchivedQuotesForNtsUsers, fetchArchivedQuotes, fetchInitialQuotes, companyId, fetchProfiles, session?.user?.id]);
 
     useEffect(() => {
         const channel = supabase

@@ -35,7 +35,7 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
 
             return profiles;
         },
-        [supabase]
+        []
     );
 
     const fetchRejectedQuotes = useCallback(
@@ -53,7 +53,7 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
 
             return quotes;
         },
-        [supabase]
+        []
     );
 
     const fetchRejectedQuotesForNtsUsers = useCallback(
@@ -101,7 +101,7 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
 
             return quotes;
         },
-        [supabase, fetchProfiles]
+        [fetchProfiles]
     );
 
     const fetchInitialQuotes = useCallback(async () => {
@@ -138,7 +138,6 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
         }
     }, [
         session,
-        supabase,
         fetchProfiles,
         fetchRejectedQuotes,
         fetchRejectedQuotesForNtsUsers,
@@ -188,7 +187,7 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
         };
 
         checkUserType();
-    }, [session, fetchRejectedQuotesForNtsUsers, fetchRejectedQuotes, fetchInitialQuotes, companyId]);
+    }, [session, fetchRejectedQuotesForNtsUsers, fetchRejectedQuotes, fetchInitialQuotes, fetchProfiles, companyId]);
 
     const unRejectQuote = async (quote: Quote) => {
         const { error } = await supabase

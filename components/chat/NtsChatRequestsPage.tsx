@@ -3,11 +3,7 @@ import { supabase } from '@lib/initSupabase';
 import { useNtsUsers } from '@/context/NtsUsersContext';
 import { Database } from '@/lib/database.types';
 import { useSession } from '@supabase/auth-helpers-react';
-import dynamic from 'next/dynamic';
-import 'react-quill/dist/quill.snow.css';
-import ForumInterface from './ForumInterface';
-
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
+import ForumInterface from '@/components/chat/ForumInterface';
 
 type SupportTicket = Database['public']['Tables']['support_ticket']['Row'];
 type UserProfile = Database['public']['Tables']['nts_users']['Row'];
@@ -332,9 +328,10 @@ const NtsChatRequestsPage: React.FC = () => {
                                 </select>
                             </label>
                         </div>
-                        <ReactQuill
+                        <textarea
                             value={message}
-                            onChange={setMessage}
+                            onChange={(e) => setMessage(e.target.value)}
+
                             className="w-full h-24 p-2 mt-2 rounded-md"
                         />
                         <input

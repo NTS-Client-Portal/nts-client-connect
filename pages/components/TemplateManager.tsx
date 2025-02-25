@@ -3,10 +3,6 @@ import { supabase } from '@/lib/initSupabase';
 import TemplateList from './TemplateList';
 import Modal from './Modal';
 import { generateAndUploadPDF, replaceShortcodes } from '@/components/GeneratePDF';
-import dynamic from 'next/dynamic';
-import 'react-quill/dist/quill.snow.css';
-
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 export interface Template {
     id: string;
@@ -204,9 +200,9 @@ const TemplateManager: React.FC = () => {
                                 className="mt-1 block p-2 w-full h-full bg-white border border-zinc-600 focus:border-ntsLightBlue focus:ring focus:ring-ntsLightBlue focus:ring-opacity-50"
                             />
                         ) : (
-                            <ReactQuill
+                            <textarea
                                 value={content}
-                                onChange={setContent}
+                                onChange={(e) => setContent(e.target.value)}
                                 className="bg-white"
                                 style={{ height: '400px' }} // Increase height to 4x
                             />

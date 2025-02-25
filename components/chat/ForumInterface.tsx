@@ -1,10 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
-import dynamic from 'next/dynamic';
-import 'react-quill/dist/quill.snow.css';
-
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 interface ForumInterfaceProps {
     brokerId: string;
@@ -159,9 +155,9 @@ const ForumInterface: React.FC<ForumInterfaceProps> = ({ brokerId, shipperId, se
                 <div className="flex flex-col h-full w-full">
                     <form onSubmit={handleSendMessage} className="bg-white shadow-md p-2 flex flex-col w-full my-2">
                         <div className="flex-grow">
-                            <ReactQuill
+                            <textarea
                                 value={newMessage}
-                                onChange={setNewMessage}
+                                onChange={(e) => setNewMessage(e.target.value)}
                                 className="flex-grow p-2 rounded-t-lg"
                                 style={{ height: '150px' }} // Double the height of the text area
                             />

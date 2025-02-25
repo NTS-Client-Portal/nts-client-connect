@@ -140,7 +140,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
             const { data, error } = await supabase
                 .from('freight')
                 .select('*')
-                .eq('id', itemId)
+                .eq('id', Number(itemId))
                 .single();
 
             if (error) {

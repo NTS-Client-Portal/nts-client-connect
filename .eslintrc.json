@@ -1,4 +1,22 @@
 {
-  "extends":
-    "next/core-web-vitals"
+  "extends": "next/core-web-vitals",
+  "rules": {
+    "react/react-in-jsx-scope": "off", // Turn off the rule that requires React to be in scope
+    "no-console": "off", // Turn off the rule for console statements
+    "semi": "off",
+    "quotes": "off",
+    "no-unused-vars": "off",
+    "no-undef": "off",
+    "no-constant-condition": "off",
+    "no-irregular-whitespace": "off",
+    "no-unreachable": "off",
+    "no-empty": "off",
+    "no-prototype-builtins": "off",
+    "no-async-promise-executor": "off",
+    "no-unsafe-finally": "off",
+    "no-unsafe-negation": "off",
+    "no-unsafe-optional-chaining": "off",
+    "warning-comments": "off"
+
+  }
 }

@@ -147,7 +147,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ isOpen, onClose, addOrder, errorT
             const { data, error } = await supabase
                 .from('freight')
                 .select('*')
-                .eq('id', itemId)
+                .eq('id', Number(itemId))
                 .single();
 
             if (error) {

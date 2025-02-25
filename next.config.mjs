@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   productionBrowserSourceMaps: true,
   images: {
     domains: ['cbarvnrqvxroetrcuikv.supabase.co', 'www.gravatar.com'],
