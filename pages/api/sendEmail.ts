@@ -1,5 +1,5 @@
 import { Handler } from '@netlify/functions';
-import { sendEmail } from '@lib/sgemail.mjs';
+import { sendEmail } from '@lib/sgEmail';
 
 const handler: Handler = async (event, context) => {
     if (event.httpMethod === 'POST') {

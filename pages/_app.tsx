@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { SessionContextProvider, useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import type { AppProps } from 'next/app';
-import '@/styles/app.css';
+import '../styles/app.css';
 import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
 import { DocumentNotificationProvider } from '@/context/DocumentNotificationContext';

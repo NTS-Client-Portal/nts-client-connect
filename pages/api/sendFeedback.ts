@@ -3,7 +3,7 @@ import path from 'path';
 import dotenv from 'dotenv';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import formidable from 'formidable';
-import { sendEmail } from '@/lib/sgemail.mjs';
+import { sendEmail } from '@lib/sgEmail';
 
 // Load environment variables from .env file
 if (process.env.NODE_ENV !== 'production') dotenv.config();

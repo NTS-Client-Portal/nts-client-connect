@@ -1,5 +1,5 @@
-const nodemailer = require('nodemailer');
-const dotenv = require('dotenv');
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
 
 // Load environment variables from .env file
 if (process.env.NODE_ENV !== 'production') dotenv.config();
@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-const sendEmail = async (to, subject, text, html, attachments = []) => {
+export const sendEmail = async (to, subject, text, html, attachments = []) => {
     const mailOptions = {
         from: process.env.EMAIL_USER, // Your email address
         to,
@@ -32,5 +32,3 @@ const sendEmail = async (to, subject, text, html, attachments = []) => {
         throw error;
     }
 };
-
-module.exports = { sendEmail };
