@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Fuse from 'fuse.js';
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import {
     DropdownMenu,
@@ -142,7 +142,7 @@ const DimensionSearch: React.FC = () => {
             </div>
             <div className="flex gap-4 mb-4 justify-center">
                 <Button className='body-btn hover:bg-ntsLightBlue/90' onClick={handleSearch}>Search</Button>
-                <Button onClick={handleClearSearch} variant="outline">Clear</Button>
+                <Button onClick={handleClearSearch}>Clear</Button>
             </div>
             <ul className="flex flex-col justify-center items-center gap-4 w-full">
                 {results.map((result, index) => (

@@ -7,7 +7,7 @@ import {
     TooltipTrigger,
     TooltipProvider,
 } from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Bolt, Settings, NotebookText, Bot, FolderSearch2, Wrench, UserRound, Landmark } from "lucide-react";
 
 function Aside() {

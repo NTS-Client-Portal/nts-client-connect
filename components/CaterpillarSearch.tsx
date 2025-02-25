@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Fuse from 'fuse.js';
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import {
     DropdownMenu,
@@ -149,7 +149,7 @@ const CaterpillarSearch: React.FC = () => {
             </div>
             <div className="flex gap-4 mb-4 justify-center">
                 <Button className='dark-button hover:bg-zinc-800' onClick={handleSearch}>Search</Button>
-                <Button className='dark-button' onClick={handleClearSearch} variant="outline">Clear</Button>
+                <Button className='dark-button' onClick={handleClearSearch}>Clear</Button>
             </div>
             <ul className="flex flex-col justify-center items-center gap-4 w-full">
                 {results.map((result, index) => (

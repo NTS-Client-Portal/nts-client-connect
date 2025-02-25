@@ -4,7 +4,6 @@ import { useNtsUsers } from '@/context/NtsUsersContext';
 import Image from 'next/image';
 import NotificationBell from '@/components/NotificationBell';
 import { useSession, Session } from '@supabase/auth-helpers-react';
-import FeedBack from '@/components/ui/FeedBack';
 
 interface UserTopNavProps {
     session: Session | null;
@@ -69,7 +68,6 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ session, className = '' }) => {
                     </li>
 
                     <li className='hidden md:block'>
-                        <FeedBack />
                     </li>
                     <li>
                         <Image
@@ -80,15 +78,11 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ session, className = '' }) => {
                             height={34} />
                     </li>
                 </ul>
-                <FeedBack />
             </nav>
 
             <nav className={`hidden w-full bg-stone-50 dark:bg-zinc-900 md:flex flex-col md:flex-row gap-1 justify-between px-4 z-50 py-2 drop-shadow ${className}`}>
 
                 <ul className='w-full flex gap-2 md:gap-4 items-center z-50 justify-start pl-64'>
-                    <li>
-                        <FeedBack />
-                    </li>
 
                 </ul>
                 <ul className='w-full flex gap-2 md:gap-4 items-center z-50 justify-end mr-12'>
