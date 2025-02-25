@@ -51,6 +51,7 @@
         "@supabase/auth-ui-react": "^0.4.7",
         "@supabase/ssr": "^0.5.2",
         "@supabase/supabase-js": "^2.49.1",
+        "@tailwindcss/postcss": "^4.0.9",
         "@types/formidable": "^3.4.5",
         "@types/jspdf": "^1.3.3",
         "@types/node": "^22.13.5",
