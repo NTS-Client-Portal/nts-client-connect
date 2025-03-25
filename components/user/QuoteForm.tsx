@@ -68,7 +68,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                     setOriginZip(originInput);
                     setOriginInput(`${city}, ${state} ${originInput}`);
                 }
-                
+
             } catch (error) {
                 console.error('Error fetching city and state:', error);
             }
@@ -173,6 +173,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
             destination_city: destinationCity,
             destination_state: destinationState,
             due_date: dueDate,
+            created_at: new Date(),
             freight_type: selectedOption,
             status: 'Quote',
             ...formData,

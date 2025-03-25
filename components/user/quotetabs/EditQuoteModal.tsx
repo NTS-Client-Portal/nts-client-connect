@@ -21,7 +21,6 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
     const [destinationState, setDestinationState] = useState('');
     const [errorText, setErrorText] = useState<string>('');
     const [destinationInput, setDestinationInput] = useState('');
-    const [createdAt, setCreatedAt] = useState<string>('');
 
     useEffect(() => {
         if (quote) {
@@ -32,7 +31,6 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
             setDestinationZip(quote.destination_zip || '');
             setDestinationCity(quote.destination_city || '');
             setDestinationState(quote.destination_state || '');
-            setCreatedAt(quote.created_at || '');
         }
     }, [quote]);
 
@@ -806,13 +804,6 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                     <h2 className="text-xl font-bold mb-4">Edit Quote</h2>
                     <div className='flex flex-col md:flex-row gap-2 w-full'>
                         <div className='flex flex-col items-start'>
-                            <label className='text-zinc-900 font-medium'>Created at</label>
-                            <input
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                                type="date"
-                                value={createdAt}
-                                onChange={(e) => setCreatedAt(e.target.value)} // Allow editing
-                            />
                             <label className='text-zinc-900 font-medium'>Origin</label>
                             <input
                                 className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
