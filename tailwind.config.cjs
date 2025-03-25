@@ -46,7 +46,7 @@ const config = {
 					DEFAULT: '#337ab7',
 				},
 				ntsBlue: {
-					DEFAULT: '#36404e',
+					DEFAULT: '#111928',
 				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',

@@ -67,22 +67,22 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
 
     return (
         <ProfilesUserProvider>
-            <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] lg:grid-cols-[200px_1fr] min-h-screen">
+            <div className="fixed w-full top-0 left-0">
+                <UserTopNav
+                />
+            </div>
+            <div className="flex gap-1 md:grid-cols-[200px_1fr] lg:grid-cols-[200px_1fr] min-h-screen">
                 <UserSideNav
                     isSidebarOpen={isSidebarOpen}
                     toggleSidebar={toggleSidebar}
                     className="col-span-1"
                 />
-                <div className="fixed w-full top-0 left-0">
-                    <UserTopNav
-                    />
-                </div>
-                <div className="col-span-1">
 
-                    <main className="mt-12 md:mt-20 p-4">
-                        {children}
-                    </main>
-                </div>
+
+
+                <main className="col-span-1 mt-20 md:p-4 w-full">
+                    {children}
+                </main>
             </div>
         </ProfilesUserProvider>
     );

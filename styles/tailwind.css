@@ -96,7 +96,7 @@ body,
 }
 
 .side-navbar {
-  @apply flex-grow bg-ntsBlue;
+  @apply flex-grow;
   height: 100vh;
   /* Full height of the viewport */
   width: 13em;
@@ -134,8 +134,27 @@ body,
 
 .side-nav-btn.active {
   @apply text-white font-semibold;
-  border-bottom: 2px solid #f97316;
+  border-bottom: 2px solid #12524D;
   width: 100%;
+}
+
+/* Collapsed sidebar */
+@media (max-width: 768px) {
+  .side-navbar.collapsed {
+    width: 4em; /* narrow but visible */
+  }
+
+  .side-navbar.collapsed .side-nav-btn span:not(:first-child) {
+    display: none;
+  }
+
+  .side-navbar.collapsed .side-nav-btn {
+    justify-content: center;
+  }
+
+  .side-navbar.collapsed .side-navbar-logo {
+  display: none; /* Hide the logo */
+}
 }
 
 .logout {

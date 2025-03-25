@@ -5,10 +5,11 @@ import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import { useProfilesUser } from '@/context/ProfilesUserContext';
 import Image from 'next/image';
-import { PanelLeftOpen, PanelRightClose, Workflow, MessageSquareMore, Folders, NotebookTabs, Settings, TruckIcon } from 'lucide-react';
+import { Menu, Expand, Workflow, MessageSquareMore, Folders, NotebookTabs, Settings, TruckIcon, LogOut } from 'lucide-react';
 import { TfiWrite } from "react-icons/tfi";
 import { GrDocumentVerified } from "react-icons/gr";
 import { useDocumentNotification } from '@/context/DocumentNotificationContext';
+import { RiLogoutCircleLine } from "react-icons/ri";
 
 interface UserSideNavProps {
     isSidebarOpen: boolean;
@@ -69,92 +70,114 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
         : 'https://www.gravatar.com/avatar?d=mp&s=100';
 
     return (
-        <>
-            <div>
-                <div className="xl:hidden">
-                    <button
-                        className="fixed z-50 top-1 left-0 p-2 drop-shadow-lg rounded-full"
-                        onClick={toggleSidebar}
-                    >
-                        {isSidebarOpen ? <PanelRightClose size={24} className='text-white z-50 drop-shadow-lg' /> : <PanelLeftOpen size={28} className='z-50 text-zinc-900 drop-shadow-lg ' />}
-                    </button>
+        <div>
+            {/* Toggle button for mobile */}
+            <div className="xl:hidden">
+                <button
+                    className="fixed z-50 top-1 left-2 md:left-0 p-2 drop-shadow-lg rounded-full"
+                    onClick={toggleSidebar}
+                >
+                    {isSidebarOpen ? (
+                        <Menu size={24} className="text-white z-50 drop-shadow-lg" />
+                    ) : (
+                        <Expand size={28} className="z-50 text-zinc-50 drop-shadow-lg" />
+                    )}
+                </button>
+            </div>
+
+            {/* Sidebar navigation */}
+            <nav className={`pt-12 md:pt-0 side-navbar z-40 flex flex-col pl-2 items-start h-screen py-6 drop-shadow md:fixed top-0 left-0 transition-all duration-300 ease-in-out ${isSidebarOpen ? '' : 'collapsed items-center'} ${className}`}>
+
+                {/* Logo */}
+                <div className="flex mt-5 lg:mt-2 2xl:mt-0 mb-3 items-center justify-center font-bold flex-nowrap side-navbar-logo">
+                    <Image
+                        src="/nts-logo.png"
+                        alt="NTS Logo"
+                        width={100}
+                        height={50}
+                        className="object-contain"
+                        priority
+                    />
                 </div>
-                <nav className={`side-navbar z-50 flex flex-col h-screen py-6 drop-shadow absolute top-0 left-0 transform ${isSidebarOpen ? 'translate-x-0 z-50' : '-translate-x-full'} transition-transform duration-300 h-screen ease-in-out z-50 ${className}`}>
-                    <div className='flex mt-5 lg:mt-2 2xl:mt-0 mb-3 items-center justify-center font-bold flex-nowrap'>
-                        <Image
-                            src="/nts-logo.png"
-                            alt="NTS Logo"
-                            width={150}
-                            height={50}
-                            className="object-contain"
-                            priority
-                        />
-                    </div>
-                    <span className="w-full flex flex-col items-center gap-1 justify-center mb-6 border-b border-stone-100/40 pb-4">
-                        <h3 className='font-normal'>Welcome {userProfile?.first_name || 'User'}</h3>
-                    </span>
-                    <ul className='flex flex-col flex-grow overflow-y-auto'>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user' || router.pathname === '/' ? "active" : ""}`}>
-                            <Link href="/user" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user' || router.pathname === '/' ? "active" : ""}`}>
-                                <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><Workflow size={'20px'} /> Dashboard</span>
-                            </Link>
-                        </li>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/logistics-management' || router.pathname === '/user/quote-request' || router.pathname === '/user/order-request' ? "active" : ""}`}>
-                            <Link href="/user/logistics-management" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/logistics-management' || router.pathname === '/' ? "active" : ""}`}>
-                                <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><TruckIcon size={'20px'} /> <span className='text-xs md:text-sm '>Logistics Management </span></span>
-                            </Link>
-                        </li>
-                        <li className={`w-full flex justify-normal m-0 pl-6 ${router.pathname === '/user/quote-request' ? "active" : ""}`}>
-                            <Link href="/user/quote-request" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/quote-request' ? "active" : ""}`}>
-                                <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><TfiWrite size={'20px'} /> <span className='text-xs md:text-sm '>Quote Form </span></span>
-                            </Link>
-                        </li>
-                        <li className={`w-full flex justify-normal m-0 pl-6 ${router.pathname === '/user/order-form' ? "active" : ""}`}>
-                            <Link href="/user/order-form" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/order-form' ? "active" : ""}`}>
-                                <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><GrDocumentVerified size={'20px'} /> <span className='text-xs md:text-sm '>Order Form </span></span>
-                            </Link>
-                        </li>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/inventory' ? "active" : ""}`}>
-                            <Link href="/user/inventory" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/inventory' ? "active" : ""}`}>
-                                <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><NotebookTabs size={'20px'} /> <span className='text-xs md:text-sm'>Inventory </span></span>
-                            </Link>
-                        </li>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/documents' ? "active" : ""}`}>
-                            <Link href="/user/documents" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/documents' ? "active" : ""}`} onClick={() => setNewDocumentAdded(false)}>
-                                <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3 relative'>
-                                    <Folders size={'20px'} />
-                                    <span className='text-xs md:text-sm '>Documents/Pictures</span>
-                                    {newDocumentAdded && <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full z-10"></span>}
-                                </span>
-                            </Link>
-                        </li>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/shipper-broker-connect' ? "active" : ""}`}>
-                            <Link href="/user/shipper-broker-connect" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/shipper-broker-connect' ? "active" : ""}`}>
-                                <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><MessageSquareMore size={'20px'} /> <span className='text-xs md:text-sm'>
-                                    NTS Support </span></span>
-                            </Link>
-                        </li>
-                        <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/equipment-directory' ? "active" : ""}`}>
-                            <Link href="/user/equipment-directory" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/equipment-directory' ? "active" : ""}`}>
-                                <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 pl-3'><NotebookTabs size={'20px'} /> <span className='text-xs md:text-sm'>Equipment Directory </span></span>
-                            </Link>
-                        </li>
-                    </ul>
-                    <ul className='flex flex-col gap-4 justify-end items-center'>
-                        <li className={`w-full text-nowrap flex justify-normal m-0 ${router.pathname === '/user/settings' ? "active" : ""}`}>
-                            <Link href="/user/settings" className={`logout mt-4 md:mt-0 dark:bg-zinc-300 dark:text-zinc-700 flex items-center justify-center gap-2 font-semibold py-1 w-full ${router.pathname === '/user/settings' ? "active" : ""}`}>
-                                <Settings />   Settings
-                            </Link>
-                        </li>
-                        <li className="w-full flex items-center justify-center m-0">
-                            <button className="logout dark:bg-zinc-300 dark:text-zinc-700 font-semibold py-1 w-full" onClick={handleLogout}>
-                                Logout
-                            </button>
-                        </li>
-                    </ul>
-                </nav>
-            </div >
-        </>
+
+                {/* Navigation links */}
+                <ul className="flex flex-col flex-grow overflow-y-auto">
+                    <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user' ? 'active' : ''}`}>
+                        <Link href="/user" className="side-nav-btn text-stone-100 font-semibold w-full">
+                            <span className="flex items-center flex-nowrap justify-normal gap-2 py-2 md:pl-3">
+                                <Workflow size="20px" /> <span>Dashboard</span>
+                            </span>
+                        </Link>
+                    </li>
+                    <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/logistics-management' ? 'active' : ''}`}>
+                        <Link href="/user/logistics-management" className="side-nav-btn text-stone-100  w-full">
+                            <span className="flex items-center flex-nowrap justify-normal gap-2 py-2 md:pl-3">
+                                <TruckIcon size="20px" /> <span className='text-xs md:text-sm '>Logistics Management</span>
+                            </span>
+                        </Link>
+                    </li>
+                    <li className={`w-full flex justify-normal m-0  ${router.pathname === '/user/quote-request' ? "active" : ""}`}>
+                        <Link href="/user/quote-request" className={`side-nav-btn font-semibold  text-stone-100  w-full ${router.pathname === '/user/quote-request' ? "active" : ""}`}>
+                            <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 md:pl-3'><TfiWrite size={'20px'} /> <span className='text-xs md:text-sm '>Quote Form </span></span>
+                        </Link>
+                    </li>
+                    <li className={`w-full flex justify-normal m-0  ${router.pathname === '/user/order-form' ? "active" : ""}`}>
+                        <Link href="/user/order-form" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/order-form' ? "active" : ""}`}>
+                            <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 md:pl-3'><GrDocumentVerified size={'20px'} /> <span className='text-xs md:text-sm  '>Order Form </span></span>
+                        </Link>
+                    </li>
+                    <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/inventory' ? "active" : ""}`}>
+                        <Link href="/user/inventory" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/inventory' ? "active" : ""}`}>
+                            <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 md:pl-3'><NotebookTabs size={'20px'} /> <span className='text-xs md:text-sm'>Inventory </span></span>
+                        </Link>
+                    </li>
+                    <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/documents' ? "active" : ""}`}>
+                        <Link href="/user/documents" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/documents' ? "active" : ""}`} onClick={() => setNewDocumentAdded(false)}>
+                            <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 md:pl-3 relative'>
+                                <Folders size={'20px'} />
+                                <span className='text-xs md:text-sm '>Documents/Pictures</span>
+                                {newDocumentAdded && <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full z-10"></span>}
+                            </span>
+                        </Link>
+                    </li>
+                    <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/shipper-broker-connect' ? "active" : ""}`}>
+                        <Link href="/user/shipper-broker-connect" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/shipper-broker-connect' ? "active" : ""}`}>
+                            <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 md:pl-3'><MessageSquareMore size={'20px'} /> <span className='text-xs md:text-sm'>
+                                NTS Support </span></span>
+                        </Link>
+                    </li>
+                    <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/equipment-directory' ? "active" : ""}`}>
+                        <Link href="/user/equipment-directory" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/equipment-directory' ? "active" : ""}`}>
+                            <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 md:pl-3'><NotebookTabs size={'20px'} /> <span className='text-xs md:text-sm'>Equipment Directory </span></span>
+                        </Link>
+                    </li>
+                </ul>
+                <ul className='flex flex-col gap-4 justify-center items-center'>
+                    <li className={`w-full text-nowrap flex justify-start m-0 ${router.pathname === '/user/settings' ? "active" : ""}`}>
+                        <Link
+                            href="/user/settings"
+                            className={`text-white mt-4 md:mt-0 dark:bg-zinc-300 dark:text-zinc-700 flex items-center justify-center gap-2 font-semibold py-1 w-full side-nav-btn ${router.pathname === '/user/settings' ? "active" : ""}`}
+                        >
+                            <span className='flex items-center justify-start gap-2 md:pl-3'>
+                                <Settings />
+                                <span>Settings</span>
+                            </span>
+                        </Link>
+                    </li>
+                    <li className="w-full flex items-center justify-center m-0">
+                        <button
+                            className="text-white dark:bg-zinc-300 dark:text-zinc-700 font-semibold py-1 w-full flex items-center justify-center gap-2 side-nav-btn"
+                            onClick={handleLogout}
+                        >
+                            <span className='flex items-center justify-start gap-2 md:pl-3'>
+                                <RiLogoutCircleLine />
+                                <span>Logout</span>
+                            </span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div >
     );
 };
 

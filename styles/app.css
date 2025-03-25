@@ -2079,8 +2079,7 @@ body:is(.dark *) {
 }
 
 .bg-ntsBlue {
-  --tw-bg-opacity: 1;
-  background-color: rgb(54 64 78 / var(--tw-bg-opacity, 1));
+  background-color: #111928;
 }
 
 .bg-ntsBlue\/80 {
@@ -2679,7 +2678,7 @@ body:is(.dark *) {
 
 .text-ntsBlue {
   --tw-text-opacity: 1;
-  color: rgb(54 64 78 / var(--tw-text-opacity, 1));
+  color: #111928;
 }
 
 .text-ntsLightBlue {
@@ -3303,23 +3302,18 @@ body,
 }
 
 .side-navbar {
-  --tw-bg-opacity: 1;
-  background-color: rgb(54 64 78 / var(--tw-bg-opacity, 1));
+  background-color: #111928;
   height: 100vh;
-  /* Full height of the viewport */
   width: 13em;
   color: white;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
   overflow-x: hidden;
-  box-sizing: border-box;
-  z-index: 40;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  /* Prevent shrinking */
-  flex-grow: 1;
-  /* Allow growing */
+  transition: width 0.3s ease;
+}
+
+.side-navbar.collapsed {
+  width: 4em; /* Narrow width for collapsed state */
 }
 
 .sidenav-text {
@@ -3329,16 +3323,10 @@ body,
 }
 
 .side-nav-btn {
-  box-sizing: border-box;
-  width: 100%;
-  padding-left: 0.5rem;
-  font-weight: 400;
-  --tw-text-opacity: 1;
-  color: rgb(156 163 175 / var(--tw-text-opacity, 1));
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  display: block !important;
+  display: flex;
+  align-items: center;
+  color: white;
+  text-decoration: none;
 }
 
 .side-nav-btn:hover {
@@ -3351,11 +3339,45 @@ body,
 
 .side-nav-btn.active {
   font-weight: 600;
+  width: 100%;
+  --tw-bg-opacity: .8;
+  background-color: rgb(18 82 77 / var(--tw-bg-opacity, 1));
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
-  border-bottom: 2px solid #f97316;
-  width: 100%;
 }
+
+/* Collapsed sidebar */
+/* Collapsed sidebar */
+@media (max-width: 768px) {
+
+  .side-navbar {
+    width: 10.5em; /* narrow but visible */
+  }
+
+  .side-navbar.collapsed {
+    width: 4em; /* narrow but visible */
+  }
+
+  .side-navbar.collapsed .side-nav-btn span:not(:first-child) {
+    display: none;
+  }
+
+  .side-navbar.collapsed .side-nav-btn {
+    justify-content: center;
+  }
+
+  .side-navbar.collapsed .side-navbar-logo img {
+    width: 40px !important;
+    height: auto !important;
+    transition: all 0.3s ease;
+  }
+}
+
+.side-navbar-logo img {
+  transition: all 0.3s ease-in-out;
+}
+
+
 
 .logout {
   border-radius: 0.25rem;
