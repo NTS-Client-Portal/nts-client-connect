@@ -21,6 +21,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
     const [destinationState, setDestinationState] = useState('');
     const [errorText, setErrorText] = useState<string>('');
     const [destinationInput, setDestinationInput] = useState('');
+    const [createdAt, setCreatedAt] = useState<string>('');
 
     useEffect(() => {
         if (quote) {
@@ -31,6 +32,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
             setDestinationZip(quote.destination_zip || '');
             setDestinationCity(quote.destination_city || '');
             setDestinationState(quote.destination_state || '');
+            setCreatedAt(quote.created_at || '');
         }
     }, [quote]);
 
@@ -140,16 +142,16 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                     value={updatedQuote.length || ''}
                                     onChange={handleChange}
                                     className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                                />                           
-                            <select
-                                className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900"
-                                name="length_unit"
-                                value={updatedQuote.length_unit || 'ft'}
-                                onChange={handleChange}
-                                     >
-                            <option value="ft">Feet</option>
-                            <option value="in">Inches</option>
-                            </select>
+                                />
+                                <select
+                                    className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900"
+                                    name="length_unit"
+                                    value={updatedQuote.length_unit || 'ft'}
+                                    onChange={handleChange}
+                                >
+                                    <option value="ft">Feet</option>
+                                    <option value="in">Inches</option>
+                                </select>
                             </div>
                             <div className="flex flex-col justify-center items-center mb-2">
                                 <label className="block text-sm font-medium text-gray-700">Width</label>
@@ -160,14 +162,14 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                     onChange={handleChange}
                                     className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                                 />
-                                  <select className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900"
-                                name="width_unit"
-                                value={updatedQuote.width_unit || 'ft'}
-                                onChange={handleChange}
-                                     >
-                            <option value="ft">Feet</option>
-                            <option value="in">Inches</option>
-                            </select>
+                                <select className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900"
+                                    name="width_unit"
+                                    value={updatedQuote.width_unit || 'ft'}
+                                    onChange={handleChange}
+                                >
+                                    <option value="ft">Feet</option>
+                                    <option value="in">Inches</option>
+                                </select>
                             </div>
                             <div className="flex flex-col justify-center items-center mb-2">
                                 <label className="block text-sm font-medium text-gray-700">Height</label>
@@ -178,14 +180,14 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                     onChange={handleChange}
                                     className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                                 />
-                              <select  className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900"
-                                name="height_unit"
-                                value={updatedQuote.height_unit || 'ft'}
-                                onChange={handleChange}
-                                     >
-                                 <option value="ft">Feet</option>
-                                <option value="in">Inches</option>
-                            </select>
+                                <select className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900"
+                                    name="height_unit"
+                                    value={updatedQuote.height_unit || 'ft'}
+                                    onChange={handleChange}
+                                >
+                                    <option value="ft">Feet</option>
+                                    <option value="in">Inches</option>
+                                </select>
                             </div>
                         </div>
                         <div className="mb-4">
@@ -393,95 +395,95 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                         </div>
                     </>
                 );
-             case 'Boats':
+            case 'Boats':
                 return (
                     <>
-                    <div className='block mb-4'>
-                        <label className='block text-sm font-medium text-gray-700'>Year</label>
-                        <input
-                            type='text'
-                            name='year'
-                            value={updatedQuote.year || ''}
-                            onChange={handleChange}
-                            className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
-                        />
-                    </div>
-                    <div className='block mb-4'>
-                        <label className='block text-sm font-medium text-gray-700'>Make</label>
-                        <input
-                            type='text'
-                            name='make'
-                            value={updatedQuote.make || ''}
-                            onChange={handleChange}
-                            className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
-                        />
-                    </div>
-                    <div className='block mb-4'>
-                        <label className='block text-sm font-medium text-gray-700'>Model</label>
-                        <input
-                            type='text'
-                            name='model'
-                            value={updatedQuote.model || ''}
-                            onChange={handleChange}
-                            className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
-                        />
-                    </div>
-                    <div className='block mb-4'>
-                        <label className='block text-sm font-medium text-gray-700'>Length</label>
-                        <input
-                            type='text'
-                            name='length'
-                            value={updatedQuote.length || ''}
-                            onChange={handleChange}
-                            className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
-                        />
-                    </div>
-                    <div className='block mb-4'>
-                        <label className='block text-sm font-medium text-gray-700'>Beam</label>
-                        <input
-                            type='text'
-                            name='width'
-                            value={updatedQuote.width || ''}
-                            onChange={handleChange}
-                            className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
-                        />
-                    </div>
-                    <div className='block mb-4'>
-                        <label className='block text-sm font-medium text-gray-700'>Height</label>
-                        <input
-                            type='text'
-                            name='height'
-                            value={updatedQuote.height || ''}
-                            onChange={handleChange}
-                            className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
-                        />
-                    </div>
+                        <div className='block mb-4'>
+                            <label className='block text-sm font-medium text-gray-700'>Year</label>
+                            <input
+                                type='text'
+                                name='year'
+                                value={updatedQuote.year || ''}
+                                onChange={handleChange}
+                                className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
+                            />
+                        </div>
+                        <div className='block mb-4'>
+                            <label className='block text-sm font-medium text-gray-700'>Make</label>
+                            <input
+                                type='text'
+                                name='make'
+                                value={updatedQuote.make || ''}
+                                onChange={handleChange}
+                                className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
+                            />
+                        </div>
+                        <div className='block mb-4'>
+                            <label className='block text-sm font-medium text-gray-700'>Model</label>
+                            <input
+                                type='text'
+                                name='model'
+                                value={updatedQuote.model || ''}
+                                onChange={handleChange}
+                                className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
+                            />
+                        </div>
+                        <div className='block mb-4'>
+                            <label className='block text-sm font-medium text-gray-700'>Length</label>
+                            <input
+                                type='text'
+                                name='length'
+                                value={updatedQuote.length || ''}
+                                onChange={handleChange}
+                                className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
+                            />
+                        </div>
+                        <div className='block mb-4'>
+                            <label className='block text-sm font-medium text-gray-700'>Beam</label>
+                            <input
+                                type='text'
+                                name='width'
+                                value={updatedQuote.width || ''}
+                                onChange={handleChange}
+                                className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
+                            />
+                        </div>
+                        <div className='block mb-4'>
+                            <label className='block text-sm font-medium text-gray-700'>Height</label>
+                            <input
+                                type='text'
+                                name='height'
+                                value={updatedQuote.height || ''}
+                                onChange={handleChange}
+                                className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
+                            />
+                        </div>
                     </>
                 );
-             case 'LTL/FTL':
+            case 'LTL/FTL':
                 return (
                     <>
-                    <div className='block mb-4'>
-                        <label className='block text-sm font-medium text-gray-700'>Commodity</label>
-                        <input
-                            type='text'
-                            name='commodity'
-                            value={updatedQuote.commodity || ''}
-                            onChange={handleChange}
-                            className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
-                        />
-                    </div>
-                    <div className='block mb-4'>
-                        <label className='block text-sm font-medium text-gray-700'>Packaging</label>
-                        <input
-                            type='text'
-                            name='packaging'
-                            value={updatedQuote.packaging_type || ''}
-                            onChange={handleChange}
-                            className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
-                        />
-                    </div>
-                       <div className='flex gap-1 justify-center items-center'>
+                        <div className='block mb-4'>
+                            <label className='block text-sm font-medium text-gray-700'>Commodity</label>
+                            <input
+                                type='text'
+                                name='commodity'
+                                value={updatedQuote.commodity || ''}
+                                onChange={handleChange}
+                                className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
+                            />
+                        </div>
+                        <div className='block mb-4'>
+                            <label className='block text-sm font-medium text-gray-700'>Packaging</label>
+                            <input
+                                type='text'
+                                name='packaging'
+                                value={updatedQuote.packaging_type || ''}
+                                onChange={handleChange}
+                                className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
+                            />
+                        </div>
+                        <div className='flex gap-1 justify-center items-center'>
                             <div className="flex flex-col gap-1 items-center">
                                 <label className="block text-sm font-medium text-gray-700">Length</label>
                                 <input
@@ -491,16 +493,16 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                     onChange={handleChange}
                                     className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                                 />
-                            <select className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                                name="length_unit"
-                                value={updatedQuote.length_unit || 'ft'}
-                                onChange={handleChange}
-                            >
-                                <option value='in'>Inches</option>
-                                <option value='ft'>Feet</option>
-                                <option value='m'>Meters</option>
-                                <option value='mm'>Millimeters</option>
-                            </select>
+                                <select className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                    name="length_unit"
+                                    value={updatedQuote.length_unit || 'ft'}
+                                    onChange={handleChange}
+                                >
+                                    <option value='in'>Inches</option>
+                                    <option value='ft'>Feet</option>
+                                    <option value='m'>Meters</option>
+                                    <option value='mm'>Millimeters</option>
+                                </select>
                             </div>
                             <div className="flex flex-col gap-1 items-center">
                                 <label className="block text-sm font-medium text-gray-700">Width</label>
@@ -515,12 +517,12 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                     name="width_unit"
                                     value={updatedQuote.width_unit || 'ft'}
                                     onChange={handleChange}
-                                    >
+                                >
                                     <option value='in'>Inches</option>
                                     <option value='ft'>Feet</option>
                                     <option value='m'>Meters</option>
                                     <option value='mm'>Millimeters</option>
-                                    </select>
+                                </select>
                             </div>
                             <div className="flex flex-col gap-1 items-center">
                                 <label className="block text-sm font-medium text-gray-700">Height</label>
@@ -531,17 +533,17 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                     onChange={handleChange}
                                     className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                                 />
-                            <select
-                                name="height_unit"
-                                value={updatedQuote.height_unit || 'ft'}
-                                onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            >
-                                <option value='in'>Inches</option>
-                                <option value='ft'>Feet</option>
-                                <option value='m'>Meters</option>
-                                <option value='mm'>Millimeters</option>
-                            </select>
+                                <select
+                                    name="height_unit"
+                                    value={updatedQuote.height_unit || 'ft'}
+                                    onChange={handleChange}
+                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                >
+                                    <option value='in'>Inches</option>
+                                    <option value='ft'>Feet</option>
+                                    <option value='m'>Meters</option>
+                                    <option value='mm'>Millimeters</option>
+                                </select>
                             </div>
                             <div className="flex flex-col gap-1 items-center">
                                 <label className="block text-sm font-medium text-gray-700">Weight Per Unit</label>
@@ -565,7 +567,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                     <option value="g">g</option>
                                 </select>
                             </div>
-                       </div>
+                        </div>
                         <div className="mb-4">
                             <label className="block text-sm font-medium text-gray-700">Freight Class</label>
                             <input
@@ -605,9 +607,9 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                         </div>
                     </>
                 );
-                case 'Trailers':
-                    return (
-                        <div className='flex gap-1 justify-center items-center'>
+            case 'Trailers':
+                return (
+                    <div className='flex gap-1 justify-center items-center'>
 
                         <div className="mb-4">
                             <label className="block text-sm font-medium text-gray-700">Length</label>
@@ -624,13 +626,13 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 onChange={handleChange}
                                 className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                             >
-                        <option value='ft'>Feet</option>
-                        <option value='in'>Inches</option>
-                        <option value='m'>Meters</option>
-                        <option value='mm'>Millimeters</option>
+                                <option value='ft'>Feet</option>
+                                <option value='in'>Inches</option>
+                                <option value='m'>Meters</option>
+                                <option value='mm'>Millimeters</option>
                             </select>
-                            </div>
-                            <div className="mb-4">
+                        </div>
+                        <div className="mb-4">
                             <label className="block text-sm font-medium text-gray-700">Width</label>
                             <input
                                 type="text"
@@ -645,13 +647,13 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 onChange={handleChange}
                                 className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                             >
-                        <option value='ft'>Feet</option>
-                        <option value='in'>Inches</option>
-                        <option value='m'>Meters</option>
-                        <option value='mm'>Millimeters</option>
+                                <option value='ft'>Feet</option>
+                                <option value='in'>Inches</option>
+                                <option value='m'>Meters</option>
+                                <option value='mm'>Millimeters</option>
                             </select>
-                            </div>
-                            <div className="mb-4">
+                        </div>
+                        <div className="mb-4">
                             <label className="block text-sm font-medium text-gray-700">Height</label>
                             <input
                                 type="text"
@@ -666,11 +668,11 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 onChange={handleChange}
                                 className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                             >
-                        <option value='ft'>Feet</option>
-                        <option value='in'>Inches</option>
-                        <option value='m'>Meters</option>
-                        <option value='mm'>Millimeters</option>
-                        </select>
+                                <option value='ft'>Feet</option>
+                                <option value='in'>Inches</option>
+                                <option value='m'>Meters</option>
+                                <option value='mm'>Millimeters</option>
+                            </select>
                         </div>
                         <div className="mb-4">
                             <label className="block text-sm font-medium text-gray-700">Weight</label>
@@ -694,13 +696,13 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                 <option value="g">g</option>
                             </select>
                         </div>
-                      
-                        </div>
-                    )
-                case 'Auto':
-                    return (
-                       <div>
-                            <div className='flex gap-1 justify-center items-center mt-4 '>
+
+                    </div>
+                )
+            case 'Auto':
+                return (
+                    <div>
+                        <div className='flex gap-1 justify-center items-center mt-4 '>
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">Year</label>
                                 <input
@@ -731,65 +733,65 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                                     className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
                                 />
                             </div>
-                            </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">VIN</label>
-                                <input
-                                    type="text"
-                                    name="vin"
-                                    value={updatedQuote.vin || ''}
-                                    onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                                />
-                            </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Operational Condition</label>
-                                <select
-                                    name="operational_condition"
-                                    value={updatedQuote.operational_condition === null ? '' : updatedQuote.operational_condition ? 'operable' : 'inoperable'}
-                                    onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'operable' ? 'true' : 'false' } })}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                                >
-                                    <option value="">Select...</option>
-                                    <option value="operable">Operable</option>
-                                    <option value="inoperable">Inoperable</option>
-                                </select>
-                            </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Running</label>
-                                <select
-                                    name="running"
-                                    value={updatedQuote.operational_condition === null ? '' : updatedQuote.operational_condition ? 'yes' : 'no'}
-                                    onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'yes' ? 'true' : 'false' } })}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                                >
-                                    <option value="">Select...</option>
-                                    <option value="yes">Yes</option>
-                                    <option value="no">No</option>
-                                </select>
-                            </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Pickup Date</label>
-                                <input
-                                    type="date"
-                                    name="due_date"
-                                    value={updatedQuote.due_date || ''}
-                                    onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                                />
-                            </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Notes</label>
-                                <textarea
-                                    name="notes"
-                                    value={updatedQuote.notes || ''}
-                                    onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                                />
-                            </div>
-                           
-                       </div>
-                    )
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700">VIN</label>
+                            <input
+                                type="text"
+                                name="vin"
+                                value={updatedQuote.vin || ''}
+                                onChange={handleChange}
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700">Operational Condition</label>
+                            <select
+                                name="operational_condition"
+                                value={updatedQuote.operational_condition === null ? '' : updatedQuote.operational_condition ? 'operable' : 'inoperable'}
+                                onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'operable' ? 'true' : 'false' } })}
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                            >
+                                <option value="">Select...</option>
+                                <option value="operable">Operable</option>
+                                <option value="inoperable">Inoperable</option>
+                            </select>
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700">Running</label>
+                            <select
+                                name="running"
+                                value={updatedQuote.operational_condition === null ? '' : updatedQuote.operational_condition ? 'yes' : 'no'}
+                                onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'yes' ? 'true' : 'false' } })}
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                            >
+                                <option value="">Select...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700">Pickup Date</label>
+                            <input
+                                type="date"
+                                name="due_date"
+                                value={updatedQuote.due_date || ''}
+                                onChange={handleChange}
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700">Notes</label>
+                            <textarea
+                                name="notes"
+                                value={updatedQuote.notes || ''}
+                                onChange={handleChange}
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                            />
+                        </div>
+
+                    </div>
+                )
             default:
                 return null;
         }
@@ -804,6 +806,13 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                     <h2 className="text-xl font-bold mb-4">Edit Quote</h2>
                     <div className='flex flex-col md:flex-row gap-2 w-full'>
                         <div className='flex flex-col items-start'>
+                            <label className='text-zinc-900 font-medium'>Created at</label>
+                            <input
+                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                type="date"
+                                value={createdAt}
+                                onChange={(e) => setCreatedAt(e.target.value)} // Allow editing
+                            />
                             <label className='text-zinc-900 font-medium'>Origin</label>
                             <input
                                 className="rounded w-full p-1 border border-zinc-900/30 shadow-md"

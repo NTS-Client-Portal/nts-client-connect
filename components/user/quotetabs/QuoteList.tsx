@@ -503,6 +503,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
                 id: undefined, // Let the database generate a new ID
                 due_date: null,
                 price: null,
+                created_at: new Date().toISOString(), // Set the current timestamp
             })
             .select();
 
@@ -531,6 +532,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
                 destination_city: quote.origin_city,
                 destination_state: quote.origin_state,
                 destination_zip: quote.origin_zip,
+                created_at: new Date().toISOString(), // Set the current timestamp
             })
             .select();
 

@@ -247,6 +247,7 @@ const ContainerForm: React.FC<ContainerFormProps> = ({
                             <option value="At Origin">At Origin</option>
                             <option value="At Destination">At Destination</option>
                             <option value="Both Origin and Destination">Both Origin and Destination</option>
+                            <option value="None">None</option>
                         </select>
                     </label>
                 </div>

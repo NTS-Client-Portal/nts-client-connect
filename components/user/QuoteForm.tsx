@@ -68,6 +68,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                     setOriginZip(originInput);
                     setOriginInput(`${city}, ${state} ${originInput}`);
                 }
+                
             } catch (error) {
                 console.error('Error fetching city and state:', error);
             }
@@ -84,6 +85,10 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                         setOriginState(state);
                         setOriginZip(zip);
                         setOriginInput(`${city}, ${state} ${zip}`);
+                    }
+                    if (!state || !city) {
+                        console.error('Invalid state or city input');
+                        return;
                     }
                 } catch (error) {
                     console.error('Error fetching zip code:', error);
@@ -122,6 +127,10 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                         setDestinationState(state);
                         setDestinationZip(zip);
                         setDestinationInput(`${city}, ${state} ${zip}`);
+                    }
+                    if (!state || !city) {
+                        console.error('Invalid state or city input');
+                        return;
                     }
                 } catch (error) {
                     console.error('Error fetching zip code:', error);
