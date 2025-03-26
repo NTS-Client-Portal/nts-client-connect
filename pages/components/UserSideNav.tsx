@@ -5,11 +5,12 @@ import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import { useProfilesUser } from '@/context/ProfilesUserContext';
 import Image from 'next/image';
-import { Menu, Expand, Workflow, MessageSquareMore, Folders, NotebookTabs, Settings, TruckIcon, LogOut } from 'lucide-react';
+import { Menu, Expand, Workflow, MessageSquareMore, Folders, NotebookTabs, Settings, TruckIcon } from 'lucide-react';
 import { TfiWrite } from "react-icons/tfi";
 import { GrDocumentVerified } from "react-icons/gr";
 import { useDocumentNotification } from '@/context/DocumentNotificationContext';
 import { RiLogoutCircleLine } from "react-icons/ri";
+import { ChevronDown, ChevronUp } from 'lucide-react'; // For caret icons
 
 interface UserSideNavProps {
     isSidebarOpen: boolean;
@@ -31,6 +32,7 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
     const router = useRouter();
     const [assignedSalesUsers, setAssignedSalesUsers] = useState<AssignedSalesUser[]>([]);
     const [ntsUserProfile, setNtsUserProfile] = useState<AssignedSalesUser | null>(null);
+    const [isLogisticsDropdownOpen, setIsLogisticsDropdownOpen] = useState(true);
 
     useEffect(() => {
         const fetchAssignedSalesUsers = async () => {
@@ -69,6 +71,10 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
         ? supabase.storage.from('profile-pictures').getPublicUrl(userProfile.profile_picture).data.publicUrl
         : 'https://www.gravatar.com/avatar?d=mp&s=100';
 
+    const toggleLogisticsDropdown = () => {
+        setIsLogisticsDropdownOpen(!isLogisticsDropdownOpen);
+    };
+
     return (
         <div>
             {/* Toggle button for mobile */}
@@ -101,57 +107,77 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                 </div>
 
                 {/* Navigation links */}
-                <ul className="flex flex-col flex-grow overflow-y-auto">
+                <ul className="flex flex-col flex-grow overflow-y-auto w-full">
                     <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user' ? 'active' : ''}`}>
-                        <Link href="/user" className="side-nav-btn text-stone-100 font-semibold w-full">
-                            <span className="flex items-center flex-nowrap justify-normal gap-2 py-2 md:pl-3">
-                                <Workflow size="20px" /> <span>Dashboard</span>
+                        <Link href="/user" className={`side-nav-btn font-semibold  text-stone-100  w-full ${router.pathname === '/user' ? "active" : ""}`}>
+                            <span className="flex items-center flex-nowrap justify-normal gap-2 py-2 ">
+                                <Workflow size="16px" /> <span className='text-xs md:text-sm'>Dashboard</span>
                             </span>
                         </Link>
                     </li>
-                    <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/logistics-management' ? 'active' : ''}`}>
-                        <Link href="/user/logistics-management" className="side-nav-btn text-stone-100  w-full">
-                            <span className="flex items-center flex-nowrap justify-normal gap-2 py-2 md:pl-3">
-                                <TruckIcon size="20px" /> <span className='text-xs md:text-sm '>Logistics Management</span>
-                            </span>
-                        </Link>
+
+                    {/* Logistics Management with Dropdown */}
+                    <li className="w-fit">
+                        <div className="flex items-center justify-center w-fit">
+                            {/* Link to Logistics Management */}
+                            <Link href="/user/logistics-management" className={`py-2 px-1 side-nav-btn font-semibold  text-stone-100  w-fit ${router.pathname === '/user/logistics-management' ? "active" : ""}`}>
+                                <span className="flex items-center justify-start gap-1">
+                                    <TruckIcon size="16px" />
+                                    <span className='text-nowrap text-xs md:text-sm'>Logistics Management</span>
+                                </span>
+                            </Link>
+
+                            {/* Dropdown Toggle */}
+                            <button
+                                onClick={toggleLogisticsDropdown}
+                                className="text-stone-100"
+                                aria-label="Toggle Logistics Dropdown"
+                            >
+                                {isLogisticsDropdownOpen ? <ChevronUp size="24px" /> : <ChevronDown size="24px" />}
+                            </button>
+                        </div>
+
+                        {/* Dropdown Menu */}
+                        {isLogisticsDropdownOpen && (
+                            <ul className=' w-full'>
+                                <li className={`w-full  ${router.pathname === '/user/quote-request' ? 'active' : ''}`}>
+                                    <Link href="/user/quote-request" className={`side-nav-btn font-semibold  text-stone-100 w-full ${router.pathname === '/user/quote-request' ? "active" : ""}`}>
+                                        <span className="w-full flex items-center justify-center gap-1 py-2">
+                                            <TfiWrite size="16px" />
+                                            <span className='text-xs md:text-sm'>Quote Form</span>
+                                        </span>
+                                    </Link>
+                                </li>
+                                <li className={`w-full ${router.pathname === '/user/order-form' ? 'active' : ''}`}>
+                                    <Link href="/user/order-form" className={`side-nav-btn font-semibold  text-stone-100  w-full ${router.pathname === '/user/order-form' ? "active" : ""}`}>
+                                        <span className="w-full flex items-center justify-center gap-1 py-2">
+                                            <GrDocumentVerified size="16px" />
+                                            <span className='text-xs md:text-sm'>Order Form</span>
+                                        </span>
+                                    </Link>
+                                </li>
+                            </ul>
+                        )}
                     </li>
-                    <li className={`w-full flex justify-normal m-0  ${router.pathname === '/user/quote-request' ? "active" : ""}`}>
-                        <Link href="/user/quote-request" className={`side-nav-btn font-semibold  text-stone-100  w-full ${router.pathname === '/user/quote-request' ? "active" : ""}`}>
-                            <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 md:pl-3'><TfiWrite size={'20px'} /> <span className='text-xs md:text-sm '>Quote Form </span></span>
-                        </Link>
-                    </li>
-                    <li className={`w-full flex justify-normal m-0  ${router.pathname === '/user/order-form' ? "active" : ""}`}>
-                        <Link href="/user/order-form" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/order-form' ? "active" : ""}`}>
-                            <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 md:pl-3'><GrDocumentVerified size={'20px'} /> <span className='text-xs md:text-sm  '>Order Form </span></span>
-                        </Link>
-                    </li>
+
+                    {/* Other navigation links */}
                     <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/inventory' ? "active" : ""}`}>
                         <Link href="/user/inventory" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/inventory' ? "active" : ""}`}>
-                            <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 md:pl-3'><NotebookTabs size={'20px'} /> <span className='text-xs md:text-sm'>Inventory </span></span>
+                            <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 '><NotebookTabs size={'16px'} /> <span className='text-xs md:text-sm'>Inventory </span></span>
                         </Link>
                     </li>
                     <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/documents' ? "active" : ""}`}>
                         <Link href="/user/documents" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/documents' ? "active" : ""}`} onClick={() => setNewDocumentAdded(false)}>
-                            <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 md:pl-3 relative'>
-                                <Folders size={'20px'} />
+                            <span className='flex items-center flex-nowrap justify-normal gap-2 py-2  relative'>
+                                <Folders size={'16px'} />
                                 <span className='text-xs md:text-sm '>Documents/Pictures</span>
                                 {newDocumentAdded && <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full z-10"></span>}
                             </span>
                         </Link>
                     </li>
-                    <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/shipper-broker-connect' ? "active" : ""}`}>
-                        <Link href="/user/shipper-broker-connect" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/shipper-broker-connect' ? "active" : ""}`}>
-                            <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 md:pl-3'><MessageSquareMore size={'20px'} /> <span className='text-xs md:text-sm'>
-                                NTS Support </span></span>
-                        </Link>
-                    </li>
-                    <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/equipment-directory' ? "active" : ""}`}>
-                        <Link href="/user/equipment-directory" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/equipment-directory' ? "active" : ""}`}>
-                            <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 md:pl-3'><NotebookTabs size={'20px'} /> <span className='text-xs md:text-sm'>Equipment Directory </span></span>
-                        </Link>
-                    </li>
                 </ul>
+
+                {/* Settings and Logout */}
                 <ul className='flex flex-col gap-4 justify-center items-center'>
                     <li className={`w-full text-nowrap flex justify-start m-0 ${router.pathname === '/user/settings' ? "active" : ""}`}>
                         <Link
@@ -177,7 +203,7 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                     </li>
                 </ul>
             </nav>
-        </div >
+        </div>
     );
 };
 
