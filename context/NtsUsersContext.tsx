@@ -30,13 +30,16 @@ export const NtsUsersProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                     .from('nts_users')
                     .select('*')
                     .eq('id', session.user.id)
-                    .single();
+                    .maybeSingle(); // Use maybeSingle() to handle cases where no rows are returned
 
                 if (error) {
                     console.error('Error fetching user profile from nts_users:', error.message);
                     setError('Error fetching user profile');
+                } else if (!data) {
+                    console.warn('No user profile found for the given ID.');
+                    setError('No user profile found');
                 } else {
-                    console.log('Fetched user profile from nts_users:', data);
+                    console.log('Fetched user profile from nts_users successfully:', data);
                     setUserProfile(data);
                 }
             } catch (err) {

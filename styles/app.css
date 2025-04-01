@@ -3302,14 +3302,20 @@ body,
 }
 
 .side-navbar {
-  background-color: #111928;
-  height: 100vh;
-  width: 15em;
-  color: white;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
-  overflow-x: hidden;
-  transition: width 0.3s ease;
+    background-color: #111928;
+    height: 100vh; /* Double the viewport height */
+    width: 200px;
+    position: relative;
+}
+
+.side-navbar .fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh; /* Full height of the viewport */
+    width: 200px;
+    background-color: inherit;
+    overflow-y: auto;
 }
 
 .side-navbar.collapsed {

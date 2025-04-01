@@ -109,9 +109,10 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                 {/* Navigation links */}
                 <ul className="flex flex-col items-center flex-grow overflow-y-auto w-full">
                     <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user' ? 'active' : ''}`}>
-                        <Link href="/user" className={`side-nav-btn font-semibold  text-stone-100  w-full ${router.pathname === '/user' ? "active" : ""}`}>
-                            <span className="flex items-center justify-normal gap-2 py-2 ">
-                                <Workflow className='md:hidden' size="20px" /> <span className='text-xs md:text-sm'>Dashboard</span>
+                        <Link href="/user" className={`side-nav-btn font-semibold text-stone-100 w-full ${router.pathname === '/user' ? "active" : ""}`}>
+                            <span className="flex items-center justify-normal gap-2 py-2">
+                                <Workflow className='md:hidden' size="20px" />
+                                <span className='text-xs md:text-sm'>Dashboard</span>
                             </span>
                         </Link>
                     </li>
@@ -119,8 +120,7 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                     {/* Logistics Management with Dropdown */}
                     <li className="w-full">
                         <div
-                            className={`flex items-center justify-normal gap-3 w-fit py-2 side-nav-btn font-semibold ${router.pathname === '/user/logistics-management' ? 'active' : ''
-                                }`}
+                            className={`flex items-center justify-normal gap-3 w-fit py-2 side-nav-btn font-semibold ${router.pathname === '/user/logistics-management' ? 'active' : ''}`}
                         >
                             {/* Link to Logistics Management */}
                             <Link
@@ -144,8 +144,8 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                         {/* Dropdown Menu */}
                         {isLogisticsDropdownOpen && (
                             <ul className="mt-2">
-                                <li className={`w-full ${router.pathname === '/user/quote-request' ? 'active ' : ''}`}>
-                                    <Link href="/user/quote-request" className="side-nav-btn text-stone-100  font-semibold w-full">
+                                <li className={`w-full ${router.pathname === '/user/quote-request' ? 'active' : ''}`}>
+                                    <Link href="/user/quote-request" className="side-nav-btn text-stone-100 font-semibold w-full">
                                         <span className="pl-6 flex items-center gap-2 py-2">
                                             <TfiWrite className='md:hidden' size="20px" />
                                             <span className='text-xs md:text-sm'>Quote Form</span>
@@ -167,24 +167,29 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                     {/* Other navigation links */}
                     <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/inventory' ? "active" : ""}`}>
                         <Link href="/user/inventory" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/inventory' ? "active" : ""}`}>
-                            <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 '><NotebookTabs className='md:hidden' size={'16px'} /> <span className='text-xs md:text-sm'>Inventory </span></span>
+                            <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2'>
+                                <NotebookTabs className='md:hidden' size={'16px'} />
+                                <span className='text-xs md:text-sm'>Inventory</span>
+                            </span>
                         </Link>
                     </li>
                     <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/documents' ? "active" : ""}`}>
                         <Link href="/user/documents" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/documents' ? "active" : ""}`} onClick={() => setNewDocumentAdded(false)}>
-                            <span className='flex items-center flex-nowrap justify-normal gap-2 py-2  relative'>
+                            <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 relative'>
                                 <Folders className='md:hidden' size={'16px'} />
-                                <span className='text-xs md:text-sm '>Documents/Pictures</span>
+                                <span className='text-xs md:text-sm'>Documents/Pictures</span>
                                 {newDocumentAdded && <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full z-10"></span>}
                             </span>
                         </Link>
                     </li>
                     <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/settings' ? "active" : ""}`}>
-                        <Link href="/user/inventory" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/settings' ? "active" : ""}`}>
-                            <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2 '><NotebookTabs className='md:hidden' size={'16px'} /> <span className='text-xs md:text-sm'>Settings </span></span>
+                        <Link href="/user/settings" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/settings' ? "active" : ""}`}>
+                            <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2'>
+                                <NotebookTabs className='md:hidden' size={'16px'} />
+                                <span className='text-xs md:text-sm'>Settings</span>
+                            </span>
                         </Link>
                     </li>
-
                 </ul>
 
                 {/* Settings and Logout */}

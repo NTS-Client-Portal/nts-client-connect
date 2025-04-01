@@ -16,13 +16,15 @@ interface QuoteRequestProps {
     session: Session | null;
     profiles: Database['public']['Tables']['profiles']['Row'][]; // Ensure profiles is passed as a prop
     companyId: string; // Add companyId as a prop
+    userType: 'shipper' | 'broker';
 }
 
-const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], companyId }) => {
+const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], companyId, userType }) => {
     const supabase = useSupabaseClient<Database>();
     const { userProfile: profilesUser } = useProfilesUser(); // Use ProfilesUserContext
     const { userProfile: ntsUser } = useNtsUsers(); // Use NtsUsersContext
-    const isUser = !ntsUser;
+    const isUser = userType === 'shipper'; // Determine user type
+
     const [quotes, setQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
     const [orders, setOrders] = useState<Database['public']['Tables']['orders']['Row'][]>([]);
     const [editHistory, setEditHistory] = useState<Database['public']['Tables']['edit_history']['Row'][]>([]);
@@ -52,13 +54,46 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
             return;
         }
 
-        setSelectedUserId(profile.company_id);
+        console.log('Fetched user profile:', profile);
     }, [session, supabase]);
+
+    // Fetch user role for sales reps
+    const fetchUserRole = useCallback(async () => {
+        if (!session?.user?.id) return;
+
+        const { data, error } = await supabase
+            .from('nts_users')
+            .select('id')
+            .eq('id', session.user.id)
+            .maybeSingle(); // Use maybeSingle() to handle cases where no rows are returned
+
+        if (error) {
+            console.error('Error fetching user role:', error.message);
+        } else if (!data) {
+            console.warn('No user role found for the given ID.');
+            setIsAdmin(false);
+        } else {
+            console.log('Fetched user role successfully:', data);
+            setIsAdmin(true);
+        }
+    }, [session, supabase]);
+
+    // Conditionally fetch data based on userType
+    useEffect(() => {
+        if (userType === 'shipper') {
+            console.log('Fetching user profile for shipper...');
+            fetchUserProfile(); // Fetch data for shippers
+        } else if (userType === 'broker') {
+            console.log('Fetching user role for broker...');
+            fetchUserRole(); // Fetch data for brokers
+        }
+    }, [userType, fetchUserProfile, fetchUserRole]);
+
 
     const fetchQuotes = useCallback(async () => {
         if (!session?.user?.id || !companyId) return;
 
-        console.log('Fetching quotes for companyId:', companyId); // Add log to check companyId
+        console.log('Fetching quotes of company'); // Add log to check companyId
 
         const { data, error } = await supabase
             .from('shippingquotes')
@@ -74,12 +109,15 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
     }, [session, companyId, supabase]);
 
     const fetchAssignedSalesUser = useCallback(async () => {
-        if (!companyId) return;
+        if (!companyId) {
+            console.error('Company ID is missing');
+            return;
+        }
 
         const { data, error } = await supabase
             .from('company_sales_users')
             .select('sales_user_id')
-            .eq('company_id', companyId)
+            .eq('company_id', companyId) // Use the actual companyId prop
             .single();
 
         if (error) {

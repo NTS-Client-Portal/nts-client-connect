@@ -211,7 +211,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
     return (
         <div className="flex h-screen">
             {/* Sidebar */}
-            <div className={`fixed inset-y-0 left-0 transform ${sidebarOpen ? 'tranzinc-x-0' : '-tranzinc-x-full'} transition-transform duration-300 ease-in-out w-64 bg-zinc-200 dark:bg-zinc-900 dark:text-white p-4 border-r border-t border-zinc-700/20 shadow-lg z-50 md:relative md:tranzinc-x-0`}>
+            <div className={`transform ${sidebarOpen ? 'tranzinc-x-0' : '-tranzinc-x-full'} transition-transform duration-300 ease-in-out w-64 bg-zinc-200 dark:bg-zinc-900 dark:text-white p-4 border-r border-t border-zinc-700/20 shadow-lg md:relative md:tranzinc-x-0`}>
                 <h2 className="text-xl font-bold mb-4">Settings</h2>
                 <ul className="space-y-2">
                     <li className='flex gap-1 items-center'>

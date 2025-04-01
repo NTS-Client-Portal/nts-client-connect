@@ -8,7 +8,7 @@ import { NtsUsersProvider } from '@/context/NtsUsersContext';
 import SalesLayout from '../nts/sales/_components/layout/SalesLayout';
 import QuoteRequest from '@/components/user/QuoteRequest';
 
-const CompanyPage: React.FC<{ company: any; profiles: any[]; ntsUsers: any[] }> = ({ company, profiles, ntsUsers }) => {
+const CompanyPage: React.FC<{ company: any; profiles: any[]; }> = ({ company, profiles }) => {
     const router = useRouter();
     const session = useSession();
 
@@ -21,7 +21,7 @@ const CompanyPage: React.FC<{ company: any; profiles: any[]; ntsUsers: any[] }> 
             <SalesLayout>
                 <div>
                     <h1 className='font-bold text-lg'>{company.company_name}</h1>
-                    <QuoteRequest session={session} profiles={profiles} companyId={company.id} />
+                    <QuoteRequest session={session} profiles={profiles} companyId={company.id} userType='broker' />
                 </div>
             </SalesLayout>
         </NtsUsersProvider>
