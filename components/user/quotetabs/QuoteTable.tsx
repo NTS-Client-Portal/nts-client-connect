@@ -675,7 +675,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                 </tbody>
 
             </table>
-            {quotes ? (
+            {loading ? (
                 <div className="text-center text-gray-500">Loading...</div>
             ) : quotes.length === 0 ? (
                 <>
