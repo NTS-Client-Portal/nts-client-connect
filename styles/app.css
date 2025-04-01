@@ -3317,7 +3317,7 @@ body,
 }
 
 .sidenav-text {
-  font-size: .50em;
+  font-size: .50em !important;
   text-wrap: nowrap;
   width: 100%;
 }
