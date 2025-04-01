@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/initSupabase';
 import { Database } from '@/lib/database.types';
+import { useSession } from '@supabase/auth-helpers-react';
 import SelectTemplate from '@/components/SelectTemplate';
+import QuoteFormModal from '@/components/user/forms/QuoteFormModal';
 
 interface QuoteDetailsMobileProps {
     quotes: Database['public']['Tables']['shippingquotes']['Row'][];
@@ -39,6 +41,39 @@ const QuoteDetailsMobile: React.FC<QuoteDetailsMobileProps> = ({
     const [expandedQuoteId, setExpandedQuoteId] = useState<number | null>(null);
     const [depositInput, setDepositInput] = useState('');
     const [loading, setLoading] = useState<boolean>(true);
+    const session = useSession();
+    const [companyId, setCompanyId] = useState<string | null>(null);
+    const profiles = [];
+
+    useEffect(() => {
+        const fetchCompanyId = async () => {
+            if (!session?.user?.id) {
+                setLoading(false);
+                return;
+            }
+
+            try {
+                // Fetch the company_id from the profiles table
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('company_id')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (error) {
+                    console.error('Error fetching company ID:', error.message);
+                } else {
+                    setCompanyId(data?.company_id || null);
+                }
+            } catch (err) {
+                console.error('Unexpected error fetching company ID:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCompanyId();
+    }, [session, supabase]);
 
     useEffect(() => {
         if (quotes.length > 0) {
@@ -71,11 +106,25 @@ const QuoteDetailsMobile: React.FC<QuoteDetailsMobileProps> = ({
     };
 
     return (
-        <div className="w-[95%] mx-auto">
+        <div className="mx-auto overflow-y-hidden h-full w-full">
             {loading ? (
                 <div className="text-center text-gray-500">Loading...</div>
             ) : quotes.length === 0 ? (
-                <div className="text-center text-gray-500">No quotes available yet.</div>
+                <>
+                    <div className='flex flex-col h-full w-full items-center justify-start gap-4 p-4 border border-gray-500'>
+                        <div>
+                            <p className="text-center text-gray-500">No quotes available yet.</p>
+                        </div>
+                        <div className='flex justify-center'>
+                            <QuoteFormModal
+                                session={session}
+                                profiles={profiles}
+                                companyId={companyId}
+                                userType="shipper"
+                            />
+                        </div>
+                    </div>
+                </>
             ) : (
                 quotes.map((quote) => (
                     <div key={quote.id} className="bg-white dark:bg-zinc-800 text-ntsBlue shadow rounded-md mb-4 p-4 border border-zinc-400">

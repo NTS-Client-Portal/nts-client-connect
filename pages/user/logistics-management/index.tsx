@@ -11,8 +11,6 @@ const FreightRFQPage: React.FC = () => {
     const [companyId, setCompanyId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const profiles = [];
-    const ntsUsers = [];
-    const isAdmin = false;
 
     useEffect(() => {
         const fetchCompanyId = async () => {

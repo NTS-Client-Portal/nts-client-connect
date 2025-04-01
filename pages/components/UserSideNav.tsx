@@ -86,7 +86,7 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                     {isSidebarOpen ? (
                         <Menu size={24} className="text-white z-50 drop-shadow-lg" />
                     ) : (
-                        <Expand size={28} className="z-50 text-zinc-50 drop-shadow-lg" />
+                        <Expand size={28} className="z-50 text-zinc-600 drop-shadow-lg" />
                     )}
                 </button>
             </div>

@@ -39,6 +39,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
     const [searchTerm, setSearchTerm] = useState<string>(searchTermParam as string || '');
     const [searchColumn, setSearchColumn] = useState<string>(searchColumnParam as string || 'id');
     const [assignedSalesUser, setAssignedSalesUser] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(true);
 
     const fetchUserProfile = useCallback(async () => {
         if (!session?.user?.id) return;
@@ -312,14 +313,17 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
 
     return (
         <div className="w-full h-full overflow-auto">
-            <div className="w-full">
-                <div className='flex flex-col justify-center items-center gap-2 mb-4'>
-                    <button onClick={() => setIsModalOpen(true)} className="text-ntsLightBlue text-lg underline cursor-point font-semibold md:body-btn">
-                        {activeTab === 'orders' ? 'Request a Shipping Order' : 'Request a Shipping Estimate'}
-                    </button>
+            {quotes ? (
+                <div className="text-start font-semibold py-2 text-gray-800 text-nowrap">Welcome {profilesUser?.first_name} {profilesUser?.last_name} <br /> Manage your shipments here</div>
+            ) : quotes.length === 0 ? (
+                <div className="w-full">
+                    <div className='flex flex-col justify-center items-center gap-2 mb-4'>
+                        <button onClick={() => setIsModalOpen(true)} className="text-base text-white rounded bg-zinc-900 px-2 py-1 cursor-point font-semibold">
+                            {activeTab === 'orders' ? 'Request a Shipping Order' : 'Request a Shipping Estimate'}
+                        </button>
+                    </div>
                 </div>
-            </div>
-
+            ) : ("")}
             {activeTab === 'requests' ? (
                 <QuoteForm
                     session={session}

@@ -3318,10 +3318,6 @@ body,
     overflow-y: auto;
 }
 
-.side-navbar.collapsed {
-  width: 4em; /* Narrow width for collapsed state */
-}
-
 .sidenav-text {
   font-size: .50em !important;
   text-wrap: nowrap;
@@ -3362,7 +3358,7 @@ body,
   }
 
   .side-navbar.collapsed {
-    width: 4em; /* narrow but visible */
+    display: none; /* narrow but visible */
   }
 
   .side-navbar.collapsed .side-nav-btn span:not(:first-child) {
@@ -3442,7 +3438,6 @@ main:is(.dark *) {
 
 main {
   flex-grow: 1;
-  overflow-y: auto;
 }
 
 .side-navbar ul {

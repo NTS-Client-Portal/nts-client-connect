@@ -2,10 +2,12 @@ import React, { useState, useMemo, useEffect } from 'react';
 import EditHistory from '../../EditHistory';
 import { formatDate, renderAdditionalDetails, freightTypeMapping } from './QuoteUtils';
 import { supabase } from '@/lib/initSupabase';
+import { useSession } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import OrderFormModal from './OrderFormModal';
 import { generateAndUploadDocx, replaceShortcodes } from "@/components/GenerateDocx";
 import SelectTemplate from '@/components/SelectTemplate';
+import QuoteFormModal from '@/components/user/forms/QuoteFormModal';
 
 interface QuoteTableProps {
     sortConfig: { column: string; order: string };
@@ -68,6 +70,40 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
     const [showPriceInput, setShowPriceInput] = useState<number | null>(null);
     const [carrierPayInput, setCarrierPayInput] = useState('');
     const [depositInput, setDepositInput] = useState('');
+    const [loading, setLoading] = useState<boolean>(true);
+    const session = useSession();
+    const [companyId, setCompanyId] = useState<string | null>(null);
+    const profiles = [];
+
+    useEffect(() => {
+        const fetchCompanyId = async () => {
+            if (!session?.user?.id) {
+                setLoading(false);
+                return;
+            }
+
+            try {
+                // Fetch the company_id from the profiles table
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('company_id')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (error) {
+                    console.error('Error fetching company ID:', error.message);
+                } else {
+                    setCompanyId(data?.company_id || null);
+                }
+            } catch (err) {
+                console.error('Unexpected error fetching company ID:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCompanyId();
+    }, [session, supabase]);
 
     const filteredQuotes = useMemo(() => {
         let sortedQuotes = [...quotes];
@@ -321,319 +357,345 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                         </th>
                     </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200 w-fit">
-                    {currentRows.map((quote, index) => (
-                        <React.Fragment key={quote.id}>
-                            <tr onClick={() => handleRowClick(quote.id)}
-                                className={`cursor-pointer mb-4 w-max ${index % 2 === 0 ? 'bg-white h-fit w-full' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}
-                            >
-                                {/* Quote ID */}
-                                <td
-                                    onClick={() => handleRowClick(quote.id)}
-                                    className="px-6 py-3 w-[30px] whitespace-nowrap text-sm font-medium text-ntsLightBlue underline border border-gray-200"
+                <tbody className="bg-white divide-y divide-gray-200 w-full">
+
+                    <>
+                        {currentRows.map((quote, index) => (
+                            <React.Fragment key={quote.id}>
+                                <tr onClick={() => handleRowClick(quote.id)}
+                                    className={`cursor-pointer mb-4 w-max ${index % 2 === 0 ? 'bg-white h-fit w-full' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}
                                 >
-                                    {quote.id}
-                                </td>
-                                {/* date of quote submittion */}
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
-                                    {quote.created_at ? new Date(quote.created_at).toLocaleDateString() : 'N/A'}
-                                </td>
-                                {/* Freight Information */}
-                                <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200">
-                                    <div className=''>
-                                        {Array.isArray(quote.shipment_items) ? quote.shipment_items.map((item: any, index) => (
-                                            <React.Fragment key={index}>
-                                                {quote.freight_type === 'Container' && item.container_length && item.container_type && typeof item === 'object' && (
-                                                    <span className='flex gap-1'>
-                                                        <span className='font-semibold text-xs text-gray-700 p-0'>Shipment Item {index + 1}:</span>
-                                                        <span className='text-xs text-zinc-900 p-0'>{`${item.container_length}  ${item.container_type}`}</span>
-                                                    </span>
-                                                )}
-                                                {(quote.freight_type === 'Equipment' && item.length && item.width && item.height && item.weight && item.value) && (
-                                                    <span className='flex flex-col gap-0'>
-                                                        <span className='font-semibold text-xs text-gray-700 p-0'>Shipment Item {index + 1}:</span>
-                                                        <span className='text-xs text-zinc-900 p-0'>
-                                                            {`${item.length} ${item.length_unit} x ${item.width} ${item.width_unit} x ${item.height} ${item.height_unit}, ${item.weight} ${item.weight_unit}`}
-                                                        </span>
-                                                    </span>
-                                                )}
-                                                {quote.freight_type === 'Auto' && item.auto_year && item.auto_make && item.auto_model && (
-                                                    <span className='flex flex-col gap-0 w-min'>
-                                                        <span className='font-semibold text-sm text-gray-700 p-0 w-min'>Shipment Item {index + 1}:</span>
-
-                                                        <span className='text-xs text-zinc-900 p-0 w-min'>{`VIN: ${item.vin}`}</span>
-                                                        <span className='text-xs text-zinc-900 p-0 w-min'>{`Condition: ${item.operationalCondition ? 'Operable' : 'Inoperable'}`}</span>
-                                                    </span>
-                                                )}
-                                                {quote.freight_type === 'Boats' && item.boat_type && item.year && item.make && item.value && item.model && (
-                                                    <span className='flex flex-col gap-0'>
-                                                        <span className='font-semibold text-xs text-gray-700 p-0'>Shipment Item {index + 1}:</span>
-                                                        <span className='text-xs text-zinc-900 p-0'>{`${item.year} ${item.make} ${item.model}`}</span>
-                                                        <span className='text-xs text-zinc-900 p-0'>{item.boat_type}</span>
-
-                                                    </span>
-                                                )}
-                                                {quote.freight_type === 'LTL/FTL' && item.commodity && item.load_description && item.packaging_type && (
-                                                    <span className='flex flex-col gap-0'>
-                                                        <span className='font-semibold text-xs text-gray-700 p-0'>Shipment Item {index + 1}:</span>
-                                                        <span className='text-xs text-zinc-900 p-0'>
-                                                            {`${item.commodity} ${item.packaging_type}`}
-                                                        </span>
-                                                    </span>
-                                                )}
-                                            </React.Fragment>
-                                        )) : (
-                                            <>
-                                                <div className='text-start w-min'>
-                                                    {quote.container_length && quote.container_type && (
-                                                        <>
-                                                            <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
-                                                            <span className='text-xs text-zinc-900 w-min text-start'>{`${quote.container_length} ft ${quote.container_type}`}</span>
-                                                        </>
-                                                    )}
-                                                    {quote.freight_type === 'Trailers' && (
-                                                        <>
-                                                            <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
-                                                            <span className='text-normal text-zinc-900 text-start w-min'>{`${quote.year} ${quote.make} ${quote.model}`}</span><br />
-                                                            <span className='text-normal text-zinc-900 text-start w-min'>
-                                                                {`${quote.length} ${quote.length_unit} x ${quote.width} ${quote.width_unit} x ${quote.height} ${quote.height_unit}, ${quote.weight} ${quote.weight_unit}`}
-                                                            </span>
-                                                        </>
-                                                    )}
-                                                    {quote.freight_type === 'Equipment' && (
-                                                        <>
-                                                            <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
-                                                            <span className='text-xs text-zinc-900 text-start w-min'>{`${quote.year} ${quote.make} ${quote.model}`}<br /></span>
-                                                            <span className='text-xs text-zinc-900 text-start w-min'>
-                                                                {`${quote.length} ${quote.length_unit} x ${quote.width} ${quote.width_unit} x ${quote.height} ${quote.height_unit}, ${quote.weight} ${quote.weight_unit}`}<br />
-                                                            </span>
-                                                        </>
-                                                    )}
-                                                    {quote.freight_type === 'Auto' && (
-                                                        <>
-                                                            <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
-                                                            <span className='text-xs text-zinc-900 p-0 w-min'>{`${quote.auto_year} ${quote.auto_make} ${quote.auto_model}`}</span><br />
-                                                            <span className='text-xs text-zinc-900 text-start w-min'><strong>Condition: </strong>{` ${quote.operational_condition ? 'Operable' : 'Inoperable'}`}</span>
-                                                        </>
-                                                    )}
-                                                    {quote.freight_type === 'LTL/FTL' && (
-                                                        <>
-                                                            <span className='font-semibold  text-xs text-zinc-900 p-0 w-min'>Commodity Type: </span>
-                                                            <span className='text-xs text-zinc-900 p-0 w-min'>{`${quote.commodity}`} </span> <br />
-                                                            <span className='text-xs text-zinc-900 p-0 w-min'>
-                                                                <strong>Unit Type: </strong>{`${quote.packaging_type}`}
-                                                                <strong> - </strong>{`${quote.length} ${quote.length_unit} x ${quote.width} ${quote.width_unit} x ${quote.height} ${quote.height_unit}, ${quote.weight} ${quote.weight_unit}`}
-                                                            </span>
-
-                                                        </>
-                                                    )}
-                                                    {quote.freight_type === 'Boats' && (
-                                                        <>
-                                                            <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
-                                                            <span className='text-xs text-zinc-900 p-0 w-min'>{`${quote.year} ${quote.make} ${quote.model}`}</span><br />
-                                                            <span className='text-xs text-zinc-900 p-0 w-min'><strong>Dimensions: </strong>{`${quote.length} x ${quote.beam} x ${quote.height}`}</span><br />
-                                                            <span className='text-xs text-zinc-900 p-0 w-min'><strong>Boat Type: </strong>{`${quote.type}`}</span>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </>
-                                        )}
-                                        <div className='text-start pt-1 w-min'>
-                                            <span className='font-semibold text-xs text-gray-700 text-start w-min'>Freight Type:</span>
-                                            <span className='text-xs text-zinc-900 text-start px-1 w-min'>{quote.freight_type}</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                {/* Origin/destination w/ linked to google maps */}
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
-                                    <a
-                                        href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${quote.origin_city}, ${quote.origin_state} ${quote.origin_zip}`)}&destination=${encodeURIComponent(`${quote.destination_city}, ${quote.destination_state} ${quote.destination_zip}`)}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-blue-500 underline"
+                                    {/* Quote ID */}
+                                    <td
+                                        onClick={() => handleRowClick(quote.id)}
+                                        className="px-6 py-3 w-[30px] whitespace-nowrap text-sm font-medium text-ntsLightBlue underline border border-gray-200"
                                     >
-                                        {quote.origin_city}, {quote.origin_state} {quote.origin_zip} / <br />
-                                        {quote.destination_city}, {quote.destination_state} {quote.destination_zip} <br /> [Map It]
-                                    </a>
-                                </td>
-                                {/* Shipping Date */}
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.due_date}</td>
-                                {/* Pricing */}
-                                <td>
-                                    {isAdmin ? (
-                                        showPriceInput === quote.id ? (
-                                            <form onSubmit={(e) => handlePriceSubmit(e, quote.id)}>
-                                                <div className='flex flex-col items-center gap-1'>
-                                                    <span className='flex flex-col'>
-                                                        <label className='text-[14px] font-semibold text-ntsBlue'>Shippper Quote:</label>
+                                        {quote.id}
+                                    </td>
+                                    {/* date of quote submittion */}
+                                    <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
+                                        {quote.created_at ? new Date(quote.created_at).toLocaleDateString() : 'N/A'}
+                                    </td>
+                                    {/* Freight Information */}
+                                    <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200">
+                                        <div className=''>
+                                            {Array.isArray(quote.shipment_items) ? quote.shipment_items.map((item: any, index) => (
+                                                <React.Fragment key={index}>
+                                                    {quote.freight_type === 'Container' && item.container_length && item.container_type && typeof item === 'object' && (
+                                                        <span className='flex gap-1'>
+                                                            <span className='font-semibold text-xs text-gray-700 p-0'>Shipment Item {index + 1}:</span>
+                                                            <span className='text-xs text-zinc-900 p-0'>{`${item.container_length}  ${item.container_type}`}</span>
+                                                        </span>
+                                                    )}
+                                                    {(quote.freight_type === 'Equipment' && item.length && item.width && item.height && item.weight && item.value) && (
+                                                        <span className='flex flex-col gap-0'>
+                                                            <span className='font-semibold text-xs text-gray-700 p-0'>Shipment Item {index + 1}:</span>
+                                                            <span className='text-xs text-zinc-900 p-0'>
+                                                                {`${item.length} ${item.length_unit} x ${item.width} ${item.width_unit} x ${item.height} ${item.height_unit}, ${item.weight} ${item.weight_unit}`}
+                                                            </span>
+                                                        </span>
+                                                    )}
+                                                    {quote.freight_type === 'Auto' && item.auto_year && item.auto_make && item.auto_model && (
+                                                        <span className='flex flex-col gap-0 w-min'>
+                                                            <span className='font-semibold text-sm text-gray-700 p-0 w-min'>Shipment Item {index + 1}:</span>
 
-                                                        <input
-                                                            type="number"
-                                                            name="quotePrice"
-                                                            value={carrierPayInput}
-                                                            onChange={(e) => setCarrierPayInput(e.target.value)}
-                                                            placeholder="Enter price"
-                                                            className="border border-gray-300 rounded-md p-1"
-                                                        />
-                                                        <span className='text-sm text-gray-500 font-semibold'>note: <span className='text-xs italic font-medium text-gray-500'>Include both carrier pay and deposit</span></span>
-                                                    </span>
-                                                </div>
+                                                            <span className='text-xs text-zinc-900 p-0 w-min'>{`VIN: ${item.vin}`}</span>
+                                                            <span className='text-xs text-zinc-900 p-0 w-min'>{`Condition: ${item.operationalCondition ? 'Operable' : 'Inoperable'}`}</span>
+                                                        </span>
+                                                    )}
+                                                    {quote.freight_type === 'Boats' && item.boat_type && item.year && item.make && item.value && item.model && (
+                                                        <span className='flex flex-col gap-0'>
+                                                            <span className='font-semibold text-xs text-gray-700 p-0'>Shipment Item {index + 1}:</span>
+                                                            <span className='text-xs text-zinc-900 p-0'>{`${item.year} ${item.make} ${item.model}`}</span>
+                                                            <span className='text-xs text-zinc-900 p-0'>{item.boat_type}</span>
+
+                                                        </span>
+                                                    )}
+                                                    {quote.freight_type === 'LTL/FTL' && item.commodity && item.load_description && item.packaging_type && (
+                                                        <span className='flex flex-col gap-0'>
+                                                            <span className='font-semibold text-xs text-gray-700 p-0'>Shipment Item {index + 1}:</span>
+                                                            <span className='text-xs text-zinc-900 p-0'>
+                                                                {`${item.commodity} ${item.packaging_type}`}
+                                                            </span>
+                                                        </span>
+                                                    )}
+                                                </React.Fragment>
+                                            )) : (
+                                                <>
+                                                    <div className='text-start w-min'>
+                                                        {quote.container_length && quote.container_type && (
+                                                            <>
+                                                                <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
+                                                                <span className='text-xs text-zinc-900 w-min text-start'>{`${quote.container_length} ft ${quote.container_type}`}</span>
+                                                            </>
+                                                        )}
+                                                        {quote.freight_type === 'Trailers' && (
+                                                            <>
+                                                                <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
+                                                                <span className='text-normal text-zinc-900 text-start w-min'>{`${quote.year} ${quote.make} ${quote.model}`}</span><br />
+                                                                <span className='text-normal text-zinc-900 text-start w-min'>
+                                                                    {`${quote.length} ${quote.length_unit} x ${quote.width} ${quote.width_unit} x ${quote.height} ${quote.height_unit}, ${quote.weight} ${quote.weight_unit}`}
+                                                                </span>
+                                                            </>
+                                                        )}
+                                                        {quote.freight_type === 'Equipment' && (
+                                                            <>
+                                                                <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
+                                                                <span className='text-xs text-zinc-900 text-start w-min'>{`${quote.year} ${quote.make} ${quote.model}`}<br /></span>
+                                                                <span className='text-xs text-zinc-900 text-start w-min'>
+                                                                    {`${quote.length} ${quote.length_unit} x ${quote.width} ${quote.width_unit} x ${quote.height} ${quote.height_unit}, ${quote.weight} ${quote.weight_unit}`}<br />
+                                                                </span>
+                                                            </>
+                                                        )}
+                                                        {quote.freight_type === 'Auto' && (
+                                                            <>
+                                                                <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
+                                                                <span className='text-xs text-zinc-900 p-0 w-min'>{`${quote.auto_year} ${quote.auto_make} ${quote.auto_model}`}</span><br />
+                                                                <span className='text-xs text-zinc-900 text-start w-min'><strong>Condition: </strong>{` ${quote.operational_condition ? 'Operable' : 'Inoperable'}`}</span>
+                                                            </>
+                                                        )}
+                                                        {quote.freight_type === 'LTL/FTL' && (
+                                                            <>
+                                                                <span className='font-semibold  text-xs text-zinc-900 p-0 w-min'>Commodity Type: </span>
+                                                                <span className='text-xs text-zinc-900 p-0 w-min'>{`${quote.commodity}`} </span> <br />
+                                                                <span className='text-xs text-zinc-900 p-0 w-min'>
+                                                                    <strong>Unit Type: </strong>{`${quote.packaging_type}`}
+                                                                    <strong> - </strong>{`${quote.length} ${quote.length_unit} x ${quote.width} ${quote.width_unit} x ${quote.height} ${quote.height_unit}, ${quote.weight} ${quote.weight_unit}`}
+                                                                </span>
+
+                                                            </>
+                                                        )}
+                                                        {quote.freight_type === 'Boats' && (
+                                                            <>
+                                                                <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
+                                                                <span className='text-xs text-zinc-900 p-0 w-min'>{`${quote.year} ${quote.make} ${quote.model}`}</span><br />
+                                                                <span className='text-xs text-zinc-900 p-0 w-min'><strong>Dimensions: </strong>{`${quote.length} x ${quote.beam} x ${quote.height}`}</span><br />
+                                                                <span className='text-xs text-zinc-900 p-0 w-min'><strong>Boat Type: </strong>{`${quote.type}`}</span>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </>
+                                            )}
+                                            <div className='text-start pt-1 w-min'>
+                                                <span className='font-semibold text-xs text-gray-700 text-start w-min'>Freight Type:</span>
+                                                <span className='text-xs text-zinc-900 text-start px-1 w-min'>{quote.freight_type}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    {/* Origin/destination w/ linked to google maps */}
+                                    <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
+                                        <a
+                                            href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${quote.origin_city}, ${quote.origin_state} ${quote.origin_zip}`)}&destination=${encodeURIComponent(`${quote.destination_city}, ${quote.destination_state} ${quote.destination_zip}`)}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-500 underline"
+                                        >
+                                            {quote.origin_city}, {quote.origin_state} {quote.origin_zip} / <br />
+                                            {quote.destination_city}, {quote.destination_state} {quote.destination_zip} <br /> [Map It]
+                                        </a>
+                                    </td>
+                                    {/* Shipping Date */}
+                                    <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.due_date}</td>
+                                    {/* Pricing */}
+                                    <td>
+                                        {isAdmin ? (
+                                            showPriceInput === quote.id ? (
+                                                <form onSubmit={(e) => handlePriceSubmit(e, quote.id)}>
+                                                    <div className='flex flex-col items-center gap-1'>
+                                                        <span className='flex flex-col'>
+                                                            <label className='text-[14px] font-semibold text-ntsBlue'>Shippper Quote:</label>
+
+                                                            <input
+                                                                type="number"
+                                                                name="quotePrice"
+                                                                value={carrierPayInput}
+                                                                onChange={(e) => setCarrierPayInput(e.target.value)}
+                                                                placeholder="Enter price"
+                                                                className="border border-gray-300 rounded-md p-1"
+                                                            />
+                                                            <span className='text-sm text-gray-500 font-semibold'>note: <span className='text-xs italic font-medium text-gray-500'>Include both carrier pay and deposit</span></span>
+                                                        </span>
+                                                    </div>
+                                                    <div className='flex justify-center gap-1'>
+                                                        <button type="submit" className="text-ntsLightBlue text-center text-sm font-semibold underline">
+                                                            Submit Quote
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            ) : (
                                                 <div className='flex justify-center gap-1'>
-                                                    <button type="submit" className="text-ntsLightBlue text-center text-sm font-semibold underline">
-                                                        Submit Quote
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        ) : (
-                                            <div className='flex justify-center gap-1'>
-                                                {quote.price ? (
-                                                    <>
-                                                        <span>{`$${quote.price}`}</span>
+                                                    {quote.price ? (
+                                                        <>
+                                                            <span>{`$${quote.price}`}</span>
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setShowPriceInput(quote.id);
+                                                                }}
+                                                                className="ml-2 text-ntsLightBlue font-medium underline"
+                                                            >
+                                                                Edit Quote
+                                                            </button>
+                                                        </>
+                                                    ) : (
                                                         <button
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 setShowPriceInput(quote.id);
                                                             }}
-                                                            className="ml-2 text-ntsLightBlue font-medium underline"
+                                                            className="text-ntsLightBlue font-medium underline"
                                                         >
-                                                            Edit Quote
+                                                            Price Quote Request
                                                         </button>
+                                                    )}
+                                                </div>
+                                            )
+                                        ) : (
+                                            <div>
+                                                {quote.price ? (
+                                                    <>
+                                                        <div className='flex flex-col items-center justify-between'>
+                                                            <span className='text-emerald-500 font-semibold text-base underline'>{`$${quote.price}`}</span>
+                                                        </div>
                                                     </>
                                                 ) : (
+                                                    <span className='flex justify-center italic text-gray-950 text-base font-normal'>Pending</span>
+                                                )}
+                                            </div>
+                                        )}
+                                    </td>
+                                    {/* Actions */}
+                                    <td className="pl-3 py-3 whitespace-nowrap text-left text-sm text-gray-500 border border-gray-200 w-80">
+                                        <div className='flex flex-col gap-1 justify-start text-left items-start'>
+                                            <div className='flex flex-col lg:flex-row gap-2 items-center'>
+                                                {quote.price ? (
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            setShowPriceInput(quote.id);
+                                                            handleCreateOrderClick(quote.id);
                                                         }}
                                                         className="text-ntsLightBlue font-medium underline"
                                                     >
-                                                        Price Quote Request
+                                                        Create Order
                                                     </button>
-                                                )}
-                                            </div>
-                                        )
-                                    ) : (
-                                        <div>
-                                            {quote.price ? (
-                                                <>
-                                                    <div className='flex flex-col items-center justify-between'>
-                                                        <span className='text-emerald-500 font-semibold text-base underline'>{`$${quote.price}`}</span>
-                                                    </div>
-                                                </>
-                                            ) : (
-                                                <span className='flex justify-center italic text-gray-950 text-base font-normal'>Pending</span>
-                                            )}
-                                        </div>
-                                    )}
-                                </td>
-                                {/* Actions */}
-                                <td className="pl-3 py-3 whitespace-nowrap text-left text-sm text-gray-500 border border-gray-200 w-80">
-                                    <div className='flex flex-col gap-1 justify-start text-left items-start'>
-                                        <div className='flex flex-col lg:flex-row gap-2 items-center'>
-                                            {quote.price ? (
+                                                ) : null}
+
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        handleCreateOrderClick(quote.id);
+                                                        handleEditClick(quote);
                                                     }}
                                                     className="text-ntsLightBlue font-medium underline"
                                                 >
-                                                    Create Order
+                                                    Edit Quote
                                                 </button>
+                                            </div>
+                                            {isAdmin ? (
+                                                <>
+                                                    <select
+                                                        value={quote.brokers_status}
+                                                        onChange={(e) => handleStatusChange(e, quote.id)}
+                                                        className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(quote.brokers_status)}`}>
+                                                        <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
+                                                        <option value="Need More Info" className={getStatusClasses('Need More Info')}>Need More Info</option>
+                                                        <option value="Priced" className={getStatusClasses('Priced')}>Priced</option>
+                                                        <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
+                                                    </select>
+                                                    <SelectTemplate quoteId={quote.id} />
+                                                    <button onClick={() => archiveQuote(quote.id)} className="text-red-500 mt-3 font-semibold underline text-sm">
+                                                        Archive Quote
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <span><strong>Status: </strong>{quote.brokers_status ? quote.brokers_status : 'Pending'}</span>
+                                            )}
+                                            {isUser && quote.price ? (
+                                                <div className='flex flex-col gap-2 items-center justify-between'>
+                                                    <button onClick={() => handleRejectClick(quote.id)} className='text-red-500 underline font-light'>Reject Quote</button>
+                                                </div>
                                             ) : null}
-
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleEditClick(quote);
-                                                }}
-                                                className="text-ntsLightBlue font-medium underline"
-                                            >
-                                                Edit Quote
-                                            </button>
                                         </div>
-                                        {isAdmin ? (
-                                            <>
-                                                <select
-                                                    value={quote.brokers_status}
-                                                    onChange={(e) => handleStatusChange(e, quote.id)}
-                                                    className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(quote.brokers_status)}`}>
-                                                    <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
-                                                    <option value="Need More Info" className={getStatusClasses('Need More Info')}>Need More Info</option>
-                                                    <option value="Priced" className={getStatusClasses('Priced')}>Priced</option>
-                                                    <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
-                                                </select>
-                                                <SelectTemplate quoteId={quote.id} />
-                                                <button onClick={() => archiveQuote(quote.id)} className="text-red-500 mt-3 font-semibold underline text-sm">
+                                    </td>
+                                    {/* Notes */}
+                                    <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.notes}</td>
+                                </tr>
+                                {expandedRow === quote.id && (
+                                    <tr className='my-4'>
+                                        <td colSpan={7}>
+                                            <div className="p-4 bg-white border-x border-b border-ntsLightBlue/30 rounded-b-md">
+                                                <div className="flex gap-1">
+                                                    <button
+                                                        className={`px-4 py-2 ${activeTab === 'quotes' ? 'bg-gray-200 border-t border-ntsLightBlue' : 'bg-gray-200'}`}
+                                                        onClick={() => setActiveTab('quotes')}
+                                                    >
+                                                        Quote Details
+                                                    </button>
+                                                    <button
+                                                        className={`px-4 py-2 ${activeTab === 'editHistory' ? 'bg-gray-200 border-t border-ntsLightBlue' : 'bg-gray-200'}`}
+                                                        onClick={() => setActiveTab('editHistory')}
+                                                    >
+                                                        Edit History
+                                                    </button>
+                                                </div>
+                                                {activeTab === 'quotes' && (
+                                                    <div className='border border-gray-200 p-6 h-full'>
+                                                        {renderAdditionalDetails(quote)}
+                                                        <div className='flex gap-2 items-center h-full'>
+                                                            <button onClick={(e) => { e.stopPropagation(); duplicateQuote(quote); }} className="body-btn ml-2">
+                                                                Duplicate Quote
+                                                            </button>
+                                                            <button onClick={(e) => { e.stopPropagation(); reverseQuote(quote); }} className="body-btn ml-2">
+                                                                Flip Route Duplicate
+                                                            </button>
+                                                        </div>
+                                                        <div className='flex gap-2 items-center'>
+                                                            <button onClick={() => handleEditClick(quote)} className="text-ntsLightBlue mt-3 font-semibold text-base underline h-full">
+                                                                Edit Quote
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {activeTab === 'editHistory' && (
+                                                    <div className="max-h-96">
+                                                        <EditHistory quoteId={quote.id} searchTerm="" searchColumn="id" editHistory={editHistory} />
+                                                    </div>
+                                                )}
+                                                <button onClick={() => archiveQuote(quote.id)} className="text-red-500 mt-3 font-medium underline text-sm">
                                                     Archive Quote
                                                 </button>
-                                            </>
-                                        ) : (
-                                            <span><strong>Status: </strong>{quote.brokers_status ? quote.brokers_status : 'Pending'}</span>
-                                        )}
-                                        {isUser && quote.price ? (
-                                            <div className='flex flex-col gap-2 items-center justify-between'>
-                                                <button onClick={() => handleRejectClick(quote.id)} className='text-red-500 underline font-light'>Reject Quote</button>
                                             </div>
-                                        ) : null}
-                                    </div>
-                                </td>
-                                {/* Notes */}
-                                <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.notes}</td>
-                            </tr>
-                            {expandedRow === quote.id && (
-                                <tr className='my-4'>
-                                    <td colSpan={7}>
-                                        <div className="p-4 bg-white border-x border-b border-ntsLightBlue/30 rounded-b-md">
-                                            <div className="flex gap-1">
-                                                <button
-                                                    className={`px-4 py-2 ${activeTab === 'quotes' ? 'bg-gray-200 border-t border-ntsLightBlue' : 'bg-gray-200'}`}
-                                                    onClick={() => setActiveTab('quotes')}
-                                                >
-                                                    Quote Details
-                                                </button>
-                                                <button
-                                                    className={`px-4 py-2 ${activeTab === 'editHistory' ? 'bg-gray-200 border-t border-ntsLightBlue' : 'bg-gray-200'}`}
-                                                    onClick={() => setActiveTab('editHistory')}
-                                                >
-                                                    Edit History
-                                                </button>
-                                            </div>
-                                            {activeTab === 'quotes' && (
-                                                <div className='border border-gray-200 p-6 h-full'>
-                                                    {renderAdditionalDetails(quote)}
-                                                    <div className='flex gap-2 items-center h-full'>
-                                                        <button onClick={(e) => { e.stopPropagation(); duplicateQuote(quote); }} className="body-btn ml-2">
-                                                            Duplicate Quote
-                                                        </button>
-                                                        <button onClick={(e) => { e.stopPropagation(); reverseQuote(quote); }} className="body-btn ml-2">
-                                                            Flip Route Duplicate
-                                                        </button>
-                                                    </div>
-                                                    <div className='flex gap-2 items-center'>
-                                                        <button onClick={() => handleEditClick(quote)} className="text-ntsLightBlue mt-3 font-semibold text-base underline h-full">
-                                                            Edit Quote
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            )}
-                                            {activeTab === 'editHistory' && (
-                                                <div className="max-h-96">
-                                                    <EditHistory quoteId={quote.id} searchTerm="" searchColumn="id" editHistory={editHistory} />
-                                                </div>
-                                            )}
-                                            <button onClick={() => archiveQuote(quote.id)} className="text-red-500 mt-3 font-medium underline text-sm">
-                                                Archive Quote
-                                            </button>
-                                        </div>
 
-                                    </td>
-                                </tr>
-                            )}
-                        </React.Fragment>
-                    ))}
+                                        </td>
+                                    </tr>
+                                )}
+                            </React.Fragment>
+                        ))}
+                    </>
+
                 </tbody>
+
             </table>
+            {quotes ? (
+                <div className="text-center text-gray-500">Loading...</div>
+            ) : quotes.length === 0 ? (
+                <>
+                    <div className='w-full mx-auto'>
+                        <div className='flex flex-col w-full max-w-[1000px] min-w-[1000px]  h-full items-center justify-start gap-4 p-4 border border-gray-500'>
+                            <div>
+                                <p className="text-center text-gray-500">No quotes available yet.</p>
+                            </div>
+                            <div className='flex justify-center'>
+                                <QuoteFormModal
+                                    session={session}
+                                    profiles={profiles}
+                                    companyId={companyId}
+                                    userType="shipper"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </>
+            ) : " "}
             <OrderFormModal
                 isOpen={false} // Replace with actual state or prop
                 onClose={() => { }} // Replace with actual function
