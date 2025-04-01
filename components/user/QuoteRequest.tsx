@@ -314,7 +314,9 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
     return (
         <div className="w-full h-full overflow-auto">
             {quotes ? (
-                <div className="text-start font-semibold py-2 text-gray-800 text-nowrap">Welcome {profilesUser?.first_name} {profilesUser?.last_name} <br /> Manage your shipments here</div>
+                <div className="flex items-start mb-4">
+                    <p className='text-start font-semibold py-2 text-gray-800 text-nowrap'>Welcome {profilesUser?.first_name} {profilesUser?.last_name} <br /> Manage your shipments here</p>
+                </div>
             ) : quotes.length === 0 ? (
                 <div className="w-full">
                     <div className='flex flex-col justify-center items-center gap-2 mb-4'>
