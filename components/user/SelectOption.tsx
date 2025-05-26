@@ -28,9 +28,9 @@ const SelectOption: React.FC<SelectOptionProps> = ({
 }) => {
     return (
         <>
-            <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Select a Freight Type
+            <label className='text-zinc-800 label-font'>Freight Type
                 <select
-                    className="rounded w-full bg-white p-1 py-1.5 border border-zinc-900/30 shadow-md text-zinc-600"
+                    className="rounded w-full bg-white px-1 py-2 mt-2 border border-zinc-900/20 text-zinc-600"
                     value={selectedOption}
                     onChange={(e) => {
                         setErrorText('');

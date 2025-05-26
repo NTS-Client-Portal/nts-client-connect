@@ -111,35 +111,38 @@ const ShipperDash = () => {
         };
     }, [userProfile]);
 
+    const rep = assignedSalesUsers[0];
+
+
     return (
         <div className='container mx-auto'>
-            <div className='flex flex-col-reverse xl:flex-row items-center md:items-start gap-6'>
-                <div className='px-4 w-full'><ShippingCalendar /></div>
-                {assignedSalesUsers.map((user, index) => (
-                    <div key={index} className="broker-card flex text-nowrap flex-col justify-center items-center p-4 bg-white shadow rounded-lg w-[97vw] md:w-fit max-h-96">
-                        <h2 className='text-xl underline font-bold mb-4'>Your Logistics Representative</h2>
-                        {user.profile_picture ? (
-                            <Image
-                                src={`${user.profile_picture}`}
-                                alt="Profile Picture"
-                                className="avatar"
-                                width={100}
-                                height={100}
-                            />
-                        ) : (
-                            <div className="avatar-placeholder w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center">
-                                <span className="text-gray-500">No Image</span>
-                            </div>
-                        )}
-                        <h2 className='text-xl underline font-semibold mb-4'>{user.first_name} {user.last_name}</h2>
-                        <span className="flex flex-col gap-1 justify-start items-start">
-                            <p><strong>Email:</strong> {user.email}</p>
-                            <p><strong>Phone: </strong>{user.phone_number}</p>
-                        </span>
-                    </div>
-                ))}
-            </div>
+        <div className='flex flex-col-reverse xl:flex-row xl:justify-center items-center md:items-start gap-4'>
+            <div className='px-4 w-1/2'><ShippingCalendar /></div>
+            {rep && (
+                <div className="broker-card flex text-nowrap flex-col justify-center items-center p-4 bg-white shadow rounded-lg w-[97vw] md:w-fit max-h-96">
+                    <h2 className='text-xl underline font-bold mb-4'>Your Logistics Representative</h2>
+                    {rep.profile_picture ? (
+                        <Image
+                            src={`${rep.profile_picture}`}
+                            alt="Profile Picture"
+                            className="avatar"
+                            width={100}
+                            height={100}
+                        />
+                    ) : (
+                        <div className="avatar-placeholder w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center">
+                            <span className="text-gray-500">No Image</span>
+                        </div>
+                    )}
+                    <h2 className='text-xl underline font-semibold mb-4'>{rep.first_name} {rep.last_name}</h2>
+                    <span className="flex flex-col gap-1 justify-start items-start">
+                        <p><strong>Email:</strong> {rep.email}</p>
+                        <p><strong>Phone: </strong>{rep.phone_number}</p>
+                    </span>
+                </div>
+            )}
         </div>
+    </div>
     );
 }
 

@@ -68,9 +68,9 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
     return (
         <ProfilesUserProvider>
             {/* Top Navigation */}
-            <div className="fixed w-full top-0 left-0 z-40">
+            {/* <div className="fixed w-full top-0 left-0 z-40">
                 <UserTopNav />
-            </div>
+            </div> */}
 
             {/* Flexbox Layout */}
             <div className="flex min-h-screen">
@@ -82,7 +82,7 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
                 />
 
                 {/* Main Content */}
-                <main className="w-full mt-20 p-4 m-4 overflow-y-auto">
+                <main className="w-full mt-4 p-4 ml-20 overflow-y-auto">
                     {children}
                 </main>
             </div>

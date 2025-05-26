@@ -3,6 +3,7 @@ import { Session } from '@supabase/auth-helpers-react';
 import SelectOption from './SelectOption';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
+import Link from 'next/link';
 import axios from 'axios';
 
 interface QuotePageProps {
@@ -157,122 +158,167 @@ const QuotePage: React.FC<QuotePageProps> = ({ onClose, addQuote, errorText, set
     };
 
     return (
-        <div className="container mx-auto w-full md:w-3/5 h-fit border border-x-zinc-300 border-b-zinc-300 shadow-md md:mb-20">
-            <h2 className="text-xl font-semibold w-full h-fit bg-ntsBlue text-white border-t-4 border-t-orange-500 pt-1 px-2 pb-4">Request a Shipping Estimate</h2>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-2 px-4 py-4 bg-white md:px-8 md:gap-6">
-                <SelectOption
-                    selectedOption={selectedOption}
-                    setSelectedOption={(option) => {
-                        setSelectedOption(option);
-                    }}
-                    setErrorText={setErrorText}
-                    session={session}
-                    setFormData={setFormData}
-                    formData={formData} // Pass formData to SelectOption
-                    disabled={false}
-                />
-                <div className='grid grid-cols-1 md:grid-cols-2 place-items-center gap-x-4 md:gap-x-4 w-full m-0 p-0'>
-                    <div className='flex flex-col gap-1 w-full'>
-                        <h2 className='text-base font-semibold'>Origin</h2>
-                        <div className='flex w-full items-center gap-4'>
-                            <label className='text-zinc-900 font-medium text-nowrap'>Zip Code</label>
-                            <input
-                                className="rounded p-1 py-1.5 border border-zinc-900/30 shadow-md w-full"
-                                type="text"
-                                placeholder='Zip'
-                                value={originZip}
-                                onChange={(e) => setOriginZip(e.target.value)}
-                                onBlur={handleOriginZipBlur}
-                            />
-                        </div>
-                        <div className='flex justify-start gap-2 w-full items-center'>
-                            <label className='text-zinc-900 font-medium text-nowrap'>City/State</label>
-                            <input
-                                className="rounded w-1/2 p-1 py-1.5 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                placeholder='City'
-                                value={originCity}
-                                onChange={(e) => setOriginCity(e.target.value)}
-                            />
-                            <input
-                                className="rounded w-1/2 p-1 py-1.5 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                placeholder='State'
-                                value={originState}
-                                onChange={(e) => setOriginState(e.target.value)}
-                            />
-                        </div>
-                    </div>
+        <div className="container ml-64 w-full">
+        <h2 className="text-2xl font-bold w-full bg-white text-ntsBlue pt-3 pb-4 ">
+            Shipping Estimate Request
+        </h2>
 
-                    <div className='flex flex-col gap-1 w-full'>
-                        <h2 className='text-base font-semibold'>Destination</h2>
-                        <div className='flex w-full items-center gap-4'>
-                            <label className='text-zinc-900 font-medium text-nowrap'>Zip Code</label>
-                            <input
-                                className="rounded p-1 py-1.5 border border-zinc-900/30 shadow-md w-full"
-                                type="text"
-                                placeholder='Zip'
-                                value={destinationZip}
-                                onChange={(e) => setDestinationZip(e.target.value)}
-                                onBlur={handleDestinationZipBlur}
-                            />
-                        </div>
-                        <div className='flex justify-start gap-2 w-full items-center'>
-                            <label className='text-zinc-900 font-medium text-nowrap'>City/State</label>
-                            <input
-                                className="rounded w-1/2 p-1 py-1.5 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                placeholder='City'
-                                value={destinationCity}
-                                onChange={(e) => setDestinationCity(e.target.value)}
-                            />
-                            <input
-                                className="rounded w-1/2 p-1 py-1.5 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                placeholder='State'
-                                value={destinationState}
-                                onChange={(e) => setDestinationState(e.target.value)}
-                            />
-                        </div>
+        <Link
+            href="/user/quotes/inventory"
+            className="bg-indigo-600 px-4 py-2 text-white rounded-md hover:bg-indigo-950"
+        >
+            Select from Inventory
+        </Link>
+        <form onSubmit={handleSubmit} className="ml-12 mt-12 w-full md:w-3/5 max-w-7xl flex flex-col gap-6 px-4 py-6 md:px-8 rounded-xl shadow-md border border-zinc-100 bg-white md:mb-20">
+            <SelectOption
+                selectedOption={selectedOption}
+                setSelectedOption={setSelectedOption}
+                setErrorText={setErrorText}
+                session={session}
+                setFormData={setFormData}
+                formData={formData}
+                disabled={false}
+            />
+
+            <label className="label-font w-full">
+                    Shipping Date
+                    <input
+                        className="form-input mt-2"
+                        type="date"
+                        value={dueDate || ''}
+                        onChange={e => {
+                            setErrorText('');
+                            setDueDate(e.target.value || null);
+                        }}
+                    />
+                </label>
+            <div className="grid grid-cols-1 gap-6">
+                {/* Origin */}
+                <div className="flex flex-col gap-2 w-full">
+                    <h3 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">Origin Information</h3>
+                    <div className='border border-zinc-100 p-4 rounded-md bg-white'>
+
+                        <div className="block">
+                            <label className="label-font w-full">Address 
+                                <input
+                                    className="form-input mt-3 w-full"
+                                    type="text"
+                                    placeholder="Street Address"
+                                    value={formData.origin_address || ''}
+                                    onChange={e => setFormData({ ...formData, origin_address: e.target.value })}
+                                />
+                            </label>
+                            <div className='flex flex-nowrap gap-3 w-full mt-4'>
+                                <label className="label-font w-1/3">City
+                                    <input
+                                        className="form-input mt-2"
+                                        type="text"
+                                        placeholder="City"
+                                        value={originCity}
+                                        onChange={e => setOriginCity(e.target.value)}
+                                    />
+                                </label>
+                                <label className="label-font w-1/3">State
+                                    <input
+                                        className="form-input mt-2"
+                                        type="text"
+                                        placeholder="State"
+                                        value={originState}
+                                        onChange={e => setOriginState(e.target.value)}
+                                    />
+                                </label>
+                                <label className="label-font w-1/3">Zip Code
+                                <input
+                                    className="form-input mt-2"
+                                    type="text"
+                                    placeholder="Zip"
+                                    value={originZip}
+                                    onChange={e => setOriginZip(e.target.value)}
+                                    onBlur={handleOriginZipBlur}
+                                />
+                            </label>
+                            </div>
+                    </div>
                     </div>
                 </div>
-            <div className='flex flex-col gap-1 items-center justify-center w-full'>
-                <div className='flex justify-center w-full'>
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Shipping Date
-                        <input
-                            className="rounded w-full dark:text-zinc-800 px-1 py-1.5 border border-zinc-900/30 shadow-md text-zinc-500"
-                            type="date"
-                            value={dueDate || ''} // Ensure dueDate is either a valid timestamp or an empty string
-                            onChange={(e) => {
-                                setErrorText('');
-                                setDueDate(e.target.value || null); // Set dueDate to null if the input is empty
-                            }}
-                        />
-                    </label>
-                </div>
-                <span>
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium' />
-                        <input
-                             type="checkbox"
-                             checked={saveToInventory}
-                             onChange={(e) => setSaveToInventory(e.target.checked)}
-                             className=''
-                            />
-                           <span className='text-nowrap'> Save to Inventory</span>
-                       </span>
-                </div>
-                <div className='flex justify-center items-start w-full'>
-                <button type="submit" className="body-btn text-sm place-self-start w-96">
-                                Submit Quote
-                            </button>
+                {/* Destination */}
+                <div className="flex flex-col gap-2 w-full">
+                    <h3 className="text-base font-semibold text-zinc-800 dark:text-zinc-100">Destination Information</h3>
+                    <div className='border border-zinc-100 p-4 rounded-md bg-white'>
 
-        
-
+                        <div className="block">
+                            <label className="label-font w-full">Address 
+                                <input
+                                    className="form-input mt-2"
+                                    type="text"
+                                    placeholder="Street Address"
+                                    value={formData.destination_street || ''}
+                                    onChange={e => setFormData({ ...formData, destination_street: e.target.value })}
+                                />
+                            </label>
+                           <div className='flex flex-nowrap gap-3 w-full mt-3'>
+                                <label className="label-font w-1/3">City
+                                    <input
+                                        className="form-input mt-2"
+                                        type="text"
+                                        placeholder="City"
+                                        value={destinationCity}
+                                        onChange={e => setDestinationCity(e.target.value)}
+                                    />
+                                </label>
+                                <label className="label-font w-1/3">State
+                                    <input
+                                        className="form-input mt-2"
+                                        type="text"
+                                        placeholder="State"
+                                        value={destinationState}
+                                        onChange={e => setDestinationState(e.target.value)}
+                                    />
+                                </label>
+                                <label className="label-font w-1/3">Zip Code
+                                <input
+                                    className="form-input mt-2"
+                                    type="text"
+                                    placeholder="Zip"
+                                    value={destinationZip}
+                                    onChange={e => setDestinationZip(e.target.value)}
+                                    onBlur={handleDestinationZipBlur}
+                                />
+                            </label>
+                           </div>
                     </div>
-            </form>
-            {errorText && <p className="text-red-500 mt-2">{errorText}</p>}
+                    </div>
+                </div>
+            </div>
+            {/* Shipping Date & Save to Inventory */}
+                    <div className="flex flex-col md:flex-row gap-4 items-start">
+            <label className="flex items-center gap-3 text-zinc-900 dark:text-zinc-100 font-medium w-full md:w-1/2 select-none">
+                <span>Save to Inventory</span>
+                <button
+                    type="button"
+                    aria-pressed={saveToInventory}
+                    onClick={() => setSaveToInventory(v => !v)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${
+                        saveToInventory ? 'bg-ntsBlue' : 'bg-zinc-300'
+                    }`}
+                >
+                    <span
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                            saveToInventory ? 'translate-x-5' : 'translate-x-1'
+                        }`}
+                    />
+                </button>
+            </label>
         </div>
-    );
+            <div className="flex justify-end">
+                <button type="submit" className="body-btn text-base w-32 px-4 py-2 text-white rounded-md hover:bg-ntsBlue/90 transition-colors">
+                    Submit 
+                </button>
+            </div>
+        </form>
+        {errorText && <p className="text-red-500 mt-2 px-4">{errorText}</p>}
+    </div>
+);
 };
 
 export default QuotePage;

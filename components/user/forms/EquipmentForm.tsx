@@ -15,13 +15,13 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
     const [make, setMake] = useState(formData.make || '');
     const [model, setModel] = useState(formData.model || '');
     const [length, setLength] = useState(formData.length || '');
-    const [lengthUnit, setLengthUnit] = useState(formData.length_unit || 'ft'); // Default to feet
+    const [lengthUnit, setLengthUnit] = useState(formData.length_unit || 'ft');
     const [width, setWidth] = useState(formData.width || '');
-    const [widthUnit, setWidthUnit] = useState(formData.width_unit || 'ft'); // Default to feet
+    const [widthUnit, setWidthUnit] = useState(formData.width_unit || 'ft');
     const [height, setHeight] = useState(formData.height || '');
-    const [heightUnit, setHeightUnit] = useState(formData.height_unit || 'ft'); // Default to feet
+    const [heightUnit, setHeightUnit] = useState(formData.height_unit || 'ft');
     const [weight, setWeight] = useState(formData.weight || '');
-    const [weightUnit, setWeightUnit] = useState(formData.weight_unit || 'lbs'); // Default to lbs
+    const [weightUnit, setWeightUnit] = useState(formData.weight_unit || 'lbs');
     const [operationalCondition, setOperationalCondition] = useState<boolean | null>(formData.operational_condition || null);
     const [loadingUnloadingRequirements, setLoadingUnloadingRequirements] = useState(formData.loading_unloading_requirements || '');
     const [tarping, setTarping] = useState<boolean | null>(formData.tarping || null);
@@ -54,164 +54,166 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
             lot_number: lotNumber,
             goods_value: value.toString(),
         };
-
         setFormData(updatedFormData);
     }, [year, make, model, vin, length, value, lengthUnit, width, widthUnit, height, heightUnit, weight, weightUnit, operationalCondition, loadingUnloadingRequirements, tarping, isAuction, auction, buyerNumber, lotNumber, setFormData]);
 
     return (
-        <div className="flex flex-col gap-3">
-            <div className='flex flex-col md:flex-row gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Year
+        <div className="bg-white w-full space-y-8">
+            {/* Header */}
+            <div>
+                <h1 className="text-2xl font-bold text-ntsBlue mb-2">Equipment Details</h1>
+                <p className="text-zinc-500 dark:text-zinc-300 text-sm">Please provide accurate information for the best shipping estimate.</p>
+            </div>
+
+            {/* Basic Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Year</label>
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                        className="form-input"
                         type="text"
-                        placeholder='2020'
+                        placeholder="2020"
                         value={year}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setYear(e.target.value);
-                        }}
+                        onChange={e => { setErrorText(''); setYear(e.target.value); }}
                     />
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Make
+                </div>
+                <div>
+                    <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Make</label>
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                        className="form-input"
                         type="text"
-                        placeholder='Caterpillar'
+                        placeholder="Caterpillar"
                         value={make}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setMake(e.target.value);
-                        }}
+                        onChange={e => { setErrorText(''); setMake(e.target.value); }}
                     />
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Model
+                </div>
+                <div>
+                    <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Model</label>
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                        className="form-input"
                         type="text"
-                        placeholder='D8T'
+                        placeholder="D8T"
                         value={model}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setModel(e.target.value);
-                        }}
+                        onChange={e => { setErrorText(''); setModel(e.target.value); }}
                     />
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Equipment Value
+                </div>
+                <div>
+                    <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Equipment Value</label>
                     <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                        className="form-input"
                         type="text"
-                        placeholder='e.g. $55,000'
+                        placeholder="e.g. $55,000"
                         value={value}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setValue(e.target.value);
-                        }}
+                        onChange={e => { setErrorText(''); setValue(e.target.value); }}
                     />
-                </label>
-            </div>
-            <h2 className='text-base font-semibold'>Dimensions</h2>
-            <div className='flex flex-col md:flex-row gap-2'>
-               
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Length
-                    <div className="flex flex-col gap-1 items-center">
-                        <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                            type="text"
-                            placeholder=""
-                            value={length}
-                            onChange={(e) => {
-                                setErrorText('');
-                                setLength(e.target.value);
-                            }}
-                        />
-                        <select
-                            className="rounded text-zinc-900 w-full p-1 border border-zinc-900"
-                            value={lengthUnit}
-                            onChange={(e) => setLengthUnit(e.target.value)}
-                        >
-                            <option value="ft">Feet</option>
-                            <option value="in">Inches</option>
-                        </select>
-                    </div>
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Width
-                    <div className="flex flex-col gap-1 items-center">
-                        <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                            type="text"
-                            placeholder=""
-                            value={width}
-                            onChange={(e) => {
-                                setErrorText('');
-                                setWidth(e.target.value);
-                            }}
-                        />
-                        <select
-                            className="rounded text-zinc-900 w-full p-1 border border-zinc-900"
-                            value={widthUnit}
-                            onChange={(e) => setWidthUnit(e.target.value)}
-                        >
-                            <option value="ft">Feet</option>
-                            <option value="in">Inches</option>
-                        </select>
-                    </div>
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Height
-                    <div className="flex flex-col gap-1 items-center">
-                        <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                            type="text"
-                            placeholder=""
-                            value={height}
-                            onChange={(e) => {
-                                setErrorText('');
-                                setHeight(e.target.value);
-                            }}
-                        />
-                        <select
-                            className="rounded text-zinc-900 w-full p-1 border border-zinc-900"
-                            value={heightUnit}
-                            onChange={(e) => setHeightUnit(e.target.value)}
-                        >
-                            <option value="ft">Feet</option>
-                            <option value="in">Inches</option>
-                        </select>
-                    </div>
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Weight
-                    <div className="flex flex-col gap-1 items-center">
-                        <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                            type="text"
-                            placeholder='e.g. 30,000'
-                            value={weight}
-                            onChange={(e) => {
-                                setErrorText('');
-                                setWeight(e.target.value);
-                            }}
-                        />
-                        <select
-                            className="rounded text-zinc-900 w-full p-1 border border-zinc-900"
-                            value={weightUnit}
-                            onChange={(e) => setWeightUnit(e.target.value)}
-                        >
-                            <option value="lbs">lbs</option>
-                            <option value="tons">tons</option>
-                            <option value="kg">kg</option>
-                            <option value="g">g</option>
-                        </select>
-                    </div>
-                </label>
+                </div>
             </div>
 
-            <div className='flex flex-col md:flex-row gap-2'>
+            {/* Dimensions */}
+            <div>
+                <h2 className="text-lg font-semibold mb-2">Dimensions</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Length */}
+                    <div>
+                        <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Length</label>
+                        <div className="flex">
+                            <input
+                                className="form-input rounded-r-none"
+                                type="number"
+                                min="0"
+                                placeholder="Length"
+                                value={length}
+                                onChange={e => { setErrorText(''); setLength(e.target.value); }}
+                            />
+                            <select
+                                className="form-input rounded-l-none border-l-0 w-24"
+                                value={lengthUnit}
+                                onChange={e => setLengthUnit(e.target.value)}
+                            >
+                                <option value="ft">ft</option>
+                                <option value="in">in</option>
+                            </select>
+                        </div>
+                    </div>
+                    {/* Width */}
+                    <div>
+                        <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Width</label>
+                        <div className="flex">
+                            <input
+                                className="form-input rounded-r-none"
+                                type="number"
+                                min="0"
+                                placeholder="Width"
+                                value={width}
+                                onChange={e => { setErrorText(''); setWidth(e.target.value); }}
+                            />
+                            <select
+                                className="form-input rounded-l-none border-l-0 w-24"
+                                value={widthUnit}
+                                onChange={e => setWidthUnit(e.target.value)}
+                            >
+                                <option value="ft">ft</option>
+                                <option value="in">in</option>
+                            </select>
+                        </div>
+                    </div>
+                    {/* Height */}
+                    <div>
+                        <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Height</label>
+                        <div className="flex">
+                            <input
+                                className="form-input rounded-r-none"
+                                type="number"
+                                min="0"
+                                placeholder="Height"
+                                value={height}
+                                onChange={e => { setErrorText(''); setHeight(e.target.value); }}
+                            />
+                            <select
+                                className="form-input rounded-l-none border-l-0 w-24"
+                                value={heightUnit}
+                                onChange={e => setHeightUnit(e.target.value)}
+                            >
+                                <option value="ft">ft</option>
+                                <option value="in">in</option>
+                            </select>
+                        </div>
+                    </div>
+                    {/* Weight */}
+                    <div>
+                        <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Weight</label>
+                        <div className="flex">
+                            <input
+                                className="form-input rounded-r-none"
+                                type="number"
+                                min="0"
+                                placeholder="e.g. 30,000"
+                                value={weight}
+                                onChange={e => { setErrorText(''); setWeight(e.target.value); }}
+                            />
+                            <select
+                                className="form-input rounded-l-none border-l-0 w-24"
+                                value={weightUnit}
+                                onChange={e => setWeightUnit(e.target.value)}
+                            >
+                                <option value="lbs">lbs</option>
+                                <option value="tons">tons</option>
+                                <option value="kg">kg</option>
+                                <option value="g">g</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Equipment Condition
+            {/* Condition, VIN, Auction */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Equipment Condition</label>
                     <select
-                        className="rounded bg-white w-full py-1.5 px-1 border border-zinc-900/30 shadow-md"
+                        className="input"
                         value={operationalCondition === null ? '' : operationalCondition ? 'operable' : 'inoperable'}
-                        onChange={(e) => {
+                        onChange={e => {
                             setErrorText('');
                             setOperationalCondition(e.target.value === 'operable');
                         }}
@@ -220,26 +222,23 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                         <option value="operable">Operable</option>
                         <option value="inoperable">Inoperable</option>
                     </select>
-                </label>
-                <label className='text-zinc-900 font-medium w-full'>Vin Number
+                </div>
+                <div>
+                    <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">VIN Number</label>
                     <input
-                        className="rounded dark:text-zinc-800 w-full px-1 py-1.5 border border-zinc-900/30 shadow-md"
+                        className="input"
                         type="text"
-                        placeholder='op'
+                        placeholder="VIN"
                         value={vin}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setVin(e.target.value);
-                        }}
+                        onChange={e => { setErrorText(''); setVin(e.target.value); }}
                     />
-                </label>
-                                   
-                    
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Coming from an auction/dealer?
+                </div>
+                <div>
+                    <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Coming from an auction/dealer?</label>
                     <select
-                        className="rounded w-full bg-white px-1 py-1.5 border border-zinc-900/30 shadow-md"
+                        className="input"
                         value={isAuction === null ? '' : isAuction ? 'yes' : 'no'}
-                        onChange={(e) => {
+                        onChange={e => {
                             setErrorText('');
                             setIsAuction(e.target.value === 'yes');
                         }}
@@ -248,63 +247,59 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                         <option value="yes">Yes</option>
                         <option value="no">No</option>
                     </select>
-                </label>
+                </div>
             </div>
+
+            {/* Auction Details */}
             {isAuction && (
-                <div className='flex flex-col md:flex-row gap-2'>
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Auction/Dealer Name
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Auction/Dealer Name</label>
                         <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                            className="input"
                             type="text"
                             value={auction}
-                            onChange={(e) => {
-                                setErrorText('');
-                                setAuction(e.target.value);
-                            }}
+                            onChange={e => { setErrorText(''); setAuction(e.target.value); }}
                         />
-                    </label>
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Buyer Number
+                    </div>
+                    <div>
+                        <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Buyer Number</label>
                         <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                            className="input"
                             type="text"
                             value={buyerNumber}
-                            onChange={(e) => {
-                                setErrorText('');
-                                setBuyerNumber(e.target.value);
-                            }}
+                            onChange={e => { setErrorText(''); setBuyerNumber(e.target.value); }}
                         />
-                    </label>
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Lot Number
+                    </div>
+                    <div>
+                        <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Lot Number</label>
                         <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
+                            className="input"
                             type="text"
                             value={lotNumber}
-                            onChange={(e) => {
-                                setErrorText('');
-                                setLotNumber(e.target.value);
-                            }}
+                            onChange={e => { setErrorText(''); setLotNumber(e.target.value); }}
                         />
-                    </label>
+                    </div>
                 </div>
             )}
-            <div className='flex flex-col gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Loading/Unloading Requirements
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                        type="text"
-                        placeholder='e.g. Tarp, Forklift, Ramp, Dock'
-                        value={loadingUnloadingRequirements}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setLoadingUnloadingRequirements(e.target.value);
-                        }}
-                    />
-                </label>
+
+            {/* Loading/Unloading */}
+            <div>
+                <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Loading/Unloading Requirements</label>
+                <input
+                    className="input"
+                    type="text"
+                    placeholder="e.g. Tarp, Forklift, Ramp, Dock"
+                    value={loadingUnloadingRequirements}
+                    onChange={e => { setErrorText(''); setLoadingUnloadingRequirements(e.target.value); }}
+                />
             </div>
-
-
         </div>
     );
 };
+
+// Tailwind utility for consistent input styling
+// Add this to your global CSS or Tailwind config if you want to reuse
+// .input { @apply rounded w-full p-2 border border-zinc-900/30 shadow-md dark:text-zinc-800 bg-white dark:bg-zinc-800; }
 
 export default EquipmentForm;

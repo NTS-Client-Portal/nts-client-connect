@@ -1,6 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Note: This file must be processed by Tailwind CSS (via PostCSS or the Tailwind CLI) before use. 
+   Do not include it directly in a <link> tag in HTML. */
 
 /* Custom styles */
 @keyframes fade-in-out {
@@ -516,4 +517,8 @@ main {
 
 .bg-cancelled {
   background-color: #ef44447a !important; /* Tailwind's red-500 */
+}
+
+.form-input {
+  @apply rounded w-full p-2 border border-zinc-900/50 shadow-md dark:text-zinc-800 bg-white dark:bg-zinc-800;
 }
