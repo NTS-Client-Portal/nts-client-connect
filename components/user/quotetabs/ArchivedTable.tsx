@@ -67,11 +67,13 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
         <div className='w-full'>
             <div className="flex justify-start gap-4 my-4 ml-4">
                 <div className="flex items-center">
-                    <label className="mr-2">Search by:</label>
+                    <label htmlFor="search-column-select" className="mr-2">Search by:</label>
                     <select
+                        id="search-column-select"
                         value={searchColumn}
                         onChange={(e) => setSearchColumn(e.target.value)}
                         className="border border-gray-300 rounded-md shadow-sm"
+                        aria-label="Search by"
                     >
                         <option value="id">ID</option>
                         <option value="freight_type">Freight Type</option>

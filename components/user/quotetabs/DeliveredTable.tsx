@@ -63,6 +63,7 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
                         value={searchColumn}
                         onChange={(e) => setSearchColumn(e.target.value)}
                         className="border border-gray-300 rounded-md shadow-sm"
+                        aria-label="Search by column"
                     >
                         <option value="id">ID</option>
                         <option value="freight_type">Freight Type</option>

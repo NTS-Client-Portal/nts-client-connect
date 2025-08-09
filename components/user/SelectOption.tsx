@@ -4,8 +4,8 @@ import ContainerForm from './forms/ContainerForm';
 import RvTrailerForm from './forms/RvTrailerForm';
 import SemiTruckForm from './forms/SemiTruckForm';
 import BoatForm from './forms/BoatForm';
-import { Session } from '@supabase/auth-helpers-react';
 import FreightForm from './forms/FreightForm';
+import { Session } from '@supabase/auth-helpers-react';
 import AutoForm from './forms/AutoForm';
 
 interface SelectOptionProps {

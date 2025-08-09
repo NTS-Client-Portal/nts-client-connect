@@ -8,6 +8,26 @@ import OrderFormModal from './OrderFormModal';
 import { generateAndUploadDocx, replaceShortcodes } from "@/components/GenerateDocx";
 import SelectTemplate from '@/components/SelectTemplate';
 import QuoteFormModal from '@/components/user/forms/QuoteFormModal';
+import { 
+    Search, 
+    Filter, 
+    Package, 
+    MapPin, 
+    Calendar, 
+    Truck, 
+    DollarSign,
+    Edit,
+    Copy,
+    RotateCcw,
+    Eye,
+    X,
+    CheckCircle,
+    XCircle,
+    Clock,
+    Building2,
+    ChevronDown,
+    ChevronUp
+} from 'lucide-react';
 
 interface QuoteTableProps {
     sortConfig: { column: string; order: string };
@@ -35,7 +55,7 @@ interface QuoteTableProps {
 
 const columnDisplayNames: { [key: string]: string } = {
     id: 'ID',
-    freight_type: 'Load Details',
+    freight_type: 'Freight Details',
     origin_destination: 'Origin/Destination',
     due_date: 'Date',
     price: 'Price',
@@ -305,414 +325,604 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
     };
 
     return (
-        <div className='md:w-fit lg:w-full'>
-            <div className="flex justify-start gap-4 my-4 ml-4">
-                <div className="flex items-center">
-                    <label className="mr-2">Search by:</label>
-                    <select
-                        value={searchColumn}
-                        onChange={(e) => setSearchColumn(e.target.value)}
-                        className="border border-gray-300 rounded-md shadow-sm"
-                    >
-                        <option value="id">ID</option>
-                        <option value="freight_type">Load Details</option>
-                        <option value="origin_destination">Origin/Destination</option>
-                        <option value="due_date">Date</option>
-                    </select>
+        <div className="w-full p-2 space-y-6">
+            {/* Header Section */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                        <Package className="w-6 h-6 text-blue-600" />
+                        Quote Requests
+                    </h2>
+                    <p className="text-gray-600 mt-1">Manage shipping quote requests and pricing</p>
                 </div>
-                <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search..."
-                    className="border border-gray-300 pl-2 rounded-md shadow-sm"
-                />
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <Package className="w-4 h-4" />
+                    {filteredQuotes.length} Quotes
+                </div>
             </div>
-            <table className="min-w-full place-content-center divide-zinc-200 border">
-                <thead className="bg-ntsBlue border-2 border-t-orange-500 text-zinc-50  top-0 w-fit">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs text-nowrap font-semibold uppercase tracking-wider">
-                            <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
-                        {/* // created_at */}
-                        <th className="px-6 py-3 text-left text-xs font-semibold tracking-wider">
-                            <TableHeaderSort column="created_at" sortOrder={sortConfig.column === 'created_at' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
 
-                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
-                            <TableHeaderSort column="freight_type" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
-                            <TableHeaderSort column="origin_destination" sortOrder={sortConfig.column === 'origin_destination' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
-                            <TableHeaderSort column="due_date" sortOrder={sortConfig.column === 'due_date' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold tracking-wider">
-                            <TableHeaderSort column="price" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Actions</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold tracking-wider">
-                            Notes
-                        </th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200 w-full">
+            {/* Search and Filter Section */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex items-center gap-2 flex-1">
+                        <Search className="w-5 h-5 text-gray-400" />
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search quotes..."
+                            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Filter className="w-4 h-4 text-gray-500" />
+                        <select
+                            aria-label="Filter by column"
+                            value={searchColumn}
+                            onChange={(e) => setSearchColumn(e.target.value)}
+                            className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                            <option value="id">Quote ID</option>
+                            <option value="freight_type">Freight Type</option>
+                            <option value="origin_city">Origin City</option>
+                            <option value="destination_city">Destination City</option>
+                            <option value="due_date">Date</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
 
-                    <>
-                        {currentRows.map((quote, index) => (
-                            <React.Fragment key={quote.id}>
-                                <tr onClick={() => handleRowClick(quote.id)}
-                                    className={`cursor-pointer mb-4 w-max ${index % 2 === 0 ? 'bg-white h-fit w-full' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}
-                                >
-                                    {/* Quote ID */}
-                                    <td
-                                        onClick={() => handleRowClick(quote.id)}
-                                        className="px-6 py-3 w-[30px] whitespace-nowrap text-sm font-medium text-ntsLightBlue underline border border-gray-200"
-                                    >
-                                        {quote.id}
-                                    </td>
-                                    {/* date of quote submittion */}
-                                    <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
-                                        {quote.created_at ? new Date(quote.created_at).toLocaleDateString() : 'N/A'}
-                                    </td>
-                                    {/* Freight Information */}
-                                    <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200">
-                                        <div className=''>
-                                            {Array.isArray(quote.shipment_items) ? quote.shipment_items.map((item: any, index) => (
-                                                <React.Fragment key={index}>
-                                                    {quote.freight_type === 'Container' && item.container_length && item.container_type && typeof item === 'object' && (
-                                                        <span className='flex gap-1'>
-                                                            <span className='font-semibold text-xs text-gray-700 p-0'>Shipment Item {index + 1}:</span>
-                                                            <span className='text-xs text-zinc-900 p-0'>{`${item.container_length}  ${item.container_type}`}</span>
-                                                        </span>
-                                                    )}
-                                                    {(quote.freight_type === 'Equipment' && item.length && item.width && item.height && item.weight && item.value) && (
-                                                        <span className='flex flex-col gap-0'>
-                                                            <span className='font-semibold text-xs text-gray-700 p-0'>Shipment Item {index + 1}:</span>
-                                                            <span className='text-xs text-zinc-900 p-0'>
-                                                                {`${item.length} ${item.length_unit} x ${item.width} ${item.width_unit} x ${item.height} ${item.height_unit}, ${item.weight} ${item.weight_unit}`}
-                                                            </span>
-                                                        </span>
-                                                    )}
-                                                    {quote.freight_type === 'Auto' && item.auto_year && item.auto_make && item.auto_model && (
-                                                        <span className='flex flex-col gap-0 w-min'>
-                                                            <span className='font-semibold text-sm text-gray-700 p-0 w-min'>Shipment Item {index + 1}:</span>
-
-                                                            <span className='text-xs text-zinc-900 p-0 w-min'>{`VIN: ${item.vin}`}</span>
-                                                            <span className='text-xs text-zinc-900 p-0 w-min'>{`Condition: ${item.operationalCondition ? 'Operable' : 'Inoperable'}`}</span>
-                                                        </span>
-                                                    )}
-                                                    {quote.freight_type === 'Boats' && item.boat_type && item.year && item.make && item.value && item.model && (
-                                                        <span className='flex flex-col gap-0'>
-                                                            <span className='font-semibold text-xs text-gray-700 p-0'>Shipment Item {index + 1}:</span>
-                                                            <span className='text-xs text-zinc-900 p-0'>{`${item.year} ${item.make} ${item.model}`}</span>
-                                                            <span className='text-xs text-zinc-900 p-0'>{item.boat_type}</span>
-
-                                                        </span>
-                                                    )}
-                                                    {quote.freight_type === 'LTL/FTL' && item.commodity && item.load_description && item.packaging_type && (
-                                                        <span className='flex flex-col gap-0'>
-                                                            <span className='font-semibold text-xs text-gray-700 p-0'>Shipment Item {index + 1}:</span>
-                                                            <span className='text-xs text-zinc-900 p-0'>
-                                                                {`${item.commodity} ${item.packaging_type}`}
-                                                            </span>
-                                                        </span>
-                                                    )}
-                                                </React.Fragment>
-                                            )) : (
-                                                <>
-                                                    <div className='text-start w-min'>
-                                                        {quote.container_length && quote.container_type && (
-                                                            <>
-                                                                <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
-                                                                <span className='text-xs text-zinc-900 w-min text-start'>{`${quote.container_length} ft ${quote.container_type}`}</span>
-                                                            </>
-                                                        )}
-                                                        {quote.freight_type === 'Trailers' && (
-                                                            <>
-                                                                <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
-                                                                <span className='text-normal text-zinc-900 text-start w-min'>{`${quote.year} ${quote.make} ${quote.model}`}</span><br />
-                                                                <span className='text-normal text-zinc-900 text-start w-min'>
-                                                                    {`${quote.length} ${quote.length_unit} x ${quote.width} ${quote.width_unit} x ${quote.height} ${quote.height_unit}, ${quote.weight} ${quote.weight_unit}`}
-                                                                </span>
-                                                            </>
-                                                        )}
-                                                        {quote.freight_type === 'Equipment' && (
-                                                            <>
-                                                                <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
-                                                                <span className='text-xs text-zinc-900 text-start w-min'>{`${quote.year} ${quote.make} ${quote.model}`}<br /></span>
-                                                                <span className='text-xs text-zinc-900 text-start w-min'>
-                                                                    {`${quote.length} ${quote.length_unit} x ${quote.width} ${quote.width_unit} x ${quote.height} ${quote.height_unit}, ${quote.weight} ${quote.weight_unit}`}<br />
-                                                                </span>
-                                                            </>
-                                                        )}
-                                                        {quote.freight_type === 'Auto' && (
-                                                            <>
-                                                                <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
-                                                                <span className='text-xs text-zinc-900 p-0 w-min'>{`${quote.auto_year} ${quote.auto_make} ${quote.auto_model}`}</span><br />
-                                                                <span className='text-xs text-zinc-900 text-start w-min'><strong>Condition: </strong>{` ${quote.operational_condition ? 'Operable' : 'Inoperable'}`}</span>
-                                                            </>
-                                                        )}
-                                                        {quote.freight_type === 'LTL/FTL' && (
-                                                            <>
-                                                                <span className='font-semibold  text-xs text-zinc-900 p-0 w-min'>Commodity Type: </span>
-                                                                <span className='text-xs text-zinc-900 p-0 w-min'>{`${quote.commodity}`} </span> <br />
-                                                                <span className='text-xs text-zinc-900 p-0 w-min'>
-                                                                    <strong>Unit Type: </strong>{`${quote.packaging_type}`}
-                                                                    <strong> - </strong>{`${quote.length} ${quote.length_unit} x ${quote.width} ${quote.width_unit} x ${quote.height} ${quote.height_unit}, ${quote.weight} ${quote.weight_unit}`}
-                                                                </span>
-
-                                                            </>
-                                                        )}
-                                                        {quote.freight_type === 'Boats' && (
-                                                            <>
-                                                                <span className='font-semibold text-xs text-gray-700 p-0 text-start w-min mr-1'>Shipment Item:</span>
-                                                                <span className='text-xs text-zinc-900 p-0 w-min'>{`${quote.year} ${quote.make} ${quote.model}`}</span><br />
-                                                                <span className='text-xs text-zinc-900 p-0 w-min'><strong>Dimensions: </strong>{`${quote.length} x ${quote.beam} x ${quote.height}`}</span><br />
-                                                                <span className='text-xs text-zinc-900 p-0 w-min'><strong>Boat Type: </strong>{`${quote.type}`}</span>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                </>
-                                            )}
-                                            <div className='text-start pt-1 w-min'>
-                                                <span className='font-semibold text-xs text-gray-700 text-start w-min'>Freight Type:</span>
-                                                <span className='text-xs text-zinc-900 text-start px-1 w-min'>{quote.freight_type}</span>
+            {loading ? (
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-500">Loading quotes...</p>
+                </div>
+            ) : quotes.length === 0 ? (
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+                    <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No quotes found</h3>
+                    <p className="text-gray-500 mb-4">Get started by creating your first quote</p>
+                    <QuoteFormModal
+                        session={session}
+                        profiles={profiles}
+                        companyId={companyId}
+                        userType="shipper"
+                    />
+                </div>
+            ) : (
+                <>
+                    {/* Mobile/Tablet Card View - Hidden on Desktop */}
+                    <div className="lg:hidden space-y-4">
+                        {currentRows.map(quote => (
+                            <div key={quote.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                                <div className="p-4 border-b border-gray-200 cursor-pointer" onClick={() => handleRowClick(quote.id)}>
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                <Package className="w-5 h-5 text-blue-600" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-gray-900">Quote #{quote.id}</h3>
+                                                <p className="text-sm text-gray-500">{formatDate(quote.created_at)}</p>
                                             </div>
                                         </div>
-                                    </td>
-                                    {/* Origin/destination w/ linked to google maps */}
-                                    <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
-                                        <a
-                                            href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${quote.origin_city}, ${quote.origin_state} ${quote.origin_zip}`)}&destination=${encodeURIComponent(`${quote.destination_city}, ${quote.destination_state} ${quote.destination_zip}`)}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-blue-500 underline"
-                                        >
-                                            {quote.origin_city}, {quote.origin_state} {quote.origin_zip} / <br />
-                                            {quote.destination_city}, {quote.destination_state} {quote.destination_zip} <br /> [Map It]
-                                        </a>
-                                    </td>
-                                    {/* Shipping Date */}
-                                    <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.due_date}</td>
-                                    {/* Pricing */}
-                                    <td>
-                                        {isAdmin ? (
-                                            showPriceInput === quote.id ? (
-                                                <form onSubmit={(e) => handlePriceSubmit(e, quote.id)}>
-                                                    <div className='flex flex-col items-center gap-1'>
-                                                        <span className='flex flex-col'>
-                                                            <label className='text-[14px] font-semibold text-ntsBlue'>Shippper Quote:</label>
-
-                                                            <input
-                                                                type="number"
-                                                                name="quotePrice"
-                                                                value={carrierPayInput}
-                                                                onChange={(e) => setCarrierPayInput(e.target.value)}
-                                                                placeholder="Enter price"
-                                                                className="border border-gray-300 rounded-md p-1"
-                                                            />
-                                                            <span className='text-sm text-gray-500 font-semibold'>note: <span className='text-xs italic font-medium text-gray-500'>Include both carrier pay and deposit</span></span>
-                                                        </span>
+                                        <div className="text-right">
+                                            {quote.price ? (
+                                                <div className="flex items-center gap-1">
+                                                    <DollarSign className="w-4 h-4 text-green-600" />
+                                                    <span className="text-lg font-semibold text-green-600">${quote.price}</span>
+                                                </div>
+                                            ) : (
+                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                    <Clock className="w-3 h-3 mr-1" />
+                                                    Pending
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="space-y-3">
+                                        <div>
+                                            <h4 className="font-semibold text-gray-900 mb-1">Load Details</h4>
+                                            {Array.isArray(quote.shipment_items) && quote.shipment_items.length > 0 ? (
+                                                quote.shipment_items.map((item: any, idx) => (
+                                                    <div key={idx} className="text-sm text-gray-600 mb-1">
+                                                        {[
+                                                            item.year,
+                                                            item.make,
+                                                            item.model,
+                                                            item.container_length && `${item.container_length}ft`,
+                                                            item.container_type,
+                                                            item.load_description
+                                                        ].filter(Boolean).join(' ')}
                                                     </div>
-                                                    <div className='flex justify-center gap-1'>
-                                                        <button type="submit" className="text-ntsLightBlue text-center text-sm font-semibold underline">
-                                                            Submit Quote
+                                                ))
+                                            ) : (
+                                                <p className="text-sm text-gray-600">{freightTypeMapping[quote.freight_type?.toLowerCase()] || quote.freight_type}</p>
+                                            )}
+                                        </div>
+                                        
+                                        <div>
+                                            <h4 className="font-medium text-gray-900 mb-2">Route</h4>
+                                            <div className="space-y-1">
+                                                <div className="flex items-center gap-2">
+                                                    <MapPin className="w-4 h-4 text-green-600" />
+                                                    <span className="text-sm text-gray-600">{quote.origin_city}, {quote.origin_state}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <MapPin className="w-4 h-4 text-red-600" />
+                                                    <span className="text-sm text-gray-600">{quote.destination_city}, {quote.destination_state}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-1">
+                                                <Calendar className="w-4 h-4 text-gray-400" />
+                                                <span className="text-sm text-gray-600">{formatDate(quote.due_date)}</span>
+                                            </div>
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusClasses(quote.brokers_status || 'In Progress')}`}>
+                                                {quote.brokers_status || 'In Progress'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {expandedRow === quote.id && (
+                                    <div className="p-4 bg-gray-50 border-t border-gray-200">
+                                        <div className="space-y-4">
+                                            <div className="flex gap-2 border-b border-gray-200">
+                                                <button
+                                                    className={`px-4 py-2 text-sm font-medium ${activeTab === 'quotes' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+                                                    onClick={() => setActiveTab('quotes')}
+                                                >
+                                                    Details
+                                                </button>
+                                                <button
+                                                    className={`px-4 py-2 text-sm font-medium ${activeTab === 'editHistory' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+                                                    onClick={() => setActiveTab('editHistory')}
+                                                >
+                                                    History
+                                                </button>
+                                            </div>
+                                            {activeTab === 'quotes' && (
+                                                <div className="bg-white rounded-lg p-4">
+                                                    {renderAdditionalDetails(quote)}
+                                                    <div className="flex gap-2 mt-4">
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); duplicateQuote(quote); }} 
+                                                            className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                                        >
+                                                            <Copy className="w-4 h-4 mr-2" />
+                                                            Duplicate
+                                                        </button>
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); reverseQuote(quote); }} 
+                                                            className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                                        >
+                                                            <RotateCcw className="w-4 h-4 mr-2" />
+                                                            Flip Route
                                                         </button>
                                                     </div>
+                                                </div>
+                                            )}
+                                            {activeTab === 'editHistory' && (
+                                                <div className="bg-white rounded-lg p-4 max-h-64 overflow-y-auto">
+                                                    <EditHistory quoteId={quote.id} searchTerm="" searchColumn="id" editHistory={editHistory} />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                <div className="p-4 bg-gray-50 border-t border-gray-200">
+                                    <div className="flex gap-2">
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); handleEditClick(quote); }} 
+                                            className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-blue-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 touch-manipulation active:scale-95"
+                                        >
+                                            <Edit className="w-4 h-4 mr-2" />
+                                            Edit Quote
+                                        </button>
+                                        {quote.price && (
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); handleCreateOrderClick(quote.id); }} 
+                                                className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-green-300 shadow-sm text-sm font-medium rounded-md text-green-700 bg-green-50 hover:bg-green-100 touch-manipulation active:scale-95"
+                                            >
+                                                <CheckCircle className="w-4 h-4 mr-2" />
+                                                Create Order
+                                            </button>
+                                        )}
+                                        {isUser && quote.price && (
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); handleRejectClick(quote.id); }}
+                                                className="px-3 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 touch-manipulation active:scale-95"
+                                                aria-label="Reject Quote"
+                                                title="Reject Quote"
+                                            >
+                                                <XCircle className="w-4 h-4" />
+                                            </button>
+                                        )}
+                                    </div>
+                                    
+                                    {isAdmin && (
+                                        <div className="mt-3 space-y-2">
+                                            <select
+                                                aria-label="Quote Status"
+                                                value={quote.brokers_status}
+                                                onChange={(e) => handleStatusChange(e, quote.id)}
+                                                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                                            >
+                                                <option value="In Progress">In Progress</option>
+                                                <option value="Need More Info">Need More Info</option>
+                                                <option value="Priced">Priced</option>
+                                                <option value="Cancelled">Cancelled</option>
+                                            </select>
+                                            
+                                            {showPriceInput === quote.id ? (
+                                                <form onSubmit={(e) => handlePriceSubmit(e, quote.id)} className="space-y-2">
+                                                    <input
+                                                        type="number"
+                                                        name="quotePrice"
+                                                        value={carrierPayInput}
+                                                        onChange={(e) => setCarrierPayInput(e.target.value)}
+                                                        placeholder="Enter price"
+                                                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                                                    />
+                                                    <button type="submit" className="w-full bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">
+                                                        Submit Quote
+                                                    </button>
                                                 </form>
                                             ) : (
-                                                <div className='flex justify-center gap-1'>
-                                                    {quote.price ? (
-                                                        <>
-                                                            <span>{`$${quote.price}`}</span>
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    setShowPriceInput(quote.id);
-                                                                }}
-                                                                className="ml-2 text-ntsLightBlue font-medium underline"
-                                                            >
-                                                                Edit Quote
-                                                            </button>
-                                                        </>
-                                                    ) : (
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                setShowPriceInput(quote.id);
-                                                            }}
-                                                            className="text-ntsLightBlue font-medium underline"
-                                                        >
-                                                            Price Quote Request
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            )
-                                        ) : (
-                                            <div>
-                                                {quote.price ? (
-                                                    <>
-                                                        <div className='flex flex-col items-center justify-between'>
-                                                            <span className='text-emerald-500 font-semibold text-base underline'>{`$${quote.price}`}</span>
-                                                        </div>
-                                                    </>
-                                                ) : (
-                                                    <span className='flex justify-center italic text-gray-950 text-base font-normal'>Pending</span>
-                                                )}
-                                            </div>
-                                        )}
-                                    </td>
-                                    {/* Actions */}
-                                    <td className="pl-3 py-3 whitespace-nowrap text-left text-sm text-gray-500 border border-gray-200 w-80">
-                                        <div className='flex flex-col gap-1 justify-start text-left items-start'>
-                                            <div className='flex flex-col lg:flex-row gap-2 items-center'>
-                                                {quote.price ? (
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleCreateOrderClick(quote.id);
-                                                        }}
-                                                        className="text-ntsLightBlue font-medium underline"
-                                                    >
-                                                        Create Order
-                                                    </button>
-                                                ) : null}
-
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        handleEditClick(quote);
+                                                        setShowPriceInput(quote.id);
                                                     }}
-                                                    className="text-ntsLightBlue font-medium underline"
+                                                    className="w-full bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700"
                                                 >
-                                                    Edit Quote
+                                                    {quote.price ? 'Edit Quote' : 'Price Quote Request'}
                                                 </button>
-                                            </div>
-                                            {isAdmin ? (
-                                                <>
-                                                    <select
-                                                        value={quote.brokers_status}
-                                                        onChange={(e) => handleStatusChange(e, quote.id)}
-                                                        className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(quote.brokers_status)}`}>
-                                                        <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
-                                                        <option value="Need More Info" className={getStatusClasses('Need More Info')}>Need More Info</option>
-                                                        <option value="Priced" className={getStatusClasses('Priced')}>Priced</option>
-                                                        <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
-                                                    </select>
-                                                    <SelectTemplate quoteId={quote.id} />
-                                                    <button onClick={() => archiveQuote(quote.id)} className="text-red-500 mt-3 font-semibold underline text-sm">
-                                                        Archive Quote
-                                                    </button>
-                                                </>
-                                            ) : (
-                                                <span><strong>Status: </strong>{quote.brokers_status ? quote.brokers_status : 'Pending'}</span>
                                             )}
-                                            {isUser && quote.price ? (
-                                                <div className='flex flex-col gap-2 items-center justify-between'>
-                                                    <button onClick={() => handleRejectClick(quote.id)} className='text-red-500 underline font-light'>Reject Quote</button>
-                                                </div>
-                                            ) : null}
+                                            
+                                            <SelectTemplate quoteId={quote.id} />
+                                            
+                                            <button 
+                                                onClick={() => archiveQuote(quote.id)} 
+                                                className="w-full text-red-600 px-4 py-2 border border-red-300 rounded-md text-sm font-medium hover:bg-red-50"
+                                            >
+                                                Archive Quote
+                                            </button>
                                         </div>
-                                    </td>
-                                    {/* Notes */}
-                                    <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.notes}</td>
-                                </tr>
-                                {expandedRow === quote.id && (
-                                    <tr className='my-4'>
-                                        <td colSpan={7}>
-                                            <div className="p-4 bg-white border-x border-b border-ntsLightBlue/30 rounded-b-md">
-                                                <div className="flex gap-1">
-                                                    <button
-                                                        className={`px-4 py-2 ${activeTab === 'quotes' ? 'bg-gray-200 border-t border-ntsLightBlue' : 'bg-gray-200'}`}
-                                                        onClick={() => setActiveTab('quotes')}
-                                                    >
-                                                        Quote Details
-                                                    </button>
-                                                    <button
-                                                        className={`px-4 py-2 ${activeTab === 'editHistory' ? 'bg-gray-200 border-t border-ntsLightBlue' : 'bg-gray-200'}`}
-                                                        onClick={() => setActiveTab('editHistory')}
-                                                    >
-                                                        Edit History
-                                                    </button>
-                                                </div>
-                                                {activeTab === 'quotes' && (
-                                                    <div className='border border-gray-200 p-6 h-full'>
-                                                        {renderAdditionalDetails(quote)}
-                                                        <div className='flex gap-2 items-center h-full'>
-                                                            <button onClick={(e) => { e.stopPropagation(); duplicateQuote(quote); }} className="body-btn ml-2">
-                                                                Duplicate Quote
-                                                            </button>
-                                                            <button onClick={(e) => { e.stopPropagation(); reverseQuote(quote); }} className="body-btn ml-2">
-                                                                Flip Route Duplicate
-                                                            </button>
-                                                        </div>
-                                                        <div className='flex gap-2 items-center'>
-                                                            <button onClick={() => handleEditClick(quote)} className="text-ntsLightBlue mt-3 font-semibold text-base underline h-full">
-                                                                Edit Quote
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                {activeTab === 'editHistory' && (
-                                                    <div className="max-h-96">
-                                                        <EditHistory quoteId={quote.id} searchTerm="" searchColumn="id" editHistory={editHistory} />
-                                                    </div>
-                                                )}
-                                                <button onClick={() => archiveQuote(quote.id)} className="text-red-500 mt-3 font-medium underline text-sm">
-                                                    Archive Quote
-                                                </button>
-                                            </div>
-
-                                        </td>
-                                    </tr>
-                                )}
-                            </React.Fragment>
+                                    )}
+                                </div>
+                            </div>
                         ))}
-                    </>
+                    </div>
 
-                </tbody>
+                    {/* Desktop Table View - Hidden on Mobile/Tablet */}
+                    <div className="hidden lg:block bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full min-w-[750px] divide-y divide-gray-200">
+                            <thead className="bg-gradient-to-r from-blue-600 text-nowrap to-blue-700 text-white">
+                                <tr>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-16">
+                                        <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-24">
+                                        <TableHeaderSort column="created_at" sortOrder={sortConfig.column === 'created_at' ? sortConfig.order : null} onSort={handleSort} />
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-56">
+                                        <TableHeaderSort column="freight_type" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-40">
+                                        Origin/Destination
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-28">
+                                        <TableHeaderSort column="due_date" sortOrder={sortConfig.column === 'due_date' ? sortConfig.order : null} onSort={handleSort} />
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-20">
+                                        <TableHeaderSort column="price" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
+                                    </th>
+                                    <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider w-24">Actions</th>
+                                    <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider w-24">Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {currentRows.map((quote, index) => (
+                                    <React.Fragment key={quote.id}>
+                                        <tr 
+                                            onClick={() => handleRowClick(quote.id)}
+                                            className={`cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors duration-200`}
+                                        >
+                                            <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-blue-600 underline">
+                                                #{quote.id}
+                                            </td>
+                                            <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {quote.created_at ? new Date(quote.created_at).toLocaleDateString() : 'N/A'}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-gray-900">
+                                                <div className="flex items-start gap-2">
+                                                    <Truck className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
+                                                    <div className="flex-1 min-w-0">
+                                                        {Array.isArray(quote.shipment_items) ? quote.shipment_items.map((item: any, index) => (
+                                                            <React.Fragment key={index}>
+                                                                {item.container_length && item.container_type && typeof item === 'object' && (
+                                                                    <div className='mb-2 last:mb-0'>
+                                                                        <span className='font-semibold text-xs text-gray-700 block'>Shipment Item {index + 1}:</span>
+                                                                        <span className='text-xs text-zinc-900 block'>{`${item.container_length}ft ${item.container_type}`}</span>
+                                                                    </div>
+                                                                )}
+                                                                {(item.year && item.make && item.model) || (item.auto_year && item.auto_make && item.auto_model) ? (
+                                                                    <div className='mb-2 last:mb-0'>
+                                                                        <span className='font-semibold text-xs text-gray-700 block'>Shipment Item {index + 1}:</span>
+                                                                        <span className='text-xs text-zinc-900 block'>
+                                                                            {item.auto_year || item.year} {item.auto_make || item.make} {item.auto_model || item.model}
+                                                                        </span>
+                                                                    </div>
+                                                                ) : null}
+                                                                {item.load_description && (
+                                                                    <div className='mb-2 last:mb-0'>
+                                                                        <span className='font-semibold text-xs text-gray-700 block'>Description:</span>
+                                                                        <span className='text-xs text-zinc-900 block'>{item.load_description}</span>
+                                                                    </div>
+                                                                )}
+                                                            </React.Fragment>
+                                                        )) : (
+                                                            <>
+                                                                <div className='space-y-2'>
+                                                                    {quote.container_length && quote.container_type && (
+                                                                        <div>
+                                                                            <span className='font-semibold text-xs text-gray-700 block'>Shipment Item:</span>
+                                                                            <span className='text-xs text-zinc-900 block'>{`${quote.container_length}ft ${quote.container_type}`}</span>
+                                                                        </div>
+                                                                    )}
+                                                                    {(quote.year && quote.make && quote.model) || (quote.auto_year && quote.auto_make && quote.auto_model) ? (
+                                                                        <div>
+                                                                            <span className='font-semibold text-xs text-gray-700 block'>Shipment Item:</span>
+                                                                            <span className='text-xs text-zinc-900 block'>
+                                                                                {quote.auto_year || quote.year} {quote.auto_make || quote.make} {quote.auto_model || quote.model}
+                                                                            </span>
+                                                                            {quote.length && quote.width && quote.height && (
+                                                                                <span className='text-xs text-zinc-900 block mt-1'>
+                                                                                    {`${quote.length} ${quote.length_unit || 'ft'} x ${quote.width} ${quote.width_unit || 'ft'} x ${quote.height} ${quote.height_unit || 'ft'}`}
+                                                                                    {quote.weight && `, ${quote.weight} ${quote.weight_unit || 'lbs'}`}
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    ) : null}
+                                                                    {quote.commodity && (
+                                                                        <div>
+                                                                            <span className='font-semibold text-xs text-gray-700 block'>Load:</span>
+                                                                            <span className='text-xs text-zinc-900 block'>{quote.commodity}</span>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                                {!quote.container_length && !quote.year && !quote.make && !quote.model && !quote.auto_year && !quote.auto_make && !quote.auto_model && !quote.commodity && (
+                                                                    <div>
+                                                                        <span className='font-semibold text-xs text-gray-700 block'>Freight Type:</span>
+                                                                        <span className='text-xs text-zinc-900 block'>{freightTypeMapping[quote.freight_type?.toLowerCase()] || (quote.freight_type ? quote.freight_type.toUpperCase() : 'N/A')}</span>
+                                                                    </div>
+                                                                )}
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-3 py-4 text-sm text-gray-500">
+                                                <div className="flex items-center gap-1">
+                                                    <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                                    <a
+                                                        href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${quote.origin_city}, ${quote.origin_state} ${quote.origin_zip}`)}&destination=${encodeURIComponent(`${quote.destination_city}, ${quote.destination_state} ${quote.destination_zip}`)}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-blue-500 hover:text-blue-700 underline text-xs"
+                                                    >
+                                                        <div className="flex flex-col space-y-1">
+                                                            <div className="text-xs text-gray-700">
+                                                                <span className="font-medium">From:</span> {quote.origin_city}, {quote.origin_state}
+                                                            </div>
+                                                            <div className="text-xs text-gray-700">
+                                                                <span className="font-medium">To:</span> {quote.destination_city}, {quote.destination_state}
+                                                            </div>
+                                                            <div className="text-xs">View Route</div>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                            <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <div className="flex items-center gap-1">
+                                                    <Calendar className="w-4 h-4 text-gray-400" />
+                                                    <span className="text-xs">{formatDate(quote.due_date)}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-3 py-4 whitespace-nowrap text-sm">
+                                                {quote.price ? (
+                                                    <div className="flex items-center gap-1">
+                                                        <DollarSign className="w-4 h-4 text-green-500" />
+                                                        <span className="font-semibold text-green-600 text-xs">${quote.price}</span>
+                                                    </div>
+                                                ) : (
+                                                    <span className="flex items-center gap-1 text-amber-600">
+                                                        <Clock className="w-4 h-4" />
+                                                        <span className="text-xs">Pending</span>
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="px-3 py-4 whitespace-nowrap text-sm">
+                                                <div className="flex items-center gap-1">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleEditClick(quote);
+                                                        }}
+                                                        className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                                                    >
+                                                        <Edit className="w-4 h-4" />
+                                                        <span className="text-xs">Edit</span>
+                                                    </button>
+                                                    {quote.price && (
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleCreateOrderClick(quote.id);
+                                                            }}
+                                                            className="text-green-600 hover:text-green-800 flex items-center gap-1"
+                                                        >
+                                                            <CheckCircle className="w-4 h-4" />
+                                                            <span className="text-xs">Order</span>
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="px-3 py-4 text-sm text-gray-500 max-w-xs">
+                                                <div className="truncate text-xs" title={quote.notes || ''}>
+                                                    {quote.notes}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {expandedRow === quote.id && (
+                                            <tr>
+                                                <td colSpan={8} className="px-6 py-4 bg-gray-50">
+                                                    <div className="space-y-4">
+                                                        <div className="flex gap-2 border-b border-gray-200 pb-2">
+                                                            <button
+                                                                className={`px-4 py-2 text-sm font-medium rounded-t-lg ${activeTab === 'quotes' ? 'bg-white text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                                                                onClick={() => setActiveTab('quotes')}
+                                                            >
+                                                                Quote Details
+                                                            </button>
+                                                            <button
+                                                                className={`px-4 py-2 text-sm font-medium rounded-t-lg ${activeTab === 'editHistory' ? 'bg-white text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                                                                onClick={() => setActiveTab('editHistory')}
+                                                            >
+                                                                Edit History
+                                                            </button>
+                                                        </div>
+                                                        {activeTab === 'quotes' && (
+                                                            <div className="bg-white rounded-lg p-4">
+                                                                {renderAdditionalDetails(quote)}
+                                                                <div className="flex gap-2 mt-4">
+                                                                    <button 
+                                                                        onClick={(e) => { e.stopPropagation(); duplicateQuote(quote); }} 
+                                                                        className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                                                    >
+                                                                        <Copy className="w-4 h-4 mr-2" />
+                                                                        Duplicate
+                                                                    </button>
+                                                                    <button 
+                                                                        onClick={(e) => { e.stopPropagation(); reverseQuote(quote); }} 
+                                                                        className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                                                    >
+                                                                        <RotateCcw className="w-4 h-4 mr-2" />
+                                                                        Reverse Route
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        {activeTab === 'editHistory' && (
+                                                            <div className="bg-white rounded-lg p-4 max-h-64 overflow-y-auto">
+                                                                <EditHistory quoteId={quote.id} searchTerm="" searchColumn="id" editHistory={editHistory} />
+                                                            </div>
+                                                        )}
+                                                        {isAdmin && (
+                                                            <div className="bg-white rounded-lg p-4 space-y-3">
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                    <div>
+                                                                        <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                                                        <select
+                                                                            aria-label="Quote Status"
+                                                                            value={quote.brokers_status}
+                                                                            onChange={(e) => handleStatusChange(e, quote.id)}
+                                                                            className={`w-full border border-gray-300 rounded-md px-3 py-2 text-sm ${getStatusClasses(quote.brokers_status)}`}
+                                                                        >
+                                                                            <option value="In Progress">In Progress</option>
+                                                                            <option value="Need More Info">Need More Info</option>
+                                                                            <option value="Priced">Priced</option>
+                                                                            <option value="Cancelled">Cancelled</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    {showPriceInput === quote.id ? (
+                                                                        <div>
+                                                                            <label className="block text-sm font-medium text-gray-700 mb-1">Quote Price</label>
+                                                                            <form onSubmit={(e) => handlePriceSubmit(e, quote.id)} className="flex gap-2">
+                                                                                <input
+                                                                                    type="number"
+                                                                                    name="quotePrice"
+                                                                                    value={carrierPayInput}
+                                                                                    onChange={(e) => setCarrierPayInput(e.target.value)}
+                                                                                    placeholder="Enter price"
+                                                                                    className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm"
+                                                                                />
+                                                                                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">
+                                                                                    Submit
+                                                                                </button>
+                                                                            </form>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div>
+                                                                            <label className="block text-sm font-medium text-gray-700 mb-1">Pricing</label>
+                                                                            <button
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    setShowPriceInput(quote.id);
+                                                                                }}
+                                                                                className="w-full bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700"
+                                                                            >
+                                                                                {quote.price ? 'Edit Quote' : 'Price Quote Request'}
+                                                                            </button>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex gap-2 pt-2">
+                                                                    <SelectTemplate quoteId={quote.id} />
+                                                                    <button 
+                                                                        onClick={() => archiveQuote(quote.id)} 
+                                                                        className="text-red-600 px-4 py-2 border border-red-300 rounded-md text-sm font-medium hover:bg-red-50"
+                                                                    >
+                                                                        Archive Quote
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
+                                ))}
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
 
-            </table>
-            {loading ? (
-                <div className="text-center text-gray-500">Loading...</div>
-            ) : quotes.length === 0 ? (
-                <>
-                    <div className='w-full mx-auto'>
-                        <div className='flex flex-col w-full max-w-[1000px] min-w-[1000px]  h-full items-center justify-start gap-4 p-4 border border-gray-500'>
-                            <div>
-                                <p className="text-center text-gray-500">No quotes available yet.</p>
-                            </div>
-                            <div className='flex justify-center'>
-                                <QuoteFormModal
-                                    session={session}
-                                    profiles={profiles}
-                                    companyId={companyId}
-                                    userType="shipper"
-                                />
-                            </div>
+                    {/* Pagination */}
+                    <div className="flex justify-center mt-6">
+                        <div className="flex gap-1">
+                            {Array.from({ length: totalPages }, (_, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => handlePageChange(index + 1)}
+                                    className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                                        currentPage === index + 1
+                                            ? 'bg-blue-600 text-white'
+                                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    {index + 1}
+                                </button>
+                            ))}
                         </div>
                     </div>
                 </>
-            ) : " "}
+            )}
+
             <OrderFormModal
-                isOpen={false} // Replace with actual state or prop
-                onClose={() => { }} // Replace with actual function
-                onSubmit={() => { }} // Replace with actual function
-                quote={null} // Replace with actual quote data
+                isOpen={false}
+                onClose={() => { }}
+                onSubmit={() => { }}
+                quote={null}
             />
-            <div className="flex justify-center mt-4">
-                {Array.from({ length: totalPages }, (_, index) => (
-                    <button
-                        key={index}
-                        onClick={() => handlePageChange(index + 1)}
-                        className={`px-4 py-2 mx-1 rounded ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-                    >
-                        {index + 1}
-                    </button>
-                ))}
-            </div>
         </div>
     );
 }

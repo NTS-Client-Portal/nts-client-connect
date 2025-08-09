@@ -312,7 +312,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
     };
 
     return (
-        <div className="w-full h-full overflow-auto">
+        <div className="w-full h-full">
             {quotes ? (
                 <div className="flex items-start mb-4">
                     <p className='text-start font-semibold py-2 text-gray-800 text-nowrap'>Welcome {profilesUser?.first_name} {profilesUser?.last_name} <br /> Manage your shipments here</p>
@@ -354,7 +354,10 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
 
             {isMobile ? (
                 <div className="relative z-0">
+                    <label htmlFor="tab-select" className="sr-only">Select shipment tab</label>
                     <select
+                        id="tab-select"
+                        aria-label="Select shipment tab"
                         className="w-full p-2 border border-gray-300 rounded-md relative z-0"
                         value={activeTab}
                         onChange={(e) => handleTabChange(e.target.value)}
@@ -400,7 +403,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                     </button>
                 </div>
             )}
-            <div className="p-4 bg-white ">
+            <div className="p-1 bg-white ">
                 {activeTab === 'requests' && (
                     <QuoteList
                         session={session}

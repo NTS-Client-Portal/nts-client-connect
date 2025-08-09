@@ -6,25 +6,64 @@ import NotificationBell from '@/components/NotificationBell';
 import { Session } from '@supabase/auth-helpers-react';
 import FeedBack from '@/components/ui/FeedBack';
 import { useRouter } from 'next/router';
+import { Search, Sun, Moon, User } from 'lucide-react';
 
 interface SalesTopNavProps {
     session: Session | null;
     className?: string;
+    isSidebarOpen?: boolean;
+    toggleSidebar?: () => void;
 }
 
-const SalesTopNav: React.FC<SalesTopNavProps> = ({ session, className = '' }) => {
+const SalesTopNav: React.FC<SalesTopNavProps> = ({ session, className = '', isSidebarOpen, toggleSidebar }) => {
     const { userProfile } = useNtsUsers();
     const [darkMode, setDarkMode] = useState(false);
-    const [profilePictureUrl, setProfilePictureUrl] = useState<string>('https://www.gravatar.com/avatar?d=mp&s=100');
+    const [profilePictureUrl, setProfilePictureUrl] = useState<string>('');
+    const [profileImageError, setProfileImageError] = useState(false);
+    const router = useRouter();
 
+    // Set up profile image URL with same logic as SideNav
     useEffect(() => {
-        if (userProfile?.profile_picture) {
-            const profilePicUrl = `${userProfile.profile_picture}`;
-            setProfilePictureUrl(profilePicUrl);
+        if (userProfile?.profile_picture && !profileImageError) {
+            try {
+                console.log('TopNav - Profile picture field:', userProfile.profile_picture);
+                
+                // Check if the profile_picture is already a full URL
+                if (userProfile.profile_picture.startsWith('https://') || userProfile.profile_picture.startsWith('http://')) {
+                    console.log('TopNav - Using full URL directly:', userProfile.profile_picture);
+                    setProfilePictureUrl(userProfile.profile_picture);
+                } else {
+                    // It's a file path, so construct the URL
+                    let filename = userProfile.profile_picture;
+                    
+                    console.log('TopNav - Using file path:', filename);
+                    
+                    const { data } = supabase.storage
+                        .from('profile-pictures')
+                        .getPublicUrl(filename);
+                    
+                    console.log('TopNav - Generated URL:', data?.publicUrl);
+                    
+                    if (data?.publicUrl) {
+                        setProfilePictureUrl(data.publicUrl);
+                    } else {
+                        setProfilePictureUrl('https://www.gravatar.com/avatar?d=mp&s=100');
+                    }
+                }
+            } catch (error) {
+                console.error('TopNav - Error getting profile picture URL:', error);
+                setProfilePictureUrl('https://www.gravatar.com/avatar?d=mp&s=100');
+            }
+        } else {
+            setProfilePictureUrl('https://www.gravatar.com/avatar?d=mp&s=100');
         }
-    }, [userProfile]);
+    }, [userProfile?.profile_picture, profileImageError]);
 
-   const router = useRouter();
+    const handleImageError = () => {
+        console.error('TopNav - Image failed to load:', profilePictureUrl);
+        setProfileImageError(true);
+        setProfilePictureUrl('');
+    };
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -33,52 +72,63 @@ const SalesTopNav: React.FC<SalesTopNavProps> = ({ session, className = '' }) =>
         router.push('/nts/login');
     };
 
-
     return (
-        <>
-            <nav className={`md:hidden w-full  max-h-max absolute top-0 bg-white dark:bg-zinc-700 flex flex-col md:flex-row gap-1 justify-end px-4 z-50 py-1 drop-shadow ${className}`}>
-                <ul className='flex gap-2 md:gap-4 items-end z-50 justify-end ml-4'>
-                    <li>
-                        <NotificationBell session={session} />
-                    </li>
+        <nav className={`w-full bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm ${className}`}>
+            <div className="px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-between items-center h-16">
+                    {/* Left side - Search or breadcrumbs can go here */}
+                    <div className="flex items-center space-x-4">
+                        {/* Placeholder for search or breadcrumb */}
+                        <div className="hidden md:flex items-center space-x-2">
+                            <FeedBack />
+                        </div>
+                    </div>
 
-                    <li className='hidden md:block'>
-                        <FeedBack />
-                    </li>
-                    <li>
-                        <Image
-                            src={profilePictureUrl}
-                            alt='profile-img'
-                            className='rounded-full shadow-md'
-                            width={34}
-                            height={34} />
-                    </li>
-                </ul>
-                <FeedBack />
-            </nav>
+                    {/* Right side - User actions */}
+                    <div className="flex items-center space-x-3">
+                        {/* Notifications */}
+                        <div className="relative">
+                            <NotificationBell session={session} />
+                        </div>
 
-            <nav className={`hidden w-full bg-white absolute top-0 md:flex flex-col md:flex-row gap-1 justify-between px-4 z-50 py-2 drop-shadow ${className}`}>
-                <ul className='w-full flex gap-2 md:gap-4 items-center z-50 justify-start pl-64'>
-                    <li>
-                        <FeedBack />
-                    </li>
-                </ul>
-                <ul className='w-full flex gap-2 md:gap-4 items-center z-50 justify-end mr-12'>
-                    <li>
-                        <NotificationBell session={session} />
-                    </li>
-                    <li>
-                        <Image
-                            src={profilePictureUrl}
-                            alt='profile-img'
-                            className='rounded-full shadow-md'
-                            width={34}
-                            height={34}
-                            fetchPriority="high" />
-                    </li>
-                </ul>
-            </nav>
-        </>
+                        {/* Feedback Button for Mobile */}
+                        <div className="md:hidden">
+                            <FeedBack />
+                        </div>
+
+                        {/* User Profile */}
+                        <div className="flex items-center space-x-3">
+                            <div className="hidden sm:block text-right">
+                                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                    {userProfile?.first_name} {userProfile?.last_name}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    Sales Representative
+                                </p>
+                            </div>
+                            <div className="relative">
+                                {profilePictureUrl && !profileImageError ? (
+                                    <Image
+                                        src={profilePictureUrl}
+                                        alt="Profile"
+                                        width={40}
+                                        height={40}
+                                        className="rounded-full border-2 border-gray-200 dark:border-gray-600 shadow-sm hover:shadow-md transition-shadow duration-200 object-cover"
+                                        onError={handleImageError}
+                                        unoptimized
+                                    />
+                                ) : (
+                                    <div className="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full border-2 border-gray-200 dark:border-gray-600 shadow-sm flex items-center justify-center">
+                                        <User className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                                    </div>
+                                )}
+                                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-white dark:border-gray-800"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
     );
 };
 

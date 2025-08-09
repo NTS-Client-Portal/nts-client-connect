@@ -347,6 +347,8 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                             type="checkbox"
                             checked={saveToInventory}
                             onChange={(e) => setSaveToInventory(e.target.checked)}
+                            placeholder="Save to Inventory"
+                            title="Save to Inventory"
                         />
                         Save to Inventory
                     </div>

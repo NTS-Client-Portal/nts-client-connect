@@ -3,7 +3,19 @@ import Link from 'next/link';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useNtsUsers } from '@/context/NtsUsersContext';
 import { Database } from '@/lib/database.types';
-import { Mail, PhoneForwarded } from 'lucide-react'
+import { 
+  Mail, 
+  PhoneForwarded, 
+  Building2, 
+  Users, 
+  Package, 
+  Search,
+  Filter,
+  ExternalLink,
+  MapPin,
+  Calendar,
+  Truck
+} from 'lucide-react'
 
 interface Profile {
   address: string | null;
@@ -141,118 +153,283 @@ const Crm: React.FC = () => {
   });
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Assigned Customers</h1>
-      <div className="flex justify-start gap-4 my-4">
-        <div className="flex items-center">
-          <label className="mr-2">Search by:</label>
-          <select
-            value={searchColumn}
-            onChange={(e) => setSearchColumn(e.target.value)}
-            className="border border-gray-300 rounded-md shadow-sm"
-          >
-            <option value="company_name">Company Name</option>
-            <option value="first_name">First Name</option>
-            <option value="last_name">Last Name</option>
-            <option value="email">Email</option>
-          </select>
+    <div className="w-full mx-auto p-6 space-y-6">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+            <Building2 className="w-8 h-8 text-blue-600" />
+            Assigned Customers
+          </h1>
+          <p className="text-gray-600 mt-1">Manage your customer relationships and track quotes</p>
         </div>
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search..."
-          className="border border-gray-300 pl-2 rounded-md shadow-sm"
-        />
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <Users className="w-4 h-4" />
+          {filteredCompanies.length} Companies
+        </div>
       </div>
-      <div className="hidden md:block overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-300">
-          <thead className='bg-ntsBlue text-white'>
-            <tr className='divide-x-2'>
-              <th className="text-start px-4 py-2 border-b">Company Name</th>
-              <th className="text-start px-4 py-2 border-b">Company Users</th>
-              <th className="text-start px-4 py-2 border-b">Shipping Quotes</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredCompanies.map(company => (
-              <tr key={company.id} className="hover:bg-gray-100 divide-x-2">
-                <td className="px-4 text-blue-500 hover:underline py-2 border-b">
-                  <Link className="text-blue-500 hover:underline cursor-auto" href={`/companies/${company.id}`} legacyBehavior>
-                    {company.company_name}
-                  </Link>
-                </td>
-                <td className="px-4 py-2 border-b">
-                  <ul className="list-inside">
-                    {getProfilesForCompany(company.id).map(profile => (
-                      <li key={profile.id}>
-                        <div className='grid grid-cols-2 pb-2 border-b border-b-gray-200 pt-1 px-2'>
-                          <div className='font-medium'>  {profile.first_name} {profile.last_name}</div>
-                          <div className='flex flex-col gap-1 mt-1'>
-                            <a className='text-ntsLightBlue underline cursor-pointer flex gap-1 items-center' href={`mailto:${profile.email}`}>
-                              <Mail /> Email {profile.first_name}</a>
-                            <a className='text-ntsLightBlue underline cursor-pointer flex gap-1 items-center' href={`tel:${profile.phone_number}`}>
-                              <PhoneForwarded /> Call {profile.first_name}</a>
+
+      {/* Search and Filter Section */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex items-center gap-2 flex-1">
+            <Search className="w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search customers..."
+              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-gray-500" />
+            <label id="search-column-label" className="sr-only">
+              Search by
+            </label>
+            <select
+              aria-labelledby="search-column-label"
+              value={searchColumn}
+              onChange={(e) => setSearchColumn(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="company_name">Company Name</option>
+              <option value="first_name">First Name</option>
+              <option value="last_name">Last Name</option>
+              <option value="email">Email</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden lg:block">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gradient-to-r from-blue-600 to-blue-700">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
+                    Company
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
+                    Contacts
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
+                    Active Quotes
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredCompanies.map(company => (
+                  <tr key={company.id} className="hover:bg-gray-50 transition-colors duration-150">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <Building2 className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div className="ml-4">
+                          <Link href={`/companies/${company.id}`} className="text-blue-600 hover:text-blue-800 font-semibold hover:underline flex items-center gap-1">
+                            {company.company_name}
+                            <ExternalLink className="w-4 h-4" />
+                          </Link>
+                          <p className="text-sm text-gray-500">{company.company_size}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="space-y-2">
+                        {getProfilesForCompany(company.id).map(profile => (
+                          <div key={profile.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div>
+                              <p className="font-medium text-gray-900">{profile.first_name} {profile.last_name}</p>
+                              <p className="text-sm text-gray-500">{profile.email}</p>
+                            </div>
+                            <div className="flex gap-2">
+                              <a 
+                                href={`mailto:${profile.email}`}
+                                className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-150 tooltip"
+                                title={`Email ${profile.first_name}`}
+                              >
+                                <Mail className="w-4 h-4" />
+                              </a>
+                              <a 
+                                href={`tel:${profile.phone_number}`}
+                                className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors duration-150 tooltip"
+                                title={`Call ${profile.first_name}`}
+                              >
+                                <PhoneForwarded className="w-4 h-4" />
+                              </a>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="space-y-2">
+                        {getShippingQuotesForCompany(company.id).map(quote => (
+                          <div key={quote.id} className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                <Package className="w-3 h-3 mr-1" />
+                                Quote #{quote.id}
+                              </span>
+                              <span className="text-xs text-gray-500">New</span>
+                            </div>
+                            <div className="space-y-1 text-sm">
+                              <div className="flex items-center gap-1 text-gray-600">
+                                <MapPin className="w-3 h-3" />
+                                <span className="font-medium">Route:</span> {quote.origin_city}, {quote.origin_state} → {quote.destination_city}, {quote.destination_state}
+                              </div>
+                              <div className="flex items-center gap-1 text-gray-600">
+                                <Truck className="w-3 h-3" />
+                                <span className="font-medium">Load:</span> {quote.year} {quote.make} {quote.model}
+                              </div>
+                              {quote.due_date && (
+                                <div className="flex items-center gap-1 text-gray-600">
+                                  <Calendar className="w-3 h-3" />
+                                  <span className="font-medium">Due:</span> {new Date(quote.due_date).toLocaleDateString()}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                        {getShippingQuotesForCompany(company.id).length === 0 && (
+                          <p className="text-gray-500 text-sm italic">No active quotes</p>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {/* Mobile Card View */}
+      <div className="lg:hidden space-y-4">
+        {filteredCompanies.map(company => (
+          <div key={company.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            {/* Company Header */}
+            <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Building2 className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <Link href={`/companies/${company.id}`} className="text-lg font-semibold text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1">
+                      {company.company_name}
+                      <ExternalLink className="w-4 h-4" />
+                    </Link>
+                    <p className="text-sm text-gray-600">{company.company_size}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-gray-500">Active Quotes</p>
+                  <p className="text-lg font-bold text-blue-600">{getShippingQuotesForCompany(company.id).length}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Company Contacts */}
+            <div className="p-4 border-b border-gray-200">
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <Users className="w-4 h-4 text-gray-600" />
+                Contacts ({getProfilesForCompany(company.id).length})
+              </h3>
+              <div className="space-y-2">
+                {getProfilesForCompany(company.id).map(profile => (
+                  <div key={profile.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">{profile.first_name} {profile.last_name}</p>
+                      <p className="text-sm text-gray-500">{profile.email}</p>
+                      {profile.phone_number && (
+                        <p className="text-sm text-gray-500">{profile.phone_number}</p>
+                      )}
+                    </div>
+                    <div className="flex gap-2 ml-3">
+                      <a 
+                        href={`mailto:${profile.email}`}
+                        className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-150 touch-manipulation active:scale-95"
+                        title={`Email ${profile.first_name}`}
+                      >
+                        <Mail className="w-4 h-4" />
+                      </a>
+                      <a 
+                        href={`tel:${profile.phone_number}`}
+                        className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors duration-150 touch-manipulation active:scale-95"
+                        title={`Call ${profile.first_name}`}
+                      >
+                        <PhoneForwarded className="w-4 h-4" />
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Shipping Quotes */}
+            <div className="p-4">
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <Package className="w-4 h-4 text-gray-600" />
+                Shipping Quotes
+              </h3>
+              <div className="space-y-3">
+                {getShippingQuotesForCompany(company.id).map(quote => (
+                  <div key={quote.id} className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                        <Package className="w-3 h-3 mr-1" />
+                        Quote #{quote.id}
+                      </span>
+                      <span className="text-xs text-emerald-600 font-medium">New</span>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-start gap-2">
+                        <MapPin className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-medium text-gray-700">Route</p>
+                          <p className="text-gray-600">{quote.origin_city}, {quote.origin_state} → {quote.destination_city}, {quote.destination_state}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Truck className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-medium text-gray-700">Load Details</p>
+                          <p className="text-gray-600">{quote.year} {quote.make} {quote.model}</p>
+                        </div>
+                      </div>
+                      {quote.due_date && (
+                        <div className="flex items-start gap-2">
+                          <Calendar className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="font-medium text-gray-700">Due Date</p>
+                            <p className="text-gray-600">{new Date(quote.due_date).toLocaleDateString()}</p>
                           </div>
                         </div>
-                      </li>
-                    ))}
-                  </ul>
-                </td>
-                <td className="px-4 py-2 border-b">
-                  <ul className="list-inside">
-                    {getShippingQuotesForCompany(company.id).map(quote => (
-                      <li key={quote.id}>
-                        <span className='text-emerald-500'>New Quote</span> - Quote #{quote.id} <br /> <strong>Origin/Destination </strong>- {quote.origin_state} -  {quote.origin_city}, {quote.destination_city}, {quote.destination_state} <br /> <strong>Load Details </strong>- {quote.make} {quote.model} <br />
-                      </li>
-                    ))}
-                  </ul>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="md:hidden">
-        {filteredCompanies.map(company => (
-          <div key={company.id} className="bg-white shadow rounded-md mb-4 p-4 border border-gray-300">
-            <div className="mb-2">
-              <Link className="text-blue-500 hover:underline" href={`/companies/${company.id}`} legacyBehavior>
-                <h2 className="text-lg font-bold">{company.company_name}</h2>
-              </Link>
-            </div>
-            <div className="mb-2">
-              <h3 className="font-semibold">Company Users</h3>
-              <ul className="list-inside">
-                {getProfilesForCompany(company.id).map(profile => (
-                  <li key={profile.id}>
-                    <div className='grid grid-cols-2 place-items-center py-2 border shadow-sm'>
-                    <div className='font-medium'>  {profile.first_name} {profile.last_name}</div>
-                      <div className='flex flex-col gap-1 mt-1'>
-                      <a className='text-ntsLightBlue underline cursor-pointer flex gap-1 items-center' href={`mailto:${profile.email}`}>
-                        <Mail /> Email {profile.first_name}
-                       </a>
-                      <a className='text-ntsLightBlue underline cursor-pointer flex gap-1 items-center' href={`tel:${profile.phone_number}`}>
-                        <PhoneForwarded /> Call {profile.first_name}
-                      </a>
-                      </div>
+                      )}
                     </div>
-                  </li>
+                  </div>
                 ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold">Shipping Quotes</h3>
-              <ul className="list-inside">
-                {getShippingQuotesForCompany(company.id).map(quote => (
-                  <li key={quote.id}>
-                    <span className='text-emerald-500'>New Quote</span> - Quote #{quote.id} <br /> <strong>Origin/Destination </strong>- {quote.origin_state} -  {quote.origin_city}, {quote.destination_city}, {quote.destination_state} <br /> <strong>Load Details </strong>- {quote.make} {quote.model} <br />
-                  </li>
-                ))}
-              </ul>
+                {getShippingQuotesForCompany(company.id).length === 0 && (
+                  <div className="text-center py-4">
+                    <Package className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-500 text-sm">No active quotes</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         ))}
+        
+        {filteredCompanies.length === 0 && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+            <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No customers found</h3>
+            <p className="text-gray-500">Try adjusting your search criteria</p>
+          </div>
+        )}
       </div>
     </div>
   );

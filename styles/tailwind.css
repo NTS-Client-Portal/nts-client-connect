@@ -90,31 +90,6 @@ body,
   overflow-x: hidden;
 }
 
-.layout {
-  display: grid;
-  grid-template-columns: 13em 1fr;
-  height: 100vh;
-}
-
-.side-navbar {
-  @apply flex-grow;
-  height: 100vh;
-  /* Full height of the viewport */
-  width: 13em;
-  color: white;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
-  overflow-x: hidden;
-  box-sizing: border-box;
-  z-index: 40;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  /* Prevent shrinking */
-  flex-grow: 1;
-  /* Allow growing */
-}
-
 .sidenav-text {
   font-size: .50em;
   text-wrap: nowrap;

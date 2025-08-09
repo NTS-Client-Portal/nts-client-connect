@@ -6,13 +6,13 @@
         "fs": false,
         "path": false,
         "os": false
-    },
+    },   
     "scripts": {
         "preinstall": "npx npm-force-resolutions",
-        "dev": "concurrently \"npm run dev:css\" \"next dev\"",
-        "dev:css": "tailwindcss -w -i ./styles/tailwind.css -o styles/app.css",
+        "dev": "next dev",
+        "dev:css": "echo 'CSS building handled by PostCSS in dev mode'",
         "build": "next build",
-        "build:css": "tailwindcss -m -i ./styles/tailwind.css -o styles/app.css",
+        "build:css": "echo 'CSS building handled by PostCSS in build mode'",
         "start": "next start",
         "supabase": "supabase"
     },
@@ -95,6 +95,7 @@
         "@types/react-tooltip": "^4.2.4",
         "@types/uuid": "^10.0.0",
         "autoprefixer": "^10.4.20",
+        "tailwindcss": "^4.1.11",
         "typescript": "^5.7.3"
     }
 }

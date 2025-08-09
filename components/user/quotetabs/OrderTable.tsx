@@ -267,6 +267,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                             value={searchColumn}
                             onChange={(e) => setSearchColumn(e.target.value)}
                             className="border border-gray-300 rounded-md shadow-sm"
+                            title="Search Column"
                         >
                             <option value="id">ID</option>
                             <option value="freight_type">Load Details</option>
@@ -399,12 +400,16 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                                     value={loadDates[order.id] || ''}
                                                     onChange={(e) => handleDateChange(e, order.id, 'load')}
                                                     className="mb-2 p-2 border border-gray-300 rounded-md"
+                                                    title="Select Load Date"
+                                                    placeholder="Load Date"
                                                 />
                                                 <input
                                                     type="date"
                                                     value={deliveryDates[order.id] || ''}
                                                     onChange={(e) => handleDateChange(e, order.id, 'delivery')}
                                                     className="mb-2 p-2 border border-gray-300 rounded-md"
+                                                    title="Select Delivery Date"
+                                                    placeholder="Delivery Date"
                                                 />
                                                 <button
                                                     onClick={(e) => {
@@ -427,7 +432,12 @@ const OrderTable: React.FC<OrderTableProps> = ({
 
                                             {isAdmin && (
                                                 <>
+                                                    <label htmlFor={`status-select-${order.id}`} className="sr-only">
+                                                        Status
+                                                    </label>
                                                     <select
+                                                        id={`status-select-${order.id}`}
+                                                        title="Order Status"
                                                         value={order.brokers_status}
                                                         onChange={(e) => {
                                                             e.stopPropagation();

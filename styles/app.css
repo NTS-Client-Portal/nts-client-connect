@@ -151,6 +151,7 @@ html,
   line-height: 1.5;
   /* 1 */
   -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   /* 2 */
   -moz-tab-size: 4;
   /* 3 */
@@ -1748,11 +1749,11 @@ body:is(.dark *) {
 }
 
 .text-wrap {
-  text-wrap: wrap;
+  white-space: normal;
 }
 
 .text-nowrap {
-  text-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .rounded {
@@ -3078,7 +3079,7 @@ body:is(.dark *) {
 }
 
 .btn-reverse-zinc {
-  text-wrap: nowrap;
+  white-space: nowrap;
   border-radius: 0.25rem;
   border-width: 1px;
   --tw-border-opacity: 1;
@@ -3300,6 +3301,8 @@ body,
   overflow-x: hidden;
 }
 
+/* Legacy layout styles - disabled for new grid system */
+/*
 .layout {
   display: grid;
   grid-template-columns: 13em 1fr;
@@ -3309,9 +3312,8 @@ body,
 .side-navbar {
   @apply flex-grow;
   height: 100vh;
-  /* Full height of the viewport */
-  width: 14em;
-  text-wrap: nowrap;
+  width: 12em;
+  white-space: nowrap;
   color: white;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
@@ -3321,10 +3323,9 @@ body,
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  /* Prevent shrinking */
   flex-grow: 1;
-  /* Allow growing */
 }
+*/
 
 .sidenav-text {
   font-size: .50em !important;

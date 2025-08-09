@@ -590,9 +590,9 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
     };
 
     return (
-        <div className="w-full bg-white max-h-max flex-grow">
+        <div className="w-full bg-white max-h-max flex-grow overflow-hidden">
             {popupMessage && (
-                <div className="absolute top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg animate-fade-in-out">
+                <div className="absolute top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg animate-fade-in-out z-50">
                     {popupMessage}
                 </div>
             )}
