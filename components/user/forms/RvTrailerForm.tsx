@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Home, Ruler, Car, Settings } from 'lucide-react';
 
 interface RvTrailerFormProps {
     setFormData: (data: any) => void;
@@ -50,218 +51,268 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
     }, [classType, make, model, heightUnit, widthUnit, weightUnit, lengthUnit, motorizedOrTrailer, roadworthy, height, length, width, weight, vin, value, year, setFormData]);
 
     return (
-        <div className="flex flex-col gap-3">
-            <div className='flex flex-col md:flex-row gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Year
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                        type="number"
-                        placeholder='2015'
-                        value={year || ''}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setYear(e.target.value ? parseInt(e.target.value) : null);
-                        }}
-                    />
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Make
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                        placeholder='Winnebago, Fleetwood, etc.'
-                        type="text"
-                        value={make || ''}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setMake(e.target.value);
-                        }}
-                    />
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Model
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                        type="text"
-                        placeholder='Brave, Bounder, etc.'
-                        value={model || ''}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setModel(e.target.value);
-                        }}
-                    />
-                </label>
-            </div>
-            <div className='flex flex-col md:flex-row gap-2'>
-                <div className='flex flex-col md:flex-row gap-2'>
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Length
-                        <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                            type="text"
-                            placeholder='e.g. 30ft'
-                            value={length || ''}
-                            onChange={(e) => {
-                                setErrorText('');
-                                setLength(e.target.value);
-                            }}
-                        />
-                    <select className="rounded bg-white w-full py-1.5 px-1 border border-zinc-900/30 shadow-md"
-                        value={lengthUnit}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setLengthUnit(e.target.value);
-                        }}
-                        >
-                        <option value='ft'>Feet</option>
-                        <option value='in'>Inches</option>
-                        <option value='m'>Meters</option>
-                        <option value='mm'>Millimeters</option>
-                    </select>
-                        </label>
+        <div className="nts-form-container">
+            {/* RV/Trailer Details Section */}
+            <div className="nts-form-section">
+                <div className="nts-form-section-header">
+                    <Home className="w-5 h-5 text-orange-600" />
+                    <h3>RV/Trailer Details</h3>
                 </div>
-               <div className='flex flex-col md:flex-row gap-2'>
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Width
-                        <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                            type="text"
-                            placeholder='e.g. 8ft'
-                            value={width || ''}
-                            onChange={(e) => {
-                                setErrorText('');
-                                setWidth(e.target.value);
-                            }}
-                        />
-                    <select className="rounded bg-white w-full py-1.5 px-1 border border-zinc-900/30 shadow-md"
-                        value={widthUnit}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setWidthUnit(e.target.value);
-                        }}
-                        >
-                        <option value='ft'>Feet</option>
-                        <option value='in'>Inches</option>
-                        <option value='m'>Meters</option>
-                        <option value='mm'>Millimeters</option>
-                    </select>
+                <div className="nts-form-section-body">
+                    <div className="nts-form-grid-3">
+                        <label className="nts-form-label">Year
+                            <input
+                                className="nts-form-input"
+                                type="number"
+                                placeholder="2015"
+                                value={year || ''}
+                                onChange={(e) => {
+                                    setErrorText('');
+                                    setYear(e.target.value ? parseInt(e.target.value) : null);
+                                }}
+                            />
                         </label>
-               </div>
-               <div className='flex flex-col md:flex-row gap-2'>
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Height
-                        <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                            type="text"
-                            placeholder='e.g. 9ft'
-                            value={height || ''}
-                            onChange={(e) => {
-                                setErrorText('');
-                                setHeight(e.target.value);
-                            }}
-                        />
-                    <select className="rounded bg-white w-full py-1.5 px-1 border border-zinc-900/30 shadow-md"
-                        value={heightUnit}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setHeightUnit(e.target.value);
-                        }}
-                        >
-                        <option value='ft'>Feet</option>
-                        <option value='in'>Inches</option>
-                        <option value='m'>Meters</option>
-                        <option value='mm'>Millimeters</option>
-                    </select>
+                        <label className="nts-form-label">Make
+                            <input
+                                className="nts-form-input"
+                                placeholder="Winnebago, Fleetwood, etc."
+                                type="text"
+                                value={make || ''}
+                                onChange={(e) => {
+                                    setErrorText('');
+                                    setMake(e.target.value);
+                                }}
+                            />
                         </label>
-               </div>
-                <div className='flex flex-col md:flex-row gap-2'>
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Weight
-                        <input
-                            className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                            type="text"
-                            placeholder='e.g. 20,000'
-                            value={weight || ''}
-                            onChange={(e) => {
-                                setErrorText('');
-                                setWeight(e.target.value);
-                            }}
-                        />
-                    <select className="rounded bg-white w-full py-1.5 px-1 border border-zinc-900/30 shadow-md"
-                        value={weightUnit}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setWeightUnit(e.target.value);
-                        }}
-                        >
-                        <option value='lbs'>Pounds</option>
-                        <option value='kg'>Kilograms</option>
-                        <option value='tons'>Tons</option>
-                    </select>
-                    </label>
+                        <label className="nts-form-label">Model
+                            <input
+                                className="nts-form-input"
+                                type="text"
+                                placeholder="Brave, Bounder, etc."
+                                value={model || ''}
+                                onChange={(e) => {
+                                    setErrorText('');
+                                    setModel(e.target.value);
+                                }}
+                            />
+                        </label>
+                    </div>
+                    <div className="nts-form-grid-2">
+                        <label className="nts-form-label">Class Type (if applicable)
+                            <select
+                                className="nts-form-select"
+                                value={classType || ''}
+                                onChange={(e) => {
+                                    setErrorText('');
+                                    setClassType(e.target.value);
+                                }}
+                            >
+                                <option value="">Select class...</option>
+                                <option value="Class A">Class A - Large Motorhome</option>
+                                <option value="Class B">Class B - Van Conversion</option>
+                                <option value="Class C">Class C - Cab-Over</option>
+                                <option value="Travel Trailer">Travel Trailer</option>
+                                <option value="Fifth Wheel">Fifth Wheel</option>
+                                <option value="Pop-up Camper">Pop-up Camper</option>
+                                <option value="Toy Hauler">Toy Hauler</option>
+                                <option value="Park Model">Park Model</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </label>
+                        <label className="nts-form-label">RV Value
+                            <input
+                                className="nts-form-input"
+                                type="text"
+                                placeholder="e.g. $80,000"
+                                value={value || ''}
+                                onChange={(e) => {
+                                    setErrorText('');
+                                    setValue(e.target.value);
+                                }}
+                            />
+                        </label>
+                    </div>
                 </div>
             </div>
 
-
-            <div className='flex flex-col md:flex-row gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Class Type (if applicable)
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                        type="text"
-                        placeholder='Class A, B, C, etc.'
-                        value={classType || ''}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setClassType(e.target.value);
-                        }}
-                    />
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Hitch Type (if applicable)
-                    <input
-                        className="rounded dark:text-zinc-800 w-full p-1 border border-zinc-900/30 shadow-md"
-                        type="text"
-                        placeholder='e.g. 5th wheel, gooseneck, etc.'
-                        value={motorizedOrTrailer || ''}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setMotorizedOrTrailer(e.target.value);
-                        }}
-                    />
-                </label>
+            {/* Dimensions & Weight Section */}
+            <div className="nts-form-section">
+                <div className="nts-form-section-header">
+                    <Ruler className="w-5 h-5 text-green-600" />
+                    <h3>Dimensions & Weight</h3>
+                </div>
+                <div className="nts-form-section-body">
+                    <div className="nts-form-grid-4">
+                        <div className="nts-form-unit-field">
+                            <label className="nts-form-label">Length
+                                <input
+                                    className="nts-form-input"
+                                    type="text"
+                                    placeholder="e.g. 30ft"
+                                    value={length || ''}
+                                    onChange={(e) => {
+                                        setErrorText('');
+                                        setLength(e.target.value);
+                                    }}
+                                />
+                            </label>
+                            <select 
+                                className="nts-form-unit-select"
+                                title='length unit selection'
+                                value={lengthUnit}
+                                onChange={(e) => {
+                                    setErrorText('');
+                                    setLengthUnit(e.target.value);
+                                }}
+                            >
+                                <option value="ft">Feet</option>
+                                <option value="in">Inches</option>
+                                <option value="m">Meters</option>
+                                <option value="mm">Millimeters</option>
+                            </select>
+                        </div>
+                        <div className="nts-form-unit-field">
+                            <label className="nts-form-label">Width
+                                <input
+                                    className="nts-form-input"
+                                    type="text"
+                                    placeholder="e.g. 8ft"
+                                    value={width || ''}
+                                    onChange={(e) => {
+                                        setErrorText('');
+                                        setWidth(e.target.value);
+                                    }}
+                                />
+                            </label>
+                            <select 
+                                className="nts-form-unit-select"
+                                title="width unit selection"
+                                value={widthUnit}
+                                onChange={(e) => {
+                                    setErrorText('');
+                                    setWidthUnit(e.target.value);
+                                }}
+                            >
+                                <option value="ft">Feet</option>
+                                <option value="in">Inches</option>
+                                <option value="m">Meters</option>
+                                <option value="mm">Millimeters</option>
+                            </select>
+                        </div>
+                        <div className="nts-form-unit-field">
+                            <label className="nts-form-label">Height
+                                <input
+                                    className="nts-form-input"
+                                    type="text"
+                                    placeholder="e.g. 9ft"
+                                    value={height || ''}
+                                    onChange={(e) => {
+                                        setErrorText('');
+                                        setHeight(e.target.value);
+                                    }}
+                                />
+                            </label>
+                            <select 
+                                className="nts-form-unit-select"
+                                title="height unit selection"
+                                value={heightUnit}
+                                onChange={(e) => {
+                                    setErrorText('');
+                                    setHeightUnit(e.target.value);
+                                }}
+                            >
+                                <option value="ft">Feet</option>
+                                <option value="in">Inches</option>
+                                <option value="m">Meters</option>
+                                <option value="mm">Millimeters</option>
+                            </select>
+                        </div>
+                        <div className="nts-form-unit-field">
+                            <label className="nts-form-label">Weight
+                                <input
+                                    className="nts-form-input"
+                                    type="text"
+                                    placeholder="e.g. 20,000"
+                                    value={weight || ''}
+                                    onChange={(e) => {
+                                        setErrorText('');
+                                        setWeight(e.target.value);
+                                    }}
+                                />
+                            </label>
+                            <select 
+                                className="nts-form-unit-select"
+                                title="weight unit selection"
+                                value={weightUnit}
+                                onChange={(e) => {
+                                    setErrorText('');
+                                    setWeightUnit(e.target.value);
+                                }}
+                            >
+                                <option value="lbs">Pounds</option>
+                                <option value="kg">Kilograms</option>
+                                <option value="tons">Tons</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div className='flex flex-col md:flex-row gap-2'>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Vehicle Condition
-                    <select
-                        className="rounded bg-white w-full py-1.5 px-1 border border-zinc-900/30 shadow-md"
-                        value={roadworthy === null ? '' : roadworthy ? 'operable' : 'inoperable'}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setRoadworthy(e.target.value === 'operable');
-                        }}
-                    >
-                        <option value="">Select...</option>
-                        <option value="operable">Operable</option>
-                        <option value="inoperable">Inoperable</option>
-                    </select>
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>VIN
-                    <input
-                        className="rounded dark:text-zinc-800 w-full px-1 py-1.5 border border-zinc-900/30 shadow-md"
-                        type="text"
-                        placeholder='(optional)'
-                        value={vin || ''}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setVin(e.target.value);
-                        }}
-                    />
-                </label>
-                <label className='text-zinc-900 dark:text-zinc-100 font-medium w-full'>Trailer Value
-                    <input
-                        className="rounded dark:text-zinc-800 w-full px-1 py-1.5 border border-zinc-900/30 shadow-md"
-                        type="text"
-                        placeholder='e.g. $80,000'
-                        value={value || ''}
-                        onChange={(e) => {
-                            setErrorText('');
-                            setValue(e.target.value);
-                        }}
-                    />
-                </label>
+            {/* Condition & Transport Section */}
+            <div className="nts-form-section">
+                <div className="nts-form-section-header">
+                    <Car className="w-5 h-5 text-blue-600" />
+                    <h3>Condition & Transport</h3>
+                </div>
+                <div className="nts-form-section-body">
+                    <div className="nts-form-grid-3">
+                        <label className="nts-form-label">Vehicle Condition
+                            <select
+                                className="nts-form-select"
+                                value={roadworthy === null ? '' : roadworthy ? 'operable' : 'inoperable'}
+                                onChange={(e) => {
+                                    setErrorText('');
+                                    setRoadworthy(e.target.value === 'operable');
+                                }}
+                            >
+                                <option value="">Select...</option>
+                                <option value="operable">Operable</option>
+                                <option value="inoperable">Inoperable</option>
+                            </select>
+                        </label>
+                        <label className="nts-form-label">Hitch Type (if applicable)
+                            <select
+                                className="nts-form-select"
+                                value={motorizedOrTrailer || ''}
+                                onChange={(e) => {
+                                    setErrorText('');
+                                    setMotorizedOrTrailer(e.target.value);
+                                }}
+                            >
+                                <option value="">Select hitch type...</option>
+                                <option value="5th Wheel">5th Wheel</option>
+                                <option value="Gooseneck">Gooseneck</option>
+                                <option value="Bumper Pull">Bumper Pull</option>
+                                <option value="Pintle Hitch">Pintle Hitch</option>
+                                <option value="Weight Distribution">Weight Distribution</option>
+                                <option value="Motorized - N/A">Motorized - N/A</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </label>
+                        <label className="nts-form-label">VIN (Optional)
+                            <input
+                                className="nts-form-input"
+                                type="text"
+                                placeholder="Vehicle Identification Number"
+                                value={vin || ''}
+                                onChange={(e) => {
+                                    setErrorText('');
+                                    setVin(e.target.value);
+                                }}
+                            />
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
     );

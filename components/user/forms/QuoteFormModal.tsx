@@ -3,11 +3,12 @@ import { useRouter } from 'next/router';
 import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import QuoteForm from '../QuoteForm';
+import { Plus, FileText, Package } from 'lucide-react';
 
 interface QuoteRequestProps {
     session: Session | null;
-    profiles: Database['public']['Tables']['profiles']['Row'][]; // Ensure profiles is passed as a prop
-    companyId: string; // Add companyId as a prop
+    profiles: Database['public']['Tables']['profiles']['Row'][];
+    companyId: string;
     userType: 'shipper' | 'broker';
 }
 
@@ -22,11 +23,10 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
     const [activeTab, setActiveTab] = useState<string>(tab as string || 'requests');
     const [assignedSalesUser, setAssignedSalesUser] = useState<string>('');
 
-
     const fetchQuotes = useCallback(async () => {
         if (!session?.user?.id || !companyId) return;
 
-        console.log('Fetching quotes of company'); // Add log to check companyId
+        console.log('Fetching quotes of company');
 
         const { data, error } = await supabase
             .from('shippingquotes')
@@ -41,11 +41,9 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
         }
     }, [session, companyId, supabase]);
 
-
     const addQuote = async (quote: Partial<Database['public']['Tables']['shippingquotes']['Insert'] & { containerLength?: number | null; containerType?: string | null; contentsDescription?: string | null; selectedOption?: string | null; }>) => {
         if (!session?.user?.id) return;
 
-        // Log the quote object to check if company_id is included
         console.log('Adding quote:', quote);
 
         const { data: shippingQuoteData, error: shippingQuoteError } = await supabase
@@ -157,14 +155,30 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
         fetchQuotes();
     };
 
-
     return (
         <div className="w-full h-full">
-
-            <button onClick={() => setIsModalOpen(true)} className="text-base text-white rounded bg-zinc-900 px-2 py-1 cursor-point font-semibold ">
-                {activeTab === 'orders' ? 'Request a Shipping Order' : 'Request a Shipping Estimate'}
+            <button 
+                onClick={() => setIsModalOpen(true)} 
+                className="nts-button-primary group relative overflow-hidden"
+            >
+                <div className="flex items-center gap-2">
+                    {activeTab === 'orders' ? (
+                        <>
+                            <Package className="w-4 h-4" />
+                            <span>Request Shipping Order</span>
+                        </>
+                    ) : (
+                        <>
+                            <FileText className="w-4 h-4" />
+                            <span>Request Shipping Estimate</span>
+                        </>
+                    )}
+                    <Plus className="w-4 h-4 ml-1" />
+                </div>
+                
+                {/* Subtle gradient overlay on hover */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/0 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
             </button>
-
 
             <QuoteForm
                 session={session}
@@ -177,8 +191,6 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                 fetchQuotes={fetchQuotes}
                 companyId={companyId}
             />
-
-
         </div>
     );
 };

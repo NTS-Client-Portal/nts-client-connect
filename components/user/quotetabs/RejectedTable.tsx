@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Database } from '@/lib/database.types';
 import TableHeaderSort from './TableHeaderSort';
 import { formatDate, freightTypeMapping } from './QuoteUtils';
+import { Search, Filter, Package, MapPin, Calendar, Truck, DollarSign, XCircle, RotateCcw } from 'lucide-react';
 
 type ShippingQuotesRow = Database['public']['Tables']['shippingquotes']['Row'];
 
@@ -47,119 +48,189 @@ const RejectedTable: React.FC<DeliveredTableProps> = ({
         });
     }, [searchTerm, searchColumn, quotes]);
 
+    // Status badge classes for rejected orders (red theme)
+    const getStatusClasses = (status: string) => {
+        const baseClasses = 'nts-badge';
+        switch (status?.toLowerCase()) {
+            case 'rejected':
+                return `${baseClasses} nts-badge-danger`;
+            case 'declined':
+                return `${baseClasses} nts-badge-danger`;
+            case 'cancelled':
+                return `${baseClasses} nts-badge-warning`;
+            default:
+                return `${baseClasses} nts-badge-danger`;
+        }
+    };
 
     return (
-        <div className='w-full'>
-            <div className="flex justify-start gap-4 my-4 ml-4">
-                <div className="flex items-center">
-                    <label className="mr-2">Search by:</label>
-                    <select
-                        value={searchColumn}
-                        onChange={(e) => setSearchColumn(e.target.value)}
-                        className="border border-gray-300 rounded-md shadow-sm"
-                        aria-label="Search column"
-                    >
-                        <option value="id">ID</option>
-                        <option value="freight_type">Freight Type</option>
-                        <option value="origin_city">Origin City</option>
-                        <option value="destination_city">Destination City</option>
-                        <option value="due_date">Shipping Date</option>
-                    </select>
+        <div className="w-full p-2 space-y-6">
+            {/* Header Section */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                        <XCircle className="w-6 h-6 text-red-600" />
+                        Rejected Quotes
+                    </h2>
+                    <p className="text-gray-600 mt-1">Declined quotes that can be reconsidered</p>
                 </div>
-                <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search..."
-                    className="border border-gray-300 pl-2 rounded-md shadow-sm"
-                />
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <Package className="w-4 h-4" />
+                    {filteredOrders.length} Rejected
+                </div>
             </div>
-            <table className="min-w-full divide-y divide-zinc-200 border">
-                <thead className="bg-ntsBlue text-zinc-50 border-2 border-t-orange-500 dark:bg-zinc-900 static top-0 w-full">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-nowrap text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="Order ID" sortOrder={sortConfig.column === 'id' ? sortConfig.order : 'desc'} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="Load Details" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="Origin" sortOrder={sortConfig.column === 'origin_city' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="Destination" sortOrder={sortConfig.column === 'destination_city' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                            <TableHeaderSort column="Delivered Date" sortOrder={sortConfig.column === 'due_date' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium  tracking-wider"> Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium  tracking-wider">
-                            <TableHeaderSort column="Rate" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                    {quotes.map((quote, index) => (
-                        <tr key={quote.id} className={`cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{quote.id}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-                                <div className=''>
-                                    {Array.isArray(quote.shipment_items) ? quote.shipment_items.map((item: any, index) => (
-                                        <React.Fragment key={index}>
-                                            {item.container_length && item.container_type && typeof item === 'object' && (
-                                                <span className='flex flex-col gap-0'>
-                                                    <span className='font-semibold text-sm text-gray-700 p-0'>Shipment Item {index + 1}:</span>
-                                                    <span className='text-base text-zinc-900 p-0'>{`${item.container_length} ft ${item.container_type}`}</span>
-                                                </span>
-                                            )}
-                                            {item.year && item.make && item.model && (
-                                                <span className='flex flex-col gap-0 w-min'>
-                                                    <span className='font-semibold text-sm text-gray-700 p-0 w-min'>Shipment Item {index + 1}:</span>
-                                                    <span className='text-base text-zinc-900 p-0 w-min'>{`${item.year} ${item.make} ${item.model}`}</span>
-                                                </span>
-                                            )}
-                                        </React.Fragment>
-                                    )) : (
-                                        <>
-                                            <div className='text-start w-min'>
-                                                {quote.container_length && quote.container_type && (
-                                                    <>
-                                                        <span className='font-semibold text-sm text-gray-700 p-0 text-start w-min'>Shipment Item:</span><br />
-                                                        <span className='text-normal text-zinc-900 w-min text-start'>{`${quote.container_length} ft ${quote.container_type}`}</span>
-                                                    </>
-                                                )}
-                                                {quote.year && quote.make && quote.model && (
-                                                    <>
-                                                        <span className='font-semibold text-sm text-gray-700 p-0 text-start w-min'>Shipment Item:</span><br />
-                                                        <span className='text-normal text-zinc-900 text-start w-min'>{`${quote.year} ${quote.make} ${quote.model}`}</span>
-                                                    </>
-                                                )}
+
+            {/* Search and Filter Section */}
+            <div className="nts-search-section">
+                <div className="nts-search-row">
+                    <div className="nts-search-filter">
+                        <Filter className="w-4 h-4 text-gray-500" />
+                        <select
+                            aria-label="Filter by column"
+                            value={searchColumn}
+                            onChange={(e) => setSearchColumn(e.target.value)}
+                            className="border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        >
+                            <option value="id">Quote ID</option>
+                            <option value="freight_type">Freight Type</option>
+                            <option value="origin_city">Origin City</option>
+                            <option value="destination_city">Destination City</option>
+                            <option value="due_date">Date</option>
+                        </select>
+                    </div>
+                    <div className="nts-search-input">
+                        <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search rejected quotes..."
+                            className="flex-1 min-w-0 border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {quotes.length === 0 ? (
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+                    <XCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No rejected quotes</h3>
+                    <p className="text-gray-500">Declined quotes will appear here</p>
+                </div>
+            ) : (
+                <>
+                    {/* Desktop Table View */}
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <table className="modern-table">
+                            <thead className="bg-gradient-to-r from-red-600 to-red-700 text-white">
+                                <tr>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                        <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                        Load Details
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                        Origin/Destination
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                        <TableHeaderSort column="due_date" sortOrder={sortConfig.column === 'due_date' ? sortConfig.order : null} onSort={handleSort} />
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                        <TableHeaderSort column="price" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
+                                    </th>
+                                    <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                        Status
+                                    </th>
+                                    <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {currentRows.map((quote, index) => (
+                                    <tr 
+                                        key={quote.id}
+                                        className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-red-50 transition-colors duration-200`}
+                                    >
+                                        <td className="modern-table-cell font-medium text-red-600">
+                                            #{quote.id}
+                                        </td>
+                                        <td className="modern-table-cell text-gray-900">
+                                            <div className="flex items-center gap-2">
+                                                <Truck className="w-4 h-4 text-gray-400" />
+                                                <span className="text-sm">{freightTypeMapping[quote.freight_type?.toLowerCase()] || quote.freight_type}</span>
                                             </div>
-                                        </>
-                                    )}
-                                    <div className='text-start pt-1 w-min'>
-                                        <span className='font-semibold text-xs text-gray-700 text-start w-min'>Freight Type:</span>
-                                        <span className='text-xs text-zinc-900 text-start px-1 w-min'>{freightTypeMapping[quote.freight_type] || (quote.freight_type ? quote.freight_type.toUpperCase() : 'N/A')}</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.origin_city}, {quote.origin_state}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.destination_city}, {quote.destination_state}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.due_date}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.status}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">{quote.price ? `$${quote.price}` : 'Pending'}</td>
-                            <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
-                                <div className='flex flex-col items-start gap-2'>
-                                    <button onClick={() => unRejectQuote(quote)} className="body-btn w-fit">
-                                        Accept Quote
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+                                        </td>
+                                        <td className="px-3 py-4 text-sm text-gray-500">
+                                            <div className="flex items-center gap-1">
+                                                <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                                <div className="flex flex-col space-y-1">
+                                                    <div className="text-xs text-gray-700">
+                                                        <span className="font-medium">From:</span> {quote.origin_city}, {quote.origin_state}
+                                                    </div>
+                                                    <div className="text-xs text-gray-700">
+                                                        <span className="font-medium">To:</span> {quote.destination_city}, {quote.destination_state}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <div className="flex items-center gap-1">
+                                                <Calendar className="w-4 h-4 text-gray-400" />
+                                                <span className="text-xs">{formatDate(quote.due_date)}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-3 py-4 whitespace-nowrap text-sm">
+                                            {quote.price ? (
+                                                <div className="flex items-center gap-1">
+                                                    <DollarSign className="w-4 h-4 text-red-500" />
+                                                    <span className="font-semibold text-red-600 text-xs">${quote.price}</span>
+                                                </div>
+                                            ) : (
+                                                <span className="text-xs text-gray-500">N/A</span>
+                                            )}
+                                        </td>
+                                        <td className="px-3 py-4 whitespace-nowrap text-sm">
+                                            <span className={getStatusClasses(quote.status || 'Rejected')}>
+                                                {quote.status || 'Rejected'}
+                                            </span>
+                                        </td>
+                                        <td className="px-3 py-4 whitespace-nowrap text-sm">
+                                            <button
+                                                onClick={() => unRejectQuote(quote)}
+                                                className="text-red-600 hover:text-red-800 flex items-center gap-1"
+                                            >
+                                                <RotateCcw className="w-4 h-4" />
+                                                <span className="text-xs">Accept</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Pagination */}
+                    <div className="flex justify-center mt-6">
+                        <div className="flex gap-1">
+                            {Array.from({ length: totalPages }, (_, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => handlePageChange(index + 1)}
+                                    className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                                        currentPage === index + 1
+                                            ? 'bg-red-600 text-white'
+                                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    {index + 1}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </>
+            )}
         </div>
     );
 };

@@ -198,15 +198,15 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
     const getStatusClasses = (status: string) => {
         switch (status) {
             case 'In Progress':
-                return 'bg-blue-50 text-blue-700';
+                return 'modern-badge-info';
             case 'Need More Info':
-                return 'bg-amber-50 text-amber-700';
+                return 'modern-badge-warning';
             case 'Priced':
-                return 'bg-green-50 text-green-700';
+                return 'modern-badge-success';
             case 'Cancelled':
-                return 'bg-red-50 text-red-700';
+                return 'modern-badge-error';
             default:
-                return 'bg-gray-50 text-gray-700';
+                return 'modern-badge-info';
         }
     };
 
@@ -305,20 +305,27 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
         };
 
         return (
-            <button onClick={handleSortClick} className="flex items-center">
+            <button onClick={handleSortClick} className="flex items-center hover:text-blue-200 transition-colors">
                 {columnDisplayNames[column] || column}
-                {sortOrder === 'asc' ? (
-                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7"></path>
-                    </svg>
-                ) : sortOrder === 'desc' ? (
-                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                {sortOrder ? (
+                    // Active sorting - always up arrow, different colors for asc/desc
+                    <svg 
+                        className={`w-4 h-4 ml-1 ${sortOrder === 'asc' ? 'text-blue-300' : 'text-yellow-300'}`} 
+                        fill="currentColor" 
+                        viewBox="0 0 24 24"
+                    >
+                        <path d="M12 6l-6 6h4v6h4v-6h4l-6-6z"/>
                     </svg>
                 ) : (
-                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5l-7 7h14l-7-7zM12 19l-7-7h14l-7 7z"></path>
+                    // Not sorted - subtle gray arrow
+                    <svg className="w-4 h-4 ml-1 text-gray-400 opacity-50" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 6l-6 6h4v6h4v-6h4l-6-6z"/>
                     </svg>
+                )}
+                {sortOrder && (
+                    <span className={`ml-1 text-xs ${sortOrder === 'asc' ? 'text-blue-300' : 'text-yellow-300'}`}>
+                        {sortOrder === 'asc' ? 'A-Z' : 'Z-A'}
+                    </span>
                 )}
             </button>
         );
@@ -342,25 +349,15 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
             </div>
 
             {/* Search and Filter Section */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="flex items-center gap-2 flex-1">
-                        <Search className="w-5 h-5 text-gray-400" />
-                        <input
-                            type="text"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Search quotes..."
-                            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                    </div>
-                    <div className="flex items-center gap-2">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3">
+                <div className="flex flex-row flex-nowrap items-center gap-3">
+                                        <div className="flex items-center gap-2 flex-shrink-0">
                         <Filter className="w-4 h-4 text-gray-500" />
                         <select
                             aria-label="Filter by column"
                             value={searchColumn}
                             onChange={(e) => setSearchColumn(e.target.value)}
-                            className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         >
                             <option value="id">Quote ID</option>
                             <option value="freight_type">Freight Type</option>
@@ -369,6 +366,17 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                             <option value="due_date">Date</option>
                         </select>
                     </div>
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search quotes..."
+                            className="flex-1 min-w-0 border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                    </div>
+
                 </div>
             </div>
 
@@ -473,32 +481,32 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                         <div className="space-y-4">
                                             <div className="flex gap-2 border-b border-gray-200">
                                                 <button
-                                                    className={`px-4 py-2 text-sm font-medium ${activeTab === 'quotes' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+                                                    className={`modern-btn px-4 py-2 text-sm font-medium ${activeTab === 'quotes' ? 'modern-btn-primary' : 'modern-btn-secondary'}`}
                                                     onClick={() => setActiveTab('quotes')}
                                                 >
                                                     Details
                                                 </button>
                                                 <button
-                                                    className={`px-4 py-2 text-sm font-medium ${activeTab === 'editHistory' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+                                                    className={`modern-btn px-4 py-2 text-sm font-medium ${activeTab === 'editHistory' ? 'modern-btn-primary' : 'modern-btn-secondary'}`}
                                                     onClick={() => setActiveTab('editHistory')}
                                                 >
                                                     History
                                                 </button>
                                             </div>
                                             {activeTab === 'quotes' && (
-                                                <div className="bg-white rounded-lg p-4">
+                                                <div className="modern-card p-4">
                                                     {renderAdditionalDetails(quote)}
                                                     <div className="flex gap-2 mt-4">
                                                         <button 
                                                             onClick={(e) => { e.stopPropagation(); duplicateQuote(quote); }} 
-                                                            className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                                            className="modern-btn-outline flex-1"
                                                         >
                                                             <Copy className="w-4 h-4 mr-2" />
                                                             Duplicate
                                                         </button>
                                                         <button 
                                                             onClick={(e) => { e.stopPropagation(); reverseQuote(quote); }} 
-                                                            className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                                            className="modern-btn-outline flex-1"
                                                         >
                                                             <RotateCcw className="w-4 h-4 mr-2" />
                                                             Flip Route
@@ -507,7 +515,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                 </div>
                                             )}
                                             {activeTab === 'editHistory' && (
-                                                <div className="bg-white rounded-lg p-4 max-h-64 overflow-y-auto">
+                                                <div className="modern-card p-4 max-h-64 overflow-y-auto modern-scrollbar">
                                                     <EditHistory quoteId={quote.id} searchTerm="" searchColumn="id" editHistory={editHistory} />
                                                 </div>
                                             )}
@@ -519,7 +527,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                     <div className="flex gap-2">
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); handleEditClick(quote); }} 
-                                            className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-blue-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 touch-manipulation active:scale-95"
+                                            className="modern-btn-primary flex-1"
                                         >
                                             <Edit className="w-4 h-4 mr-2" />
                                             Edit Quote
@@ -527,7 +535,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                         {quote.price && (
                                             <button 
                                                 onClick={(e) => { e.stopPropagation(); handleCreateOrderClick(quote.id); }} 
-                                                className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-green-300 shadow-sm text-sm font-medium rounded-md text-green-700 bg-green-50 hover:bg-green-100 touch-manipulation active:scale-95"
+                                                className="modern-btn bg-green-600 hover:bg-green-700 text-white flex-1"
                                             >
                                                 <CheckCircle className="w-4 h-4 mr-2" />
                                                 Create Order
@@ -536,7 +544,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                         {isUser && quote.price && (
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); handleRejectClick(quote.id); }}
-                                                className="px-3 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 touch-manipulation active:scale-95"
+                                                className="modern-btn bg-red-600 hover:bg-red-700 text-white px-3 py-2"
                                                 aria-label="Reject Quote"
                                                 title="Reject Quote"
                                             >
@@ -551,7 +559,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                 aria-label="Quote Status"
                                                 value={quote.brokers_status}
                                                 onChange={(e) => handleStatusChange(e, quote.id)}
-                                                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                                                className="modern-input w-full"
                                             >
                                                 <option value="In Progress">In Progress</option>
                                                 <option value="Need More Info">Need More Info</option>
@@ -567,9 +575,9 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                         value={carrierPayInput}
                                                         onChange={(e) => setCarrierPayInput(e.target.value)}
                                                         placeholder="Enter price"
-                                                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                                                        className="modern-input w-full"
                                                     />
-                                                    <button type="submit" className="w-full bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">
+                                                    <button type="submit" className="modern-btn-primary w-full">
                                                         Submit Quote
                                                     </button>
                                                 </form>
@@ -579,7 +587,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                         e.stopPropagation();
                                                         setShowPriceInput(quote.id);
                                                     }}
-                                                    className="w-full bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700"
+                                                    className="modern-btn bg-green-600 hover:bg-green-700 text-white w-full"
                                                 >
                                                     {quote.price ? 'Edit Quote' : 'Price Quote Request'}
                                                 </button>
@@ -589,7 +597,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                             
                                             <button 
                                                 onClick={() => archiveQuote(quote.id)} 
-                                                className="w-full text-red-600 px-4 py-2 border border-red-300 rounded-md text-sm font-medium hover:bg-red-50"
+                                                className="modern-btn bg-red-600 hover:bg-red-700 text-white w-full"
                                             >
                                                 Archive Quote
                                             </button>
@@ -600,48 +608,49 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                         ))}
                     </div>
 
-                    {/* Desktop Table View - Hidden on Mobile/Tablet */}
-                    <div className="hidden lg:block bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                        <div className="overflow-x-auto">
-                            <table className="w-full min-w-[750px] divide-y divide-gray-200">
-                            <thead className="bg-gradient-to-r from-blue-600 text-nowrap to-blue-700 text-white">
+                    {/* Desktop Table View - Grandma-Friendly Design! */}
+                    <div className="hidden lg:block bg-white rounded-lg shadow-sm border border-gray-200">
+                        <table className="modern-table">
+                            <thead className="modern-table-header bg-gradient-to-r from-blue-600 text-nowrap to-blue-700 text-white">
                                 <tr>
-                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-16">
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
                                         <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
                                     </th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-24">
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
                                         <TableHeaderSort column="created_at" sortOrder={sortConfig.column === 'created_at' ? sortConfig.order : null} onSort={handleSort} />
                                     </th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-56">
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
                                         <TableHeaderSort column="freight_type" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
                                     </th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-40">
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
                                         Origin/Destination
                                     </th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-28">
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
                                         <TableHeaderSort column="due_date" sortOrder={sortConfig.column === 'due_date' ? sortConfig.order : null} onSort={handleSort} />
                                     </th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-20">
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
                                         <TableHeaderSort column="price" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
                                     </th>
-                                    <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider w-24">Actions</th>
-                                    <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider w-24">Notes</th>
+                                    <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                        Actions
+                                    </th>
+                                    <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider">Notes</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
+                            <tbody>
                                 {currentRows.map((quote, index) => (
                                     <React.Fragment key={quote.id}>
                                         <tr 
                                             onClick={() => handleRowClick(quote.id)}
                                             className={`cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors duration-200`}
                                         >
-                                            <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-blue-600 underline">
+                                            <td className="modern-table-cell font-medium text-blue-600 underline">
                                                 #{quote.id}
                                             </td>
-                                            <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td className="modern-table-cell text-gray-500">
                                                 {quote.created_at ? new Date(quote.created_at).toLocaleDateString() : 'N/A'}
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-gray-900">
+                                            <td className="modern-table-cell text-gray-900">
                                                 <div className="flex items-start gap-2">
                                                     <Truck className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
                                                     <div className="flex-1 min-w-0">
@@ -893,7 +902,6 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                 ))}
                             </tbody>
                         </table>
-                        </div>
                     </div>
 
                     {/* Pagination */}

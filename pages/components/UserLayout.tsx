@@ -67,24 +67,40 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
 
     return (
         <ProfilesUserProvider>
-            {/* Top Navigation */}
-            {/* <div className="fixed w-full top-0 left-0 z-40">
-                <UserTopNav />
-            </div> */}
+            <div className="nts-app-container">
+                {/* Desktop Layout - Modern Architecture */}
+                <div className="nts-desktop-layout">
+                    {/* Sidebar */}
+                    <aside className={`nts-sidebar ${isSidebarOpen ? 'nts-sidebar--open' : 'nts-sidebar--closed'}`}>
+                        <UserSideNav
+                            isSidebarOpen={isSidebarOpen}
+                            toggleSidebar={toggleSidebar}
+                            className=""
+                        />
+                    </aside>
 
-            {/* Flexbox Layout */}
-            <div className="flex min-h-screen">
-                {/* Sidebar */}
-                <UserSideNav
-                    isSidebarOpen={isSidebarOpen}
-                    toggleSidebar={toggleSidebar}
-                    className="w-[200px] bg-[#111928]"
-                />
+                    {/* Main Content Wrapper */}
+                    <div className={`nts-main-wrapper ${isSidebarOpen ? 'nts-main-wrapper--shifted' : ''}`}>
+                        {/* Main Content */}
+                        <main className="nts-main-content">
+                            <div className="nts-content-container">
+                                {children}
+                            </div>
+                        </main>
+                    </div>
+                </div>
 
-                {/* Main Content */}
-                <main className="w-full mt-4 p-4 ml-20 overflow-y-auto">
-                    {children}
-                </main>
+                {/* Mobile Sidebar Overlay */}
+                <div className={`nts-mobile-overlay ${isSidebarOpen ? 'nts-mobile-overlay--visible' : ''}`}>
+                    <div className="nts-mobile-backdrop" onClick={toggleSidebar}></div>
+                    <aside className="nts-mobile-sidebar">
+                        <UserSideNav
+                            isSidebarOpen={isSidebarOpen}
+                            toggleSidebar={toggleSidebar}
+                            className=""
+                        />
+                    </aside>
+                </div>
             </div>
         </ProfilesUserProvider>
     );

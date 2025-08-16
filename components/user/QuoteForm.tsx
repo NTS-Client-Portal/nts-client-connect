@@ -259,7 +259,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
 
     return (
         <div className={isModal ? "fixed z-50 inset-0 bg-zinc-600 bg-opacity-50 flex justify-center h-fit-content items-center" : "container mx-auto p-4"}>
-            <div className={isModal ? "border-2 bg-ntsBlue border-t-orange-500 border-x-0 border-b-0 drop-shadow-xl pt-2 rounded w-sm w-[95vw] md:w-1/2 md:max-w-none overflow-y-auto relative z-50" : ""}>
+            <div className={isModal ? "border-2 bg-ntsBlue border-t-orange-500 border-x-0 border-b-0 drop-shadow-xl pt-2 rounded w-sm md:w-1/2 md:max-w-none overflow-y-auto relative z-50" : ""}>
                 <h2 className={isModal ? "text-xl text-white font-semibold pl-4 mb-2" : "text-xl font-semibold mb-4"}>Request a Shipping Estimate</h2>
                 <form onSubmit={handleSubmit} className={isModal ? "flex flex-col gap-3 bg-white relative z-50 p-4" : "flex flex-col gap-3"}>
                     <label className='dark:text-zinc-100 font-medium'>Select Inventory Item

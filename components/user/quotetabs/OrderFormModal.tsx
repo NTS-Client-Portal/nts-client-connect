@@ -105,7 +105,12 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
     return (
         <div className="fixed inset-0 bg-zinc-600 bg-opacity-50 flex justify-center items-center">
             <div className=" bg-white p-8 rounded shadow-md w-full max-w-4xl h-[90vh] overflow-y-auto">
-                <button onClick={onClose} className="relative w-full z-50 top-1 right-1 inline-flex justify-end">
+                <button
+                    onClick={onClose}
+                    className="relative w-full z-50 top-1 right-1 inline-flex justify-end"
+                    title="Close"
+                    aria-label="Close"
+                >
                     <X size={28} />
                 </button>
                 <h2 className="text-2xl font-semibold underline underline-offset-8 text-center mb-4">Quote# {quote.id} - Order Form</h2>
@@ -203,6 +208,8 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
                                 onChange={(e) => setEarliestPickupDate(e.target.value)}
                                 required
                                 className="rounded w-full border border-zinc-900"
+                                title="Select the earliest pickup date"
+                                placeholder="Earliest pickup date"
                             />
                         </div>
                         <MoveHorizontal className='md:mb-1' />
@@ -221,7 +228,8 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
                         <label>Notes / Extra Information</label>
                         <input
                             value={notes}
-                            placeholder='Gate pass, loading available, or any other special instructions'
+                            placeholder="Gate pass, loading available, or any other special instructions"
+                            title="Notes or extra information"
                             onChange={(e) => setNotes(e.target.value)}
                             className="rounded w-full p-2 border border-zinc-900"
                         />
@@ -258,6 +266,8 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
                                 onChange={(e) => setIsAgreed(e.target.checked)}
                                 className="mr-2 size-4"
                                 required
+                                title="Agree to the terms and conditions"
+                                placeholder="Agree to the terms and conditions"
                             />
                             <label htmlFor="agree" className="text-base font-semibold">I agree to the terms and conditions</label>
                         </div>

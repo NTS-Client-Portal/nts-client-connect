@@ -6,25 +6,24 @@ import { Database } from '@/lib/database.types';
 import { useNtsUsers } from '@/context/NtsUsersContext';
 import Image from 'next/image';
 import { 
-    PanelLeftOpen, 
-    PanelRightClose, 
-    MessageSquareMore, 
-    ChevronRightCircle, 
-    Folders, 
-    NotebookTabs, 
-    Settings, 
-    MoveHorizontal, 
-    ChartArea,
-    LogOut,
+    Menu,
     X,
-    User
+    ChartArea,
+    Folders,
+    MessageSquareMore,
+    NotebookTabs,
+    Settings,
+    LogOut,
+    User,
+    ShipIcon as Ship,
+    TrendingUp
 } from 'lucide-react';
 
 interface SalesSideNavProps {
     isSidebarOpen: boolean;
     toggleSidebar: () => void;
     className?: string;
-    isDesktop?: boolean; // New prop to differentiate desktop vs mobile
+    isDesktop?: boolean;
 }
 
 const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSidebar, className = '', isDesktop = false }) => {
@@ -34,28 +33,16 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
     const [profileImageError, setProfileImageError] = useState(false);
     const [profileImageUrl, setProfileImageUrl] = useState<string>('');
 
-    // Set up profile image URL
+    // Profile image setup
     useEffect(() => {
         if (userProfile?.profile_picture && !profileImageError) {
             try {
-                console.log('Profile picture field:', userProfile.profile_picture);
-                
-                // Check if the profile_picture is already a full URL
                 if (userProfile.profile_picture.startsWith('https://') || userProfile.profile_picture.startsWith('http://')) {
-                    console.log('Using full URL directly:', userProfile.profile_picture);
                     setProfileImageUrl(userProfile.profile_picture);
                 } else {
-                    // It's a file path, so construct the URL
-                    let filename = userProfile.profile_picture;
-                    
-                    // Don't extract filename if it includes folders we need
-                    console.log('Using file path:', filename);
-                    
                     const { data } = supabase.storage
                         .from('profile-pictures')
-                        .getPublicUrl(filename);
-                    
-                    console.log('Generated URL:', data?.publicUrl);
+                        .getPublicUrl(userProfile.profile_picture);
                     
                     if (data?.publicUrl) {
                         setProfileImageUrl(data.publicUrl);
@@ -73,41 +60,9 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
     }, [userProfile?.profile_picture, supabase, profileImageError]);
 
     const handleImageError = () => {
-        console.error('Image failed to load:', profileImageUrl);
         setProfileImageError(true);
         setProfileImageUrl('');
     };
-
-    // Close sidebar when route changes on mobile
-    useEffect(() => {
-        const handleRouteChange = () => {
-            if (window.innerWidth < 1280) { // xl breakpoint
-                toggleSidebar();
-            }
-        };
-
-        router.events?.on('routeChangeComplete', handleRouteChange);
-        return () => {
-            router.events?.off('routeChangeComplete', handleRouteChange);
-        };
-    }, [router.events, toggleSidebar]);
-
-    // Prevent body scroll when sidebar is open on mobile
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            if (isSidebarOpen && window.innerWidth < 1280) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = 'unset';
-            }
-        }
-
-        return () => {
-            if (typeof window !== 'undefined') {
-                document.body.style.overflow = 'unset';
-            }
-        };
-    }, [isSidebarOpen]);
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -120,110 +75,112 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
         {
             href: '/nts/sales',
             icon: ChartArea,
-            label: 'Shipper Profiles',
-            description: 'Manage customer accounts'
+            label: 'Dashboard',
+            description: 'Overview & Analytics',
+            color: 'from-blue-500 to-blue-600'
+        },
+        {
+            href: '/nts/sales/shipper-management',
+            icon: TrendingUp,
+            label: 'Shipper Management',
+            description: 'Manage Customers',
+            color: 'from-emerald-500 to-emerald-600'
         },
         {
             href: '/nts/sales/documents',
             icon: Folders,
-            label: 'Documents/Photos',
-            description: 'View and manage files'
+            label: 'Documents',
+            description: 'Files & Media',
+            color: 'from-orange-500 to-orange-600'
         },
         {
             href: '/nts/sales/chat-requests',
             icon: MessageSquareMore,
-            label: 'Shipper Connect',
-            description: 'Customer communications'
+            label: 'Messages',
+            description: 'Customer Chat',
+            color: 'from-purple-500 to-purple-600'
         },
         {
             href: '/nts/sales/equipment-directory',
             icon: NotebookTabs,
-            label: 'Equipment Directory',
-            description: 'Browse equipment catalog'
+            label: 'Equipment',
+            description: 'Directory & Specs',
+            color: 'from-indigo-500 to-indigo-600'
         }
     ];
 
+    if (!isDesktop && !isSidebarOpen) return null;
+
     return (
         <>
-            {/* Mobile Menu Button - only show for mobile version */}
+            {/* Mobile Menu Toggle */}
             {!isDesktop && (
                 <button
-                    className="fixed top-4 left-4 z-[60] xl:hidden bg-white dark:bg-gray-800 p-2.5 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-200 hover:shadow-xl touch-manipulation active:scale-95"
+                    className="fixed top-6 left-6 z-[2001] lg:hidden bg-slate-800 hover:bg-slate-700 text-white p-3 rounded-xl shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
                     onClick={toggleSidebar}
                     aria-label={isSidebarOpen ? 'Close menu' : 'Open menu'}
                 >
                     {isSidebarOpen ? (
-                        <X className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                        <X className="w-6 h-6" />
                     ) : (
-                        <PanelLeftOpen className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                        <Menu className="w-6 h-6" />
                     )}
                 </button>
             )}
 
-            {/* Backdrop Overlay for Mobile - only show for mobile version */}
-            {!isDesktop && isSidebarOpen && (
-                <div 
-                    className="fixed inset-0 bg-black bg-opacity-50 z-[45] xl:hidden transition-opacity duration-300 ease-in-out"
-                    onClick={toggleSidebar}
-                    aria-hidden="true"
-                />
-            )}
-
-            {/* Sidebar */}
-            <nav 
-                className={`
-                    w-56 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 
-                    transition-transform duration-300 ease-in-out
-                    ${isDesktop 
-                        ? 'relative h-full' 
-                        : `fixed top-0 left-0 h-full z-50 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`
-                    }
-                    ${className}
-                `}
-            >
-                {/* Header Section */}
-                <div className="p-6 border-b border-gray-700">
-                    {/* Logo */}
-                    <div className="flex items-center justify-center mb-6">
-                        <h1 className="text-white text-md font-bold tracking-wider flex items-center gap-1">
-                            SHIPPER
-                            <MoveHorizontal className="w-5 h-5 text-orange-400" />
-                            CONNECT
-                        </h1>
+            {/* Sidebar Content */}
+            <div className="nts-sidebar-content">
+                {/* Header */}
+                <div className="nts-sidebar-header">
+                    {/* Brand */}
+                    <div className="flex items-center justify-center mb-8">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                                <Ship className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                                <h1 className="text-xl font-bold text-white tracking-tight">NTS</h1>
+                                <p className="text-xs text-slate-400 -mt-1">PORTAL</p>
+                            </div>
+                        </div>
                     </div>
 
-                    {/* User Welcome Section */}
-                    <div className="flex flex-col items-center space-y-3">
-                        <div className="relative">
+                    {/* User Profile */}
+                    <div className="flex flex-col items-center text-center">
+                        <div className="relative mb-4">
                             {profileImageUrl && !profileImageError ? (
                                 <Image
                                     src={profileImageUrl}
                                     alt="Profile"
-                                    width={64}
-                                    height={64}
-                                    className="rounded-full border-3 border-gray-600 shadow-lg object-cover"
+                                    width={80}
+                                    height={80}
+                                    className="rounded-2xl border-3 border-white/20 shadow-xl object-cover backdrop-blur-sm"
                                     onError={handleImageError}
                                     unoptimized
                                 />
                             ) : (
-                                <div className="w-16 h-16 bg-gray-600 rounded-full border-3 border-gray-600 shadow-lg flex items-center justify-center">
-                                    <User className="w-8 h-8 text-gray-300" />
+                                <div className="w-20 h-20 bg-gradient-to-br from-slate-600 to-slate-700 rounded-2xl border-3 border-white/20 shadow-xl flex items-center justify-center">
+                                    <User className="w-10 h-10 text-slate-300" />
                                 </div>
                             )}
-                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-gray-800"></div>
+                            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-green-400 to-green-500 rounded-full border-3 border-slate-800 shadow-lg"></div>
                         </div>
-                        <div className="text-center">
-                            <p className="text-gray-300 text-sm">Welcome back,</p>
-                            <p className="text-white font-semibold text-lg">
+                        
+                        <div>
+                            <h3 className="text-lg font-semibold text-white mb-1">
                                 {userProfile?.first_name || 'User'}
-                            </p>
+                            </h3>
+                            <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30">
+                                <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
+                                <span className="text-sm text-blue-300 font-medium">Sales Rep</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Navigation Items */}
-                <div className="flex-1 px-4 py-6 overflow-y-auto">
-                    <nav className="space-y-2">
+                {/* Navigation */}
+                <nav className="nts-sidebar-nav">
+                    <div className="space-y-2">
                         {navigationItems.map((item) => {
                             const Icon = item.icon;
                             const isActive = router.pathname === item.href;
@@ -231,61 +188,65 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                             return (
                                 <Link key={item.href} href={item.href}>
                                     <div
-                                        className={`
-                                            group flex items-center px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer
-                                            ${isActive 
-                                                ? 'bg-blue-600 text-white shadow-lg transform scale-[1.02]' 
-                                                : 'text-gray-300 hover:bg-gray-700 hover:text-white hover:transform hover:scale-[1.01]'
-                                            }
-                                        `}
+                                        className={`group relative flex items-center p-4 rounded-2xl transition-all duration-300 cursor-pointer ${
+                                            isActive 
+                                                ? `bg-gradient-to-r ${item.color} text-white shadow-lg shadow-black/20 scale-105 border border-white/20` 
+                                                : 'text-slate-300 hover:text-white hover:bg-white/10 hover:scale-105 border border-transparent'
+                                        }`}
                                     >
-                                        <Icon className={`w-5 h-5 mr-3 flex-shrink-0 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-white'}`} />
-                                        <div className="flex-1 min-w-0">
-                                            <p className={`text-sm font-medium truncate ${isActive ? 'text-white' : 'text-gray-300 group-hover:text-white'}`}>
+                                        <div className={`flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-300 ${
+                                            isActive 
+                                                ? 'bg-white/20 shadow-lg' 
+                                                : 'bg-slate-700/50 group-hover:bg-slate-600/50'
+                                        }`}>
+                                            <Icon className={`w-6 h-6 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'}`} />
+                                        </div>
+                                        <div className="ml-4 flex-1 min-w-0">
+                                            <p className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-slate-300 group-hover:text-white'}`}>
                                                 {item.label}
                                             </p>
-                                            <p className={`text-xs truncate ${isActive ? 'text-blue-100' : 'text-gray-500 group-hover:text-gray-400'}`}>
+                                            <p className={`text-xs ${isActive ? 'text-white/70' : 'text-slate-500 group-hover:text-slate-400'}`}>
                                                 {item.description}
                                             </p>
                                         </div>
                                         {isActive && (
-                                            <div className="w-2 h-2 bg-white rounded-full flex-shrink-0"></div>
+                                            <div className="w-2 h-2 bg-white rounded-full shadow-lg"></div>
                                         )}
                                     </div>
                                 </Link>
                             );
                         })}
-                    </nav>
-                </div>
+                    </div>
+                </nav>
 
-                {/* Footer Section */}
-                <div className="p-4 border-t border-gray-700 space-y-2">
+                {/* Footer */}
+                <div className="nts-sidebar-footer space-y-3">
                     {/* Settings */}
                     <Link href="/nts/sales/settings">
-                        <div
-                            className={`
-                                group flex items-center px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer
-                                ${router.pathname === '/nts/sales/settings'
-                                    ? 'bg-gray-700 text-white' 
-                                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                                }
-                            `}
-                        >
-                            <Settings className="w-5 h-5 mr-3 text-gray-400 group-hover:text-white" />
-                            <span className="text-sm font-medium">Settings</span>
+                        <div className={`group flex items-center p-4 rounded-2xl transition-all duration-300 cursor-pointer ${
+                            router.pathname === '/nts/sales/settings'
+                                ? 'bg-slate-700 text-white shadow-lg' 
+                                : 'text-slate-300 hover:text-white hover:bg-white/10'
+                        }`}>
+                            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-700/50 group-hover:bg-slate-600/50">
+                                <Settings className="w-5 h-5 text-slate-400 group-hover:text-white" />
+                            </div>
+                            <span className="ml-3 text-sm font-medium">Settings</span>
                         </div>
                     </Link>
 
                     {/* Logout */}
                     <button
                         onClick={handleLogout}
-                        className="w-full group flex items-center px-4 py-3 rounded-xl transition-all duration-200 text-gray-300 hover:bg-red-600 hover:text-white touch-manipulation active:scale-95"
+                        className="w-full group flex items-center p-4 rounded-2xl transition-all duration-300 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 hover:shadow-lg hover:shadow-red-500/20"
                     >
-                        <LogOut className="w-5 h-5 mr-3 text-gray-400 group-hover:text-white" />
-                        <span className="text-sm text-gray-100 font-medium">Logout</span>
+                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-red-500/20 group-hover:bg-white/20">
+                            <LogOut className="w-5 h-5 text-red-400 group-hover:text-white" />
+                        </div>
+                        <span className="ml-3 text-sm font-medium">Logout</span>
                     </button>
                 </div>
-            </nav>
+            </div>
         </>
     );
 };

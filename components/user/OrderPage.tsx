@@ -4,6 +4,7 @@ import SelectOption from './SelectOption';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import axios from 'axios';
+import { Calendar, MapPin, User, Phone } from 'lucide-react';
 
 interface OrderPageProps {
     onClose: () => void;
@@ -88,7 +89,6 @@ const OrderPage: React.FC<OrderPageProps> = ({ onClose, addOrder, errorText, set
             destination_state: destinationState,
             destination_name: destinationName,
             destination_phone: destinationPhone,
-            due_date: dueDate,
             earliest_pickup_date: earliestPickupDate,
             latest_pickup_date: latestPickupDate,
             freight_type: selectedOption,
@@ -173,203 +173,284 @@ const OrderPage: React.FC<OrderPageProps> = ({ onClose, addOrder, errorText, set
     };
 
     return (
-        <div className="container mx-auto w-full md:w-4/6 border border-x-zinc-300 border-b-zinc-300 shadow-md">
-            <h2 className="text-xl font-semibold w-full h-fit bg-ntsBlue text-white border-t-4 border-t-orange-500 pt-1 px-2 pb-4">Request a Shipping Order</h2>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-6 px-4 py-6 bg-white md:px-8 md:gap-12">
-                <SelectOption
-                    selectedOption={selectedOption}
-                    setSelectedOption={(option) => {
-                        setSelectedOption(option);
-                    }}
-                    setErrorText={setErrorText}
-                    session={session}
-                    setFormData={setFormData}
-                    formData={formData} // Pass formData to SelectOption
-                    disabled={false}
-                />
-                <div className='md:ml-12'>
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Shipping Date
-                        <input
-                            className="rounded w-full dark:text-zinc-800 px-1 py-1.5 border border-zinc-900/30 shadow-md text-zinc-500"
-                            type="date"
-                            value={dueDate || ''} // Ensure dueDate is either a valid timestamp or an empty string
-                            onChange={(e) => {
-                                setErrorText('');
-                                setDueDate(e.target.value || null); // Set dueDate to null if the input is empty
-                            }}
-                        />
-                    </label>
-                </div>
-                <div className='grid grid-cols-1 md:grid-cols-2 place-items-center gap-6 md:gap-12 w-full'>
-                    <div className='flex flex-col gap-1 w-full'>
-                        <h2 className='text-base font-semibold'>Origin</h2>
-                        <div className='flex w-full items-center gap-4'>
-                            <label className='text-zinc-900 font-medium text-nowrap'>Zip Code</label>
-                            <input
-                                className="rounded p-1 py-1.5 border border-zinc-900/30 shadow-md w-full"
-                                type="text"
-                                placeholder='Zip'
-                                value={originZip}
-                                onChange={(e) => setOriginZip(e.target.value)}
-                                onBlur={handleOriginZipBlur}
-                            />
-                        </div>
-                        <div className='flex justify-start gap-2 w-full items-center'>
-                            <label className='text-zinc-900 font-medium text-nowrap'>City/State</label>
-                            <input
-                                className="rounded w-1/2 p-1 py-1.5 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                placeholder='City'
-                                value={originCity}
-                                onChange={(e) => setOriginCity(e.target.value)}
-                            />
-                            <input
-                                className="rounded w-1/2 p-1 py-1.5 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                placeholder='State'
-                                value={originState}
-                                onChange={(e) => setOriginState(e.target.value)}
-                            />
-                        </div>
-                        <div className='flex w-full justify-between items-center gap-8'>
-                            <label className='text-zinc-900 font-medium text-nowrap'>Street</label>
-                            <input
-                                className="rounded w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                placeholder='Street'
-                                value={originStreet}
-                                onChange={(e) => setOriginStreet(e.target.value)}
-                            />
-                        </div>
-                        <h2 className='text-sm font-semibold mt-4'>Origin Point of Contact</h2>
-                        <div className='flex w-full items-center gap-5'>
-                            <label className='text-zinc-900 font-medium text-nowrap'>Name</label>
-                            <input
-                                className="rounded w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                placeholder='Name'
-                                value={originName}
-                                onChange={(e) => setOriginName(e.target.value)}
-                            />
-                        </div>
-                        <div className='flex w-full items-center gap-4'>
-                            <label className='text-zinc-900 font-medium text-nowrap'>Phone</label>
-                            <input
-                                className="rounded w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                placeholder='Phone'
-                                value={originPhone}
-                                onChange={(e) => setOriginPhone(e.target.value)}
-                            />
-                        </div>
-                    </div>
+        <div className="nts-page-layout">
+            <div className="nts-page-header">
+                <h1 className="text-3xl font-bold text-gray-900">Create New Order</h1>
+                <p className="text-gray-600 mt-2">Create a direct shipping order with detailed pickup and delivery information</p>
+            </div>
 
-                    <div className='flex flex-col gap-1 w-full'>
-                        <h2 className='text-base font-semibold'>Destination</h2>
-                        <div className='flex w-full items-center gap-4'>
-                            <label className='text-zinc-900 font-medium text-nowrap'>Zip Code</label>
-                            <input
-                                className="rounded p-1 py-1.5 border border-zinc-900/30 shadow-md w-full"
-                                type="text"
-                                placeholder='Zip'
-                                value={destinationZip}
-                                onChange={(e) => setDestinationZip(e.target.value)}
-                                onBlur={handleDestinationZipBlur}
-                            />
-                        </div>
-                        <div className='flex justify-start gap-2 w-full items-center'>
-                            <label className='text-zinc-900 font-medium text-nowrap'>City/State</label>
-                            <input
-                                className="rounded w-1/2 p-1 py-1.5 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                placeholder='City'
-                                value={destinationCity}
-                                onChange={(e) => setDestinationCity(e.target.value)}
-                            />
-                            <input
-                                className="rounded w-1/2 p-1 py-1.5 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                placeholder='State'
-                                value={destinationState}
-                                onChange={(e) => setDestinationState(e.target.value)}
-                            />
-                        </div>
-                        <div className='flex w-full items-center gap-8'>
-                            <label className='text-zinc-900 font-medium text-nowrap'>Street</label>
-                            <input
-                                className="rounded w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                placeholder='Street'
-                                value={destinationStreet}
-                                onChange={(e) => setDestinationStreet(e.target.value)}
-                            />
-                        </div>
-                        <h2 className='text-sm font-semibold mt-4'>Destination Point of Contact</h2>
-                        <div className='flex w-full items-center gap-5'>
-                            <label className='text-zinc-900 font-medium text-nowrap'>Name</label>
-                            <input
-                                className="rounded w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                placeholder='Name'
-                                value={destinationName}
-                                onChange={(e) => setDestinationName(e.target.value)}
-                            />
-                        </div>
-                        <div className='flex w-full items-center gap-4'>
-                            <label className='text-zinc-900 font-medium text-nowrap'>Phone</label>
-                            <input
-                                className="rounded w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                placeholder='Phone'
-                                value={destinationPhone}
-                                onChange={(e) => setDestinationPhone(e.target.value)}
-                            />
-                        </div>
-                    </div>
-                </div>
-                <div className='flex flex-col md:flex-row justify-center w-full gap-4'>
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Earliest Pickup Date
-                        <input
-                            className="rounded w-full dark:text-zinc-800 px-1 py-1.5 border border-zinc-900/30 shadow-md text-zinc-500"
-                            type="date"
-                            value={earliestPickupDate || ''} // Ensure earliestPickupDate is either a valid timestamp or an empty string
-                            onChange={(e) => {
-                                setErrorText('');
-                                setEarliestPickupDate(e.target.value || null); // Set earliestPickupDate to null if the input is empty
-                            }}
-                        />
-                    </label>
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Latest Pickup Date
-                        <input
-                            className="rounded w-full dark:text-zinc-800 px-1 py-1.5 border border-zinc-900/30 shadow-md text-zinc-500"
-                            type="date"
-                            value={latestPickupDate || ''} // Ensure latestPickupDate is either a valid timestamp or an empty string
-                            onChange={(e) => {
-                                setErrorText('');
-                                setLatestPickupDate(e.target.value || null); // Set latestPickupDate to null if the input is empty
-                            }}
-                        />
-                    </label>
-                </div>
-                <div className='flex gap-2'>
-                    <label className='text-zinc-900 dark:text-zinc-100 font-medium' />
-                    <input
-                        type="checkbox"
-                        checked={saveToInventory}
-                        onChange={(e) => setSaveToInventory(e.target.checked)}
+            <div className="nts-card max-w-6xl">
+                <form onSubmit={handleSubmit} className="space-y-8">
+                    <SelectOption
+                        selectedOption={selectedOption}
+                        setSelectedOption={(option) => {
+                            setSelectedOption(option);
+                        }}
+                        setErrorText={setErrorText}
+                        session={session}
+                        setFormData={setFormData}
+                        formData={formData}
+                        disabled={false}
                     />
-                    Save to Inventory
-                </div>
+                
 
-                <div className='flex justify-center'>
-                    <div className='flex gap-2 w-full justify-around'>
-                        <button type="submit" className="body-btn text-sm place-self-center">
-                            Request a Shipping Order
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* Origin Information */}
+                        <div className="nts-form-section">
+                            <div className="nts-form-section-header">
+                                <MapPin className="w-5 h-5 text-green-600" />
+                                <h3 className="text-lg font-semibold text-gray-900">Pickup Location</h3>
+                            </div>
+                            <div className="nts-form-section-body space-y-4">
+                                <div className="nts-form-group">
+                                    <label className="nts-label">Street Address</label>
+                                    <input
+                                        className="nts-input"
+                                        type="text"
+                                        placeholder="Enter pickup address"
+                                        value={originStreet}
+                                        onChange={(e) => setOriginStreet(e.target.value)}
+                                    />
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="nts-form-group">
+                                        <label className="nts-label">City</label>
+                                        <input
+                                            className="nts-input"
+                                            type="text"
+                                            placeholder="City"
+                                            value={originCity}
+                                            onChange={(e) => setOriginCity(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="nts-form-group">
+                                        <label className="nts-label">State</label>
+                                        <input
+                                            className="nts-input"
+                                            type="text"
+                                            placeholder="State"
+                                            value={originState}
+                                            onChange={(e) => setOriginState(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="nts-form-group">
+                                    <label className="nts-label">Zip Code</label>
+                                    <input
+                                        className="nts-input"
+                                        type="text"
+                                        placeholder="Zip Code"
+                                        value={originZip}
+                                        onChange={(e) => setOriginZip(e.target.value)}
+                                        onBlur={handleOriginZipBlur}
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        💡 Enter zip code first to auto-fill city and state
+                                    </p>
+                                </div>
+
+                                {/* Origin Contact */}
+                                <div className="pt-4 border-t border-gray-200">
+                                    <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                                        <User className="w-4 h-4" />
+                                        Pickup Contact
+                                    </h4>
+                                    <div className="space-y-3">
+                                        <div className="nts-form-group">
+                                            <label className="nts-label">Contact Name</label>
+                                            <input
+                                                className="nts-input"
+                                                type="text"
+                                                placeholder="Contact person name"
+                                                value={originName}
+                                                onChange={(e) => setOriginName(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="nts-form-group">
+                                            <label className="nts-label">
+                                                <Phone className="w-4 h-4" />
+                                                Phone Number
+                                            </label>
+                                            <input
+                                                className="nts-input"
+                                                type="text"
+                                                placeholder="Contact phone number"
+                                                value={originPhone}
+                                                onChange={(e) => setOriginPhone(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Destination Information */}
+                        <div className="nts-form-section">
+                            <div className="nts-form-section-header">
+                                <MapPin className="w-5 h-5 text-blue-600" />
+                                <h3 className="text-lg font-semibold text-gray-900">Delivery Location</h3>
+                            </div>
+                            <div className="nts-form-section-body space-y-4">
+                                <div className="nts-form-group">
+                                    <label className="nts-label">Street Address</label>
+                                    <input
+                                        className="nts-input"
+                                        type="text"
+                                        placeholder="Enter delivery address"
+                                        value={destinationStreet}
+                                        onChange={(e) => setDestinationStreet(e.target.value)}
+                                    />
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="nts-form-group">
+                                        <label className="nts-label">City</label>
+                                        <input
+                                            className="nts-input"
+                                            type="text"
+                                            placeholder="City"
+                                            value={destinationCity}
+                                            onChange={(e) => setDestinationCity(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="nts-form-group">
+                                        <label className="nts-label">State</label>
+                                        <input
+                                            className="nts-input"
+                                            type="text"
+                                            placeholder="State"
+                                            value={destinationState}
+                                            onChange={(e) => setDestinationState(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="nts-form-group">
+                                    <label className="nts-label">Zip Code</label>
+                                    <input
+                                        className="nts-input"
+                                        type="text"
+                                        placeholder="Zip Code"
+                                        value={destinationZip}
+                                        onChange={(e) => setDestinationZip(e.target.value)}
+                                        onBlur={handleDestinationZipBlur}
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        💡 Enter zip code first to auto-fill city and state
+                                    </p>
+                                </div>
+
+                                {/* Destination Contact */}
+                                <div className="pt-4 border-t border-gray-200">
+                                    <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                                        <User className="w-4 h-4" />
+                                        Delivery Contact
+                                    </h4>
+                                    <div className="space-y-3">
+                                        <div className="nts-form-group">
+                                            <label className="nts-label">Contact Name</label>
+                                            <input
+                                                className="nts-input"
+                                                type="text"
+                                                placeholder="Contact person name"
+                                                value={destinationName}
+                                                onChange={(e) => setDestinationName(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="nts-form-group">
+                                            <label className="nts-label">
+                                                <Phone className="w-4 h-4" />
+                                                Phone Number
+                                            </label>
+                                            <input
+                                                className="nts-input"
+                                                type="text"
+                                                placeholder="Contact phone number"
+                                                value={destinationPhone}
+                                                onChange={(e) => setDestinationPhone(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Pickup Date Range */}
+                    <div className="nts-form-section">
+                        <div className="nts-form-section-header">
+                            <Calendar className="w-5 h-5 text-orange-600" />
+                            <h3 className="text-lg font-semibold text-gray-900">Pickup Schedule</h3>
+                        </div>
+                        <div className="nts-form-section-body">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="nts-form-group">
+                                    <label className="nts-label">Earliest Pickup Date</label>
+                                    <input
+                                        className="nts-input"
+                                        type="date"
+                                        value={earliestPickupDate || ''}
+                                        onChange={(e) => {
+                                            setErrorText('');
+                                            setEarliestPickupDate(e.target.value || null);
+                                        }}
+                                    />
+                                </div>
+                                <div className="nts-form-group">
+                                    <label className="nts-label">Latest Pickup Date</label>
+                                    <input
+                                        className="nts-input"
+                                        type="date"
+                                        value={latestPickupDate || ''}
+                                        onChange={(e) => {
+                                            setErrorText('');
+                                            setLatestPickupDate(e.target.value || null);
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Save to Inventory */}
+                    <div className="nts-form-section">
+                        <div className="nts-form-section-body">
+                            <label className="flex items-center gap-3 text-gray-900 font-medium select-none cursor-pointer">
+                                <span>Save to Inventory</span>
+                                <button
+                                    type="button"
+                                    onClick={() => setSaveToInventory(v => !v)}
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${
+                                        saveToInventory ? 'bg-green-600' : 'bg-gray-300'
+                                    }`}
+                                >
+                                    <span
+                                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                                            saveToInventory ? 'translate-x-5' : 'translate-x-1'
+                                        }`}
+                                    />
+                                </button>
+                                <span className="text-sm text-gray-600">Save this item to your freight inventory</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* Submit Button */}
+                    <div className="flex justify-end pt-6 border-t border-gray-200">
+                        <button type="submit" className="nts-button-primary">
+                            Create Shipping Order
                         </button>
                     </div>
-                </div>
-            </form>
-            {errorText && <p className="text-red-500 mt-2">{errorText}</p>}
+                </form>
+
+                {errorText && (
+                    <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-md">
+                        <p className="text-red-700">{errorText}</p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

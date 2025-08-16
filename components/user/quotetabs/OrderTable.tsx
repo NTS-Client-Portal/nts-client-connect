@@ -2,8 +2,20 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Database } from '@/lib/database.types';
 import { supabase } from '@/lib/initSupabase';
 import { formatDate, renderAdditionalDetails, freightTypeMapping } from './QuoteUtils';
-import { MoveHorizontal } from 'lucide-react';
 import { useRouter } from 'next/router';
+import { 
+    Search, 
+    Filter, 
+    Package, 
+    MapPin, 
+    Calendar, 
+    Truck, 
+    DollarSign,
+    Edit,
+    CheckCircle,
+    Clock,
+    ChevronUp
+} from 'lucide-react';
 
 interface OrderTableProps {
     sortConfig: { column: string; order: string };
@@ -22,10 +34,10 @@ interface OrderTableProps {
 }
 
 const columnDisplayNames: { [key: string]: string } = {
-    id: 'ID',
+    id: 'Order ID',
     freight_type: 'Load Details',
     origin_destination: 'Origin/Destination',
-    due_date: 'Earliest/Latest Pickup Date',
+    due_date: 'Pickup Date',
     price: 'Price',
 };
 
@@ -138,20 +150,25 @@ const OrderTable: React.FC<OrderTableProps> = ({
         };
 
         return (
-            <button onClick={handleSortClick} className="flex items-center">
+            <button onClick={handleSortClick} className="flex items-center hover:text-green-200 transition-colors">
                 {columnDisplayNames[column] || column}
-                {sortOrder === 'asc' ? (
-                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7"></path>
-                    </svg>
-                ) : sortOrder === 'desc' ? (
-                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                {sortOrder ? (
+                    <svg 
+                        className={`w-4 h-4 ml-1 ${sortOrder === 'asc' ? 'text-green-300' : 'text-yellow-300'}`} 
+                        fill="currentColor" 
+                        viewBox="0 0 24 24"
+                    >
+                        <path d="M12 6l-6 6h4v6h4v-6h4l-6-6z"/>
                     </svg>
                 ) : (
-                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5l-7 7h14l-7-7zM12 19l-7-7h14l-7 7z"></path>
+                    <svg className="w-4 h-4 ml-1 text-gray-400 opacity-50" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 6l-6 6h4v6h4v-6h4l-6-6z"/>
                     </svg>
+                )}
+                {sortOrder && (
+                    <span className={`ml-1 text-xs ${sortOrder === 'asc' ? 'text-green-300' : 'text-yellow-300'}`}>
+                        {sortOrder === 'asc' ? 'A-Z' : 'Z-A'}
+                    </span>
                 )}
             </button>
         );
@@ -160,23 +177,17 @@ const OrderTable: React.FC<OrderTableProps> = ({
     function getStatusClasses(status: string): string {
         switch (status) {
             case 'In Progress':
-                return 'text-yellow-500';
+                return 'nts-badge nts-badge-info';
             case 'Dispatched':
-                return 'text-slate-600';
+                return 'nts-badge nts-badge-warning';
             case 'Picked Up':
-                return 'text-orange-500';
+                return 'nts-badge nts-badge-warning';
             case 'Delivered':
-                return 'text-emerald-600';
-            case 'Completed':
-                return 'text-green-500';
-            case 'Cancelled':
-                return 'text-red-500';
+                return 'nts-badge nts-badge-success';
             default:
-                return 'In Progress';
+                return 'nts-badge nts-badge-info';
         }
-    }
-
-    async function handleStatusChange(e: React.ChangeEvent<HTMLSelectElement>, id: number): Promise<void> {
+    }    async function handleStatusChange(e: React.ChangeEvent<HTMLSelectElement>, id: number): Promise<void> {
         const newStatus = e.target.value;
         try {
             const { error } = await supabase
@@ -258,291 +269,186 @@ const OrderTable: React.FC<OrderTableProps> = ({
     }
 
     return (
-        <div className='w-full py-4'>
-            <div className='flex flex-col items-center justify-center'>
-                <div className="flex justify-start gap-4 my-4 ml-52 w-full">
-                    <div className="flex items-center">
-                        <label className="mr-2">Search by:</label>
+        <div className="w-full p-2 space-y-6">
+            {/* Header Section */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                        <Truck className="w-6 h-6 text-green-600" />
+                        Active Orders
+                    </h2>
+                    <p className="text-gray-600 mt-1">Track and manage shipping orders through completion</p>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <Package className="w-4 h-4" />
+                    {filteredOrders.length} Orders
+                </div>
+            </div>
+
+            {/* Search and Filter Section */}
+            <div className="nts-search-section">
+                <div className="nts-search-row">
+                    <div className="nts-search-filter">
+                        <Filter className="w-4 h-4 text-gray-500" />
                         <select
+                            aria-label="Filter by column"
                             value={searchColumn}
                             onChange={(e) => setSearchColumn(e.target.value)}
-                            className="border border-gray-300 rounded-md shadow-sm"
-                            title="Search Column"
+                            className="border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         >
-                            <option value="id">ID</option>
-                            <option value="freight_type">Load Details</option>
-                            <option value="origin_destination">Origin/Destination</option>
+                            <option value="id">Order ID</option>
+                            <option value="freight_type">Freight Type</option>
+                            <option value="origin_city">Origin City</option>
+                            <option value="destination_city">Destination City</option>
                             <option value="due_date">Date</option>
                         </select>
                     </div>
-                    <input
-                        type="text"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Search..."
-                        className="border border-gray-300 pl-2 rounded-md shadow-sm"
-                    />
+                    <div className="nts-search-input">
+                        <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search orders..."
+                            className="flex-1 min-w-0 border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        />
+                    </div>
                 </div>
+            </div>
 
-                <table className="w-full divide-y divide-zinc-200 border">
-                    <thead className="bg-ntsBlue border-2 border-t-orange-500 static top-0 w-full text-white">
-                        <tr >
-                            <th className="px-6 py-3 text-left text-xs text-nowrap font-semibold uppercase ">
-                                <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold tracking-wider">
-                                Notes
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold uppercase ">
-                                <TableHeaderSort column="freight_type" sortOrder={sortConfig.column === 'freight_type' ? sortConfig.order : null} onSort={handleSort} />
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold uppercase ">
-                                <TableHeaderSort column="origin_destination" sortOrder={sortConfig.column === 'origin_city' ? sortConfig.order : null} onSort={handleSort} />
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold uppercase ">
-                                <TableHeaderSort column="due_date" sortOrder={sortConfig.column === 'pickup_date_range' ? sortConfig.order : null} onSort={handleSort} />
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold uppercase ">Status</th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold uppercase ">
-                                <TableHeaderSort column="price" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold uppercase track-widest">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200 ">
-                        {currentRows.map((order, index) => (
-                            <React.Fragment key={order.id}>
-                                <tr
-                                    onClick={() => {
-                                        handleRowClick(order.id);
-                                        setActiveTab('orderdetails');
-                                    }}
-                                    className={`cursor-pointer mb-4 w-max ${index % 2 === 0 ? 'bg-white h-fit w-max' : 'bg-gray-100'} hover:bg-gray-200 transition-colors duration-200`}
-                                >
-                                    <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-200 hover:border-gray-300">
-                                        {order.id}
-                                    </td>
-                                    <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900  border border-gray-200">
-                                        {order.notes}
-                                    </td>
-                                    <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900  border border-gray-200">
-                                        <div className=''>
-                                            {Array.isArray(order.shipment_items) ? order.shipment_items.map((item: any, index) => (
-                                                <React.Fragment key={index}>
-                                                    {item.container_length && item.container_type && typeof item === 'object' && (
-                                                        <span className='flex flex-col gap-0'>
-                                                            <span className='font-semibold text-sm text-gray-700 p-0'>Shipment Item {index + 1}:</span>
-                                                            <span className='text-base text-zinc-900 p-0'>{`${item.container_length} ft ${item.container_type}`}</span>
-                                                        </span>
-                                                    )}
-                                                    {item.year && item.make && item.model && (
-                                                        <span className='flex flex-col gap-0 w-min'>
-                                                            <span className='font-semibold text-sm text-gray-700 p-0 w-min'>Shipment Item {index + 1}:</span>
-                                                            <span className='text-base text-zinc-900 p-0 w-min'>{`${item.year} ${item.make} ${item.model}`}</span>
-                                                        </span>
-                                                    )}
-                                                </React.Fragment>
-                                            )) : (
-                                                <>
-                                                    <div className='text-start w-min'>
-                                                        {order.container_length && order.container_type && (
-                                                            <>
-                                                                <span className='font-semibold text-sm text-gray-700 p-0 text-start w-min'>Shipment Item:</span><br />
-                                                                <span className='text-normal text-zinc-900 w-min text-start'>{`${order.container_length} ft ${order.container_type}`}</span>
-                                                            </>
-                                                        )}
-                                                        {order.year && order.make && order.model && (
-                                                            <>
-                                                                <span className='font-semibold text-sm text-gray-700 p-0 text-start w-min'>Shipment Item:</span><br />
-                                                                <span className='text-normal text-zinc-900 text-start w-min'>{`${order.year} ${order.make} ${order.model}`}</span><br />
-                                                                <span className='text-normal text-zinc-900 text-start w-min'>
-                                                                    {`${order.length} ${order.length_unit} x ${order.width} ${order.width_unit} x ${order.height} ${order.height_unit}, 
-                                                                    ${order.weight} ${order.weight_unit}`}
-                                                                </span>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                </>
-                                            )}
-                                            <div className='text-start pt-1 w-min'>
-                                                <span className='font-semibold text-xs text-gray-700 text-start w-min'>Freight Type:</span>
-                                                <span className='text-xs text-zinc-900 text-start px-1 w-min'>{freightTypeMapping[order.freight_type] || (order.freight_type ? order.freight_type.toUpperCase() : 'N/A')}</span>
+            {orders.length === 0 ? (
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+                    <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No active orders</h3>
+                    <p className="text-gray-500">Orders will appear here once they are created from quotes</p>
+                </div>
+            ) : (
+                <>
+                    {/* Desktop Table View */}
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <table className="modern-table">
+                            <thead className="bg-gradient-to-r from-green-600 to-green-700 text-white">
+                                <tr>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                        <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                        Load Details
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                        Origin/Destination
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                        <TableHeaderSort column="due_date" sortOrder={sortConfig.column === 'due_date' ? sortConfig.order : null} onSort={handleSort} />
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                        <TableHeaderSort column="price" sortOrder={sortConfig.column === 'price' ? sortConfig.order : null} onSort={handleSort} />
+                                    </th>
+                                    <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                        Status
+                                    </th>
+                                    <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {currentRows.map((order, index) => (
+                                    <tr 
+                                        key={order.id}
+                                        onClick={() => handleRowClick(order.id)}
+                                        className={`cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-green-50 transition-colors duration-200`}
+                                    >
+                                        <td className="modern-table-cell font-medium text-green-600 underline">
+                                            #{order.id}
+                                        </td>
+                                        <td className="modern-table-cell text-gray-900">
+                                            <div className="flex items-center gap-2">
+                                                <Truck className="w-4 h-4 text-gray-400" />
+                                                <span className="text-sm">{freightTypeMapping[order.freight_type?.toLowerCase()] || order.freight_type}</span>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
-                                        <a
-                                            href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${order.origin_city}, ${order.origin_state} ${order.origin_zip}`)}&destination=${encodeURIComponent(`${order.destination_city}, ${order.destination_state} ${order.destination_zip}`)}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-blue-500 hover:underline"
-                                        >
-                                            {order.origin_city}, {order.origin_state} {order.origin_zip} / <br />
-                                            {order.destination_city}, {order.destination_state} {order.destination_zip}
-                                            <br />[map it]
-                                        </a>
-                                    </td>
-
-                                    <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
-                                        <span className='flex flex-col gap-1 w-min'>
-                                            <p><strong>Earliest: </strong>{order.earliest_pickup_date}</p>
-                                            <p><strong>Latest: </strong>{order.latest_pickup_date}</p>
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <span className={getStatusClasses(order.brokers_status)}>
-                                            {order.brokers_status}
-                                        </span>
-                                        {order.brokers_status === 'Dispatched' && (
-                                            <div className="mt-2">
-                                                <input
-                                                    type="date"
-                                                    value={loadDates[order.id] || ''}
-                                                    onChange={(e) => handleDateChange(e, order.id, 'load')}
-                                                    className="mb-2 p-2 border border-gray-300 rounded-md"
-                                                    title="Select Load Date"
-                                                    placeholder="Load Date"
-                                                />
-                                                <input
-                                                    type="date"
-                                                    value={deliveryDates[order.id] || ''}
-                                                    onChange={(e) => handleDateChange(e, order.id, 'delivery')}
-                                                    className="mb-2 p-2 border border-gray-300 rounded-md"
-                                                    title="Select Delivery Date"
-                                                    placeholder="Delivery Date"
-                                                />
+                                        </td>
+                                        <td className="px-3 py-4 text-sm text-gray-500">
+                                            <div className="flex items-center gap-1">
+                                                <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                                <div className="flex flex-col space-y-1">
+                                                    <div className="text-xs text-gray-700">
+                                                        <span className="font-medium">From:</span> {order.origin_city}, {order.origin_state}
+                                                    </div>
+                                                    <div className="text-xs text-gray-700">
+                                                        <span className="font-medium">To:</span> {order.destination_city}, {order.destination_state}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <div className="flex items-center gap-1">
+                                                <Calendar className="w-4 h-4 text-gray-400" />
+                                                <span className="text-xs">{formatDate(order.due_date)}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-3 py-4 whitespace-nowrap text-sm">
+                                            {order.price ? (
+                                                <div className="flex items-center gap-1">
+                                                    <DollarSign className="w-4 h-4 text-green-500" />
+                                                    <span className="font-semibold text-green-600 text-xs">${order.price}</span>
+                                                </div>
+                                            ) : (
+                                                <span className="text-xs text-gray-500">N/A</span>
+                                            )}
+                                        </td>
+                                        <td className="px-3 py-4 whitespace-nowrap text-sm">
+                                            <span className={getStatusClasses(order.status || 'In Progress')}>
+                                                {order.status || 'In Progress'}
+                                            </span>
+                                        </td>
+                                        <td className="px-3 py-4 whitespace-nowrap text-sm">
+                                            <div className="flex items-center gap-1">
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        handleSubmitDates(order.id);
+                                                        handleEditClick(order);
                                                     }}
-                                                    className="p-2 bg-blue-500 text-white rounded-md"
+                                                    className="text-green-600 hover:text-green-800 flex items-center gap-1"
                                                 >
-                                                    Submit Dates
+                                                    <Edit className="w-4 h-4" />
+                                                    <span className="text-xs">Edit</span>
                                                 </button>
-                                            </div>
-                                        )}
-                                    </td>
-                                    <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200">
-                                        {order.price ? `$${order.price}` : 'Pending'}
-                                    </td>
-                                    <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border border-gray-200 relative z-50">
-                                        <div className='flex flex-col gap-2'>
-
-
-                                            {isAdmin && (
-                                                <>
-                                                    <label htmlFor={`status-select-${order.id}`} className="sr-only">
-                                                        Status
-                                                    </label>
-                                                    <select
-                                                        id={`status-select-${order.id}`}
-                                                        title="Order Status"
-                                                        value={order.brokers_status}
-                                                        onChange={(e) => {
-                                                            e.stopPropagation();
-                                                            handleStatusChange(e, order.id);
-                                                        }}
-                                                        className={`bg-white dark:bg-zinc-800 dark:text-white border border-gray-300 rounded-md ${getStatusClasses(order.brokers_status)}`}
-                                                    >
-                                                        <option value="" disabled>Select Status</option>
-                                                        <option value="In Progress" className={getStatusClasses('In Progress')}>In Progress</option>
-                                                        <option value="Dispatched" className={getStatusClasses('Dispatched')}>Dispatched</option>
-                                                        <option value="Picked Up" className={getStatusClasses('Picked Up')}>Picked Up</option>
-                                                        <option value="Delivered" className={getStatusClasses('Delivered')}>Delivered</option>
-                                                        <option value="Completed" className={getStatusClasses('Completed')}>Completed</option>
-                                                        <option value="Cancelled" className={getStatusClasses('Cancelled')}>Cancelled</option>
-                                                    </select>
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleEditClick(order);
-                                                        }}
-                                                        className="text-ntsLightBlue font-medium underline"
-                                                    >
-                                                        Edit Order
-                                                    </button>
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleMarkAsComplete(order.id)(e);
-                                                        }}
-                                                        className="text-green-600 ml-2 relative z-50"
-                                                    >
-                                                        Mark as Complete
-                                                    </button>
-                                                    <button onClick={() => archiveOrder(order.id)} className="text-red-500 mt-3 font-semibold underline text-sm">
-                                                        Archive Order
-                                                    </button>
-                                                </>
-                                            )}
-
-
-                                        </div>
-                                    </td>
-                                </tr>
-                                {expandedRow === order.id && (
-                                    <tr className='my-4'>
-                                        <td colSpan={7}>
-                                            <div className="p-4 bg-white border-x border-b border-ntsLightBlue/30 rounded-b-md">
-                                                <div className="flex gap-1">
-                                                    <button
-                                                        className={`px-4 py-2 ${activeTab === 'orderdetails' ? 'bg-gray-200 border-t border-ntsLightBlue' : 'bg-gray-200'}`}
-                                                        onClick={() => setActiveTab('orderdetails')}
-                                                    >
-                                                        Order Details
-                                                    </button>
-                                                    <button
-                                                        className={`px-4 py-2 ${activeTab === 'editHistory' ? 'bg-gray-200 border-t border-ntsLightBlue' : 'bg-gray-200'}`}
-                                                        onClick={() => setActiveTab('editHistory')}
-                                                    >
-                                                        Edit History
-                                                    </button>
-                                                </div>
-                                                {activeTab === 'orderdetails' && (
-                                                    <div className='border border-gray-200 p-6 h-full'>
-                                                        {renderAdditionalDetails(order)}
-                                                        <div className='flex gap-2 items-center h-full'>
-                                                            <button onClick={(e) => { e.stopPropagation(); /* duplicateOrder(order); */ }} className="body-btn ml-2">
-                                                                Duplicate Order
-                                                            </button>
-                                                            <button onClick={(e) => { e.stopPropagation(); /* reverseOrder(order); */ }} className="body-btn ml-2">
-                                                                Flip Route Duplicate
-                                                            </button>
-                                                        </div>
-                                                        <div className='flex gap-2 items-center'>
-                                                            <button onClick={() => handleEditClick(order)} className="text-ntsLightBlue mt-3 font-semibold text-base underline h-full">
-                                                                Edit Order
-                                                            </button>
-
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                {activeTab === 'editHistory' && (
-                                                    <div className="max-h-96">
-                                                        {/* Render edit history here */}
-                                                    </div>
-                                                )}
+                                                <button
+                                                    onClick={handleMarkAsComplete(order.id)}
+                                                    className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                                                >
+                                                    <CheckCircle className="w-4 h-4" />
+                                                    <span className="text-xs">Complete</span>
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
-                                )}
-                            </React.Fragment>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-            <div className="flex justify-center mt-4">
-                {Array.from({ length: totalPages }, (_, index) => (
-                    <button
-                        key={index}
-                        onClick={() => handlePageChange(index + 1)}
-                        className={`px-4 py-2 mx-1 rounded ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-                    >
-                        {index + 1}
-                    </button>
-                ))}
-            </div>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Pagination */}
+                    <div className="flex justify-center mt-6">
+                        <div className="flex gap-1">
+                            {Array.from({ length: totalPages }, (_, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => handlePageChange(index + 1)}
+                                    className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                                        currentPage === index + 1
+                                            ? 'bg-green-600 text-white'
+                                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    {index + 1}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </>
+            )}
         </div>
     );
 }

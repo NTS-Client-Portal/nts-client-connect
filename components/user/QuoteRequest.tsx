@@ -314,7 +314,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
     return (
         <div className="w-full h-full">
             {quotes ? (
-                <div className="flex items-start mb-4">
+                <div className="flex mb-4">
                     <p className='text-start font-semibold py-2 text-gray-800 text-nowrap'>Welcome {profilesUser?.first_name} {profilesUser?.last_name} <br /> Manage your shipments here</p>
                 </div>
             ) : quotes.length === 0 ? (
@@ -358,52 +358,54 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                     <select
                         id="tab-select"
                         aria-label="Select shipment tab"
-                        className="w-full p-2 border border-gray-300 rounded-md relative z-0"
+                        className="nts-input"
                         value={activeTab}
                         onChange={(e) => handleTabChange(e.target.value)}
                     >
                         <option value="requests">Shipping Requests</option>
                         <option value="orders">Shipping Orders</option>
-                        <option value="history">Completed Orders</option>
+                        <option value="delivered">Delivered Orders</option>
                         <option value="rejected">Rejected RFQ&apos;s</option>
                         <option value="editHistory">Edit History</option>
                     </select>
                 </div>
             ) : (
-                <div className="flex gap-1 border-b text-nowrap border-gray-300">
-                    <button
-                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'requests' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
-                        onClick={() => handleTabChange('requests')}
-                    >
-                        Shipping Requests
-                    </button>
-                    <button
-                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'orders' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
-                        onClick={() => handleTabChange('orders')}
-                    >
-                        Shipping Orders
-                    </button>
-                    <button
-                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'delivered' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
-                        onClick={() => handleTabChange('delivered')}
-                    >
-                        Completed Orders
-                    </button>
-                    <button
-                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'archived' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
-                        onClick={() => handleTabChange('archived')}
-                    >
-                        Archived
-                    </button>
-                    <button
-                        className={`w-full px-12 py-2 -mb-px text-sm font-medium text-center border rounded-t-md ${activeTab === 'rejected' ? 'bg-ntsBlue text-white border-2 border-t-orange-500' : 'bg-zinc-200'}`}
-                        onClick={() => handleTabChange('rejected')}
-                    >
-                        Rejected RFQ&apos;s
-                    </button>
+                <div className="nts-tabs">
+                    <div className="nts-tab-list">
+                        <button
+                            className={`nts-tab ${activeTab === 'requests' ? 'active' : ''}`}
+                            onClick={() => handleTabChange('requests')}
+                        >
+                            📋 Shipping Requests
+                        </button>
+                        <button
+                            className={`nts-tab ${activeTab === 'orders' ? 'active' : ''}`}
+                            onClick={() => handleTabChange('orders')}
+                        >
+                            🚛 Active Orders
+                        </button>
+                        <button
+                            className={`nts-tab ${activeTab === 'delivered' ? 'active' : ''}`}
+                            onClick={() => handleTabChange('delivered')}
+                        >
+                            ✅ Delivered
+                        </button>
+                        <button
+                            className={`nts-tab ${activeTab === 'archived' ? 'active' : ''}`}
+                            onClick={() => handleTabChange('archived')}
+                        >
+                            📁 Archived
+                        </button>
+                        <button
+                            className={`nts-tab ${activeTab === 'rejected' ? 'active' : ''}`}
+                            onClick={() => handleTabChange('rejected')}
+                        >
+                            ❌ Rejected
+                        </button>
+                    </div>
                 </div>
             )}
-            <div className="p-1 bg-white ">
+            <div className="nts-tab-content">
                 {activeTab === 'requests' && (
                     <QuoteList
                         session={session}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Wrench, DollarSign, Ruler, Settings, MapPin } from 'lucide-react';
 
 interface EquipmentFormProps {
     setFormData: (data: any) => void;
@@ -58,241 +59,283 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
     }, [year, make, model, vin, length, value, lengthUnit, width, widthUnit, height, heightUnit, weight, weightUnit, operationalCondition, loadingUnloadingRequirements, tarping, isAuction, auction, buyerNumber, lotNumber, setFormData]);
 
     return (
-        <div className="bg-white w-full space-y-8">
-            {/* Header */}
-            <div>
-                <h1 className="text-2xl font-bold text-ntsBlue mb-2">Equipment Details</h1>
-                <p className="text-zinc-500 dark:text-zinc-300 text-sm">Please provide accurate information for the best shipping estimate.</p>
-            </div>
-
-            {/* Basic Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Year</label>
-                    <input
-                        className="form-input"
-                        type="text"
-                        placeholder="2020"
-                        value={year}
-                        onChange={e => { setErrorText(''); setYear(e.target.value); }}
-                    />
+        <div className="space-y-8">
+            {/* Basic Equipment Information */}
+            <div className="nts-form-section">
+                <div className="nts-form-section-header">
+                    <Wrench className="w-5 h-5 text-orange-600" />
+                    <h4 className="text-lg font-medium text-gray-900">Equipment Details</h4>
                 </div>
-                <div>
-                    <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Make</label>
-                    <input
-                        className="form-input"
-                        type="text"
-                        placeholder="Caterpillar"
-                        value={make}
-                        onChange={e => { setErrorText(''); setMake(e.target.value); }}
-                    />
-                </div>
-                <div>
-                    <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Model</label>
-                    <input
-                        className="form-input"
-                        type="text"
-                        placeholder="D8T"
-                        value={model}
-                        onChange={e => { setErrorText(''); setModel(e.target.value); }}
-                    />
-                </div>
-                <div>
-                    <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Equipment Value</label>
-                    <input
-                        className="form-input"
-                        type="text"
-                        placeholder="e.g. $55,000"
-                        value={value}
-                        onChange={e => { setErrorText(''); setValue(e.target.value); }}
-                    />
+                <div className="nts-form-section-body">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="nts-form-group">
+                            <label className="nts-label">Year</label>
+                            <input
+                                className="nts-input"
+                                type="text"
+                                placeholder="2020"
+                                value={year}
+                                onChange={e => { setErrorText(''); setYear(e.target.value); }}
+                            />
+                        </div>
+                        <div className="nts-form-group">
+                            <label className="nts-label">Make</label>
+                            <input
+                                className="nts-input"
+                                type="text"
+                                placeholder="Caterpillar"
+                                value={make}
+                                onChange={e => { setErrorText(''); setMake(e.target.value); }}
+                            />
+                        </div>
+                        <div className="nts-form-group">
+                            <label className="nts-label">Model</label>
+                            <input
+                                className="nts-input"
+                                type="text"
+                                placeholder="D8T"
+                                value={model}
+                                onChange={e => { setErrorText(''); setModel(e.target.value); }}
+                            />
+                        </div>
+                        <div className="nts-form-group">
+                            <label className="nts-label">VIN/Serial Number</label>
+                            <input
+                                className="nts-input"
+                                type="text"
+                                placeholder="Equipment VIN or Serial Number"
+                                value={vin}
+                                onChange={e => { setErrorText(''); setVin(e.target.value); }}
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
 
             {/* Dimensions */}
-            <div>
-                <h2 className="text-lg font-semibold mb-2">Dimensions</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Length */}
-                    <div>
-                        <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Length</label>
-                        <div className="flex">
-                            <input
-                                className="form-input rounded-r-none"
-                                type="number"
-                                min="0"
-                                placeholder="Length"
-                                value={length}
-                                onChange={e => { setErrorText(''); setLength(e.target.value); }}
-                            />
-                            <select
-                                className="form-input rounded-l-none border-l-0 w-24"
-                                value={lengthUnit}
-                                onChange={e => setLengthUnit(e.target.value)}
-                            >
-                                <option value="ft">ft</option>
-                                <option value="in">in</option>
-                            </select>
+            <div className="nts-form-section">
+                <div className="nts-form-section-header">
+                    <Ruler className="w-5 h-5 text-blue-600" />
+                    <h4 className="text-lg font-medium text-gray-900">Dimensions & Weight</h4>
+                </div>
+                <div className="nts-form-section-body">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Length */}
+                        <div className="nts-form-group">
+                            <label className="nts-label">Length</label>
+                            <div className="flex gap-1">
+                                <input
+                                    className="nts-input rounded-r-none flex-1 w-10"
+                                    type="text"
+                                    placeholder="Length"
+                                    value={length}
+                                    onChange={e => { setErrorText(''); setLength(e.target.value); }}
+                                />
+                                <select
+                                    className="nts-input rounded-l-none border-l-0 !w-min flex-shrink-0 text-xs px-1"
+                                    title='length unit selection'
+                                    value={lengthUnit}
+                                    onChange={e => setLengthUnit(e.target.value)}
+                                >
+                                    <option value="ft">ft</option>
+                                    <option value="in">in</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    {/* Width */}
-                    <div>
-                        <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Width</label>
-                        <div className="flex">
-                            <input
-                                className="form-input rounded-r-none"
-                                type="number"
-                                min="0"
-                                placeholder="Width"
-                                value={width}
-                                onChange={e => { setErrorText(''); setWidth(e.target.value); }}
-                            />
-                            <select
-                                className="form-input rounded-l-none border-l-0 w-24"
-                                value={widthUnit}
-                                onChange={e => setWidthUnit(e.target.value)}
-                            >
-                                <option value="ft">ft</option>
-                                <option value="in">in</option>
-                            </select>
+                        
+                        {/* Width */}
+                        <div className="nts-form-group">
+                            <label className="nts-label">Width</label>
+                            <div className="flex gap-1">
+                                <input
+                                    className="nts-input rounded-r-none flex-1 w-10"
+                                    type="text"
+                                    placeholder="Width"
+                                    value={width}
+                                    onChange={e => { setErrorText(''); setWidth(e.target.value); }}
+                                />
+                                <select
+                                    className="nts-input rounded-l-none border-l-0 !w-min flex-shrink-0 text-xs px-1"
+                                    title='width unit selection'
+                                    value={widthUnit}
+                                    onChange={e => setWidthUnit(e.target.value)}
+                                >
+                                    <option value="ft">ft</option>
+                                    <option value="in">in</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    {/* Height */}
-                    <div>
-                        <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Height</label>
-                        <div className="flex">
-                            <input
-                                className="form-input rounded-r-none"
-                                type="number"
-                                min="0"
-                                placeholder="Height"
-                                value={height}
-                                onChange={e => { setErrorText(''); setHeight(e.target.value); }}
-                            />
-                            <select
-                                className="form-input rounded-l-none border-l-0 w-24"
-                                value={heightUnit}
-                                onChange={e => setHeightUnit(e.target.value)}
-                            >
-                                <option value="ft">ft</option>
-                                <option value="in">in</option>
-                            </select>
+                        
+                        {/* Height */}
+                        <div className="nts-form-group">
+                            <label className="nts-label">Height</label>
+                            <div className="flex gap-1">
+                                <input
+                                    className="nts-input rounded-r-none flex-1 w-10"
+                                    type="text"
+                                    placeholder="Height"
+                                    value={height}
+                                    onChange={e => { setErrorText(''); setHeight(e.target.value); }}
+                                />
+                                <select
+                                    className="nts-input rounded-l-none border-l-0 !w-min flex-shrink-0 text-xs px-1"
+                                    title='height unit selection'
+                                    value={heightUnit}
+                                    onChange={e => setHeightUnit(e.target.value)}
+                                >
+                                    <option value="ft">ft</option>
+                                    <option value="in">in</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    {/* Weight */}
-                    <div>
-                        <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Weight</label>
-                        <div className="flex">
-                            <input
-                                className="form-input rounded-r-none"
-                                type="number"
-                                min="0"
-                                placeholder="e.g. 30,000"
-                                value={weight}
-                                onChange={e => { setErrorText(''); setWeight(e.target.value); }}
-                            />
-                            <select
-                                className="form-input rounded-l-none border-l-0 w-24"
-                                value={weightUnit}
-                                onChange={e => setWeightUnit(e.target.value)}
-                            >
-                                <option value="lbs">lbs</option>
-                                <option value="tons">tons</option>
-                                <option value="kg">kg</option>
-                                <option value="g">g</option>
-                            </select>
+                        
+                        {/* Weight */}
+                        <div className="nts-form-group">
+                            <label className="nts-label">Weight</label>
+                            <div className="flex gap-1 w-full">
+                                <input
+                                    className="nts-input rounded-r-none flex-1 w-10"
+                                    type="text"
+                                    placeholder="30000"
+                                    value={weight}
+                                    onChange={e => { setErrorText(''); setWeight(e.target.value); }}
+                                />
+                                <select
+                                    className="nts-input rounded-l-none border-l-0 !w-min flex-shrink-0 text-xs px-1"
+                                    title='weight unit selection'
+                                    value={weightUnit}
+                                    onChange={e => setWeightUnit(e.target.value)}
+                                >
+                                    <option value="lbs">lbs</option>
+                                    <option value="tons">tons</option>
+                                    <option value="kg">kg</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Condition, VIN, Auction */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Equipment Condition</label>
-                    <select
-                        className="input"
-                        value={operationalCondition === null ? '' : operationalCondition ? 'operable' : 'inoperable'}
-                        onChange={e => {
-                            setErrorText('');
-                            setOperationalCondition(e.target.value === 'operable');
-                        }}
-                    >
-                        <option value="">Select...</option>
-                        <option value="operable">Operable</option>
-                        <option value="inoperable">Inoperable</option>
-                    </select>
+            {/* Condition & Value */}
+            <div className="nts-form-section">
+                <div className="nts-form-section-header">
+                    <DollarSign className="w-5 h-5 text-green-600" />
+                    <h4 className="text-lg font-medium text-gray-900">Condition & Value</h4>
                 </div>
-                <div>
-                    <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">VIN Number</label>
-                    <input
-                        className="input"
-                        type="text"
-                        placeholder="VIN"
-                        value={vin}
-                        onChange={e => { setErrorText(''); setVin(e.target.value); }}
-                    />
-                </div>
-                <div>
-                    <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Coming from an auction/dealer?</label>
-                    <select
-                        className="input"
-                        value={isAuction === null ? '' : isAuction ? 'yes' : 'no'}
-                        onChange={e => {
-                            setErrorText('');
-                            setIsAuction(e.target.value === 'yes');
-                        }}
-                    >
-                        <option value="">Select...</option>
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
-                    </select>
+                <div className="nts-form-section-body">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="nts-form-group">
+                            <label className="nts-label">Equipment Condition</label>
+                            <select
+                                className="nts-input"
+                                title='operational condition selection'
+                                value={operationalCondition === null ? '' : operationalCondition ? 'operable' : 'inoperable'}
+                                onChange={e => {
+                                    setErrorText('');
+                                    setOperationalCondition(e.target.value === 'operable');
+                                }}
+                            >
+                                <option value="">Select condition...</option>
+                                <option value="operable">Operable</option>
+                                <option value="inoperable">Inoperable</option>
+                            </select>
+                        </div>
+                        <div className="nts-form-group">
+                            <label className="nts-label">Equipment Value</label>
+                            <input
+                                className="nts-input"
+                                type="text"
+                                placeholder="$55,000"
+                                value={value}
+                                onChange={e => { setErrorText(''); setValue(e.target.value); }}
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Auction Details */}
-            {isAuction && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Auction/Dealer Name</label>
-                        <input
-                            className="input"
-                            type="text"
-                            value={auction}
-                            onChange={e => { setErrorText(''); setAuction(e.target.value); }}
-                        />
+            {/* Auction Information */}
+            <div className="nts-form-section">
+                <div className="nts-form-section-header">
+                    <MapPin className="w-5 h-5 text-purple-600" />
+                    <h4 className="text-lg font-medium text-gray-900">Auction/Dealer Information</h4>
+                </div>
+                <div className="nts-form-section-body">
+                    <div className="nts-form-group">
+                        <label className="nts-label">Coming from an auction/dealer?</label>
+                        <select
+                            className="nts-input max-w-xs"
+                            title='auction dealer selection'
+                            value={isAuction === null ? '' : isAuction ? 'yes' : 'no'}
+                            onChange={e => {
+                                setErrorText('');
+                                setIsAuction(e.target.value === 'yes');
+                            }}
+                        >
+                            <option value="">Select...</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
                     </div>
-                    <div>
-                        <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Buyer Number</label>
+
+                    {isAuction && (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                            <div className="nts-form-group">
+                                <label className="nts-label">Auction/Dealer Name</label>
+                                <input
+                                    className="nts-input"
+                                    type="text"
+                                    placeholder="Ritchie Bros, IronPlanet, etc."
+                                    value={auction}
+                                    onChange={e => { setErrorText(''); setAuction(e.target.value); }}
+                                />
+                            </div>
+                            <div className="nts-form-group">
+                                <label className="nts-label">Buyer Number</label>
+                                <input
+                                    className="nts-input"
+                                    type="text"
+                                    placeholder="Your buyer ID"
+                                    value={buyerNumber}
+                                    onChange={e => { setErrorText(''); setBuyerNumber(e.target.value); }}
+                                />
+                            </div>
+                            <div className="nts-form-group">
+                                <label className="nts-label">Lot Number</label>
+                                <input
+                                    className="nts-input"
+                                    type="text"
+                                    placeholder="Auction lot number"
+                                    value={lotNumber}
+                                    onChange={e => { setErrorText(''); setLotNumber(e.target.value); }}
+                                />
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Additional Requirements */}
+            <div className="nts-form-section">
+                <div className="nts-form-section-header">
+                    <Settings className="w-5 h-5 text-gray-600" />
+                    <h4 className="text-lg font-medium text-gray-900">Special Requirements</h4>
+                </div>
+                <div className="nts-form-section-body">
+                    <div className="nts-form-group">
+                        <label className="nts-label">Loading/Unloading Requirements</label>
                         <input
-                            className="input"
+                            className="nts-input"
                             type="text"
-                            value={buyerNumber}
-                            onChange={e => { setErrorText(''); setBuyerNumber(e.target.value); }}
+                            placeholder="e.g. Crane, Forklift, Ramp, Loading Dock"
+                            value={loadingUnloadingRequirements}
+                            onChange={e => { setErrorText(''); setLoadingUnloadingRequirements(e.target.value); }}
                         />
-                    </div>
-                    <div>
-                        <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Lot Number</label>
-                        <input
-                            className="input"
-                            type="text"
-                            value={lotNumber}
-                            onChange={e => { setErrorText(''); setLotNumber(e.target.value); }}
-                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                            💡 Specify any special equipment needed for loading/unloading
+                        </p>
                     </div>
                 </div>
-            )}
-
-            {/* Loading/Unloading */}
-            <div>
-                <label className="block text-zinc-900 dark:text-zinc-100 font-medium mb-1">Loading/Unloading Requirements</label>
-                <input
-                    className="input"
-                    type="text"
-                    placeholder="e.g. Tarp, Forklift, Ramp, Dock"
-                    value={loadingUnloadingRequirements}
-                    onChange={e => { setErrorText(''); setLoadingUnloadingRequirements(e.target.value); }}
-                />
             </div>
         </div>
     );

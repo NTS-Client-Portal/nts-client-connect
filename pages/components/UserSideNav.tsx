@@ -92,7 +92,7 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
             </div>
 
             {/* Sidebar navigation */}
-            <nav className={`pt-12 md:pt-0 side-navbar z-40 flex flex-col items-start h-screen py-6 drop-shadow md:fixed top-0 left-0 transition-all duration-300 ease-in-out ${isSidebarOpen ? '' : 'collapsed items-center'} ${className}`}>
+            <nav className={`nts-sidebar-content pt-12 md:pt-0 flex flex-col items-start h-full py-6 transition-all duration-300 ease-in-out ${isSidebarOpen ? '' : 'collapsed items-center'}`}>
 
                 {/* Logo */}
                 <div className="flex pt-5 lg:mt-2 2xl:mt-0 mb-3 items-center justify-center font-bold flex-nowrap side-navbar-logo w-full">
