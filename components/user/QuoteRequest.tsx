@@ -44,19 +44,36 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
     const fetchUserProfile = useCallback(async () => {
         if (!session?.user?.id) return;
 
-        const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('company_id')
-            .eq('id', session.user.id)
-            .single();
+        if (isUser) {
+            // For shippers, fetch company_id from profiles table
+            const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('company_id')
+                .eq('id', session.user.id)
+                .single();
 
-        if (error) {
-            console.error('Error fetching user profile:', error.message);
-            return;
+            if (error) {
+                console.error('Error fetching user profile from profiles:', error.message);
+                return;
+            }
+
+            console.log('Fetched user profile from profiles:', profile);
+        } else {
+            // For sales reps/brokers, fetch company_id from nts_users table
+            const { data: profile, error } = await supabase
+                .from('nts_users')
+                .select('company_id')
+                .eq('id', session.user.id)
+                .single();
+
+            if (error) {
+                console.error('Error fetching user profile from nts_users:', error.message);
+                return;
+            }
+
+            console.log('Fetched user profile from nts_users:', profile);
         }
-
-        console.log('Fetched user profile:', profile);
-    }, [session, supabase]);
+    }, [session, supabase, isUser]);
 
     // Fetch user role for sales reps
     const fetchUserRole = useCallback(async () => {

@@ -116,14 +116,14 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
             {/* Mobile Menu Toggle */}
             {!isDesktop && (
                 <button
-                    className="fixed top-6 left-6 z-[2001] lg:hidden bg-slate-800 hover:bg-slate-700 text-white p-3 rounded-xl shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
+                    className="fixed top-6 left-6 z-[2001] lg:hidden text-slate-900 hover:text-slate-800 p-3 rounded-xl shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
                     onClick={toggleSidebar}
                     aria-label={isSidebarOpen ? 'Close menu' : 'Open menu'}
                 >
                     {isSidebarOpen ? (
-                        <X className="w-6 h-6" />
+                        <X className="w-6 h-6 text-slate-900" />
                     ) : (
-                        <Menu className="w-6 h-6" />
+                        <Menu className="w-6 h-6 text-slate-900" />
                     )}
                 </button>
             )}
@@ -179,8 +179,8 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                 </div>
 
                 {/* Navigation */}
-                <nav className="nts-sidebar-nav">
-                    <div className="space-y-2">
+                <nav className="flex-1 px-4">
+                    <div className="space-y-1">
                         {navigationItems.map((item) => {
                             const Icon = item.icon;
                             const isActive = router.pathname === item.href;
@@ -188,29 +188,29 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                             return (
                                 <Link key={item.href} href={item.href}>
                                     <div
-                                        className={`group relative flex items-center p-4 rounded-2xl transition-all duration-300 cursor-pointer ${
+                                        className={`group relative flex items-center p-3 rounded-xl transition-all duration-300 cursor-pointer ${
                                             isActive 
-                                                ? `bg-gradient-to-r ${item.color} text-white shadow-lg shadow-black/20 scale-105 border border-white/20` 
-                                                : 'text-slate-300 hover:text-white hover:bg-white/10 hover:scale-105 border border-transparent'
+                                                ? `bg-gradient-to-r ${item.color} text-white shadow-lg shadow-black/20 border border-white/20` 
+                                                : 'text-slate-100 hover:text-white hover:bg-white/10 border border-transparent'
                                         }`}
                                     >
-                                        <div className={`flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-300 ${
+                                        <div className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-300 ${
                                             isActive 
-                                                ? 'bg-white/20 shadow-lg' 
+                                                ? 'bg-white/20 shadow-md' 
                                                 : 'bg-slate-700/50 group-hover:bg-slate-600/50'
                                         }`}>
-                                            <Icon className={`w-6 h-6 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'}`} />
+                                            <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'}`} />
                                         </div>
-                                        <div className="ml-4 flex-1 min-w-0">
-                                            <p className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-slate-300 group-hover:text-white'}`}>
+                                        <div className="ml-3 flex-1 min-w-0">
+                                            <p className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-slate-300 group-hover:text-white'} truncate`}>
                                                 {item.label}
                                             </p>
-                                            <p className={`text-xs ${isActive ? 'text-white/70' : 'text-slate-500 group-hover:text-slate-400'}`}>
+                                            <p className={`text-xs ${isActive ? 'text-white/80' : 'text-slate-400 group-hover:text-slate-200'} truncate`}>
                                                 {item.description}
                                             </p>
                                         </div>
                                         {isActive && (
-                                            <div className="w-2 h-2 bg-white rounded-full shadow-lg"></div>
+                                            <div className="w-2 h-2 bg-white rounded-full shadow-lg flex-shrink-0"></div>
                                         )}
                                     </div>
                                 </Link>
@@ -220,16 +220,16 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                 </nav>
 
                 {/* Footer */}
-                <div className="nts-sidebar-footer space-y-3">
+                <div className="px-4 pb-4 space-y-2">
                     {/* Settings */}
                     <Link href="/nts/sales/settings">
-                        <div className={`group flex items-center p-4 rounded-2xl transition-all duration-300 cursor-pointer ${
+                        <div className={`group flex items-center p-3 rounded-xl transition-all duration-300 cursor-pointer ${
                             router.pathname === '/nts/sales/settings'
                                 ? 'bg-slate-700 text-white shadow-lg' 
                                 : 'text-slate-300 hover:text-white hover:bg-white/10'
                         }`}>
-                            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-700/50 group-hover:bg-slate-600/50">
-                                <Settings className="w-5 h-5 text-slate-400 group-hover:text-white" />
+                            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-700/50 group-hover:bg-slate-600/50">
+                                <Settings className="w-4 h-4 text-slate-400 group-hover:text-white" />
                             </div>
                             <span className="ml-3 text-sm font-medium">Settings</span>
                         </div>
@@ -238,10 +238,10 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                     {/* Logout */}
                     <button
                         onClick={handleLogout}
-                        className="w-full group flex items-center p-4 rounded-2xl transition-all duration-300 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 hover:shadow-lg hover:shadow-red-500/20"
+                        className="w-full group flex items-center p-3 rounded-xl transition-all duration-300 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 hover:shadow-lg hover:shadow-red-500/20"
                     >
-                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-red-500/20 group-hover:bg-white/20">
-                            <LogOut className="w-5 h-5 text-red-400 group-hover:text-white" />
+                        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-500/20 group-hover:bg-white/20">
+                            <LogOut className="w-4 h-4 text-red-400 group-hover:text-white" />
                         </div>
                         <span className="ml-3 text-sm font-medium">Logout</span>
                     </button>

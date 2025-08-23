@@ -218,8 +218,8 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
         if (isAdmin) {
             const quotesData = await fetchQuotesForNtsUsers(session.user.id, companyId);
             setQuotes(quotesData);
-        } else {
-            // Fetch the user's profile
+        } else if (isUser) {
+            // For shippers, fetch the user's profile from profiles table
             const { data: userProfile, error: userProfileError } = await supabase
                 .from("profiles")
                 .select("company_id")
@@ -227,7 +227,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
                 .single();
 
             if (userProfileError) {
-                console.error("Error fetching user profile:", userProfileError.message);
+                console.error("Error fetching user profile from profiles:", userProfileError.message);
                 return;
             }
 
@@ -238,12 +238,14 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
 
             const companyId = userProfile.company_id;
             const profilesData = await fetchProfiles(companyId);
-
             setProfiles(profilesData);
 
             const profileIds = profilesData.map((profile) => profile.id);
             const quotesData = await fetchShippingQuotes(profileIds);
-
+            setQuotes(quotesData);
+        } else {
+            // For sales reps, fetch from nts_users table and use the passed companyId
+            const quotesData = await fetchQuotesForNtsUsers(session.user.id, companyId);
             setQuotes(quotesData);
         }
     }, [
@@ -253,6 +255,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
         fetchShippingQuotes,
         fetchQuotesForNtsUsers,
         isAdmin,
+        isUser,
         companyId,
     ]);
 
@@ -456,14 +459,20 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
                 return acc;
             }, {});
 
-            const { data: profile, error: profileError } = await supabase
-                .from("profiles")
-                .select("company_id")
-                .eq("id", session.user.id)
-                .single();
+            const { data: profile, error: profileError } = isUser
+                ? await supabase
+                    .from("profiles")
+                    .select("company_id")
+                    .eq("id", session.user.id)
+                    .single()
+                : await supabase
+                    .from("nts_users")
+                    .select("company_id")
+                    .eq("id", session.user.id)
+                    .single();
 
             if (profileError) {
-                console.error("Error fetching profile:", profileError.message);
+                console.error(`Error fetching profile from ${isUser ? 'profiles' : 'nts_users'}:`, profileError.message);
                 return;
             }
 
@@ -650,6 +659,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
                     handleCreateOrderClick={handleCreateOrderClick}
                     handleRespond={handleRespond}
                     isAdmin={isAdmin} // Replace with actual isAdmin value
+                    isUser={isUser}
                     setShowPriceInput={setShowPriceInput}
                     showPriceInput={showPriceInput}
                     priceInput={priceInput}

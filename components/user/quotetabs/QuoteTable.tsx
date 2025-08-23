@@ -103,17 +103,32 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
             }
 
             try {
-                // Fetch the company_id from the profiles table
-                const { data, error } = await supabase
-                    .from('profiles')
-                    .select('company_id')
-                    .eq('id', session.user.id)
-                    .single();
+                if (isUser) {
+                    // For shippers, fetch company_id from profiles table
+                    const { data, error } = await supabase
+                        .from('profiles')
+                        .select('company_id')
+                        .eq('id', session.user.id)
+                        .single();
 
-                if (error) {
-                    console.error('Error fetching company ID:', error.message);
+                    if (error) {
+                        console.error('Error fetching company ID from profiles:', error.message);
+                    } else {
+                        setCompanyId(data?.company_id || null);
+                    }
                 } else {
-                    setCompanyId(data?.company_id || null);
+                    // For sales reps/brokers, fetch company_id from nts_users table
+                    const { data, error } = await supabase
+                        .from('nts_users')
+                        .select('company_id')
+                        .eq('id', session.user.id)
+                        .single();
+
+                    if (error) {
+                        console.error('Error fetching company ID from nts_users:', error.message);
+                    } else {
+                        setCompanyId(data?.company_id || null);
+                    }
                 }
             } catch (err) {
                 console.error('Unexpected error fetching company ID:', err);
