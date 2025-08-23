@@ -226,48 +226,113 @@ const hasAccess = (feature: string, userRole: UserRole) => {
 
 ---
 
-## 🎯 Immediate Action Items
+## 🎯 Prioritized Action Plan with Timeline
 
-### Phase 1: Critical Fixes (Week 1)
-1. **Standardize company assignment system**
-   - Remove redundant assignment columns
-   - Use `company_sales_users` as single source
-   - Update all queries accordingly
+### **🚨 CRITICAL PRIORITY 1: Company Assignment Standardization**
+**Status**: Blocking issue - Must fix before QA testing  
+**Estimated Time**: 2-3 days  
+**Developer Hours**: 12-16 hours  
 
-2. **Fix user context issues**
-   - Ensure proper table routing in all components
-   - Validate fixes in QuoteTable, QuoteList, QuoteDetailsMobile
+**Why This is Top Priority:**
+- **Data Integrity Risk**: 3 different assignment methods causing conflicts
+- **Scaling Blocker**: Cannot onboard 100+ sales reps with current inconsistencies  
+- **QA Blocker**: Testing will fail due to assignment confusion
+- **User Experience Impact**: Sales reps may not see their assigned companies
 
-3. **Add proper foreign key constraints**
-   - Link all relationship tables properly
-   - Define cascade policies
+**Tasks**:
+- [ ] **Day 1**: Run migration scripts (003_standardize_company_assignments.sql)
+- [ ] **Day 1-2**: Update all components to use standardized assignment system
+- [ ] **Day 2-3**: Test assignment functionality end-to-end
+- [ ] **Day 3**: Run cleanup script (004_cleanup_redundant_columns.sql)
 
-### Phase 2: Enhanced Features (Week 2-3)
-1. **Implement proper role-based access control**
-   - Create unified permission system
-   - Add role enum validation
-   - Secure all API endpoints
+**Migration Scripts Created**:
+- `migrations/002_migration_log_table.sql` - Tracking table
+- `migrations/003_standardize_company_assignments.sql` - Main migration
+- `migrations/004_cleanup_redundant_columns.sql` - Cleanup after testing
+- `lib/companyAssignment.ts` - Updated utility functions
 
-2. **Improve quote status management**
-   - Add status enum validation
-   - Create audit trail for status changes
-   - Add business logic validation
+---
 
-3. **Enhanced assignment features**
-   - Multiple sales reps per company support
-   - Load balancing/round-robin assignment
-   - Assignment history tracking
+### **⚠️ HIGH PRIORITY 2: User Context & Permission Fixes**
+**Status**: Recently fixed but needs validation  
+**Estimated Time**: 1 day  
+**Developer Hours**: 4-6 hours
 
-### Phase 3: Performance & UX (Week 4+)
-1. **Optimize queries**
-   - Reduce N+1 query problems
-   - Add proper indexes
-   - Implement caching where appropriate
+**Tasks**:
+- [ ] **Day 1**: Validate fixes in QuoteTable, QuoteList, QuoteDetailsMobile
+- [ ] **Day 1**: Test shipper vs sales rep data visibility
+- [ ] **Day 1**: Verify no more 406 errors in console
 
-2. **Improve user experience**
-   - Real-time notifications
-   - Better error handling
-   - Loading states and feedback
+---
+
+### **🔧 MEDIUM PRIORITY 3: Status Management Enhancement**
+**Estimated Time**: 2-3 days  
+**Developer Hours**: 12-15 hours
+
+**Tasks**:
+- [ ] **Day 1**: Create status enum validation
+- [ ] **Day 2**: Add audit trail for status changes  
+- [ ] **Day 3**: Update all status-related components
+
+---
+
+### **📊 MEDIUM PRIORITY 4: Data Redundancy Cleanup** 
+**Estimated Time**: 1-2 days  
+**Developer Hours**: 6-10 hours
+
+**Tasks**:
+- [ ] **Day 1**: Remove duplicate company_name fields
+- [ ] **Day 2**: Update queries to use canonical company names
+
+---
+
+### **🔐 LOW PRIORITY 5: Enhanced Role-Based Access**
+**Estimated Time**: 3-4 days  
+**Developer Hours**: 18-24 hours
+
+**Tasks**:
+- [ ] **Day 1-2**: Implement unified permission system
+- [ ] **Day 3**: Add role enum validation
+- [ ] **Day 4**: Secure API endpoints
+
+---
+
+## 📅 Development Timeline Summary
+
+### **Week 1 (Days 1-5): Critical Path**
+- **Days 1-3**: Company assignment standardization (**BLOCKING**)
+- **Day 4**: User context validation 
+- **Day 5**: Buffer/testing day
+
+### **Week 2 (Days 6-10): Core Enhancements**  
+- **Days 6-8**: Status management improvements
+- **Days 9-10**: Data redundancy cleanup
+
+### **Week 3 (Days 11-15): Advanced Features**
+- **Days 11-15**: Role-based access control enhancement
+
+### **Week 4 (Days 16-20): QA & Polish**
+- **Days 16-18**: Comprehensive QA testing
+- **Days 19-20**: Bug fixes and final validation
+
+---
+
+## 🚀 Team Resource Allocation
+
+### **Minimum Viable Fix (MVP)**
+**Timeline**: 3-4 days  
+**Team**: 1 senior developer  
+**Scope**: Fix assignment system + validate user context fixes  
+
+### **Full Enhancement Package** 
+**Timeline**: 3-4 weeks  
+**Team**: 1-2 developers + 1 QA tester  
+**Scope**: All priorities + comprehensive testing  
+
+### **Recommended Approach**
+**Phase 1** (Week 1): Critical fixes only - get to QA-ready state  
+**Phase 2** (Weeks 2-3): Enhancements while in beta testing  
+**Phase 3** (Week 4): Final polish based on beta feedback
 
 ---
 
@@ -340,56 +405,152 @@ CREATE INDEX idx_quotes_company_date ON shippingquotes(company_id, created_at);
 
 ---
 
-## 📋 QA Checklist
+## 📋 QA Testing Checklist (Post-Migration)
 
-### Pre-Testing Setup
-- [ ] Verify database migrations completed
-- [ ] Confirm all foreign keys are in place
-- [ ] Test data seeded properly
-- [ ] Environment variables configured
+### **Pre-QA Deployment Checklist**
+- [ ] Migration 003 completed successfully
+- [ ] All validation queries pass (0 conflicts, assignments exist)
+- [ ] Application updated to use `company_sales_users` table
+- [ ] No 406 errors in browser console
+- [ ] All components using correct table routing (profiles vs nts_users)
 
-### Core Functionality Testing
-- [ ] User authentication (shippers vs sales reps)
-- [ ] Company assignment CRUD operations
-- [ ] Quote creation and approval flow
-- [ ] Order management and tracking
-- [ ] Status transitions work correctly
-- [ ] Notifications system functional
+### **Core Functionality Testing**
+**Priority**: CRITICAL - Must work for MVP launch
+- [ ] **User Authentication**
+  - [ ] Shipper login redirects to shipper dashboard
+  - [ ] Sales rep login redirects to sales dashboard  
+  - [ ] Admin login has full access
+  - [ ] User context loads correctly (no errors)
 
-### Permission Testing  
-- [ ] Shippers see only their data
-- [ ] Sales reps see assigned companies only
-- [ ] Admin has full access
-- [ ] Unauthorized access properly blocked
+- [ ] **Company Assignment System**
+  - [ ] Admin can assign company to sales rep
+  - [ ] Admin can reassign company to different sales rep
+  - [ ] Sales rep sees only assigned companies
+  - [ ] Shipper sees only their own company data
+  - [ ] Assignment changes reflect immediately
 
-### Edge Case Testing
-- [ ] Company with no assigned sales rep
-- [ ] Sales rep with no assigned companies  
-- [ ] Multiple assignments (if supported)
-- [ ] Deleted user/company scenarios
-- [ ] Concurrent quote modifications
+- [ ] **Quote Request Flow** 
+  - [ ] Shipper creates quote request
+  - [ ] Assigned sales rep receives notification
+  - [ ] Sales rep can view quote in their dashboard
+  - [ ] Sales rep can provide rate/carrier pay
+  - [ ] Shipper can approve/reject quote
+  - [ ] Status updates work (Quote → Order → Delivered)
+
+### **Data Visibility Testing**
+**Priority**: HIGH - Security and data integrity
+- [ ] **Shipper Data Isolation**
+  - [ ] Shipper sees only their company's quotes
+  - [ ] Shipper cannot see other companies' data
+  - [ ] Shipper profile loads from `profiles` table correctly
+
+- [ ] **Sales Rep Data Access**
+  - [ ] Sales rep sees all assigned companies' data
+  - [ ] Sales rep cannot see unassigned companies
+  - [ ] Sales rep profile loads from `nts_users` table correctly
+  - [ ] Multiple companies per sales rep work correctly
+
+- [ ] **Admin Data Access**
+  - [ ] Admin can see all companies
+  - [ ] Admin can see all sales reps
+  - [ ] Admin can manage assignments
+  - [ ] Admin has access to all quotes/orders
+
+### **Edge Case Testing** 
+**Priority**: MEDIUM - Important for stability
+- [ ] **Assignment Edge Cases**
+  - [ ] Company with no assigned sales rep (graceful handling)
+  - [ ] Sales rep with no assigned companies
+  - [ ] Reassignment during active quotes
+  - [ ] Deleted user scenarios (soft vs hard delete)
+
+- [ ] **Concurrent Operations**
+  - [ ] Multiple sales reps editing same quote
+  - [ ] Assignment changes during quote process
+  - [ ] High-volume quote creation
+
+### **Performance & UX Testing**
+**Priority**: MEDIUM - Important for user experience  
+- [ ] **Page Load Times**
+  - [ ] Dashboard loads < 3 seconds
+  - [ ] Quote lists load < 2 seconds
+  - [ ] Company assignment changes reflect < 1 second
+
+- [ ] **Mobile Responsiveness**
+  - [ ] All forms work on mobile
+  - [ ] Navigation is usable on tablets
+  - [ ] Quote approval flow works on mobile
+
+- [ ] **Error Handling**
+  - [ ] Network errors show user-friendly messages
+  - [ ] Database errors don't crash the app
+  - [ ] Loading states show during operations
 
 ---
 
-## 🚀 Success Metrics
+## 🚀 Success Criteria for QA Sign-off
 
-### Technical Metrics
-- Zero 406 database errors
-- < 2s page load times
-- 99.9% uptime during testing
-- No orphaned records after operations
+### **Technical Success Metrics**
+- [ ] Zero 406 database errors in console
+- [ ] Zero assignment-related errors in logs
+- [ ] All foreign key constraints working
+- [ ] No orphaned records after operations
+- [ ] Page load times under acceptable thresholds
 
-### Business Metrics  
-- Successful quote-to-order conversion
-- Proper sales rep notifications
-- Accurate company assignment tracking
-- Complete audit trail for all operations
+### **Business Success Metrics**
+- [ ] Complete quote-to-order-to-delivery flow works
+- [ ] Sales rep notifications function properly  
+- [ ] Company assignment tracking is accurate
+- [ ] Audit trail captures all status changes
+- [ ] Data isolation is properly enforced
 
-### User Experience Metrics
-- Intuitive navigation for both user types
-- Clear status indicators
-- Responsive design on mobile
-- Error messages are helpful and actionable
+### **User Experience Success Metrics**
+- [ ] Intuitive navigation for both user types
+- [ ] Clear status indicators throughout workflow
+- [ ] Error messages are helpful and actionable
+- [ ] Mobile experience is fully functional
+- [ ] No user confusion about data visibility
+
+---
+
+## 🔄 Post-QA Action Items
+
+### **If QA Passes**
+1. Schedule production deployment
+2. Prepare rollback procedures
+3. Monitor logs during initial hours
+4. Run cleanup migration (004) after 48 hours stable operation
+
+### **If QA Finds Issues**
+1. Prioritize by severity (blocking vs. minor)
+2. Address assignment-related issues immediately
+3. Document any temporary workarounds
+4. Re-run critical test cases after fixes
+
+---
+
+## 📞 Team Communication Plan
+
+### **Daily Standups During QA Week**
+- Assignment system status updates
+- Blocker identification and resolution
+- Testing progress and coverage
+- Risk mitigation planning
+
+### **Escalation Path**
+1. **Minor Issues**: Developer → QA Lead  
+2. **Major Issues**: Developer → Tech Lead → PM
+3. **Blocking Issues**: Immediate team huddle + stakeholder notification
+
+### **Success Celebration**
+- Document lessons learned
+- Update development processes
+- Plan next iteration improvements
+- Recognize team contributions
+
+---
+
+*Updated Timeline: August 23, 2025 - Ready for team review and development planning*
 
 ---
 
