@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Database } from "@/lib/database.types";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { 
+    QuoteStatus, 
+    BrokersStatus,
+    QUOTE_STATUS_LABELS,
+    BROKERS_STATUS_LABELS,
+    getStatusLabel,
+    getStatusStyle
+} from "@/lib/statusManagement";
 import OrderFormModal from "./OrderFormModal";
 import EditQuoteModal from "./EditQuoteModal";
 import QuoteDetailsMobile from "../mobile/QuoteDetailsMobile";
@@ -567,30 +575,23 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
     }, [popupMessage]);
 
     const getStatusClasses = (status: string) => {
-        switch (status) {
-            case "In Progress":
-                return "bg-blue-50 text-blue-700";
-            case "Need More Info":
-                return "bg-amber-50 text-amber-700";
-            case "Priced":
-                return "bg-green-50 text-green-700";
-            case "Cancelled":
-                return "bg-red-50 text-red-700";
-            default:
-                return "bg-gray-50 text-gray-700";
-        }
+        // Use the new status management system for consistent styling
+        return getStatusStyle(status as BrokersStatus);
     };
 
     const handleStatusChange = async (
         e: React.ChangeEvent<HTMLSelectElement>,
         quoteId: number
     ) => {
-        const newStatus = e.target.value;
+        const newStatus = e.target.value as BrokersStatus;
 
-        // Update the status in the database
+        // Update the status in the database with audit trail
         const { error } = await supabase
             .from("shippingquotes")
-            .update({ brokers_status: newStatus })
+            .update({ 
+                brokers_status: newStatus,
+                updated_by: session?.user?.id  // Track who made the change
+            })
             .eq("id", quoteId);
 
         if (error) {

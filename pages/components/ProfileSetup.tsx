@@ -60,16 +60,16 @@ const ProfileSetup = () => {
                 if (existingCompany) {
                     companyId = existingCompany.id;
 
-                    // Update the existing company with missing fields
+                    // Update the existing company with missing fields (canonical name only)
                     const updates = {} as Partial<{
                         assigned_sales_user: string;
                         assigned_at: string;
-                        company_name: string;
+                        name: string;
                         company_size: string;
                     }>;
                     if (!existingCompany.assigned_sales_user) updates.assigned_sales_user = '2b5928cc-4f66-4be4-8d76-4eb91c55db00';
                     if (!existingCompany.assigned_at) updates.assigned_at = new Date().toISOString();
-                    if (!existingCompany.company_name) updates.company_name = companyName;
+                    if (!existingCompany.name) updates.name = companyName; // Use canonical name field
                     if (!existingCompany.company_size) updates.company_size = '1-10'; // Force default company size
 
                     if (Object.keys(updates).length > 0) {
@@ -93,8 +93,7 @@ const ProfileSetup = () => {
                         .from('companies')
                         .insert({
                             id: companyId,
-                            name: companyName,
-                            company_name: companyName, // Ensure company_name is set
+                            name: companyName, // Use canonical name field only
                             company_size: '1-10', // Force default company size
                             assigned_sales_user: assignedSalesUserId,
                             assigned_at: assignedAt,
@@ -127,13 +126,12 @@ const ProfileSetup = () => {
             }
 
             if (existingProfile) {
-                // Update the existing profile
+                // Update the existing profile (no redundant company_name)
                 const { error } = await supabase
                     .from('profiles')
                     .update({
                         first_name: firstName,
                         last_name: lastName,
-                        company_name: companyName || `${firstName} ${lastName}`,
                         phone_number: phoneNumber, // Include phone number
                         company_id: companyId,
                         profile_complete: true, // Set profile_complete to true
@@ -147,7 +145,7 @@ const ProfileSetup = () => {
 
                 console.log('Profile updated successfully');
             } else {
-                // Insert a new profile
+                // Insert a new profile (no redundant company_name)
                 const { error } = await supabase
                     .from('profiles')
                     .insert({
@@ -155,7 +153,6 @@ const ProfileSetup = () => {
                         email: email, // Use the email fetched from auth.users
                         first_name: firstName,
                         last_name: lastName,
-                        company_name: companyName || `${firstName} ${lastName}`,
                         phone_number: phoneNumber, // Include phone number
                         company_id: companyId,
                         profile_complete: true, // Set profile_complete to true

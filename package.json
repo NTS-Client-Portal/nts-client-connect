@@ -6,7 +6,7 @@
         "fs": false,
         "path": false,
         "os": false
-    },   
+    },
     "scripts": {
         "preinstall": "npx npm-force-resolutions",
         "dev": "next dev",
@@ -95,6 +95,7 @@
         "@types/react-tooltip": "^4.2.4",
         "@types/uuid": "^10.0.0",
         "autoprefixer": "^10.4.20",
+        "eslint": "^9.34.0",
         "tailwindcss": "^4.1.11",
         "typescript": "^5.7.3"
     }

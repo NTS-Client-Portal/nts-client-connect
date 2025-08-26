@@ -7,8 +7,46 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.3 (519615d)"
+  }
   public: {
     Tables: {
+      assignment_migration_backup: {
+        Row: {
+          backup_created_at: string | null
+          companies_assigned_sales_user: string | null
+          company_id: string | null
+          company_name: string | null
+          junction_table_id: string | null
+          junction_table_sales_user: string | null
+          profile_count: number | null
+          profiles_assigned_sales_user: string | null
+        }
+        Insert: {
+          backup_created_at?: string | null
+          companies_assigned_sales_user?: string | null
+          company_id?: string | null
+          company_name?: string | null
+          junction_table_id?: string | null
+          junction_table_sales_user?: string | null
+          profile_count?: number | null
+          profiles_assigned_sales_user?: string | null
+        }
+        Update: {
+          backup_created_at?: string | null
+          companies_assigned_sales_user?: string | null
+          company_id?: string | null
+          company_name?: string | null
+          junction_table_id?: string | null
+          junction_table_sales_user?: string | null
+          profile_count?: number | null
+          profiles_assigned_sales_user?: string | null
+        }
+        Relationships: []
+      }
       boats: {
         Row: {
           beam: string | null
@@ -49,6 +87,191 @@ export type Database = {
             columns: ["shipping_quote_id"]
             isOneToOne: false
             referencedRelation: "shippingquotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cd_data: {
+        Row: {
+          additional_info: string | null
+          available_date: string
+          desired_delivery_date: string | null
+          destination_city: string
+          destination_geocode_latitude: number | null
+          destination_geocode_longitude: number | null
+          destination_metro_area: string | null
+          destination_state: string
+          destination_zip: string
+          distance: number | null
+          external_id: string | null
+          has_in_op_vehicle: boolean
+          id: string
+          origin_city: string
+          origin_geocode_latitude: number | null
+          origin_geocode_longitude: number | null
+          origin_metro_area: string | null
+          origin_state: string
+          origin_zip: string
+          partner_reference_id: string | null
+          price_balance_amount: number | null
+          price_balance_balance_payment_method:
+            | Database["public"]["Enums"]["balance_payment_method_enum"]
+            | null
+          price_balance_balance_payment_terms_begin_on:
+            | Database["public"]["Enums"]["balance_payment_terms_begin_on_enum"]
+            | null
+          price_balance_payment_time:
+            | Database["public"]["Enums"]["balance_payment_time_enum"]
+            | null
+          price_cod_amount: number
+          price_cod_payment_location: Database["public"]["Enums"]["cod_payment_location_enum"]
+          price_cod_payment_method: Database["public"]["Enums"]["cod_payment_method_enum"]
+          price_total: number
+          shipper_id: string
+          shipper_order_id: string | null
+          shippingquote_id: number | null
+          trailer_type: Database["public"]["Enums"]["trailer_type_enum"]
+        }
+        Insert: {
+          additional_info?: string | null
+          available_date: string
+          desired_delivery_date?: string | null
+          destination_city: string
+          destination_geocode_latitude?: number | null
+          destination_geocode_longitude?: number | null
+          destination_metro_area?: string | null
+          destination_state: string
+          destination_zip: string
+          distance?: number | null
+          external_id?: string | null
+          has_in_op_vehicle: boolean
+          id?: string
+          origin_city: string
+          origin_geocode_latitude?: number | null
+          origin_geocode_longitude?: number | null
+          origin_metro_area?: string | null
+          origin_state: string
+          origin_zip: string
+          partner_reference_id?: string | null
+          price_balance_amount?: number | null
+          price_balance_balance_payment_method?:
+            | Database["public"]["Enums"]["balance_payment_method_enum"]
+            | null
+          price_balance_balance_payment_terms_begin_on?:
+            | Database["public"]["Enums"]["balance_payment_terms_begin_on_enum"]
+            | null
+          price_balance_payment_time?:
+            | Database["public"]["Enums"]["balance_payment_time_enum"]
+            | null
+          price_cod_amount: number
+          price_cod_payment_location: Database["public"]["Enums"]["cod_payment_location_enum"]
+          price_cod_payment_method: Database["public"]["Enums"]["cod_payment_method_enum"]
+          price_total: number
+          shipper_id: string
+          shipper_order_id?: string | null
+          shippingquote_id?: number | null
+          trailer_type: Database["public"]["Enums"]["trailer_type_enum"]
+        }
+        Update: {
+          additional_info?: string | null
+          available_date?: string
+          desired_delivery_date?: string | null
+          destination_city?: string
+          destination_geocode_latitude?: number | null
+          destination_geocode_longitude?: number | null
+          destination_metro_area?: string | null
+          destination_state?: string
+          destination_zip?: string
+          distance?: number | null
+          external_id?: string | null
+          has_in_op_vehicle?: boolean
+          id?: string
+          origin_city?: string
+          origin_geocode_latitude?: number | null
+          origin_geocode_longitude?: number | null
+          origin_metro_area?: string | null
+          origin_state?: string
+          origin_zip?: string
+          partner_reference_id?: string | null
+          price_balance_amount?: number | null
+          price_balance_balance_payment_method?:
+            | Database["public"]["Enums"]["balance_payment_method_enum"]
+            | null
+          price_balance_balance_payment_terms_begin_on?:
+            | Database["public"]["Enums"]["balance_payment_terms_begin_on_enum"]
+            | null
+          price_balance_payment_time?:
+            | Database["public"]["Enums"]["balance_payment_time_enum"]
+            | null
+          price_cod_amount?: number
+          price_cod_payment_location?: Database["public"]["Enums"]["cod_payment_location_enum"]
+          price_cod_payment_method?: Database["public"]["Enums"]["cod_payment_method_enum"]
+          price_total?: number
+          shipper_id?: string
+          shipper_order_id?: string | null
+          shippingquote_id?: number | null
+          trailer_type?: Database["public"]["Enums"]["trailer_type_enum"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cd_data_shippingquote_id_fkey"
+            columns: ["shippingquote_id"]
+            isOneToOne: false
+            referencedRelation: "shippingquotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_requests: {
+        Row: {
+          accepted: boolean | null
+          broker_id: string | null
+          file_url: string | null
+          id: number
+          priority: string | null
+          request_time: string | null
+          session: string
+          shipper_id: string | null
+          support_type: string | null
+          topic: string
+        }
+        Insert: {
+          accepted?: boolean | null
+          broker_id?: string | null
+          file_url?: string | null
+          id?: number
+          priority?: string | null
+          request_time?: string | null
+          session: string
+          shipper_id?: string | null
+          support_type?: string | null
+          topic: string
+        }
+        Update: {
+          accepted?: boolean | null
+          broker_id?: string | null
+          file_url?: string | null
+          id?: number
+          priority?: string | null
+          request_time?: string | null
+          session?: string
+          shipper_id?: string | null
+          support_type?: string | null
+          topic?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_requests_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "nts_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_requests_shipper_id_fkey"
+            columns: ["shipper_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -128,6 +351,7 @@ export type Database = {
           company_name: string | null
           company_size: string | null
           id: string
+          industry: string | null
           name: string
         }
         Insert: {
@@ -136,6 +360,7 @@ export type Database = {
           company_name?: string | null
           company_size?: string | null
           id: string
+          industry?: string | null
           name: string
         }
         Update: {
@@ -144,6 +369,7 @@ export type Database = {
           company_name?: string | null
           company_size?: string | null
           id?: string
+          industry?: string | null
           name?: string
         }
         Relationships: []
@@ -247,6 +473,7 @@ export type Database = {
           id: number
           is_favorite: boolean | null
           nts_user_id: string | null
+          template_id: string | null
           title: string | null
           user_id: string | null
         }
@@ -259,6 +486,7 @@ export type Database = {
           id?: number
           is_favorite?: boolean | null
           nts_user_id?: string | null
+          template_id?: string | null
           title?: string | null
           user_id?: string | null
         }
@@ -271,10 +499,18 @@ export type Database = {
           id?: number
           is_favorite?: boolean | null
           nts_user_id?: string | null
+          template_id?: string | null
           title?: string | null
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "documents_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "documents_user_id_fkey"
             columns: ["user_id"]
@@ -499,6 +735,24 @@ export type Database = {
           },
         ]
       }
+      global_settings: {
+        Row: {
+          id: number
+          key: string
+          value: boolean
+        }
+        Insert: {
+          id?: number
+          key: string
+          value: boolean
+        }
+        Update: {
+          id?: number
+          key?: string
+          value?: boolean
+        }
+        Relationships: []
+      }
       invitations: {
         Row: {
           company_id: string | null
@@ -538,6 +792,66 @@ export type Database = {
           {
             foreignKeyName: "invitations_invited_by_fkey"
             columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lanes_inventory: {
+        Row: {
+          company_id: string
+          destination_address: string
+          destination_city: string
+          destination_state: string
+          destination_zip: string
+          id: string
+          notes: string | null
+          origin_address: string
+          origin_city: string
+          origin_state: string
+          origin_zip: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          destination_address: string
+          destination_city: string
+          destination_state: string
+          destination_zip: string
+          id: string
+          notes?: string | null
+          origin_address: string
+          origin_city: string
+          origin_state: string
+          origin_zip: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          destination_address?: string
+          destination_city?: string
+          destination_state?: string
+          destination_zip?: string
+          id?: string
+          notes?: string | null
+          origin_address?: string
+          origin_city?: string
+          origin_state?: string
+          origin_zip?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_company_id"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_user_id"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -614,29 +928,126 @@ export type Database = {
           },
         ]
       }
+      messages: {
+        Row: {
+          broker_id: string | null
+          chat_id: string | null
+          file_url: string | null
+          id: number
+          message_body: string
+          message_time: string | null
+          shipper_id: string | null
+          ticket_id: number | null
+          user_type: string | null
+        }
+        Insert: {
+          broker_id?: string | null
+          chat_id?: string | null
+          file_url?: string | null
+          id?: number
+          message_body: string
+          message_time?: string | null
+          shipper_id?: string | null
+          ticket_id?: number | null
+          user_type?: string | null
+        }
+        Update: {
+          broker_id?: string | null
+          chat_id?: string | null
+          file_url?: string | null
+          id?: number
+          message_body?: string
+          message_time?: string | null
+          shipper_id?: string | null
+          ticket_id?: number | null
+          user_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "nts_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_shipper_id_fkey"
+            columns: ["shipper_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      migration_log: {
+        Row: {
+          data_count: number | null
+          executed_at: string | null
+          id: number
+          message: string | null
+          migration_name: string
+          step: string
+        }
+        Insert: {
+          data_count?: number | null
+          executed_at?: string | null
+          id?: number
+          message?: string | null
+          migration_name: string
+          step: string
+        }
+        Update: {
+          data_count?: number | null
+          executed_at?: string | null
+          id?: number
+          message?: string | null
+          migration_name?: string
+          step?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string | null
+          document_id: number | null
           id: number
           is_read: boolean | null
           message: string | null
+          nts_user_id: string | null
+          ticket_id: number | null
+          type: string | null
           user_id: string | null
         }
         Insert: {
           created_at?: string | null
+          document_id?: number | null
           id?: number
           is_read?: boolean | null
           message?: string | null
+          nts_user_id?: string | null
+          ticket_id?: number | null
+          type?: string | null
           user_id?: string | null
         }
         Update: {
           created_at?: string | null
+          document_id?: number | null
           id?: number
           is_read?: boolean | null
           message?: string | null
+          nts_user_id?: string | null
+          ticket_id?: number | null
+          type?: string | null
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "notifications_nts_user_id_fkey"
+            columns: ["nts_user_id"]
+            isOneToOne: false
+            referencedRelation: "nts_users"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "notifications_user_id_fkey"
             columns: ["user_id"]
@@ -652,10 +1063,12 @@ export type Database = {
           company_id: string | null
           email: string
           email_notifications: boolean | null
+          extension: string | null
           first_name: string | null
           id: string
           inserted_at: string | null
           last_name: string | null
+          office: string | null
           phone_number: string | null
           profile_id: string | null
           profile_picture: string | null
@@ -666,10 +1079,12 @@ export type Database = {
           company_id?: string | null
           email: string
           email_notifications?: boolean | null
+          extension?: string | null
           first_name?: string | null
           id: string
           inserted_at?: string | null
           last_name?: string | null
+          office?: string | null
           phone_number?: string | null
           profile_id?: string | null
           profile_picture?: string | null
@@ -680,10 +1095,12 @@ export type Database = {
           company_id?: string | null
           email?: string
           email_notifications?: boolean | null
+          extension?: string | null
           first_name?: string | null
           id?: string
           inserted_at?: string | null
           last_name?: string | null
+          office?: string | null
           phone_number?: string | null
           profile_id?: string | null
           profile_picture?: string | null
@@ -708,52 +1125,232 @@ export type Database = {
       }
       orders: {
         Row: {
+          assigned_sales_user: string | null
+          auction: string | null
+          beam: string | null
+          buyer_number: string | null
+          class_type: string | null
+          commodity: string | null
+          company_id: string | null
+          container_length: number | null
+          container_type: string | null
+          contents_description: string | null
+          cradle: boolean | null
           created_at: string | null
           destination_city: string | null
           destination_state: string | null
           destination_street: string | null
+          destination_surface_type: string | null
+          destination_type: boolean | null
+          destination_type_description: string | null
           destination_zip: string | null
+          dock_no_dock: boolean | null
+          driveaway_or_towaway: boolean | null
+          due_date: string | null
           earliest_pickup_date: string | null
+          email: string | null
+          first_name: string | null
+          freight_class: string | null
+          freight_type: string | null
+          goods_value: string | null
+          height: string | null
           id: number
+          inserted_at: string | null
+          is_archived: boolean | null
+          is_complete: boolean | null
+          is_loaded: boolean | null
+          last_name: string | null
           latest_pickup_date: string | null
+          length: string | null
+          load_description: string | null
+          loading_assistance: string | null
+          loading_by: boolean | null
+          loading_unloading_requirements: string | null
+          lot_number: string | null
+          make: string | null
+          model: string | null
+          motorized_or_trailer: string | null
           notes: string | null
+          operational_condition: boolean | null
+          origin_address: string | null
+          origin_city: string | null
+          origin_state: string | null
           origin_street: string | null
+          origin_surface_type: string | null
+          origin_type: boolean | null
+          origin_type_description: string | null
+          origin_zip: string | null
+          packaging_type: string | null
+          pallet_count: string | null
+          price: number | null
           quote_id: number | null
+          roadworthy: boolean | null
+          save_to_inventory: boolean | null
+          shipment_items: Json | null
           status: string | null
+          tarping: boolean | null
+          trailer: boolean | null
+          type: string | null
+          unloading_by: boolean | null
           updated_at: string | null
           user_id: string | null
+          vin: string | null
+          weight: string | null
+          weight_per_pallet_unit: string | null
+          width: string | null
+          year: string | null
         }
         Insert: {
+          assigned_sales_user?: string | null
+          auction?: string | null
+          beam?: string | null
+          buyer_number?: string | null
+          class_type?: string | null
+          commodity?: string | null
+          company_id?: string | null
+          container_length?: number | null
+          container_type?: string | null
+          contents_description?: string | null
+          cradle?: boolean | null
           created_at?: string | null
           destination_city?: string | null
           destination_state?: string | null
           destination_street?: string | null
+          destination_surface_type?: string | null
+          destination_type?: boolean | null
+          destination_type_description?: string | null
           destination_zip?: string | null
+          dock_no_dock?: boolean | null
+          driveaway_or_towaway?: boolean | null
+          due_date?: string | null
           earliest_pickup_date?: string | null
+          email?: string | null
+          first_name?: string | null
+          freight_class?: string | null
+          freight_type?: string | null
+          goods_value?: string | null
+          height?: string | null
           id?: number
+          inserted_at?: string | null
+          is_archived?: boolean | null
+          is_complete?: boolean | null
+          is_loaded?: boolean | null
+          last_name?: string | null
           latest_pickup_date?: string | null
+          length?: string | null
+          load_description?: string | null
+          loading_assistance?: string | null
+          loading_by?: boolean | null
+          loading_unloading_requirements?: string | null
+          lot_number?: string | null
+          make?: string | null
+          model?: string | null
+          motorized_or_trailer?: string | null
           notes?: string | null
+          operational_condition?: boolean | null
+          origin_address?: string | null
+          origin_city?: string | null
+          origin_state?: string | null
           origin_street?: string | null
+          origin_surface_type?: string | null
+          origin_type?: boolean | null
+          origin_type_description?: string | null
+          origin_zip?: string | null
+          packaging_type?: string | null
+          pallet_count?: string | null
+          price?: number | null
           quote_id?: number | null
+          roadworthy?: boolean | null
+          save_to_inventory?: boolean | null
+          shipment_items?: Json | null
           status?: string | null
+          tarping?: boolean | null
+          trailer?: boolean | null
+          type?: string | null
+          unloading_by?: boolean | null
           updated_at?: string | null
           user_id?: string | null
+          vin?: string | null
+          weight?: string | null
+          weight_per_pallet_unit?: string | null
+          width?: string | null
+          year?: string | null
         }
         Update: {
+          assigned_sales_user?: string | null
+          auction?: string | null
+          beam?: string | null
+          buyer_number?: string | null
+          class_type?: string | null
+          commodity?: string | null
+          company_id?: string | null
+          container_length?: number | null
+          container_type?: string | null
+          contents_description?: string | null
+          cradle?: boolean | null
           created_at?: string | null
           destination_city?: string | null
           destination_state?: string | null
           destination_street?: string | null
+          destination_surface_type?: string | null
+          destination_type?: boolean | null
+          destination_type_description?: string | null
           destination_zip?: string | null
+          dock_no_dock?: boolean | null
+          driveaway_or_towaway?: boolean | null
+          due_date?: string | null
           earliest_pickup_date?: string | null
+          email?: string | null
+          first_name?: string | null
+          freight_class?: string | null
+          freight_type?: string | null
+          goods_value?: string | null
+          height?: string | null
           id?: number
+          inserted_at?: string | null
+          is_archived?: boolean | null
+          is_complete?: boolean | null
+          is_loaded?: boolean | null
+          last_name?: string | null
           latest_pickup_date?: string | null
+          length?: string | null
+          load_description?: string | null
+          loading_assistance?: string | null
+          loading_by?: boolean | null
+          loading_unloading_requirements?: string | null
+          lot_number?: string | null
+          make?: string | null
+          model?: string | null
+          motorized_or_trailer?: string | null
           notes?: string | null
+          operational_condition?: boolean | null
+          origin_address?: string | null
+          origin_city?: string | null
+          origin_state?: string | null
           origin_street?: string | null
+          origin_surface_type?: string | null
+          origin_type?: boolean | null
+          origin_type_description?: string | null
+          origin_zip?: string | null
+          packaging_type?: string | null
+          pallet_count?: string | null
+          price?: number | null
           quote_id?: number | null
+          roadworthy?: boolean | null
+          save_to_inventory?: boolean | null
+          shipment_items?: Json | null
           status?: string | null
+          tarping?: boolean | null
+          trailer?: boolean | null
+          type?: string | null
+          unloading_by?: boolean | null
           updated_at?: string | null
           user_id?: string | null
+          vin?: string | null
+          weight?: string | null
+          weight_per_pallet_unit?: string | null
+          width?: string | null
+          year?: string | null
         }
         Relationships: [
           {
@@ -772,6 +1369,27 @@ export type Database = {
           },
         ]
       }
+      profile_pictures: {
+        Row: {
+          id: number
+          picture_url: string
+          uploaded_at: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: number
+          picture_url: string
+          uploaded_at?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: number
+          picture_url?: string
+          uploaded_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
@@ -783,6 +1401,7 @@ export type Database = {
           email_notifications: boolean | null
           first_name: string | null
           id: string
+          industry: string | null
           inserted_at: string | null
           last_name: string | null
           phone_number: string | null
@@ -800,6 +1419,7 @@ export type Database = {
           email_notifications?: boolean | null
           first_name?: string | null
           id: string
+          industry?: string | null
           inserted_at?: string | null
           last_name?: string | null
           phone_number?: string | null
@@ -817,6 +1437,7 @@ export type Database = {
           email_notifications?: boolean | null
           first_name?: string | null
           id?: string
+          industry?: string | null
           inserted_at?: string | null
           last_name?: string | null
           phone_number?: string | null
@@ -983,8 +1604,13 @@ export type Database = {
         Row: {
           assigned_sales_user: string | null
           auction: string | null
+          auto_make: string | null
+          auto_model: string | null
+          auto_year: string | null
           beam: string | null
+          brokers_status: string | null
           buyer_number: string | null
+          carrier_pay: number | null
           class_type: string | null
           commodity: string | null
           company_id: string | null
@@ -992,29 +1618,39 @@ export type Database = {
           container_type: string | null
           contents_description: string | null
           cradle: boolean | null
+          created_at: string | null
+          delivery_date: string | null
+          deposit: number | null
           destination_city: string | null
+          destination_name: string | null
+          destination_phone: string | null
           destination_state: string | null
           destination_street: string | null
           destination_surface_type: string | null
           destination_type: boolean | null
           destination_type_description: string | null
           destination_zip: string | null
-          dock_no_dock: boolean | null
+          dock_no_dock: string | null
           driveaway_or_towaway: boolean | null
           due_date: string | null
+          earliest_pickup_date: string | null
           email: string | null
           first_name: string | null
           freight_class: string | null
           freight_type: string | null
           goods_value: string | null
           height: string | null
+          height_unit: string | null
           id: number
           inserted_at: string | null
           is_archived: boolean | null
           is_complete: boolean | null
           is_loaded: boolean | null
           last_name: string | null
+          latest_pickup_date: string | null
           length: string | null
+          length_unit: string | null
+          load_date: string | null
           load_description: string | null
           loading_assistance: string | null
           loading_by: boolean | null
@@ -1027,7 +1663,10 @@ export type Database = {
           operational_condition: boolean | null
           origin_address: string | null
           origin_city: string | null
+          origin_name: string | null
+          origin_phone: string | null
           origin_state: string | null
+          origin_street: string | null
           origin_surface_type: string | null
           origin_type: boolean | null
           origin_type_description: string | null
@@ -1035,24 +1674,36 @@ export type Database = {
           packaging_type: string | null
           pallet_count: string | null
           price: number | null
+          quote_id: number | null
           roadworthy: boolean | null
           save_to_inventory: boolean | null
+          shipment_items: Json | null
+          status: string | null
           tarping: boolean | null
+          template_id: string | null
           trailer: boolean | null
           type: string | null
           unloading_by: boolean | null
+          updated_at: string | null
           user_id: string | null
           vin: string | null
           weight: string | null
           weight_per_pallet_unit: string | null
+          weight_unit: string | null
           width: string | null
+          width_unit: string | null
           year: string | null
         }
         Insert: {
           assigned_sales_user?: string | null
           auction?: string | null
+          auto_make?: string | null
+          auto_model?: string | null
+          auto_year?: string | null
           beam?: string | null
+          brokers_status?: string | null
           buyer_number?: string | null
+          carrier_pay?: number | null
           class_type?: string | null
           commodity?: string | null
           company_id?: string | null
@@ -1060,29 +1711,39 @@ export type Database = {
           container_type?: string | null
           contents_description?: string | null
           cradle?: boolean | null
+          created_at?: string | null
+          delivery_date?: string | null
+          deposit?: number | null
           destination_city?: string | null
+          destination_name?: string | null
+          destination_phone?: string | null
           destination_state?: string | null
           destination_street?: string | null
           destination_surface_type?: string | null
           destination_type?: boolean | null
           destination_type_description?: string | null
           destination_zip?: string | null
-          dock_no_dock?: boolean | null
+          dock_no_dock?: string | null
           driveaway_or_towaway?: boolean | null
           due_date?: string | null
+          earliest_pickup_date?: string | null
           email?: string | null
           first_name?: string | null
           freight_class?: string | null
           freight_type?: string | null
           goods_value?: string | null
           height?: string | null
+          height_unit?: string | null
           id?: number
           inserted_at?: string | null
           is_archived?: boolean | null
           is_complete?: boolean | null
           is_loaded?: boolean | null
           last_name?: string | null
+          latest_pickup_date?: string | null
           length?: string | null
+          length_unit?: string | null
+          load_date?: string | null
           load_description?: string | null
           loading_assistance?: string | null
           loading_by?: boolean | null
@@ -1095,7 +1756,10 @@ export type Database = {
           operational_condition?: boolean | null
           origin_address?: string | null
           origin_city?: string | null
+          origin_name?: string | null
+          origin_phone?: string | null
           origin_state?: string | null
+          origin_street?: string | null
           origin_surface_type?: string | null
           origin_type?: boolean | null
           origin_type_description?: string | null
@@ -1103,24 +1767,36 @@ export type Database = {
           packaging_type?: string | null
           pallet_count?: string | null
           price?: number | null
+          quote_id?: number | null
           roadworthy?: boolean | null
           save_to_inventory?: boolean | null
+          shipment_items?: Json | null
+          status?: string | null
           tarping?: boolean | null
+          template_id?: string | null
           trailer?: boolean | null
           type?: string | null
           unloading_by?: boolean | null
+          updated_at?: string | null
           user_id?: string | null
           vin?: string | null
           weight?: string | null
           weight_per_pallet_unit?: string | null
+          weight_unit?: string | null
           width?: string | null
+          width_unit?: string | null
           year?: string | null
         }
         Update: {
           assigned_sales_user?: string | null
           auction?: string | null
+          auto_make?: string | null
+          auto_model?: string | null
+          auto_year?: string | null
           beam?: string | null
+          brokers_status?: string | null
           buyer_number?: string | null
+          carrier_pay?: number | null
           class_type?: string | null
           commodity?: string | null
           company_id?: string | null
@@ -1128,29 +1804,39 @@ export type Database = {
           container_type?: string | null
           contents_description?: string | null
           cradle?: boolean | null
+          created_at?: string | null
+          delivery_date?: string | null
+          deposit?: number | null
           destination_city?: string | null
+          destination_name?: string | null
+          destination_phone?: string | null
           destination_state?: string | null
           destination_street?: string | null
           destination_surface_type?: string | null
           destination_type?: boolean | null
           destination_type_description?: string | null
           destination_zip?: string | null
-          dock_no_dock?: boolean | null
+          dock_no_dock?: string | null
           driveaway_or_towaway?: boolean | null
           due_date?: string | null
+          earliest_pickup_date?: string | null
           email?: string | null
           first_name?: string | null
           freight_class?: string | null
           freight_type?: string | null
           goods_value?: string | null
           height?: string | null
+          height_unit?: string | null
           id?: number
           inserted_at?: string | null
           is_archived?: boolean | null
           is_complete?: boolean | null
           is_loaded?: boolean | null
           last_name?: string | null
+          latest_pickup_date?: string | null
           length?: string | null
+          length_unit?: string | null
+          load_date?: string | null
           load_description?: string | null
           loading_assistance?: string | null
           loading_by?: boolean | null
@@ -1163,7 +1849,10 @@ export type Database = {
           operational_condition?: boolean | null
           origin_address?: string | null
           origin_city?: string | null
+          origin_name?: string | null
+          origin_phone?: string | null
           origin_state?: string | null
+          origin_street?: string | null
           origin_surface_type?: string | null
           origin_type?: boolean | null
           origin_type_description?: string | null
@@ -1171,20 +1860,41 @@ export type Database = {
           packaging_type?: string | null
           pallet_count?: string | null
           price?: number | null
+          quote_id?: number | null
           roadworthy?: boolean | null
           save_to_inventory?: boolean | null
+          shipment_items?: Json | null
+          status?: string | null
           tarping?: boolean | null
+          template_id?: string | null
           trailer?: boolean | null
           type?: string | null
           unloading_by?: boolean | null
+          updated_at?: string | null
           user_id?: string | null
           vin?: string | null
           weight?: string | null
           weight_per_pallet_unit?: string | null
+          weight_unit?: string | null
           width?: string | null
+          width_unit?: string | null
           year?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "shippingquotes_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shippingquotes_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "shippingquotes_user_id_fkey"
             columns: ["user_id"]
@@ -1193,6 +1903,96 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      support_ticket: {
+        Row: {
+          broker_id: string | null
+          explanation: string | null
+          file_url: string | null
+          id: number
+          message: string | null
+          rating: number | null
+          request_time: string | null
+          resolved: boolean | null
+          shipper_id: string | null
+          status: string | null
+          support_type: string | null
+          topic: string | null
+        }
+        Insert: {
+          broker_id?: string | null
+          explanation?: string | null
+          file_url?: string | null
+          id?: number
+          message?: string | null
+          rating?: number | null
+          request_time?: string | null
+          resolved?: boolean | null
+          shipper_id?: string | null
+          status?: string | null
+          support_type?: string | null
+          topic?: string | null
+        }
+        Update: {
+          broker_id?: string | null
+          explanation?: string | null
+          file_url?: string | null
+          id?: number
+          message?: string | null
+          rating?: number | null
+          request_time?: string | null
+          resolved?: boolean | null
+          shipper_id?: string | null
+          status?: string | null
+          support_type?: string | null
+          topic?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_ticket_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "nts_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_ticket_shipper_id_fkey"
+            columns: ["shipper_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      templates: {
+        Row: {
+          content: string
+          context: string | null
+          created_at: string | null
+          id: string
+          title: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          context?: string | null
+          created_at?: string | null
+          id?: string
+          title: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          context?: string | null
+          created_at?: string | null
+          id?: string
+          title?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       usage_stats: {
         Row: {
@@ -1222,6 +2022,109 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_support_roles: {
+        Row: {
+          id: number
+          support_type: string
+          user_id: string | null
+        }
+        Insert: {
+          id?: number
+          support_type: string
+          user_id?: string | null
+        }
+        Update: {
+          id?: number
+          support_type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_support_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "nts_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicles: {
+        Row: {
+          additional_info: string | null
+          cd_data_id: string | null
+          color: string | null
+          external_vehicle_id: string | null
+          id: string
+          license_plate: string | null
+          license_plate_state: string | null
+          lot_number: string | null
+          make: string | null
+          model: string | null
+          qty: number
+          shipping_specs_height: number | null
+          shipping_specs_length: number | null
+          shipping_specs_weight: number | null
+          shipping_specs_width: number | null
+          vehicle_type: Database["public"]["Enums"]["vehicle_type_enum"]
+          vehicle_type_other: string | null
+          vin: string | null
+          wide_load: boolean | null
+          year: string | null
+        }
+        Insert: {
+          additional_info?: string | null
+          cd_data_id?: string | null
+          color?: string | null
+          external_vehicle_id?: string | null
+          id?: string
+          license_plate?: string | null
+          license_plate_state?: string | null
+          lot_number?: string | null
+          make?: string | null
+          model?: string | null
+          qty: number
+          shipping_specs_height?: number | null
+          shipping_specs_length?: number | null
+          shipping_specs_weight?: number | null
+          shipping_specs_width?: number | null
+          vehicle_type: Database["public"]["Enums"]["vehicle_type_enum"]
+          vehicle_type_other?: string | null
+          vin?: string | null
+          wide_load?: boolean | null
+          year?: string | null
+        }
+        Update: {
+          additional_info?: string | null
+          cd_data_id?: string | null
+          color?: string | null
+          external_vehicle_id?: string | null
+          id?: string
+          license_plate?: string | null
+          license_plate_state?: string | null
+          lot_number?: string | null
+          make?: string | null
+          model?: string | null
+          qty?: number
+          shipping_specs_height?: number | null
+          shipping_specs_length?: number | null
+          shipping_specs_weight?: number | null
+          shipping_specs_width?: number | null
+          vehicle_type?: Database["public"]["Enums"]["vehicle_type_enum"]
+          vehicle_type_other?: string | null
+          vin?: string | null
+          wide_load?: boolean | null
+          year?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicles_cd_data_id_fkey"
+            columns: ["cd_data_id"]
+            isOneToOne: false
+            referencedRelation: "cd_data"
             referencedColumns: ["id"]
           },
         ]
@@ -1264,22 +2167,44 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      create_profile: {
-        Args: {
-          email: string
-          first_name: string
-          last_name: string
-          phone_number: string
-          company_name: string
-          company_size: string
-          company_id: string
-          role: string
-        }
+      purge_user: {
+        Args: { email_to_purge: string }
         Returns: undefined
       }
     }
     Enums: {
-      [_ in never]: never
+      balance_payment_method_enum:
+        | "CASH"
+        | "CERTIFIED_FUNDS"
+        | "COMCHEK"
+        | "COMPANY_CHECK"
+      balance_payment_terms_begin_on_enum:
+        | "PICKUP"
+        | "DELIVERY"
+        | "RECEIVING_SIGNED_BOL"
+      balance_payment_time_enum:
+        | "IMMEDIATELY"
+        | "TWO_BUSINESS_DAYS"
+        | "FIVE_BUSINESS_DAYS"
+        | "TEN_BUSINESS_DAYS"
+        | "FIFTEEN_BUSINES_DAYS"
+        | "THIRTY_BUSINESS_DAYS"
+      cod_payment_location_enum: "PICKUP" | "DELIVERY"
+      cod_payment_method_enum: "CASH_CERTIFIED_FUNDS" | "CHECK"
+      trailer_type_enum: "OPEN" | "ENCLOSED" | "DRIVEAWAY"
+      vehicle_type_enum:
+        | "ATV"
+        | "BOAT"
+        | "CAR"
+        | "HEAVY_EQUIPMENT"
+        | "LARGE_YACHT"
+        | "MOTORCYCLE"
+        | "PICKUP"
+        | "RV"
+        | "SUV"
+        | "TRAVEL_TRAILER"
+        | "VAN"
+        | "OTHER"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1287,27 +2212,33 @@ export type Database = {
   }
 }
 
-type PublicSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -1315,20 +2246,24 @@ export type Tables<
     : never
 
 export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -1336,20 +2271,24 @@ export type TablesInsert<
     : never
 
 export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -1357,29 +2296,78 @@ export type TablesUpdate<
     : never
 
 export type Enums<
-  PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
-    | { schema: keyof Database },
-  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      balance_payment_method_enum: [
+        "CASH",
+        "CERTIFIED_FUNDS",
+        "COMCHEK",
+        "COMPANY_CHECK",
+      ],
+      balance_payment_terms_begin_on_enum: [
+        "PICKUP",
+        "DELIVERY",
+        "RECEIVING_SIGNED_BOL",
+      ],
+      balance_payment_time_enum: [
+        "IMMEDIATELY",
+        "TWO_BUSINESS_DAYS",
+        "FIVE_BUSINESS_DAYS",
+        "TEN_BUSINESS_DAYS",
+        "FIFTEEN_BUSINES_DAYS",
+        "THIRTY_BUSINESS_DAYS",
+      ],
+      cod_payment_location_enum: ["PICKUP", "DELIVERY"],
+      cod_payment_method_enum: ["CASH_CERTIFIED_FUNDS", "CHECK"],
+      trailer_type_enum: ["OPEN", "ENCLOSED", "DRIVEAWAY"],
+      vehicle_type_enum: [
+        "ATV",
+        "BOAT",
+        "CAR",
+        "HEAVY_EQUIPMENT",
+        "LARGE_YACHT",
+        "MOTORCYCLE",
+        "PICKUP",
+        "RV",
+        "SUV",
+        "TRAVEL_TRAILER",
+        "VAN",
+        "OTHER",
+      ],
+    },
+  },
+} as const

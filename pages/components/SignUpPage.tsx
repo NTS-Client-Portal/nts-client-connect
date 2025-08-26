@@ -55,7 +55,7 @@ export default function SignUpPage() {
                         first_name: firstName,
                         last_name: lastName,
                         phone_number: phoneNumber,
-                        company_name: userType === 'individual' ? `${firstName} ${lastName}` : companyName,
+                        // Remove redundant company_name from metadata
                     },
                 },
             });
@@ -69,7 +69,7 @@ export default function SignUpPage() {
             if (user) {
                 const companyId = user.id; // Use user ID as company ID for simplicity
 
-                // Insert into companies table
+                // Insert into companies table (canonical name only)
                 await supabase
                     .from('companies')
                     .insert({
@@ -84,6 +84,7 @@ export default function SignUpPage() {
                     body: JSON.stringify({ companyId }),
                 });
 
+                // Insert profile without redundant company_name field
                 await supabase
                     .from('profiles')
                     .insert({
@@ -92,7 +93,7 @@ export default function SignUpPage() {
                         first_name: firstName,
                         last_name: lastName,
                         phone_number: phoneNumber,
-                        company_name: userType === 'individual' ? `${firstName} ${lastName}` : companyName,
+                        company_id: companyId, // Link to company via company_id
                         industry: industry,
                     });
             }

@@ -1,0 +1,92 @@
+[
+  {
+    "id": "58827f00-963f-4d63-9fbc-32a84bc67940",
+    "name": "Bob the Builder",
+    "assigned_sales_user": "52a7d630-a8cc-48cf-be7d-5188a956e2e5",
+    "assigned_at": "2024-12-17T22:36:47.294",
+    "company_name": "Bob the Builder",
+    "company_size": "1-10",
+    "industry": null
+  },
+  {
+    "id": "a0b37da4-b569-413e-932e-7644b0222b97",
+    "name": "NTS",
+    "assigned_sales_user": "52a7d630-a8cc-48cf-be7d-5188a956e2e5",
+    "assigned_at": "2024-12-17T22:36:46.816",
+    "company_name": "NTS",
+    "company_size": "1-10",
+    "industry": null
+  },
+  {
+    "id": "a4df2120-8f1a-46b5-8e1c-3bdc4f8ea7d1",
+    "name": "SSTA LLC",
+    "assigned_sales_user": "52a7d630-a8cc-48cf-be7d-5188a956e2e5",
+    "assigned_at": "2024-12-17T17:51:11",
+    "company_name": "SSTA LLC",
+    "company_size": null,
+    "industry": null
+  },
+  {
+    "id": "c6f213fa-2e52-4d8b-9582-105539294e4f",
+    "name": "Exact LLC",
+    "assigned_sales_user": "52a7d630-a8cc-48cf-be7d-5188a956e2e5",
+    "assigned_at": null,
+    "company_name": null,
+    "company_size": null,
+    "industry": null
+  },
+  {
+    "id": "cc0e2fd6-e5b5-4a7e-b375-7c0d28e2b45d",
+    "name": "Nationwide Transport Services",
+    "assigned_sales_user": "52a7d630-a8cc-48cf-be7d-5188a956e2e5",
+    "assigned_at": "2024-12-17T22:36:46.185",
+    "company_name": "Nationwide Transport Services",
+    "company_size": "51-200",
+    "industry": null
+  },
+  {
+    "id": "f067f45c-1904-40a7-955a-6859c1b4f372",
+    "name": "EXACT TRANSPORT LLC",
+    "assigned_sales_user": "52a7d630-a8cc-48cf-be7d-5188a956e2e5",
+    "assigned_at": "2024-12-09T10:14:30",
+    "company_name": "Exact Machinery Co.",
+    "company_size": "1-10",
+    "industry": null
+  },
+  {
+    "id": "a068a321-8d64-4784-8cc5-3d53019f8250",
+    "name": "Aleph Machinery",
+    "assigned_sales_user": "52a7d630-a8cc-48cf-be7d-5188a956e2e5",
+    "assigned_at": "2024-12-21T23:20:34.823",
+    "company_name": "Aleph Machinery",
+    "company_size": "1-10",
+    "industry": null
+  },
+  {
+    "id": "234c186b-3923-4443-a9af-398f988422b6",
+    "name": "Eisner farms",
+    "assigned_sales_user": "52a7d630-a8cc-48cf-be7d-5188a956e2e5",
+    "assigned_at": "2024-12-19T22:57:25.663",
+    "company_name": "Eisner farms",
+    "company_size": "1-10",
+    "industry": null
+  },
+  {
+    "id": "8c898ca7-9cc3-4fb6-8844-d89ead23dbc0",
+    "name": "Exact",
+    "assigned_sales_user": "b4802a5b-1d58-42e6-aa05-2adb230cfd31",
+    "assigned_at": null,
+    "company_name": null,
+    "company_size": null,
+    "industry": null
+  },
+  {
+    "id": "70ec7a18-496f-42c5-b641-94b9a337c6ce",
+    "name": "Parkway Drive Asphalt Co.",
+    "assigned_sales_user": "b4802a5b-1d58-42e6-aa05-2adb230cfd31",
+    "assigned_at": "2024-12-17T22:36:47.768",
+    "company_name": "Parkway Drive Asphalt Co.",
+    "company_size": "1-10",
+    "industry": null
+  }
+]

@@ -20,7 +20,7 @@ const CompanyPage: React.FC<{ company: any; profiles: any[]; }> = ({ company, pr
         <NtsUsersProvider>
             <SalesLayout>
                 <div>
-                    <h1 className='font-bold text-lg'>{company.company_name}</h1>
+                    <h1 className='font-bold text-lg'>{company.name}</h1>
                     <QuoteRequest session={session} profiles={profiles} companyId={company.id} userType='broker' />
                 </div>
             </SalesLayout>

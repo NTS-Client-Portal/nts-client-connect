@@ -799,7 +799,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
 
     return (
         <div className="fixed inset-0 flex overflow-y-auto  items-center justify-center bg-black bg-opacity-50">
-            <div className="relative z-50 flex mt-10 md:mt-0 gap-2 bg-white h-[90vh] md:h-4/5 overflow-y-auto p-4 rounded shadow-lg w-[98vw] md:w-fit">
+            <div className="relative z-50 top-5 flex mt-10 md:mt-0 gap-2 bg-white h-[90vh] md:h-4/5 overflow-y-auto p-4 rounded shadow-lg w-[98vw] md:w-fit">
                 <form className='border-r px-2 ' onSubmit={handleSubmit}>
                     <h2 className="text-xl font-bold mb-4">Edit Quote</h2>
                     <div className='flex flex-col md:flex-row gap-2 w-full'>

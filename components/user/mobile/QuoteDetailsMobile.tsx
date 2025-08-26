@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/initSupabase';
 import { Database } from '@/lib/database.types';
+import { getCompaniesForSalesUser } from '@/lib/companyAssignment';
+import { 
+    QuoteStatus, 
+    BrokersStatus,
+    getStatusLabel,
+    getStatusStyle
+} from '@/lib/statusManagement';
 import { useSession } from '@supabase/auth-helpers-react';
 import SelectTemplate from '@/components/SelectTemplate';
 import QuoteFormModal from '@/components/user/forms/QuoteFormModal';
@@ -84,17 +91,25 @@ const QuoteDetailsMobile: React.FC<QuoteDetailsMobileProps> = ({
                         setCompanyId(data?.company_id || null);
                     }
                 } else {
-                    // For sales reps/brokers, fetch company_id from nts_users table
-                    const { data, error } = await supabase
-                        .from('nts_users')
-                        .select('company_id')
-                        .eq('id', session.user.id)
-                        .single();
-
-                    if (error) {
-                        console.error('Error fetching company ID from nts_users:', error.message);
+                    // For sales reps/brokers, use standardized assignment system
+                    const assignedCompanies = await getCompaniesForSalesUser(session.user.id);
+                    
+                    if (assignedCompanies && assignedCompanies.length > 0) {
+                        // Use the first company's ID for backward compatibility
+                        setCompanyId(assignedCompanies[0].company_id);
                     } else {
-                        setCompanyId(data?.company_id || null);
+                        // Fallback to old method if no assignments found yet
+                        const { data, error } = await supabase
+                            .from('nts_users')
+                            .select('company_id')
+                            .eq('id', session.user.id)
+                            .single();
+
+                        if (error) {
+                            console.error('Error fetching company ID from nts_users:', error.message);
+                        } else {
+                            setCompanyId(data?.company_id || null);
+                        }
                     }
                 }
             } catch (err) {

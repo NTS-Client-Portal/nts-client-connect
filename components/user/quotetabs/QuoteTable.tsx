@@ -4,6 +4,18 @@ import { formatDate, renderAdditionalDetails, freightTypeMapping } from './Quote
 import { supabase } from '@/lib/initSupabase';
 import { useSession } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
+import { getCompaniesForSalesUser } from '@/lib/companyAssignment';
+import { 
+    QuoteStatus, 
+    BrokersStatus,
+    QUOTE_STATUS_LABELS,
+    BROKERS_STATUS_LABELS,
+    QUOTE_STATUS_STYLES,
+    BROKERS_STATUS_STYLES,
+    getStatusLabel,
+    getStatusStyle,
+    getValidBrokersTransitions
+} from '@/lib/statusManagement';
 import OrderFormModal from './OrderFormModal';
 import { generateAndUploadDocx, replaceShortcodes } from "@/components/GenerateDocx";
 import SelectTemplate from '@/components/SelectTemplate';
@@ -117,17 +129,27 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                         setCompanyId(data?.company_id || null);
                     }
                 } else {
-                    // For sales reps/brokers, fetch company_id from nts_users table
-                    const { data, error } = await supabase
-                        .from('nts_users')
-                        .select('company_id')
-                        .eq('id', session.user.id)
-                        .single();
-
-                    if (error) {
-                        console.error('Error fetching company ID from nts_users:', error.message);
+                    // For sales reps/brokers, use standardized assignment system
+                    // Instead of fetching from nts_users.company_id, get all assigned companies
+                    const assignedCompanies = await getCompaniesForSalesUser(session.user.id);
+                    
+                    if (assignedCompanies && assignedCompanies.length > 0) {
+                        // For now, if multiple companies are assigned, we'll need to handle this differently
+                        // For backward compatibility, use the first company's ID
+                        setCompanyId(assignedCompanies[0].company_id);
                     } else {
-                        setCompanyId(data?.company_id || null);
+                        // Fallback to old method if no assignments found yet
+                        const { data, error } = await supabase
+                            .from('nts_users')
+                            .select('company_id')
+                            .eq('id', session.user.id)
+                            .single();
+
+                        if (error) {
+                            console.error('Error fetching company ID from nts_users:', error.message);
+                        } else {
+                            setCompanyId(data?.company_id || null);
+                        }
                     }
                 }
             } catch (err) {
@@ -197,12 +219,15 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
 
 
     const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>, quoteId: number) => {
-        const newStatus = e.target.value;
+        const newStatus = e.target.value as BrokersStatus;
 
         // Update the status in the database
         const { error } = await supabase
             .from('shippingquotes')
-            .update({ brokers_status: newStatus })
+            .update({ 
+                brokers_status: newStatus,
+                updated_by: session?.user?.id  // Track who made the change
+            })
             .eq('id', quoteId);
 
         if (error) {
@@ -211,18 +236,8 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
     };
 
     const getStatusClasses = (status: string) => {
-        switch (status) {
-            case 'In Progress':
-                return 'modern-badge-info';
-            case 'Need More Info':
-                return 'modern-badge-warning';
-            case 'Priced':
-                return 'modern-badge-success';
-            case 'Cancelled':
-                return 'modern-badge-error';
-            default:
-                return 'modern-badge-info';
-        }
+        // Use the new status management system for styling
+        return getStatusStyle(status as BrokersStatus);
     };
 
     useEffect(() => {
@@ -576,10 +591,13 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                 onChange={(e) => handleStatusChange(e, quote.id)}
                                                 className="modern-input w-full"
                                             >
-                                                <option value="In Progress">In Progress</option>
-                                                <option value="Need More Info">Need More Info</option>
-                                                <option value="Priced">Priced</option>
-                                                <option value="Cancelled">Cancelled</option>
+                                                <option value="in_progress">In Progress</option>
+                                                <option value="need_more_info">Need More Info</option>
+                                                <option value="priced">Priced</option>
+                                                <option value="dispatched">Dispatched</option>
+                                                <option value="picked_up">Picked Up</option>
+                                                <option value="delivered">Delivered</option>
+                                                <option value="cancelled">Cancelled</option>
                                             </select>
                                             
                                             {showPriceInput === quote.id ? (
@@ -860,10 +878,13 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                                             onChange={(e) => handleStatusChange(e, quote.id)}
                                                                             className={`w-full border border-gray-300 rounded-md px-3 py-2 text-sm ${getStatusClasses(quote.brokers_status)}`}
                                                                         >
-                                                                            <option value="In Progress">In Progress</option>
-                                                                            <option value="Need More Info">Need More Info</option>
-                                                                            <option value="Priced">Priced</option>
-                                                                            <option value="Cancelled">Cancelled</option>
+                                                                            <option value="in_progress">In Progress</option>
+                                                                            <option value="need_more_info">Need More Info</option>
+                                                                            <option value="priced">Priced</option>
+                                                                            <option value="dispatched">Dispatched</option>
+                                                                            <option value="picked_up">Picked Up</option>
+                                                                            <option value="delivered">Delivered</option>
+                                                                            <option value="cancelled">Cancelled</option>
                                                                         </select>
                                                                     </div>
                                                                     {showPriceInput === quote.id ? (

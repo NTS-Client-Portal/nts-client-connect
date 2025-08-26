@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { UserRoundPen, BellRing, Building2, Shield, Menu, Sun, Moon } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import InviteUserForm from './InviteUserForm'; // Import InviteUserForm
+import { getCanonicalCompanyName, updateCompanyName } from '@/lib/companyNameUtils';
 
 interface UserProfileFormProps {
     session: any;
@@ -42,7 +43,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
 
             const { data, error } = await supabase
                 .from('profiles')
-                .select('first_name, last_name, company_name, address, phone_number, profile_picture, email_notifications, company_size, company_id')
+                .select('first_name, last_name, address, phone_number, profile_picture, email_notifications, company_size, company_id')
                 .eq('email', session.user.email) // Use the email for matching
                 .single();
 
@@ -52,7 +53,15 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
             } else {
                 setFirstName(data.first_name || '');
                 setLastName(data.last_name || '');
-                setCompanyName(data.company_name || '');
+                
+                // Get canonical company name if company_id exists
+                if (data.company_id) {
+                    const canonicalCompanyName = await getCanonicalCompanyName(data.company_id);
+                    setCompanyName(canonicalCompanyName || '');
+                } else {
+                    setCompanyName('');
+                }
+                
                 setAddress(data.address || '');
                 setPhoneNumber(data.phone_number || '');
                 const profilePicUrl = data.profile_picture
@@ -117,12 +126,33 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
             }
         }
 
+        // First, get the user's company_id for updating the company name
+        const { data: userProfile, error: profileFetchError } = await supabase
+            .from('profiles')
+            .select('company_id')
+            .eq('email', session.user.email)
+            .single();
+
+        if (profileFetchError) {
+            setProfileError('Error fetching user profile for company update');
+            return;
+        }
+
+        // Update the company name if it exists and has changed
+        if (userProfile?.company_id && companyName) {
+            const { error: companyUpdateError } = await updateCompanyName(userProfile.company_id, companyName);
+            if (companyUpdateError) {
+                setProfileError('Error updating company name: ' + companyUpdateError.message);
+                return;
+            }
+        }
+
         const { error: updateError } = await supabase
             .from('profiles')
             .update({
                 first_name: firstName,
                 last_name: lastName,
-                company_name: companyName,
+                // Remove company_name update - use canonical company.name instead
                 address: address,
                 phone_number: phoneNumber,
                 profile_picture: profilePicturePath,

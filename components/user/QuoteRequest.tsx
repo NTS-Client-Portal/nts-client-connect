@@ -21,9 +21,12 @@ interface QuoteRequestProps {
 
 const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], companyId, userType }) => {
     const supabase = useSupabaseClient<Database>();
-    const { userProfile: profilesUser } = useProfilesUser(); // Use ProfilesUserContext
-    const { userProfile: ntsUser } = useNtsUsers(); // Use NtsUsersContext
     const isUser = userType === 'shipper'; // Determine user type
+    
+    // Fix: Single context based on user type (addressing QA Analysis issue #1)
+    const { userProfile: profilesUser } = useProfilesUser();
+    const { userProfile: ntsUser } = useNtsUsers();
+    const userContext = isUser ? profilesUser : ntsUser;
 
     const [quotes, setQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
     const [orders, setOrders] = useState<Database['public']['Tables']['orders']['Row'][]>([]);

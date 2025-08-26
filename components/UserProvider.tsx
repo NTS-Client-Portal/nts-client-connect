@@ -2,16 +2,20 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 
-interface UserProfile {
+import { getCanonicalCompanyName } from '@/lib/companyNameUtils';
+
+export interface UserProfile {
     id: string;
-    email: string;
+    email: string | null;
     first_name: string | null;
     last_name: string | null;
-    company_name: string | null;
     address: string | null;
     phone_number: string | null;
     profile_picture: string | null;
-    role: string;
+    role: string | null;
+    team_role: string | null;
+    company_id: string | null;
+    canonical_company_name?: string | null; // Add computed field for company name
 }
 
 interface UserContextProps {
@@ -43,7 +47,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ session, children })
 
             const { data, error } = await supabase
                 .from('profiles')
-                .select('id, email, first_name, last_name, company_name, address, phone_number, profile_picture, role, team_role')
+                .select('id, email, first_name, last_name, address, phone_number, profile_picture, role, team_role, company_id')
                 .eq('id', session.user.id)
                 .single();
 
@@ -57,7 +61,18 @@ export const UserProvider: React.FC<UserProviderProps> = ({ session, children })
                 }
             } else {
                 if (data && !('error' in data)) {
-                    setUserProfile(data as UserProfile);
+                    // Get canonical company name if company_id exists
+                    const profileData = data as any;
+                    const canonicalCompanyName = profileData.company_id 
+                        ? await getCanonicalCompanyName(profileData.company_id)
+                        : null;
+                    
+                    const profileWithCompanyName = {
+                        ...profileData,
+                        canonical_company_name: canonicalCompanyName
+                    };
+                    
+                    setUserProfile(profileWithCompanyName as UserProfile);
                 } else {
                     setError('Invalid user profile data');
                 }

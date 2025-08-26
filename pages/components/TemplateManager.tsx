@@ -232,7 +232,7 @@ const TemplateManager: React.FC = () => {
                         <li><strong>User Email</strong> - <code>{'{profile.email}'}</code></li>
                         <li><strong>User First Name</strong> - <code>{'{profile.first_name}'}</code></li>
                         <li><strong>User Last Name</strong> - <code>{'{profile.last_name}'}</code></li>
-                        <li><strong>Company Name</strong> - <code>{'{company.company_name}'}</code></li>
+                        <li><strong>Company Name</strong> - <code>{'{company.name}'}</code></li>
                         <li><strong>Company Industry</strong> - <code>{'{company.industry}'}</code></li>
                         <li><strong>NTS User Email</strong> - <code>{'{nts_users.email}'}</code></li>
                         <li><strong>NTS User Phone Number</strong> - <code>{'{nts_users.phone_number}'}</code></li>

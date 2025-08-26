@@ -43,7 +43,6 @@ export const getCompaniesForSalesUser = async (salesUserId: string) => {
       .from('company_sales_users')
       .select(`
         company_id,
-        assigned_at,
         companies(id, name, industry)
       `)
       .eq('sales_user_id', salesUserId);
@@ -81,9 +80,7 @@ export const assignSalesUserToCompany = async (
       const { error } = await supabase
         .from('company_sales_users')
         .update({ 
-          sales_user_id: salesUserId,
-          assigned_at: new Date().toISOString(),
-          assigned_by: assignedBy || null
+          sales_user_id: salesUserId
         })
         .eq('id', existing.id);
 
@@ -97,9 +94,7 @@ export const assignSalesUserToCompany = async (
         .from('company_sales_users')
         .insert({
           company_id: companyId,
-          sales_user_id: salesUserId,
-          assigned_at: new Date().toISOString(),
-          assigned_by: assignedBy || null
+          sales_user_id: salesUserId
         });
 
       if (error) {

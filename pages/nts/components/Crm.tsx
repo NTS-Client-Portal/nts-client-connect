@@ -20,7 +20,6 @@ import {
 interface Profile {
   address: string | null;
   company_id: string | null;
-  company_name: string | null;
   company_size: string | null;
   email: string;
   email_notifications: boolean | null;
@@ -36,10 +35,9 @@ interface Profile {
 
 interface Company {
   assigned_at: string | null;
-  company_name: string | null;
+  name: string | null; // Use canonical name field
   company_size: string | null;
   id: string;
-  name: string;
 }
 
 interface ShippingQuote {
@@ -63,7 +61,7 @@ const Crm: React.FC = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [shippingQuotes, setShippingQuotes] = useState<ShippingQuote[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchColumn, setSearchColumn] = useState('company_name');
+  const [searchColumn, setSearchColumn] = useState('name');
 
   useEffect(() => {
     const fetchAssignedCustomers = async () => {
@@ -142,8 +140,8 @@ const Crm: React.FC = () => {
   };
 
   const filteredCompanies = companies.filter(company => {
-    if (searchColumn === 'company_name') {
-      return company.company_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    if (searchColumn === 'name') {
+      return company.name?.toLowerCase().includes(searchTerm.toLowerCase());
     } else if (searchColumn === 'first_name' || searchColumn === 'last_name' || searchColumn === 'email') {
       return getProfilesForCompany(company.id).some(profile =>
         profile[searchColumn]?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -193,7 +191,7 @@ const Crm: React.FC = () => {
               onChange={(e) => setSearchColumn(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="company_name">Company Name</option>
+              <option value="name">Company Name</option>
               <option value="first_name">First Name</option>
               <option value="last_name">Last Name</option>
               <option value="email">Email</option>
@@ -230,7 +228,7 @@ const Crm: React.FC = () => {
                         </div>
                         <div className="ml-4">
                           <Link href={`/companies/${company.id}`} className="text-blue-600 hover:text-blue-800 font-semibold hover:underline flex items-center gap-1">
-                            {company.company_name}
+                            {company.name}
                             <ExternalLink className="w-4 h-4" />
                           </Link>
                           <p className="text-sm text-gray-500">{company.company_size}</p>
@@ -319,7 +317,7 @@ const Crm: React.FC = () => {
                   </div>
                   <div>
                     <Link href={`/companies/${company.id}`} className="text-lg font-semibold text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1">
-                      {company.company_name}
+                      {company.name}
                       <ExternalLink className="w-4 h-4" />
                     </Link>
                     <p className="text-sm text-gray-600">{company.company_size}</p>
