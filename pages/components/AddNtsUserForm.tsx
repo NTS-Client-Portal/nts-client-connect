@@ -2,8 +2,20 @@ import React, { useState } from 'react';
 import { supabase } from '@/lib/initSupabase';
 import { Database } from '@/lib/database.types';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
-import { v4 as uuidv4 } from 'uuid';
 import Image from 'next/image';
+import { 
+  X, 
+  User, 
+  Mail, 
+  Phone, 
+  Building2, 
+  Shield, 
+  Camera, 
+  AlertCircle, 
+  CheckCircle2,
+  UserPlus,
+  Loader2
+} from 'lucide-react';
 
 interface AddNtsUserFormProps {
     isOpen: boolean;
@@ -49,25 +61,9 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
         setLoading(true);
 
         try {
-            // Check if email already exists
-            const { data: existingEmailUser, error: existingEmailError } = await supabase
-                .from('nts_users')
-                .select('id')
-                .eq('email', newNtsUser.email)
-                .single();
-
-            if (existingEmailError && existingEmailError.code !== 'PGRST116') {
-                throw new Error(existingEmailError.message);
-            }
-
-            if (existingEmailUser) {
-                setError('Email already exists');
-                setLoading(false);
-                return;
-            }
-
             let profilePictureUrl = null;
 
+            // Upload profile picture first if provided
             if (profilePicture) {
                 const { data, error: uploadError } = await supabase
                     .storage
@@ -79,7 +75,6 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
 
                 if (uploadError) {
                     if (uploadError.message.includes('The resource already exists')) {
-                        // If the resource already exists, get the public URL
                         const { data: existingFileData } = await supabase
                             .storage
                             .from('profile-pictures')
@@ -97,53 +92,40 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                 }
             }
 
-            const { data: user, error: signUpError } = await supabase.auth.signUp({
-                email: newNtsUser.email,
-                password: uuidv4(), // Generate a random password
-            });
-
-            if (signUpError) {
-                throw new Error(signUpError.message);
-            }
-
-            const companyId = process.env.NEXT_PUBLIC_NTS_COMPANYID; // Use the environment variable
-
-            const { error: insertError } = await supabase.from('nts_users').insert({
-                id: user?.user?.id,
-                email: newNtsUser.email,
-                role: newNtsUser.role,
-                first_name: newNtsUser.first_name,
-                last_name: newNtsUser.last_name,
-                phone_number: newNtsUser.phone_number,
-                extension: newNtsUser.extension,
-                office: newNtsUser.office,
-                company_id: companyId,
-                profile_picture: profilePictureUrl,
-                inserted_at: new Date().toISOString(),
-            });
-
-            if (insertError) {
-                throw new Error(insertError.message);
-            }
-
-            const { error: signInError } = await supabase.auth.signInWithOtp({
-                email: newNtsUser.email,
-                options: {
-                    emailRedirectTo: `https://www.shipper-connect.com/nts-set-password`,
+            // Use the new API endpoint that bypasses OTP verification
+            const response = await fetch('/api/admin/create-nts-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
                 },
+                body: JSON.stringify({
+                    email: newNtsUser.email,
+                    role: newNtsUser.role,
+                    first_name: newNtsUser.first_name,
+                    last_name: newNtsUser.last_name,
+                    phone_number: newNtsUser.phone_number,
+                    extension: newNtsUser.extension,
+                    office: newNtsUser.office,
+                    profile_picture: profilePictureUrl,
+                }),
             });
 
-            if (signInError) {
-                throw new Error(signInError.message);
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to create NTS user');
             }
+
+            // Show success message with temporary password info
+            alert(`NTS User created successfully!\n\nTemporary Password: ${result.temporary_password}\n\nA password reset email has been sent to ${newNtsUser.email} so they can set their own password.`);
 
             setNewNtsUser({ role: 'sales' });
             setProfilePicture(null);
             onClose();
             onSuccess();
         } catch (error) {
-            console.error('Error adding NTS User:', error.message);
-            setError(error.message);
+            console.error('Error adding NTS User:', error);
+            setError(error instanceof Error ? error.message : 'Unknown error occurred');
         } finally {
             setLoading(false);
         }
@@ -152,35 +134,166 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-3/4 max-w-4xl">
-                <h3 className="text-xl font-semibold mb-4">Add New NTS User</h3>
-                {error && <div className="text-red-500 mb-4">{error}</div>}
-                <form onSubmit={handleAddNtsUser}>
-                    <div className="grid grid-cols-2 gap-4">
-                        {allowedFields.map((key) => (
-                            <div key={key} className="mb-4">
-                                <label className="block text-gray-700">{key}</label>
-                                {key === 'role' ? (
-                                    <select
-                                        value={newNtsUser[key] || 'sales'}
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50">
+            <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-4xl mx-4 max-h-[90vh] overflow-hidden">
+                {/* Header */}
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6 text-white relative">
+                    <button
+                        onClick={onClose}
+                        className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-lg transition-colors duration-200"
+                    >
+                        <X className="h-6 w-6" />
+                    </button>
+                    <div className="flex items-center space-x-4">
+                        <div className="p-3 bg-white/20 rounded-lg">
+                            <UserPlus className="h-8 w-8" />
+                        </div>
+                        <div>
+                            <h3 className="text-2xl font-bold">Add New NTS User</h3>
+                            <p className="text-blue-100">Create a new internal team member account</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-8 overflow-y-auto max-h-[calc(90vh-120px)]">
+                    {/* Error/Success Messages */}
+                    {error && (
+                        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                            <div className="flex items-center space-x-3">
+                                <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+                                <p className="text-red-700 font-medium">{error}</p>
+                            </div>
+                        </div>
+                    )}
+
+                    <form onSubmit={handleAddNtsUser} className="space-y-8">
+                        {/* Personal Information Section */}
+                        <div>
+                            <h4 className="text-lg font-semibold text-slate-800 mb-4 flex items-center space-x-2">
+                                <User className="h-5 w-5 text-blue-600" />
+                                <span>Personal Information</span>
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                        First Name *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={newNtsUser.first_name || ''}
                                         onChange={(e) =>
-                                            setNewNtsUser({ ...newNtsUser, [key]: e.target.value })
+                                            setNewNtsUser({ ...newNtsUser, first_name: e.target.value })
                                         }
-                                        className="w-full px-3 bg-white py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800 placeholder-slate-400"
+                                        placeholder="Enter first name"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                        Last Name *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={newNtsUser.last_name || ''}
+                                        onChange={(e) =>
+                                            setNewNtsUser({ ...newNtsUser, last_name: e.target.value })
+                                        }
+                                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800 placeholder-slate-400"
+                                        placeholder="Enter last name"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Contact Information Section */}
+                        <div>
+                            <h4 className="text-lg font-semibold text-slate-800 mb-4 flex items-center space-x-2">
+                                <Mail className="h-5 w-5 text-blue-600" />
+                                <span>Contact Information</span>
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                        Email Address *
+                                    </label>
+                                    <input
+                                        type="email"
+                                        value={newNtsUser.email || ''}
+                                        onChange={(e) =>
+                                            setNewNtsUser({ ...newNtsUser, email: e.target.value })
+                                        }
+                                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800 placeholder-slate-400"
+                                        placeholder="user@ntslogistics.com"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                        Phone Number
+                                    </label>
+                                    <div className="flex space-x-2">
+                                        <input
+                                            type="tel"
+                                            value={newNtsUser.phone_number || ''}
+                                            onChange={(e) =>
+                                                setNewNtsUser({ ...newNtsUser, phone_number: e.target.value })
+                                            }
+                                            className="flex-1 px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800 placeholder-slate-400"
+                                            placeholder="(555) 123-4567"
+                                        />
+                                        <input
+                                            type="text"
+                                            value={newNtsUser.extension || ''}
+                                            onChange={(e) =>
+                                                setNewNtsUser({ ...newNtsUser, extension: e.target.value })
+                                            }
+                                            className="w-24 px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800 placeholder-slate-400"
+                                            placeholder="Ext"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Role & Office Section */}
+                        <div>
+                            <h4 className="text-lg font-semibold text-slate-800 mb-4 flex items-center space-x-2">
+                                <Building2 className="h-5 w-5 text-blue-600" />
+                                <span>Role & Office</span>
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                        Role *
+                                    </label>
+                                    <select
+                                        value={newNtsUser.role || 'sales'}
+                                        onChange={(e) =>
+                                            setNewNtsUser({ ...newNtsUser, role: e.target.value })
+                                        }
+                                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800 bg-white"
+                                        required
                                     >
-                                        <option value="sales">Sales</option>
+                                        <option value="sales">Sales Representative</option>
                                         <option value="manager">Manager</option>
-                                        <option value="admin">Admin</option>
-                                        <option value="superadmin">Superadmin</option>
+                                        <option value="admin">Administrator</option>
+                                        <option value="super_admin">Super Administrator</option>
+                                        <option value="support">Support</option>
                                     </select>
-                                ) : key === 'office' ? (
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                        Office Location
+                                    </label>
                                     <select
-                                        value={newNtsUser[key] || ''}
+                                        value={newNtsUser.office || ''}
                                         onChange={(e) =>
-                                            setNewNtsUser({ ...newNtsUser, [key]: e.target.value })
+                                            setNewNtsUser({ ...newNtsUser, office: e.target.value })
                                         }
-                                        className="w-full px-3 bg-white py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800 bg-white"
                                     >
                                         <option value="">Select Office</option>
                                         <option value="Florence, KY">Florence, KY</option>
@@ -194,73 +307,77 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                                         <option value="Jacksonville, FL">Jacksonville, FL</option>
                                         <option value="Cleveland, Ohio">Cleveland, Ohio</option>
                                     </select>
-                                ) : key === 'phone_number' ? (
-                                    <div className="flex">
-                                        <input
-                                            type="text"
-                                            value={newNtsUser[key] || ''}
-                                            onChange={(e) =>
-                                                setNewNtsUser({ ...newNtsUser, [key]: e.target.value })
-                                            }
-                                            className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        />
-                                        <input
-                                            type="text"
-                                            placeholder="Ext"
-                                            value={newNtsUser.extension || ''}
-                                            onChange={(e) =>
-                                                setNewNtsUser({ ...newNtsUser, extension: e.target.value })
-                                            }
-                                            className="w-1/4 bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ml-2"
-                                        />
-                                    </div>
-                                ) : (
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Profile Picture Section */}
+                        <div>
+                            <h4 className="text-lg font-semibold text-slate-800 mb-4 flex items-center space-x-2">
+                                <Camera className="h-5 w-5 text-blue-600" />
+                                <span>Profile Picture (Optional)</span>
+                            </h4>
+                            <div className="flex items-start space-x-6">
+                                <div className="flex-1">
                                     <input
-                                        type="text"
-                                        value={newNtsUser[key] || ''}
-                                        onChange={(e) =>
-                                            setNewNtsUser({ ...newNtsUser, [key]: e.target.value })
-                                        }
-                                        className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => setProfilePicture(e.target.files ? e.target.files[0] : null)}
+                                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100"
                                     />
+                                    <p className="text-sm text-slate-500 mt-2">
+                                        Upload a profile picture (JPG, PNG, or GIF)
+                                    </p>
+                                </div>
+                                {profilePicture && (
+                                    <div className="flex-shrink-0">
+                                        <div className="w-24 h-24 rounded-lg overflow-hidden border border-slate-300">
+                                            <Image
+                                                src={URL.createObjectURL(profilePicture)}
+                                                alt="Profile Preview"
+                                                width={96}
+                                                height={96}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    </div>
                                 )}
                             </div>
-                        ))}
-                        <div className="mb-4">
-                            <label className="block text-gray-700">Profile Picture</label>
-                            <input
-                                type="file"
-                                onChange={(e) => setProfilePicture(e.target.files ? e.target.files[0] : null)}
-                                className="w-full bg-white px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                            {profilePicture && (
-                                <Image
-                                    src={URL.createObjectURL(profilePicture)}
-                                    alt="Profile Preview"
-                                    width={128}
-                                    height={128}
-                                    className="mt-2 object-cover rounded-full"
-                                />
-                            )}
                         </div>
-                    </div>
-                    <div className="flex justify-end mt-4">
-                        <button
-                            type="submit"
-                            className="body-btn text-white transition duration-200"
-                            disabled={loading}
-                        >
-                            {loading ? 'Adding...' : 'Add NTS User'}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-200 ml-2"
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </form>
+
+                        {/* Form Actions */}
+                        <div className="flex justify-end space-x-4 pt-6 border-t border-slate-200">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="px-6 py-3 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 font-medium transition-colors duration-200"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                                    loading
+                                        ? 'bg-slate-400 text-white cursor-not-allowed'
+                                        : 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-lg transform hover:scale-105'
+                                }`}
+                            >
+                                {loading ? (
+                                    <div className="flex items-center space-x-2">
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                        <span>Creating User...</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center space-x-2">
+                                        <UserPlus className="h-5 w-5" />
+                                        <span>Create NTS User</span>
+                                    </div>
+                                )}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );

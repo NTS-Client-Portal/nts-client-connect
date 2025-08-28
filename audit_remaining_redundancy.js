@@ -6,8 +6,7 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-console.log('Supabase URL:', supabaseUrl);
-console.log('Service Role Key:', supabaseKey);
+// Removed console.log statements to prevent credential exposure
 
 async function auditRemainingRedundancy() {
     console.log('\n=== AUDIT: Remaining Redundant company_name Fields ===\n');

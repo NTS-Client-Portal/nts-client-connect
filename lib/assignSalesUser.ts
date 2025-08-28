@@ -3,8 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-console.log('Supabase URL:', supabaseUrl);
-console.log('Service Role Key:', serviceRoleKey);
+// Removed console.log statements to prevent credential exposure in build logs
 
 if (!supabaseUrl || !serviceRoleKey) {
     throw new Error('Missing Supabase URL or Service Role Key');

@@ -5,7 +5,19 @@
 
 [build.environment]
   NODE_VERSION = "18.20.4"
+
+[dev]
+  framework = "next"
+  command = "npm run dev"
   
+# For Next.js API routes in development
+[[redirects]]
+  from = "/api/*"
+  to = "http://localhost:3000/api/:splat"
+  status = 200
+  force = false
+  
+# For production
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
