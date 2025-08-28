@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSupabaseClient, useSession } from '@supabase/auth-helpers-react';
 import { useRouter } from 'next/router';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 
 interface UserProfile {
   id: string;
@@ -85,14 +85,57 @@ const CustomSignInForm = () => {
         return;
       }
 
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) {
         setError(error.message);
-      } else {
-        router.push('/user/logistics-management');
+      } else if (authData.user) {
+        // Check if user has confirmed email
+        if (!authData.user.email_confirmed_at) {
+          setError('Please verify your email address before signing in.');
+          return;
+        }
+
+        // Check/create user profile
+        const { data: userProfile, error: profileError } = await supabase
+          .from('profiles')
+          .select('id, email, team_role, inserted_at')
+          .eq('id', authData.user.id)
+          .single();
+
+        if (profileError && profileError.code !== 'PGRST116') {
+          console.error('Error fetching user profile:', profileError.message);
+          setError('Error accessing user profile. Please try again.');
+          return;
+        }
+
+        if (userProfile) {
+          setUserProfile(userProfile as UserProfile);
+          router.push('/user/logistics-management');
+        } else {
+          // Create a new profile if it doesn't exist
+          const { data: newProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert({
+              id: authData.user.id,
+              email: authData.user.email,
+              team_role: 'manager',
+              inserted_at: new Date().toISOString(),
+            })
+            .select()
+            .single();
+
+          if (createError) {
+            console.error('Error creating user profile:', createError.message);
+            setError('Error creating user profile. Please contact support.');
+          } else {
+            setUserProfile(newProfile as UserProfile);
+            router.push('/user/logistics-management');
+          }
+        }
       }
     } catch (error) {
+      console.error('Unexpected error during sign in:', error);
       setError('An unexpected error occurred. Please try again.');
     }
   };
@@ -102,45 +145,70 @@ const CustomSignInForm = () => {
   };
 
   return (
-    <form onSubmit={handleSignIn}>
-      {error && <div className="text-red-500 mb-4">{error}</div>}
-      <div className="mb-4">
-        <label htmlFor="email" className="block text-sm font-medium text-zinc-700">
-          Email
-        </label>
-        <input
-          type="email"
-          id="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 p-2 border border-zinc-300 rounded w-full"
-          required
-        />
-      </div>
-      <div className="mb-4 relative">
-        <label htmlFor="password" className="block text-sm font-medium text-zinc-700">
-          Password
-        </label>
-        <input
-          type={showPassword ? 'text' : 'password'}
-          id="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="mt-1 p-2 border border-zinc-300 rounded w-full"
-          required
-        />
-        <button
-          type="button"
-          onClick={togglePasswordVisibility}
-          className="absolute inset-y-0 top-1/3 right-0 pr-3 flex items-center text-sm leading-5"
+    <div className="space-y-6">
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm font-medium">
+          {error}
+        </div>
+      )}
+      
+      <form onSubmit={handleSignIn} className="space-y-5">
+        {/* Email Field */}
+        <div>
+          <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-2">
+            Email Address *
+          </label>
+          <input
+            type="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800 placeholder-slate-500 bg-white"
+            placeholder="your.email@company.com"
+            required
+          />
+        </div>
+
+        {/* Password Field */}
+        <div>
+          <label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-2">
+            Password *
+          </label>
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 pr-12 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800 placeholder-slate-500 bg-white"
+              placeholder="Enter your password"
+              required
+            />
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              tabIndex={-1}
+            >
+              {showPassword ? (
+                <EyeOff className="h-5 w-5" />
+              ) : (
+                <Eye className="h-5 w-5" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Sign In Button */}
+        <button 
+          type="submit" 
+          className="w-full flex justify-center items-center space-x-2 py-3 px-4 border border-blue-700 rounded-lg text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold transition-colors duration-200"
         >
-          {showPassword ? <EyeOff className="h-5 w-5 text-zinc-900" /> : <Eye className="h-5 w-5 text-zinc-900" />}
+          <span>Sign In</span>
+          <ArrowRight className="h-4 w-4" />
         </button>
-      </div>
-      <button type="submit" className="flex justify-center w-full">
-        <span className='body-btn text-center w-full'>Sign In</span>
-      </button>
-    </form>
+      </form>
+    </div>
   );
 };
 

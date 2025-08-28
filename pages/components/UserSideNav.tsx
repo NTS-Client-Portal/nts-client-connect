@@ -5,17 +5,30 @@ import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import { useProfilesUser } from '@/context/ProfilesUserContext';
 import Image from 'next/image';
-import { Menu, Expand, Workflow, MessageSquareMore, Folders, NotebookTabs, Settings, TruckIcon } from 'lucide-react';
+import { 
+    Menu,
+    X,
+    ChartArea,
+    Folders,
+    MessageSquareMore,
+    NotebookTabs,
+    Settings,
+    LogOut,
+    User,
+    ShipIcon as Ship,
+    TruckIcon,
+    ChevronDown, 
+    ChevronUp
+} from 'lucide-react';
 import { TfiWrite } from "react-icons/tfi";
 import { GrDocumentVerified } from "react-icons/gr";
 import { useDocumentNotification } from '@/context/DocumentNotificationContext';
-import { RiLogoutCircleLine } from "react-icons/ri";
-import { ChevronDown, ChevronUp } from 'lucide-react'; // For caret icons
 
 interface UserSideNavProps {
     isSidebarOpen: boolean;
     toggleSidebar: () => void;
     className?: string;
+    isDesktop?: boolean;
 }
 
 interface AssignedSalesUser {
@@ -25,7 +38,7 @@ interface AssignedSalesUser {
     phone_number: string;
 }
 
-const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar, className = '' }) => {
+const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar, className = '', isDesktop = false }) => {
     const supabase = useSupabaseClient<Database>();
     const { userProfile } = useProfilesUser();
     const { newDocumentAdded, setNewDocumentAdded } = useDocumentNotification();
@@ -33,6 +46,39 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
     const [assignedSalesUsers, setAssignedSalesUsers] = useState<AssignedSalesUser[]>([]);
     const [ntsUserProfile, setNtsUserProfile] = useState<AssignedSalesUser | null>(null);
     const [isLogisticsDropdownOpen, setIsLogisticsDropdownOpen] = useState(true);
+    const [profileImageError, setProfileImageError] = useState(false);
+    const [profileImageUrl, setProfileImageUrl] = useState<string>('');
+
+    // Profile image setup
+    useEffect(() => {
+        if (userProfile?.profile_picture && !profileImageError) {
+            try {
+                if (userProfile.profile_picture.startsWith('https://') || userProfile.profile_picture.startsWith('http://')) {
+                    setProfileImageUrl(userProfile.profile_picture);
+                } else {
+                    const { data } = supabase.storage
+                        .from('profile-pictures')
+                        .getPublicUrl(userProfile.profile_picture);
+                    
+                    if (data?.publicUrl) {
+                        setProfileImageUrl(data.publicUrl);
+                    } else {
+                        setProfileImageUrl('https://www.gravatar.com/avatar?d=mp&s=100');
+                    }
+                }
+            } catch (error) {
+                console.error('Error getting profile picture URL:', error);
+                setProfileImageUrl('https://www.gravatar.com/avatar?d=mp&s=100');
+            }
+        } else {
+            setProfileImageUrl('https://www.gravatar.com/avatar?d=mp&s=100');
+        }
+    }, [userProfile?.profile_picture, supabase, profileImageError]);
+
+    const handleImageError = () => {
+        setProfileImageError(true);
+        setProfileImageUrl('');
+    };
 
     useEffect(() => {
         const fetchAssignedSalesUsers = async () => {
@@ -67,147 +113,236 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
         router.push('/');
     };
 
-    const profilePictureUrl = userProfile?.profile_picture
-        ? supabase.storage.from('profile-pictures').getPublicUrl(userProfile.profile_picture).data.publicUrl
-        : 'https://www.gravatar.com/avatar?d=mp&s=100';
+    const navigationItems = [
+        {
+            href: '/user',
+            icon: ChartArea,
+            label: 'Dashboard',
+            description: 'Overview & Analytics',
+            color: 'from-blue-500 to-blue-600'
+        },
+        {
+            href: '/user/logistics-management',
+            icon: TruckIcon,
+            label: 'Logistics Management',
+            description: 'Transportation Hub',
+            color: 'from-blue-500 to-blue-600',
+            hasDropdown: true,
+            dropdownItems: [
+                {
+                    href: '/user/quote-request',
+                    icon: TfiWrite,
+                    label: 'Quote Form',
+                    description: 'Request Pricing'
+                },
+                {
+                    href: '/user/order-form', 
+                    icon: GrDocumentVerified,
+                    label: 'Order Form',
+                    description: 'Place Orders'
+                }
+            ]
+        },
+        {
+            href: '/user/inventory',
+            icon: NotebookTabs,
+            label: 'Inventory',
+            description: 'Stock & Supplies',
+            color: 'from-orange-500 to-orange-600'
+        },
+        {
+            href: '/user/documents',
+            icon: Folders,
+            label: 'Documents',
+            description: 'Files & Pictures',
+            color: 'from-purple-500 to-purple-600',
+            hasNotification: newDocumentAdded
+        }
+    ];
 
     const toggleLogisticsDropdown = () => {
         setIsLogisticsDropdownOpen(!isLogisticsDropdownOpen);
     };
 
+    if (!isDesktop && !isSidebarOpen) return null;
+
     return (
-        <div>
-            {/* Toggle button for mobile */}
-            <div className="xl:hidden">
+        <>
+            {/* Mobile Menu Toggle */}
+            {!isDesktop && (
                 <button
-                    className="fixed z-50 top-1 left-2 md:left-0 p-2 drop-shadow-lg rounded-full"
+                    className="fixed top-6 left-6 z-[2001] lg:hidden text-slate-900 hover:text-slate-800 p-3 rounded-xl shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
                     onClick={toggleSidebar}
+                    aria-label={isSidebarOpen ? 'Close menu' : 'Open menu'}
                 >
                     {isSidebarOpen ? (
-                        <Menu size={24} className="text-white z-50 drop-shadow-lg" />
+                        <X className="w-6 h-6 text-slate-900" />
                     ) : (
-                        <Expand size={28} className="z-50 text-zinc-600 drop-shadow-lg" />
+                        <Menu className="w-6 h-6 text-slate-900" />
                     )}
                 </button>
-            </div>
+            )}
 
-            {/* Sidebar navigation */}
-            <nav className={`nts-sidebar-content pt-12 md:pt-0 flex flex-col items-start h-full py-6 transition-all duration-300 ease-in-out ${isSidebarOpen ? '' : 'collapsed items-center'}`}>
+            {/* Sidebar Content */}
+            <div className="nts-sidebar-content">
+                {/* Header */}
+                <div className="nts-sidebar-header">
+                    {/* Brand */}
+                    <div className="flex items-center justify-center mb-8">
+                        <div className="flex items-center gap-3">
+                            <Image
+                                src="/nts-logo.png"
+                                alt="NTS Logo"
+                                width={150}
+                                height={75}
+                                className="object-contain"
+                                priority
+                            />
+                        </div>
+                    </div>
 
-                {/* Logo */}
-                <div className="flex pt-5 lg:mt-2 2xl:mt-0 mb-3 items-center justify-center font-bold flex-nowrap side-navbar-logo w-full">
-                    <Image
-                        src="/nts-logo.png"
-                        alt="NTS Logo"
-                        width={150}
-                        height={75}
-                        className="object-contain"
-                        priority
-                    />
+                    {/* User Profile */}
+                    {/* <div className="flex flex-col items-center text-center">
+                        <div className="relative mb-4">
+                            {profileImageUrl && !profileImageError ? (
+                                <Image
+                                    src={profileImageUrl}
+                                    alt="Profile"
+                                    width={80}
+                                    height={80}
+                                    className="rounded-2xl border-3 border-white/20 shadow-xl object-cover backdrop-blur-sm"
+                                    onError={handleImageError}
+                                    unoptimized
+                                />
+                            ) : (
+                                <div className="w-20 h-20 bg-gradient-to-br from-slate-600 to-slate-700 rounded-2xl border-3 border-white/20 shadow-xl flex items-center justify-center">
+                                    <User className="w-10 h-10 text-slate-300" />
+                                </div>
+                            )}
+                            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-green-400 to-green-500 rounded-full border-3 border-slate-800 shadow-lg"></div>
+                        </div>
+                        
+                        <div>
+                            <h3 className="text-lg font-semibold text-white mb-1">
+                                {userProfile?.first_name || userProfile?.company_name || 'User'}
+                            </h3>
+                            <div className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30">
+                                <div className="w-2 h-2 bg-emerald-400 rounded-full mr-2"></div>
+                                <span className="text-sm text-emerald-300 font-medium">Shipper</span>
+                            </div>
+                        </div>
+                    </div> */}
                 </div>
 
-                {/* Navigation links */}
-                <ul className="flex flex-col items-center flex-grow overflow-y-auto w-full">
-                    <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user' ? 'active' : ''}`}>
-                        <Link href="/user" className={`side-nav-btn font-semibold text-stone-100 w-full ${router.pathname === '/user' ? "active" : ""}`}>
-                            <span className="flex items-center justify-normal gap-2 py-2">
-                                <Workflow className='md:hidden' size="20px" />
-                                <span className='text-xs md:text-sm'>Dashboard</span>
-                            </span>
-                        </Link>
-                    </li>
+                {/* Navigation */}
+                <nav className="flex-1 px-4">
+                    <div className="space-y-1">
+                        {navigationItems.map((item) => {
+                            const Icon = item.icon;
+                            const isActive = router.pathname === item.href;
+                            
+                            return (
+                                <div key={item.href}>
+                                    <Link href={item.href}>
+                                        <div
+                                            className={`group relative flex items-center p-3 rounded-xl transition-all duration-300 cursor-pointer ${
+                                                isActive 
+                                                    ? `bg-gradient-to-r ${item.color} text-white shadow-lg shadow-black/20 border border-white/20` 
+                                                    : 'text-slate-100 hover:text-white hover:bg-white/10 border border-transparent'
+                                            }`}
+                                            onClick={item.hasDropdown ? (e) => { e.preventDefault(); toggleLogisticsDropdown(); } : undefined}
+                                        >
+                                            <div className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-300 ${
+                                                isActive 
+                                                    ? 'bg-white/20 shadow-md' 
+                                                    : 'bg-slate-700/50 group-hover:bg-slate-600/50'
+                                            }`}>
+                                                <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'}`} />
+                                            </div>
+                                            <div className="ml-3 flex-1 min-w-0">
+                                                <p className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-slate-300 group-hover:text-white'} truncate`}>
+                                                    {item.label}
+                                                </p>
+                                                <p className={`text-xs ${isActive ? 'text-white/80' : 'text-slate-400 group-hover:text-slate-200'} truncate`}>
+                                                    {item.description}
+                                                </p>
+                                            </div>
+                                            {item.hasNotification && (
+                                                <div className="w-3 h-3 bg-red-500 rounded-full shadow-lg flex-shrink-0" onClick={() => setNewDocumentAdded(false)}></div>
+                                            )}
+                                            {item.hasDropdown && (
+                                                <div className="flex-shrink-0">
+                                                    {isLogisticsDropdownOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                                </div>
+                                            )}
+                                            {isActive && !item.hasDropdown && (
+                                                <div className="w-2 h-2 bg-white rounded-full shadow-lg flex-shrink-0"></div>
+                                            )}
+                                        </div>
+                                    </Link>
+                                    
+                                    {/* Dropdown Menu for Logistics */}
+                                    {item.hasDropdown && isLogisticsDropdownOpen && (
+                                        <div className="mt-2 ml-4 space-y-1">
+                                            {item.dropdownItems?.map((dropdownItem) => {
+                                                const DropdownIcon = dropdownItem.icon;
+                                                const isDropdownActive = router.pathname === dropdownItem.href;
+                                                
+                                                return (
+                                                    <Link key={dropdownItem.href} href={dropdownItem.href}>
+                                                        <div className={`group flex items-center p-2 rounded-lg transition-all duration-300 cursor-pointer ${
+                                                            isDropdownActive
+                                                                ? 'bg-slate-700 text-white shadow-md'
+                                                                : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                                                        }`}>
+                                                            <div className="flex items-center justify-center w-8 h-8 rounded-md bg-slate-700/50 group-hover:bg-slate-600/50">
+                                                                <DropdownIcon className="w-4 h-4 text-slate-400 group-hover:text-white" />
+                                                            </div>
+                                                            <div className="ml-3">
+                                                                <p className="text-sm font-medium">{dropdownItem.label}</p>
+                                                                <p className="text-xs text-slate-400">{dropdownItem.description}</p>
+                                                            </div>
+                                                        </div>
+                                                    </Link>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </nav>
 
-                    {/* Logistics Management with Dropdown */}
-                    <li className="w-full">
-                        <div
-                            className={`flex items-center justify-normal gap-3 w-fit py-2 side-nav-btn font-semibold ${router.pathname === '/user/logistics-management' ? 'active' : ''}`}
-                        >
-                            {/* Link to Logistics Management */}
-                            <Link
-                                href="/user/logistics-management"
-                                className="flex items-center gap-2 text-stone-100 w-full"
-                            >
-                                <TruckIcon className='md:hidden' size="20px" />
-                                <span className='text-xs md:text-sm'>Logistics Management</span>
-                            </Link>
-
-                            {/* Dropdown Toggle */}
-                            <button
-                                onClick={toggleLogisticsDropdown}
-                                className="text-stone-100"
-                                aria-label="Toggle Logistics Dropdown"
-                            >
-                                {isLogisticsDropdownOpen ? <ChevronUp size="20px" /> : <ChevronDown size="20px" />}
-                            </button>
+                {/* Footer */}
+                <div className="px-4 pb-4 space-y-2">
+                    {/* Settings */}
+                    <Link href="/user/settings">
+                        <div className={`group flex items-center p-3 rounded-xl transition-all duration-300 cursor-pointer ${
+                            router.pathname === '/user/settings'
+                                ? 'bg-slate-700 text-white shadow-lg' 
+                                : 'text-slate-300 hover:text-white hover:bg-white/10'
+                        }`}>
+                            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-700/50 group-hover:bg-slate-600/50">
+                                <Settings className="w-4 h-4 text-slate-400 group-hover:text-white" />
+                            </div>
+                            <span className="ml-3 text-sm font-medium">Settings</span>
                         </div>
+                    </Link>
 
-                        {/* Dropdown Menu */}
-                        {isLogisticsDropdownOpen && (
-                            <ul className="mt-2">
-                                <li className={`w-full ${router.pathname === '/user/quote-request' ? 'active' : ''}`}>
-                                    <Link href="/user/quote-request" className="side-nav-btn text-stone-100 font-semibold w-full">
-                                        <span className="pl-6 flex items-center gap-2 py-2">
-                                            <TfiWrite className='md:hidden' size="20px" />
-                                            <span className='text-xs md:text-sm'>Quote Form</span>
-                                        </span>
-                                    </Link>
-                                </li>
-                                <li className={`w-full ${router.pathname === '/user/order-form' ? 'active' : ''}`}>
-                                    <Link href="/user/order-form" className="side-nav-btn text-stone-100 font-semibold w-full">
-                                        <span className="pl-6 flex items-center gap-2 py-2">
-                                            <GrDocumentVerified className='md:hidden' size="20px" />
-                                            <span className='text-xs md:text-sm'>Order Form</span>
-                                        </span>
-                                    </Link>
-                                </li>
-                            </ul>
-                        )}
-                    </li>
-
-                    {/* Other navigation links */}
-                    <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/inventory' ? "active" : ""}`}>
-                        <Link href="/user/inventory" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/inventory' ? "active" : ""}`}>
-                            <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2'>
-                                <NotebookTabs className='md:hidden' size={'16px'} />
-                                <span className='text-xs md:text-sm'>Inventory</span>
-                            </span>
-                        </Link>
-                    </li>
-                    <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/documents' ? "active" : ""}`}>
-                        <Link href="/user/documents" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/documents' ? "active" : ""}`} onClick={() => setNewDocumentAdded(false)}>
-                            <span className='flex items-center flex-nowrap justify-normal gap-2 py-2 relative'>
-                                <Folders className='md:hidden' size={'16px'} />
-                                <span className='text-xs md:text-sm'>Documents/Pictures</span>
-                                {newDocumentAdded && <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full z-10"></span>}
-                            </span>
-                        </Link>
-                    </li>
-                    <li className={`w-full flex justify-normal m-0 ${router.pathname === '/user/settings' ? "active" : ""}`}>
-                        <Link href="/user/settings" className={`side-nav-btn text-stone-100 font-semibold w-full ${router.pathname === '/user/settings' ? "active" : ""}`}>
-                            <span className='w-full flex items-center flex-nowrap justify-normal gap-2 py-2'>
-                                <NotebookTabs className='md:hidden' size={'16px'} />
-                                <span className='text-xs md:text-sm'>Settings</span>
-                            </span>
-                        </Link>
-                    </li>
-                </ul>
-
-                {/* Settings and Logout */}
-                <ul className='flex flex-col gap-4 justify-center items-center mb-4'>
-                    <li className="w-full flex items-center justify-center m-0">
-                        <button
-                            className="text-white dark:bg-zinc-300 dark:text-zinc-700 font-semibold py-1 w-full flex items-center justify-center gap-2 side-nav-btn"
-                            onClick={handleLogout}
-                        >
-                            <span className='flex items-center justify-start gap-2 md:pl-3'>
-                                <RiLogoutCircleLine className='md:hidden' />
-                                <span>Logout</span>
-                            </span>
-                        </button>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+                    {/* Logout */}
+                    <button
+                        onClick={handleLogout}
+                        className="w-full group flex items-center p-3 rounded-xl transition-all duration-300 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 hover:shadow-lg hover:shadow-red-500/20"
+                    >
+                        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-500/20 group-hover:bg-white/20">
+                            <LogOut className="w-4 h-4 text-red-400 group-hover:text-white" />
+                        </div>
+                        <span className="ml-3 text-sm font-medium">Logout</span>
+                    </button>
+                </div>
+            </div>
+        </>
     );
 };
 

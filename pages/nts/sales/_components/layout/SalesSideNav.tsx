@@ -84,7 +84,7 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
             icon: TrendingUp,
             label: 'Shipper Management',
             description: 'Manage Customers',
-            color: 'from-emerald-500 to-emerald-600'
+            color: 'from-blue-500 to-blue-600'
         },
         {
             href: '/nts/sales/documents',

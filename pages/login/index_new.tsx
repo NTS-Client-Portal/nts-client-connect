@@ -83,7 +83,7 @@ export default function LoginPage() {
                 </Head>
                 
                 <div className="min-h-screen bg-slate-100">
-                    <div className="grid grid-cols-1 md:grid-cols-2 min-h-screen">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
                         {/* Left Side - Branding */}
                         <div className="relative bg-blue-700 flex flex-col justify-center p-8 lg:p-12 text-white">
                             {/* Header */}

@@ -1,96 +1,127 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSession } from '@supabase/auth-helpers-react';
 import Head from 'next/head';
 import Link from 'next/link';
-import CustomSignInForm from '@/components/CustomSignInForm';
-import { MoveHorizontal } from 'lucide-react';
-import Layout from './components/Layout';
-import Image from 'next/image';
+import { Truck, ArrowRight, Users, Shield, Clock } from 'lucide-react';
 
-interface UserProfile {
-  id: string;
-  email: string;
-  team_role: string;
-  inserted_at: string;
-  first_name?: string | null;
-  last_name?: string | null;
-  company_name?: string | null;
-  profile_picture?: string | null;
-  address?: string | null;
-  phone_number?: string | null;
-  company_id?: string | null;
-  company_size?: string | null;
-  email_notifications?: boolean | null;
-  industry?: string | null;
-}
+export default function HomePage() {
+  const session = useSession();
+  const router = useRouter();
 
-const LoginPage = () => {
-  const supabase = useSupabaseClient();
+  useEffect(() => {
+    // Redirect authenticated users to their dashboard
+    if (session && session.user.email_confirmed_at) {
+      router.push('/user/logistics-management');
+    }
+  }, [session, router]);
 
-
-    return (
-      <>
-        <Head>
-          <title>Shipper Connect</title>
-          <meta name="description" content="Welcome to SSTA Reminders & Tasks" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <link rel="icon" href="/hc-28.png" />
-        </Head>
-        <div className="w-full h-screen bg-200">
-          <div className="min-w-full min-h-screen grid grid-cols-1 md:grid-cols-2 ">
-
-            <div className="hidden md:block bg-gray-950 h-full w-full md:h-full col-span-1">
-              <div className='absolute top-5 left-5'>
-                <span className='flex mt-5 lg:mt-2 2xl:mt-0 items-center justify-center font-bold  flex-nowrap'> <h2 className='text-lg md:mt-0  self-center font-extrabold tracking-tighter text-white flex gap-0.5'>SHIPPER<MoveHorizontal className='size-6 text-orange-500' />CONNECT</h2></span>
-                <span className='text-xs md:text-base font-bold text-center text-orange-500'>A Division of NTS Logistics</span>
-              </div>
-              <div className='hidden h-5/6 w-full md:flex items-center justify-center'>
-                <h1 className='text-white font-medium text-2xl italic'>Your trusted partner in logistics.</h1>
-              </div>
-            </div>
-
-            <div className='absolute top-5 right-5'>
-              <Link href="/signup" legacyBehavior>
-                <a className="body-btn">Sign Up</a>
-              </Link>
-            </div>
-
-            <div className='w-full h-auto flex flex-col justify-center items-center col-span-1'>
-
-              <div className=" w-full h-full max-h-max text-zinc-900 sm:h-full sm:w-full max-w-md p-5 bg-white shadow flex flex-col justify-center items-center text-base">
-                <span className="font-sans text-4xl font-medium text-center pb-2 mb-2 my-6 border-b mx-4 align-center">
-                  SHIPPER CONNECT
-                </span>
-                <span className=" font-sans text-2xl text-center pb-2 mb-1 border-b mx-4 align-center">
-                  Sign In
-                </span>
-                <div className="mt-4">
-                  <CustomSignInForm />
-                </div>
-                <div className="mt-4 text-center">
-                  <p>Don&apos;t have an account?</p>
-                  <Link href="/signup" legacyBehavior>
-                    <a className="text-zinc-900 font-semibold hover:underline">Sign Up</a>
-                  </Link>
-                </div>
-                <div className="mt-4 text-center">
-                  <p>Forgot your password?</p>
-                  <Link href="/recover-password?userType=profiles" legacyBehavior>
-                    <a className="text-zinc-900 font-semibold hover:underline">Reset Password</a>
-                  </Link>
-                </div>
-                <div className='md:hidden h-5/6 w-full flex items-end justify-center'>
-                  <h1 className='text-zinc-900 font-medium w-full text-lg text-center italic'>Your trusted partner in Logistics.</h1>
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-        </div>
-      </>
-    );
+  if (session && session.user.email_confirmed_at) {
+    return null; // Will redirect
   }
 
-export default LoginPage;
+  return (
+    <>
+      <Head>
+        <title>NTS Logistics - Client Portal</title>
+        <meta name="description" content="Professional freight and logistics services portal" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/hc-28.png" />
+      </Head>
+      
+      <div className="min-h-screen bg-slate-100">
+        <div className="flex min-h-screen items-center justify-center px-4">
+          <div className="w-full max-w-4xl">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+              
+              {/* Left Side - Branding & Info */}
+              <div className="text-center lg:text-left space-y-6">
+                <div className="flex items-center justify-center lg:justify-start space-x-3">
+                  <div className="p-3 bg-blue-700 rounded-lg shadow-md">
+                    <Truck className="h-12 w-12 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-3xl lg:text-4xl font-bold text-slate-800">NTS Logistics</h1>
+                    <p className="text-lg text-slate-600 font-medium">Client Portal</p>
+                  </div>
+                </div>
+                
+                <p className="text-xl text-slate-700 leading-relaxed">
+                  Professional freight and transportation services for contractors, builders, and businesses across America.
+                </p>
+
+                {/* Key Benefits */}
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <Clock className="h-6 w-6 text-blue-700 flex-shrink-0" />
+                    <span className="text-slate-700 font-medium">On-time delivery guaranteed</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Shield className="h-6 w-6 text-blue-700 flex-shrink-0" />
+                    <span className="text-slate-700 font-medium">Fully insured and licensed</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Users className="h-6 w-6 text-blue-700 flex-shrink-0" />
+                    <span className="text-slate-700 font-medium">24/7 customer support</span>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-700">
+                  <p className="text-slate-700 font-medium">
+                    <span className="text-blue-700 font-bold">15+ years</span> serving contractors and businesses with reliable freight solutions
+                  </p>
+                </div>
+              </div>
+
+              {/* Right Side - Access Options */}
+              <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-8">
+                <div className="text-center mb-8">
+                  <div className="mx-auto h-16 w-16 bg-blue-700 rounded-lg flex items-center justify-center shadow-md mb-4">
+                    <Truck className="h-10 w-10 text-white" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-slate-800 mb-2">Access Your Account</h2>
+                  <p className="text-slate-600">Sign in to manage your shipments and requests</p>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Sign In Button */}
+                  <Link href="/login" className="w-full flex items-center justify-center space-x-3 bg-blue-700 text-white py-4 px-6 rounded-lg hover:bg-blue-800 transition-colors duration-200 font-semibold text-lg group">
+                    <span>Sign In</span>
+                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
+                  </Link>
+
+                  {/* Divider */}
+                  <div className="flex items-center space-x-4">
+                    <div className="flex-1 h-px bg-slate-300"></div>
+                    <span className="text-slate-500 text-sm font-medium">New Customer?</span>
+                    <div className="flex-1 h-px bg-slate-300"></div>
+                  </div>
+
+                  {/* Sign Up Button */}
+                  <Link href="/signup" className="w-full flex items-center justify-center space-x-3 bg-white text-blue-700 py-4 px-6 rounded-lg border-2 border-blue-700 hover:bg-blue-50 transition-colors duration-200 font-semibold text-lg group">
+                    <span>Create Account</span>
+                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
+                  </Link>
+                </div>
+
+                {/* Additional Links */}
+                <div className="mt-8 pt-6 border-t border-slate-200 text-center space-y-3">
+                  <Link href="/forgot-password" className="block text-slate-600 hover:text-slate-800 text-sm transition-colors duration-200">
+                    Forgot your password?
+                  </Link>
+                  <p className="text-xs text-slate-500">
+                    Questions? Contact us at{' '}
+                    <a href="mailto:support@ntslogistics.com" className="text-blue-700 hover:text-blue-800">
+                      support@ntslogistics.com
+                    </a>
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

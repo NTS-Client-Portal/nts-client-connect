@@ -3353,9 +3353,9 @@ body,
 }
 
 .side-nav-btn.active {
+  background-color: rgb(37 99 235) !important; /* Tailwind's bg-blue-600 */
   font-weight: 600;
   --tw-bg-opacity: .8;
-  background-color: rgb(18 82 77 / var(--tw-bg-opacity, 1));
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
   
