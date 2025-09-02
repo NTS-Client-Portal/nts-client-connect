@@ -156,14 +156,14 @@ const NotificationBell = ({ session }) => {
             {/* Dropdown Overlay */}
             {dropdownOpen && (
                 <>
-                    {/* Mobile Backdrop */}
+                    {/* Mobile/Tablet Backdrop */}
                     <div
-                        className="fixed inset-0 bg-black bg-opacity-20 z-40 sm:hidden"
+                        className="fixed inset-0 bg-black bg-opacity-20 z-40 lg:hidden"
                         onClick={() => setDropdownOpen(false)}
                     />
                     
-                    {/* Mobile Full Screen Container */}
-                    <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 px-4 sm:hidden">
+                    {/* Mobile/Tablet Centered Container */}
+                    <div className="md:hidden fixed inset-0 z-50 flex items-start justify-center pt-16 px-4 lg:hidden">
                         <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm border border-slate-200">
                             {/* Header */}
                             <div className="p-4 border-b border-slate-200 bg-white rounded-t-xl">
@@ -197,7 +197,7 @@ const NotificationBell = ({ session }) => {
                             </div>
 
                             {/* Notifications List */}
-                            <div className="max-h-80 overflow-y-auto">
+                            <div className=" max-h-80 overflow-y-auto">
                                 {notifications.length > 0 ? (
                                     <div className="divide-y divide-slate-100">
                                         {notifications.map((notification) => (
@@ -281,8 +281,8 @@ const NotificationBell = ({ session }) => {
                     </div>
 
                     {/* Desktop Dropdown */}
-                    <div className="hidden sm:block absolute right-0 top-full mt-2 z-50">
-                        <div className="bg-white rounded-xl shadow-2xl border border-slate-200 w-80 md:w-80 lg:w-96">
+                    <div className="hidden lg:block absolute right-0 top-full mt-2 z-50">
+                        <div className="bg-white rounded-xl shadow-2xl border border-slate-200 w-80 xl:w-96">
                             {/* Arrow pointer */}
                             <div className="absolute -top-2 right-6 w-4 h-4 bg-white border-l border-t border-slate-200 transform rotate-45"></div>
                             
