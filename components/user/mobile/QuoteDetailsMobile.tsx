@@ -390,10 +390,10 @@ const QuoteDetailsMobile: React.FC<QuoteDetailsMobileProps> = ({
                                                     </form>
                                                 ) : (
                                                     <div>
-                                                        <div className="text-xs text-green-700 dark:text-green-300 uppercase tracking-wide font-medium mb-1">Quote Price</div>
+                                                        <div className="text-xs text-green-700 uppercase tracking-wide font-medium mb-1">Quote Price</div>
                                                         {quote.price ? (
                                                             <div className="flex items-center justify-between">
-                                                                <span className="text-xl font-bold text-green-800 dark:text-green-200">
+                                                                <span className="text-xl font-bold text-green-700">
                                                                     ${quote.price.toLocaleString()}
                                                                 </span>
                                                                 <button
@@ -415,9 +415,9 @@ const QuoteDetailsMobile: React.FC<QuoteDetailsMobileProps> = ({
                                                 )
                                             ) : (
                                                 <div>
-                                                    <div className="text-xs text-green-700 dark:text-green-300 uppercase tracking-wide font-medium mb-1">Quote Price</div>
+                                                    <div className="text-xs text-green-700 uppercase tracking-wide font-medium mb-1">Quote Price</div>
                                                     {quote.price ? (
-                                                        <div className="text-2xl font-bold text-green-800 dark:text-green-200">
+                                                        <div className="text-2xl font-bold text-green-700 ">
                                                             ${quote.price.toLocaleString()}
                                                         </div>
                                                     ) : (

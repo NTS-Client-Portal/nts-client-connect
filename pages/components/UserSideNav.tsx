@@ -127,8 +127,8 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
             label: 'Logistics Management',
             description: 'Transportation Hub',
             color: 'from-blue-500 to-blue-600',
-            hasDropdown: true,
-            dropdownItems: [
+            // Remove hasDropdown, make it a clickable navigation item
+            subMenu: [
                 {
                     href: '/user/quote-request',
                     icon: TfiWrite,
@@ -143,13 +143,13 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                 }
             ]
         },
-        {
-            href: '/user/inventory',
-            icon: NotebookTabs,
-            label: 'Inventory',
-            description: 'Stock & Supplies',
-            color: 'from-orange-500 to-orange-600'
-        },
+        // {
+        //     href: '/user/inventory',
+        //     icon: NotebookTabs,
+        //     label: 'Inventory',
+        //     description: 'Stock & Supplies',
+        //     color: 'from-orange-500 to-orange-600'
+        // },
         {
             href: '/user/documents',
             icon: Folders,
@@ -168,21 +168,6 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
 
     return (
         <>
-            {/* Mobile Menu Toggle */}
-            {!isDesktop && (
-                <button
-                    className="fixed top-6 left-6 z-[2001] lg:hidden text-slate-900 hover:text-slate-800 p-3 rounded-xl shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
-                    onClick={toggleSidebar}
-                    aria-label={isSidebarOpen ? 'Close menu' : 'Open menu'}
-                >
-                    {isSidebarOpen ? (
-                        <X className="w-6 h-6 text-slate-900" />
-                    ) : (
-                        <Menu className="w-6 h-6 text-slate-900" />
-                    )}
-                </button>
-            )}
-
             {/* Sidebar Content */}
             <div className="nts-sidebar-content">
                 {/* Header */}
@@ -250,7 +235,6 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                                                     ? `bg-gradient-to-r ${item.color} text-white shadow-lg shadow-black/20 border border-white/20` 
                                                     : 'text-slate-100 hover:text-white hover:bg-white/10 border border-transparent'
                                             }`}
-                                            onClick={item.hasDropdown ? (e) => { e.preventDefault(); toggleLogisticsDropdown(); } : undefined}
                                         >
                                             <div className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-300 ${
                                                 isActive 
@@ -270,37 +254,31 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                                             {item.hasNotification && (
                                                 <div className="w-3 h-3 bg-red-500 rounded-full shadow-lg flex-shrink-0" onClick={() => setNewDocumentAdded(false)}></div>
                                             )}
-                                            {item.hasDropdown && (
-                                                <div className="flex-shrink-0">
-                                                    {isLogisticsDropdownOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                                                </div>
-                                            )}
-                                            {isActive && !item.hasDropdown && (
+                                            {isActive && (
                                                 <div className="w-2 h-2 bg-white rounded-full shadow-lg flex-shrink-0"></div>
                                             )}
                                         </div>
                                     </Link>
                                     
-                                    {/* Dropdown Menu for Logistics */}
-                                    {item.hasDropdown && isLogisticsDropdownOpen && (
-                                        <div className="mt-2 ml-4 space-y-1">
-                                            {item.dropdownItems?.map((dropdownItem) => {
-                                                const DropdownIcon = dropdownItem.icon;
-                                                const isDropdownActive = router.pathname === dropdownItem.href;
-                                                
+                                    {/* SubMenu for Logistics Management */}
+                                    {item.subMenu && Array.isArray(item.subMenu) && (
+                                        <div className="mt-2 ml-8 space-y-1">
+                                            {item.subMenu.map((subItem) => {
+                                                const SubIcon = subItem.icon;
+                                                const isSubActive = router.pathname === subItem.href;
                                                 return (
-                                                    <Link key={dropdownItem.href} href={dropdownItem.href}>
+                                                    <Link key={subItem.href} href={subItem.href}>
                                                         <div className={`group flex items-center p-2 rounded-lg transition-all duration-300 cursor-pointer ${
-                                                            isDropdownActive
+                                                            isSubActive
                                                                 ? 'bg-slate-700 text-white shadow-md'
                                                                 : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
                                                         }`}>
                                                             <div className="flex items-center justify-center w-8 h-8 rounded-md bg-slate-700/50 group-hover:bg-slate-600/50">
-                                                                <DropdownIcon className="w-4 h-4 text-slate-400 group-hover:text-white" />
+                                                                <SubIcon className="w-4 h-4 text-slate-400 group-hover:text-white" />
                                                             </div>
                                                             <div className="ml-3">
-                                                                <p className="text-sm font-medium">{dropdownItem.label}</p>
-                                                                <p className="text-xs text-slate-400">{dropdownItem.description}</p>
+                                                                <p className="text-sm font-medium">{subItem.label}</p>
+                                                                <p className="text-xs text-slate-400">{subItem.description}</p>
                                                             </div>
                                                         </div>
                                                     </Link>
@@ -338,7 +316,7 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                         <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-500/20 group-hover:bg-white/20">
                             <LogOut className="w-4 h-4 text-red-400 group-hover:text-white" />
                         </div>
-                        <span className="ml-3 text-sm font-medium">Logout</span>
+                        <span className="ml-3 text-sm text-white font-medium">Logout</span>
                     </button>
                 </div>
             </div>

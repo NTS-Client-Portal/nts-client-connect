@@ -5,6 +5,8 @@ import { supabase } from '@/lib/initSupabase';
 import Modal from '@/components/ui/Modal';
 import jsPDF from 'jspdf';
 import DeliveredTable from './DeliveredTable';
+import DeliveredDetailsMobile from '../mobile/DeliveredDetailsMobile';
+import { formatDate, renderAdditionalDetails, freightTypeMapping } from './QuoteUtils';
 
 type ShippingQuotesRow = Database['public']['Tables']['shippingquotes']['Row'];
 
@@ -28,6 +30,7 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [popupMessage, setPopupMessage] = useState<string | null>(null);
     const [deliveredQuotes, setDeliveredQuotes] = useState<ShippingQuotesRow[]>([]);
+    const [getStatusClasses] = useState(() => (status: string) => 'bg-gray-100 text-gray-800');
 
     const fetchDeliveredQuotesForNtsUsers = useCallback(
         async (userId: string, companyId: string) => {
@@ -357,43 +360,13 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
                 />
             </div>
             <div className="block md:hidden">
-                <div className='mt-1'>
-                    {deliveredQuotes.map((quote) => (
-                        <div key={quote.id} className="bg-white dark:bg-zinc-800 shadow rounded-md mb-4 p-4 border border-zinc-400 dark:text-white">
-                            <div className="flex justify-between items-center mb-2">
-                                <div className="text-sm font-extrabold dark:text-white">ID</div>
-                                <div className="text-sm text-zinc-900">{quote.id}</div>
-                            </div>
-                            <div className='border-b border-zinc-600 mb-4'></div>
-                            <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                                <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Origin</div>
-                                <div className="text-sm text-zinc-900 dark:text-white">{quote.origin_street} {quote.origin_city}, {quote.origin_state} {quote.origin_zip}</div>
-                            </div>
-                            <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                                <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Destination</div>
-                                <div className="text-sm text-zinc-900 dark:text-white">{quote.destination_street} {quote.destination_city}, {quote.destination_state} {quote.destination_zip}</div>
-                            </div>
-                            <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                                <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Freight</div>
-                                <div className="text-sm text-zinc-900 dark:text-white">{quote.year} {quote.make} {quote.model}</div>
-                            </div>
-                            <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                                <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Shipping Date</div>
-                                <div className="text-sm text-zinc-900 dark:text-white">{quote.due_date || 'No due date'}</div>
-                            </div>
-                            <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                                <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Price</div>
-                                <div className="text-sm text-zinc-900 dark:text-white">{quote.price ? `$${quote.price}` : 'coming soon'}</div>
-                            </div>
-                            <div className="h-full flex justify-between items-center">
-
-                                <button onClick={() => duplicateQuote(quote)} className="text-ntsLightBlue font-medium underline">
-                                    Duplicate Quote
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                <DeliveredDetailsMobile
+                    quotes={deliveredQuotes}
+                    duplicateQuote={duplicateQuote}
+                    reverseQuote={reverseQuote}
+                    formatDate={formatDate}
+                    getStatusClasses={getStatusClasses}
+                />
             </div>
         </div>
     );

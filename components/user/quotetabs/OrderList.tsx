@@ -4,6 +4,8 @@ import { Database } from '@/lib/database.types';
 import { supabase } from '@/lib/initSupabase';
 import Modal from '@/components/ui/Modal';
 import OrderTable from './OrderTable';
+import OrderDetailsMobile from '../mobile/OrderDetailsMobile';
+import { formatDate, renderAdditionalDetails, freightTypeMapping } from './QuoteUtils';
 import { generatePDF, uploadPDFToSupabase, insertDocumentRecord } from '@/components/GeneratePDF';
 import { useRouter } from 'next/router';
 
@@ -26,6 +28,9 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
     const [sortedQuotes, setSortedQuotes] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
     const [selectedQuoteId, setSelectedQuoteId] = useState<number | null>(null);
     const [cancellationReason, setCancellationReason] = useState<string>('');
+    const [loadDates, setLoadDates] = useState<{ [key: number]: string }>({});
+    const [deliveryDates, setDeliveryDates] = useState<{ [key: number]: string }>({});
+    const [getStatusClasses, setGetStatusClasses] = useState(() => (status: string) => 'bg-gray-100 text-gray-800');
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const [editData, setEditData] = useState<Partial<ShippingQuotesRow>>({});
     const [isNtsUser, setIsNtsUser] = useState(false);
@@ -418,6 +423,20 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
         }
     };
 
+    const handleDateChange = async (e: React.ChangeEvent<HTMLInputElement>, id: number, dateType: 'load' | 'delivery') => {
+        const date = e.target.value;
+        if (dateType === 'load') {
+            setLoadDates(prev => ({ ...prev, [id]: date }));
+        } else {
+            setDeliveryDates(prev => ({ ...prev, [id]: date }));
+        }
+    };
+
+    const handleSubmitDates = async (id: number) => {
+        // Implementation for submitting dates
+        console.log('Submit dates for order:', id, { load: loadDates[id], delivery: deliveryDates[id] });
+    };
+
     useEffect(() => {
         const channel = supabase
             .channel('shippingquotes')
@@ -461,52 +480,20 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                 />
             </div>
             <div className="block xl:hidden">
-                <div className='mt-1'>
-                    {quotes.map((quote) => (
-                        <div key={quote.id} className="bg-white dark:bg-zinc-800 shadow rounded-md mb-4 p-4 border border-zinc-400 dark:text-white">
-                            <div className="flex justify-between items-center mb-2">
-                                <div className="text-sm font-extrabold dark:text-white">ID</div>
-                                <div className="text-sm text-zinc-900">{quote.id}</div>
-                            </div>
-                            <div className='border-b border-zinc-600 mb-4'></div>
-                            <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                                <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Origin</div>
-                                <div className="text-sm text-zinc-900 dark:text-white">{quote.origin_street} {quote.origin_city}, {quote.origin_state} {quote.origin_zip}</div>
-                            </div>
-                            <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                                <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Destination</div>
-                                <div className="text-sm text-zinc-900 dark:text-white">{quote.destination_street} {quote.destination_city}, {quote.destination_state} {quote.destination_zip}</div>
-                            </div>
-                            <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                                <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Freight</div>
-                                <div className="text-sm text-zinc-900 dark:text-white">{quote.year} {quote.make} {quote.model}</div>
-                            </div>
-                            <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                                <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Shipping Date</div>
-                                <div className="text-sm text-zinc-900 dark:text-white">{quote.due_date || 'No due date'}</div>
-                            </div>
-                            <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                                <div className="text-sm font-extrabold text-zinc-500 dark:text-white">Price</div>
-                                <div className="text-sm text-zinc-900 dark:text-white">{quote.price ? `$${quote.price}` : 'coming soon'}</div>
-                            </div>
-                            <div className="h-full flex justify-between items-center">
-                                <button onClick={() => { setSelectedQuoteId(quote.id); setIsModalOpen(true); }} className="text-red-500 ml-2">
-                                    Cancel Quote
-                                </button>
-                                {isNtsUser && (
-                                    <>
-                                        <button onClick={() => handleMarkAsComplete(quote.id)} className="text-green-600 ml-2">
-                                            Quote Completed
-                                        </button>
-                                        <button onClick={() => handleEditQuote(quote)} className="text-blue-600 dark:text-blue-400 ml-2">
-                                            Edit Quote
-                                        </button>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                <OrderDetailsMobile
+                    orders={quotes}
+                    handleEditClick={handleEditQuote}
+                    handleMarkAsComplete={(id) => () => handleMarkAsComplete(id)}
+                    duplicateQuote={duplicateQuote}
+                    reverseQuote={reverseQuote}
+                    isAdmin={isNtsUser}
+                    formatDate={formatDate}
+                    loadDates={loadDates}
+                    deliveryDates={deliveryDates}
+                    handleDateChange={handleDateChange}
+                    handleSubmitDates={handleSubmitDates}
+                    getStatusClasses={getStatusClasses}
+                />
             </div>
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
                 <h2 className="text-xl mb-4">Are you sure you want to cancel the quote?</h2>

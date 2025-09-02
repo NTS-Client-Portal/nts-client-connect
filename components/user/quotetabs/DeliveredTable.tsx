@@ -117,10 +117,37 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
                     <h3 className="text-lg font-medium text-gray-900 mb-2">No delivered orders</h3>
                     <p className="text-gray-500">Completed orders will appear here</p>
                 </div>
+               
             ) : (
                 <>
+                    {/* Mobile View */}
+                    <div className="block md:hidden">
+
+                        
+                        {/* Mobile Pagination */}
+                        {totalPages > 1 && (
+                            <div className="flex justify-center mt-6">
+                                <div className="flex gap-1">
+                                    {Array.from({ length: totalPages }, (_, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => handlePageChange(index + 1)}
+                                            className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                                                currentPage === index + 1
+                                                    ? 'bg-blue-600 text-white'
+                                                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                            }`}
+                                        >
+                                            {index + 1}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                        
                     {/* Desktop Table View */}
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200">
                         <table className="modern-table">
                             <thead className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
                                 <tr>
@@ -220,8 +247,8 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
                         </table>
                     </div>
 
-                    {/* Pagination */}
-                    <div className="flex justify-center mt-6">
+                    {/* Desktop Pagination */}
+                    <div className="hidden md:flex justify-center mt-6">
                         <div className="flex gap-1">
                             {Array.from({ length: totalPages }, (_, index) => (
                                 <button
@@ -241,6 +268,7 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
                 </>
             )}
         </div>
+        
     );
 };
 

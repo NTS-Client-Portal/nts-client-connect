@@ -3,6 +3,8 @@ import { Session } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import { supabase } from '@/lib/initSupabase';
 import ArchivedTable from './ArchivedTable';
+import ArchivedDetailsMobile from '../mobile/ArchivedDetailsMobile';
+import { formatDate, renderAdditionalDetails, freightTypeMapping } from './QuoteUtils';
 
 type ShippingQuotesRow = Database['public']['Tables']['shippingquotes']['Row'];
 
@@ -24,6 +26,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
     const [sortConfig, setSortConfig] = useState<{ column: string; order: string }>({ column: 'id', order: 'asc' });
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [searchColumn, setSearchColumn] = useState<string>('id');
+    const [getStatusClasses] = useState(() => (status: string) => 'bg-gray-100 text-gray-800');
 
     const fetchProfiles = useCallback(
         async (companyId: string) => {
@@ -304,41 +307,14 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
                 />
             </div>
             <div className="block md:hidden">
-                {archivedQuotes.map((quote) => (
-                    <div key={quote.id} className="bg-white shadow rounded-md mb-4 p-4 border border-zinc-400">
-                        <div className="flex justify-between items-center mb-2">
-                            <div className="text-sm font-extrabold text-zinc-500">ID</div>
-                            <div className="text-sm text-zinc-900">{quote.id}</div>
-                        </div>
-                        <div className='border-b border-zinc-600 mb-4'></div>
-                        <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                            <div className="text-sm font-extrabold text-zinc-500">Origin</div>
-                            <div className="text-sm text-zinc-900">
-                                {quote.origin_city}, {quote.origin_state} {quote.origin_zip}
-                            </div>
-                        </div>
-                        <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                            <div className="text-sm font-extrabold text-zinc-500">Destination</div>
-                            <div className="text-sm text-zinc-900">{quote.destination_city}, {quote.destination_state} {quote.destination_zip}</div>
-                        </div>
-                        <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                            <div className="text-sm font-extrabold text-zinc-500">Freight</div>
-                            <div className="text-sm text-zinc-900">{quote.year} {quote.make} {quote.model}</div>
-                        </div>
-                        <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                            <div className="text-sm font-extrabold text-zinc-500">Shipping Date</div>
-                            <div className="text-sm text-zinc-900">{quote.due_date || 'No due date'}</div>
-                        </div>
-                        <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                            <div className="text-sm font-extrabold text-zinc-500">Contact</div>
-                            <div className="text-sm text-zinc-900">{quote.first_name} {quote.last_name} {quote.email}</div>
-                        </div>
-                        <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
-                            <div className="text-sm font-extrabold text-zinc-500">Price</div>
-                            <div className="text-sm text-zinc-900">{quote.price ? `$${quote.price}` : 'Not priced yet'}</div>
-                        </div>
-                    </div>
-                ))}
+                <ArchivedDetailsMobile
+                    quotes={archivedQuotes}
+                    restoreQuote={unArchive}
+                    duplicateQuote={duplicateQuote}
+                    reverseQuote={reverseQuote}
+                    formatDate={formatDate}
+                    getStatusClasses={getStatusClasses}
+                />
             </div>
         </div>
     );

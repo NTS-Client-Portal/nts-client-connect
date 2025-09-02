@@ -330,8 +330,15 @@ const OrderTable: React.FC<OrderTableProps> = ({
                 </div>
             ) : (
                 <>
+                    {/* Mobile View - Handled by parent component */}
+                    <div className="block md:hidden">
+                        <div className="p-4 text-center text-gray-500">
+                            Mobile view handled by parent component
+                        </div>
+                    </div>
+
                     {/* Desktop Table View */}
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200">
                         <table className="modern-table">
                             <thead className="bg-gradient-to-r from-green-600 to-green-700 text-white">
                                 <tr>
@@ -458,8 +465,8 @@ const OrderTable: React.FC<OrderTableProps> = ({
                         </table>
                     </div>
 
-                    {/* Pagination */}
-                    <div className="flex justify-center mt-6">
+                    {/* Desktop Pagination */}
+                    <div className="hidden md:flex justify-center mt-6">
                         <div className="flex gap-1">
                             {Array.from({ length: totalPages }, (_, index) => (
                                 <button

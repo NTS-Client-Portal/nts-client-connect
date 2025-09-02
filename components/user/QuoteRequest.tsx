@@ -389,7 +389,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                         <option value="orders">Shipping Orders</option>
                         <option value="delivered">Delivered Orders</option>
                         <option value="rejected">Rejected RFQ&apos;s</option>
-                        <option value="editHistory">Edit History</option>
+                        <option value="archived">Archived</option>
                     </select>
                 </div>
             ) : (

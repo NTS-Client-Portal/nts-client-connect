@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Database } from '@/lib/database.types';
 import TableHeaderSort from './TableHeaderSort';
 import { formatDate, freightTypeMapping } from './QuoteUtils';
-import { Search, Filter, Package, MapPin, Calendar, Truck, DollarSign, XCircle, RotateCcw, Copy } from 'lucide-react';
+import { Search, Filter, Package, MapPin, Calendar, Truck, DollarSign, XCircle, RotateCcw, Copy, CheckCircle } from 'lucide-react';
 
 type ShippingQuotesRow = Database['public']['Tables']['shippingquotes']['Row'];
 
@@ -123,8 +123,82 @@ const RejectedTable: React.FC<DeliveredTableProps> = ({
                 </div>
             ) : (
                 <>
+                    {/* Mobile View */}
+                    <div className="block md:hidden">
+                        {currentRows.map((quote) => (
+                            <div key={quote.id} className="bg-white shadow rounded-md mb-4 p-4 border border-zinc-400">
+                                <div className="flex justify-between items-center mb-2">
+                                    <div className="text-sm font-extrabold text-zinc-500">ID</div>
+                                    <div className="text-sm text-zinc-900">{quote.id}</div>
+                                </div>
+                                <div className='border-b border-zinc-600 mb-4'></div>
+                                <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
+                                    <div className="text-sm font-extrabold text-zinc-500">Origin</div>
+                                    <div className="text-sm text-zinc-900">
+                                        {quote.origin_city}, {quote.origin_state} {quote.origin_zip}
+                                    </div>
+                                </div>
+                                <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
+                                    <div className="text-sm font-extrabold text-zinc-500">Destination</div>
+                                    <div className="text-sm text-zinc-900">{quote.destination_city}, {quote.destination_state} {quote.destination_zip}</div>
+                                </div>
+                                <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
+                                    <div className="text-sm font-extrabold text-zinc-500">Freight</div>
+                                    <div className="text-sm text-zinc-900">{quote.year} {quote.make} {quote.model}</div>
+                                </div>
+                                <div className="flex flex-col md:flex-row justify-start items-stretch mb-2">
+                                    <div className="text-sm font-extrabold text-zinc-500">Price</div>
+                                    <div className="text-sm text-zinc-900">{quote.price ? `$${quote.price}` : 'Not priced yet'}</div>
+                                </div>
+                                <div className="mt-4 space-y-2">
+                                    <button
+                                        onClick={() => unRejectQuote(quote)}
+                                        className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
+                                    >
+                                        Accept Quote
+                                    </button>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button
+                                            onClick={() => duplicateQuote(quote)}
+                                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+                                        >
+                                            Duplicate
+                                        </button>
+                                        <button
+                                            onClick={() => reverseQuote(quote)}
+                                            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
+                                        >
+                                            Flip Route
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+
+                        {/* Mobile Pagination */}
+                        {totalPages > 1 && (
+                            <div className="flex justify-center mt-6">
+                                <div className="flex gap-1">
+                                    {Array.from({ length: totalPages }, (_, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => handlePageChange(index + 1)}
+                                            className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                                                currentPage === index + 1
+                                                    ? 'bg-red-600 text-white'
+                                                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                            }`}
+                                        >
+                                            {index + 1}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
                     {/* Desktop Table View */}
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200">
                         <table className="modern-table">
                             <thead className="bg-gradient-to-r from-red-600 to-red-700 text-white">
                                 <tr>
@@ -231,8 +305,8 @@ const RejectedTable: React.FC<DeliveredTableProps> = ({
                         </table>
                     </div>
 
-                    {/* Pagination */}
-                    <div className="flex justify-center mt-6">
+                    {/* Desktop Pagination */}
+                    <div className="hidden md:flex justify-center mt-6">
                         <div className="flex gap-1">
                             {Array.from({ length: totalPages }, (_, index) => (
                                 <button

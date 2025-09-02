@@ -138,7 +138,126 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
                     <p className="text-gray-500">Archived orders will appear here</p>
                 </div>
             ) : (
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                <>
+                    {/* Mobile Card View */}
+                    <div className="block md:hidden space-y-4">
+                        {sortedQuotes.map((quote) => (
+                            <div
+                                key={quote.id}
+                                className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200"
+                            >
+                                {/* Header with Quote ID and Status */}
+                                <div className="flex items-center justify-between p-4 border-b border-gray-100">
+                                    <div className="flex items-center space-x-3">
+                                        <Archive className="w-5 h-5 text-gray-600" />
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-900">Quote #{quote.id}</p>
+                                            <p className="text-xs text-gray-500">{formatDate(quote.created_at)}</p>
+                                        </div>
+                                    </div>
+                                    <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+                                        Archived
+                                    </span>
+                                </div>
+
+                                {/* Content */}
+                                <div className="p-4 space-y-3">
+                                    {/* Freight Details */}
+                                    <div className="flex items-start space-x-3">
+                                        <Truck className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
+                                        <div className="flex-1">
+                                            <p className="text-sm font-medium text-gray-900">
+                                                {freightTypeMapping[quote.freight_type] || quote.freight_type}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Route */}
+                                    <div className="flex items-start space-x-3">
+                                        <MapPin className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
+                                        <div className="flex-1">
+                                            <div className="text-sm">
+                                                <p className="font-medium text-gray-900">
+                                                    {quote.origin_city}, {quote.origin_state}
+                                                </p>
+                                                <div className="flex items-center text-gray-500 my-1">
+                                                    <div className="w-4 border-t border-gray-300"></div>
+                                                    <span className="mx-2 text-xs">to</span>
+                                                    <div className="w-4 border-t border-gray-300"></div>
+                                                </div>
+                                                <p className="font-medium text-gray-900">
+                                                    {quote.destination_city}, {quote.destination_state}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Date */}
+                                    <div className="flex items-start space-x-3">
+                                        <Calendar className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
+                                        <div className="flex-1">
+                                            <p className="text-sm text-gray-600">
+                                                Due Date: {quote.due_date ? formatDate(quote.due_date) : 'Not set'}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Price */}
+                                    {quote.price && (
+                                        <div className="flex items-center space-x-3">
+                                            <DollarSign className="w-4 h-4 text-gray-400" />
+                                            <p className="text-sm font-semibold text-gray-600">
+                                                ${quote.price.toLocaleString()}
+                                                {quote.deposit && (
+                                                    <span className="text-xs text-gray-500 ml-1">
+                                                        (+${quote.deposit} deposit)
+                                                    </span>
+                                                )}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Actions */}
+                                <div className="px-4 py-3 bg-gray-50 rounded-b-lg">
+                                    <div className="flex flex-wrap gap-2">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                unArchive(quote);
+                                            }}
+                                            className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-xs rounded-md hover:bg-green-700 transition-colors"
+                                        >
+                                            Restore
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                duplicateQuote(quote);
+                                            }}
+                                            className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 transition-colors"
+                                        >
+                                            <Copy className="w-3 h-3" />
+                                            Duplicate
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                reverseQuote(quote);
+                                            }}
+                                            className="flex items-center gap-1 px-3 py-1.5 bg-purple-600 text-white text-xs rounded-md hover:bg-purple-700 transition-colors"
+                                        >
+                                            <RotateCcw className="w-3 h-3" />
+                                            Flip Route
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200">
                     <table className="modern-table">
                         <thead className="bg-gradient-to-r from-gray-600 to-gray-700 text-white">
                             <tr>
@@ -243,7 +362,8 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
                             ))}
                         </tbody>
                     </table>
-                </div>
+                    </div>
+                </>
             )}
         </div>
     );

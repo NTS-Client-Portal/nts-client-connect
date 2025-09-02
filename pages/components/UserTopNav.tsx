@@ -13,11 +13,13 @@ import {
     LogOut, 
     ChevronDown, 
     Bell,
-    MessageSquare
+    MessageSquare,
+    Menu
 } from 'lucide-react';
 
 interface UserTopNavProps {
     className?: string;
+    toggleSidebar?: () => void;
 }
 
 interface AssignedSalesUser {
@@ -27,7 +29,7 @@ interface AssignedSalesUser {
     phone_number: string;
 }
 
-const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
+const UserTopNav: React.FC<UserTopNavProps> = ({ className = '', toggleSidebar }) => {
     const { userProfile } = useProfilesUser();
     const session = useSession();
     const [profilePictureUrl, setProfilePictureUrl] = useState<string>('https://www.gravatar.com/avatar?d=mp&s=100');
@@ -106,11 +108,22 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '' }) => {
 
     return (
         <header className={`bg-white border-b border-slate-200 shadow-sm ${className}`}>
-            <div className="flex items-center justify-between px-6 py-4">
-                {/* Left side - Page title or breadcrumbs */}
-                <div className="flex items-center">
+            <div className="flex items-center justify-between md:px-6 px-3 py-4">
+                {/* Left side - Mobile menu + Page title */}
+                <div className="flex items-center gap-4">
+                    {/* Mobile Menu Toggle */}
+                    {toggleSidebar && (
+                        <button
+                            onClick={toggleSidebar}
+                            className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors duration-200"
+                            aria-label="Toggle menu"
+                        >
+                            <Menu className="w-6 h-6 text-slate-700" />
+                        </button>
+                    )}
+                    
                     <div>
-                        <h1 className="text-xl font-semibold text-slate-900">
+                        <h1 className="md:text-xl font-semibold text-slate-900">
                             {userProfile?.company_name || 'Dashboard'}
                         </h1>
                         <p className="text-sm text-slate-600">
