@@ -155,7 +155,7 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
             icon: Folders,
             label: 'Documents',
             description: 'Files & Pictures',
-            color: 'from-purple-500 to-purple-600',
+            color: 'from-blue-500 to-blue-600',
             hasNotification: newDocumentAdded
         }
     ];
