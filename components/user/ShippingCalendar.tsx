@@ -122,30 +122,98 @@ const ShippingCalendar: React.FC<ShippingCalendarProps> = () => {
     };
 
     return (
-        <div className="px-4">
-            <h1 className='text-zinc-900 font-semibold text-xl text-center md:text-normal mb-4'>Shipping Calendar</h1>
-            {errorText && <p className="error">{errorText}</p>}
+        <div className="w-full">
+            {errorText && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-600 text-sm font-medium">{errorText}</p>
+                </div>
+            )}
             <Calendar
                 localizer={localizer}
                 events={events}
                 startAccessor="start"
                 endAccessor="end"
-                style={{ height: '75vh' }}
+                style={{ 
+                    height: 'clamp(400px, 60vh, 700px)',
+                    fontSize: '12px'
+                }}
                 onSelectEvent={handleSelectEvent}
-                className="sm:rounded-lg shadow-lg"
+                className="rounded-lg shadow-inner bg-white dark:bg-gray-800"
                 eventPropGetter={(event) => ({
                     className: `custom-event ${getStatusClasses(event.status)}`,
+                    style: {
+                        fontSize: '11px',
+                        padding: '2px 4px',
+                        borderRadius: '4px',
+                        border: 'none',
+                        fontWeight: '500'
+                    }
                 })}
                 components={{
                     event: ({ event }) => (
-                    <>
-                        <div className='flex justify-start ml-2 gap-1'>
-                        <div className="cursor-pointer text-[10px] text-white">
-                        <strong>Status for {event.title}:</strong> {event.status}
+                        <div className="flex items-center justify-start gap-1 px-1 py-0.5">
+                            <div className="text-white text-xs font-medium truncate">
+                                #{event.id} - {event.status}
                             </div>
                         </div>
-                    </>
                     ),
+                    toolbar: (props) => (
+                        <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => props.onNavigate('PREV')}
+                                    className="p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                                    aria-label="Previous"
+                                >
+                                    ←
+                                </button>
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white px-2">
+                                    {props.label}
+                                </h3>
+                                <button
+                                    onClick={() => props.onNavigate('NEXT')}
+                                    className="p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                                    aria-label="Next"
+                                >
+                                    →
+                                </button>
+                            </div>
+                            <div className="flex gap-2">
+                                {(['month', 'week', 'day', 'agenda'] as const).map((viewName) => (
+                                    <button
+                                        key={viewName}
+                                        onClick={() => props.onView(viewName)}
+                                        className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                                            props.view === viewName
+                                                ? 'bg-blue-600 text-white'
+                                                : 'bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-500'
+                                        }`}
+                                    >
+                                        {viewName.charAt(0).toUpperCase() + viewName.slice(1)}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    ),
+                }}
+                views={['month', 'week', 'day', 'agenda']}
+                defaultView="month"
+                popup={true}
+                popupOffset={30}
+                messages={{
+                    allDay: 'All Day',
+                    previous: '←',
+                    next: '→',
+                    today: 'Today',
+                    month: 'Month',
+                    week: 'Week',
+                    day: 'Day',
+                    agenda: 'Agenda',
+                    date: 'Date',
+                    time: 'Time',
+                    event: 'Event',
+                    noEventsInRange: 'No shipments scheduled for this period',
+                    showMore: (count) => `+${count} more`
                 }}
             />
         </div>

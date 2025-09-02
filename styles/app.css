@@ -4869,7 +4869,7 @@ main:is(.dark *) {
   padding: .5rem;
   min-height: calc(100vh - 8rem);
   position: relative;
-  z-index: 100;
+  z-index: 20;
 }
 
 .dark .nts-content-container > * {
