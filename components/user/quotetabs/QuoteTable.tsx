@@ -17,6 +17,7 @@ import {
     getValidBrokersTransitions
 } from '@/lib/statusManagement';
 import OrderFormModal from './OrderFormModal';
+import RejectReasonModal from './RejectReasonModal';
 import { generateAndUploadDocx, replaceShortcodes } from "@/components/GenerateDocx";
 import SelectTemplate from '@/components/SelectTemplate';
 import QuoteFormModal from '@/components/user/forms/QuoteFormModal';
@@ -583,7 +584,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                         )}
                                     </div>
                                     
-                                    {isAdmin && (
+                                    {(isAdmin || !isUser) && (
                                         <div className="mt-3 space-y-2">
                                             <select
                                                 aria-label="Quote Status"
@@ -791,14 +792,14 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                     </span>
                                                 )}
                                             </td>
-                                            <td className="px-3 py-4 whitespace-nowrap text-sm">
+                                            <td className="px-3 py-4 whitespace-nowrap text-md font-semibold">
                                                 <div className="flex items-center gap-1">
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             handleEditClick(quote);
                                                         }}
-                                                        className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                                                        className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-800 flex items-center gap-1"
                                                     >
                                                         <Edit className="w-4 h-4" />
                                                         <span className="text-xs">Edit</span>
@@ -809,15 +810,29 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                                 e.stopPropagation();
                                                                 handleCreateOrderClick(quote.id);
                                                             }}
-                                                            className="text-green-600 hover:text-green-800 flex items-center gap-1"
+                                                            className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-800 flex items-center gap-1"
                                                         >
                                                             <CheckCircle className="w-4 h-4" />
                                                             <span className="text-xs">Order</span>
                                                         </button>
                                                     )}
+                                                    {isUser && quote.price && (
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleRejectClick(quote.id);
+                                                            }}
+                                                            className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-800 flex items-center gap-1"
+                                                            aria-label="Reject Quote"
+                                                            title="Reject Quote"
+                                                        >
+                                                            <XCircle className="w-4 h-4" />
+                                                            <span className="text-xs">Reject</span>
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
-                                            <td className="px-3 py-4 text-sm text-gray-500 max-w-xs">
+                                            <td className="px-3 py-4 text-md text-gray-700 max-w-xs">
                                                 <div className="truncate text-xs" title={quote.notes || ''}>
                                                     {quote.notes}
                                                 </div>
@@ -857,7 +872,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                                         className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
                                                                     >
                                                                         <RotateCcw className="w-4 h-4 mr-2" />
-                                                                        Reverse Route
+                                                                        Flip Route
                                                                     </button>
                                                                 </div>
                                                             </div>
@@ -867,7 +882,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                                 <EditHistory quoteId={quote.id} searchTerm="" searchColumn="id" editHistory={editHistory} />
                                                             </div>
                                                         )}
-                                                        {isAdmin && (
+                                                        {(isAdmin || !isUser) && (
                                                             <div className="bg-white rounded-lg p-4 space-y-3">
                                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                     <div>

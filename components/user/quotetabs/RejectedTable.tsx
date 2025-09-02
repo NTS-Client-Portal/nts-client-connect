@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Database } from '@/lib/database.types';
 import TableHeaderSort from './TableHeaderSort';
 import { formatDate, freightTypeMapping } from './QuoteUtils';
-import { Search, Filter, Package, MapPin, Calendar, Truck, DollarSign, XCircle, RotateCcw } from 'lucide-react';
+import { Search, Filter, Package, MapPin, Calendar, Truck, DollarSign, XCircle, RotateCcw, Copy } from 'lucide-react';
 
 type ShippingQuotesRow = Database['public']['Tables']['shippingquotes']['Row'];
 
@@ -13,6 +13,8 @@ interface DeliveredTableProps {
     handleStatusChange: (e: React.ChangeEvent<HTMLSelectElement>, id: number) => void;
     isAdmin: boolean;
     unRejectQuote: (quote: ShippingQuotesRow) => void;
+    duplicateQuote: (quote: ShippingQuotesRow) => void;
+    reverseQuote: (quote: ShippingQuotesRow) => void;
 }
 
 
@@ -23,6 +25,8 @@ const RejectedTable: React.FC<DeliveredTableProps> = ({
     handleStatusChange,
     unRejectQuote,
     isAdmin,
+    duplicateQuote,
+    reverseQuote,
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [activeTab, setActiveTab] = useState<'orderdetails' | 'editHistory'>('orderdetails');
@@ -196,14 +200,30 @@ const RejectedTable: React.FC<DeliveredTableProps> = ({
                                                 {quote.status || 'Rejected'}
                                             </span>
                                         </td>
-                                        <td className="px-3 py-4 whitespace-nowrap text-sm">
-                                            <button
-                                                onClick={() => unRejectQuote(quote)}
-                                                className="text-red-600 hover:text-red-800 flex items-center gap-1"
-                                            >
-                                                <RotateCcw className="w-4 h-4" />
-                                                <span className="text-xs">Accept</span>
-                                            </button>
+                                        <td className="px-3 py-4 whitespace-nowrap text-md">
+                                            <div className="flex items-center gap-1">
+                                                <button
+                                                    onClick={() => unRejectQuote(quote)}
+                                                    className="bg-green-600 text-white font-semibold px-2 py-1 rounded hover:bg-green-800 flex items-center gap-1"
+                                                >
+                                                    <RotateCcw className="w-4 h-4" />
+                                                    <span className="text-xs">Accept</span>
+                                                </button>
+                                                <button
+                                                    onClick={() => duplicateQuote(quote)}
+                                                    className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-800 flex items-center gap-1"
+                                                >
+                                                    <Copy className="w-4 h-4" />
+                                                    <span className="text-xs">Duplicate</span>
+                                                </button>
+                                                <button
+                                                    onClick={() => reverseQuote(quote)}
+                                                    className="bg-green-700 text-white px-2 py-1 rounded hover:bg-green-900 flex items-center gap-1"
+                                                >
+                                                    <RotateCcw className="w-4 h-4" />
+                                                    <span className="text-xs">Flip Route</span>
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}

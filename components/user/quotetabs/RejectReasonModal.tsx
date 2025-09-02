@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '@lib/initSupabase';
 import { Database } from '@lib/database.types';
+import { X } from 'lucide-react';
 
 interface RejectReasonModalProps {
     isOpen: boolean;
@@ -54,13 +55,13 @@ const RejectReasonModal: React.FC<RejectReasonModalProps> = ({ onClose, onSubmit
 
         onSubmit({
             notes: updatedNotes,
-            status: 'rejected',
+            status: 'Rejected',
             quote,
         });
 
         const { error } = await supabase
             .from('shippingquotes')
-            .update({ status: 'rejected', notes: updatedNotes })
+            .update({ status: 'Rejected', notes: updatedNotes })
             .eq('id', quote.id);
 
         setLoading(false);
@@ -88,52 +89,98 @@ const RejectReasonModal: React.FC<RejectReasonModalProps> = ({ onClose, onSubmit
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-zinc-600 bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-8 rounded shadow-md w-1/3">
-                <h2 className="text-2xl font-semibold mb-4">Reject Quote</h2>
-                <form onSubmit={handleRejected} className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-2">
-                        <p>Are you sure you would like to reject this Quote?</p>
-                        <div className="flex justify-start gap-2 mt-3">
-                            <button type="button" onClick={onClose} className="cancel-btn">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md mx-4">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-semibold text-gray-900">Reject Quote</h2>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
+                
+                <form onSubmit={handleRejected} className="space-y-4">
+                    <div>
+                        <p className="text-gray-700 mb-4">
+                            Are you sure you would like to reject this quote?
+                        </p>
+                        <div className="flex gap-2">
+                            <button 
+                                type="button" 
+                                onClick={onClose} 
+                                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                            >
                                 No
                             </button>
-                            <button type="button" onClick={handleYes} className="bg-red-500 hover:bg-red-500/90 text-white rounded-sm px-4 py-2">
+                            <button 
+                                type="button" 
+                                onClick={handleYes} 
+                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors"
+                            >
                                 Yes
                             </button>
                         </div>
                     </div>
+                    
                     {yes && (
-                        <>
-                            <div className="flex flex-wrap gap-2">
-                                {predefinedReasons.map((reason) => (
-                                    <button
-                                        key={reason}
-                                        type="button"
-                                        onClick={() => handleReasonClick(reason)}
-                                        className={`bg-gray-200 text-gray-700 px-2 py-1 rounded ${selectedReasons.includes(reason) ? 'bg-blue-400 text-white' : 'bg-gray-200'}`}
-                                    >
-                                        {reason}
-                                    </button>
-                                ))}
+                        <div className="space-y-4 border-t border-gray-200 pt-4">
+                            <div>
+                                <p className="text-sm font-medium text-gray-700 mb-2">
+                                    Please select a reason for rejection:
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                    {predefinedReasons.map((reason) => (
+                                        <button
+                                            key={reason}
+                                            type="button"
+                                            onClick={() => handleReasonClick(reason)}
+                                            className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                                                selectedReasons.includes(reason)
+                                                    ? 'bg-blue-600 text-white' 
+                                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                            }`}
+                                        >
+                                            {reason}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
+                            
                             {selectedReasons.includes('Other') && (
-                                <textarea
-                                    className="border border-gray-300 rounded p-2 mt-2"
-                                    placeholder="Please provide a reason for rejecting the quote"
-                                    value={notes}
-                                    onChange={(e) => setNotes(e.target.value)}
-                                />
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Additional details
+                                    </label>
+                                    <textarea
+                                        className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        placeholder="Please provide a reason for rejecting the quote"
+                                        value={notes}
+                                        onChange={(e) => setNotes(e.target.value)}
+                                        rows={3}
+                                    />
+                                </div>
                             )}
-                            <div className="flex justify-end gap-2">
-                                <button type="button" onClick={onClose} className="cancel-btn">
+                            
+                            <div className="flex gap-2 pt-2">
+                                <button 
+                                    type="button" 
+                                    onClick={onClose} 
+                                    className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                                >
                                     Cancel
                                 </button>
-                                <button type="submit" disabled={loading} className="body-btn">
-                                    Submit
+                                <button 
+                                    type="submit" 
+                                    disabled={loading || selectedReasons.length === 0} 
+                                    className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white rounded-md transition-colors"
+                                >
+                                    {loading ? 'Submitting...' : 'Reject Quote'}
                                 </button>
                             </div>
-                        </>
+                        </div>
                     )}
                 </form>
             </div>

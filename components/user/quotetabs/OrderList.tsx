@@ -364,6 +364,60 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
         }
     };
 
+    const duplicateQuote = async (quote: Database['public']['Tables']['shippingquotes']['Row']) => {
+        const { data, error } = await supabase
+            .from('shippingquotes')
+            .insert({
+                ...quote,
+                id: undefined, // Let the database generate a new ID
+                due_date: null,
+                price: null,
+                status: 'Quote', // Reset to Quote status
+                created_at: new Date().toISOString(),
+            })
+            .select();
+
+        if (error) {
+            console.error('Error duplicating quote:', error.message);
+            setErrorText('Error duplicating quote');
+        } else {
+            if (data && data.length > 0) {
+                console.log(`Duplicate Quote Request Added - Quote #${data[0].id}`);
+            }
+            fetchInitialQuotes();
+        }
+    };
+
+    const reverseQuote = async (quote: Database['public']['Tables']['shippingquotes']['Row']) => {
+        const { data, error } = await supabase
+            .from('shippingquotes')
+            .insert({
+                ...quote,
+                id: undefined, // Let the database generate a new ID
+                due_date: null,
+                price: null,
+                status: 'Quote', // Reset to Quote status
+                origin_city: quote.destination_city,
+                origin_state: quote.destination_state,
+                origin_zip: quote.destination_zip,
+                destination_city: quote.origin_city,
+                destination_state: quote.origin_state,
+                destination_zip: quote.origin_zip,
+                created_at: new Date().toISOString(),
+            })
+            .select();
+
+        if (error) {
+            console.error('Error reversing quote:', error.message);
+            setErrorText('Error reversing quote');
+        } else {
+            if (data && data.length > 0) {
+                console.log(`Flip Route Duplicate Request Added - Quote #${data[0].id}`);
+            }
+            fetchInitialQuotes();
+        }
+    };
+
     useEffect(() => {
         const channel = supabase
             .channel('shippingquotes')
@@ -398,6 +452,8 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                     handleMarkAsComplete={(id) => () => handleMarkAsComplete(id)}
                     isAdmin={isAdmin}
                     handleEditClick={handleEditQuote}
+                    duplicateQuote={duplicateQuote}
+                    reverseQuote={reverseQuote}
                     searchTerm={searchTerm}
                     setSearchTerm={setSearchTerm}
                     searchColumn={searchColumn}

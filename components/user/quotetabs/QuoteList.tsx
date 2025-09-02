@@ -422,6 +422,8 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
                 console.error("Error rejecting quote:", error.message);
             } else {
                 setQuotes((prevQuotes) => prevQuotes.filter((q) => q.id !== quote.id));
+                // Refresh quotes to update all tabs including rejected
+                fetchQuotes();
             }
         }
     };

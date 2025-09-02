@@ -10,14 +10,18 @@ interface RejectedProps {
     fetchQuotes: () => void;
     isAdmin: boolean;
     companyId: string;
+    refreshTrigger?: number; // Add optional refresh trigger
+    duplicateQuote?: (quote: Quote) => void;
+    reverseQuote?: (quote: Quote) => void;
 }
 
 type Quote = Database['public']['Tables']['shippingquotes']['Row'];
 
-const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserId, companyId }) => {
+const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserId, companyId, refreshTrigger, duplicateQuote, reverseQuote }) => {
     const [errorText, setErrorText] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [rejectedQuotes, setRejectedQuotes] = useState<Quote[]>([]);
+    const [popupMessage, setPopupMessage] = useState<string | null>(null);
 
     const fetchProfiles = useCallback(
         async (companyId: string) => {
@@ -40,6 +44,7 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
 
     const fetchRejectedQuotes = useCallback(
         async (profileIds: string[]) => {
+            console.log('Fetching rejected quotes for profile IDs:', profileIds);
             const { data: quotes, error } = await supabase
                 .from("shippingquotes")
                 .select("*")
@@ -51,6 +56,7 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
                 return [];
             }
 
+            console.log('Found rejected quotes:', quotes);
             return quotes;
         },
         []
@@ -105,10 +111,12 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
     );
 
     const fetchInitialQuotes = useCallback(async () => {
+        console.log('fetchInitialQuotes called with refreshTrigger:', refreshTrigger);
         if (!session?.user?.id) return;
 
         if (isAdmin) {
             const quotesData = await fetchRejectedQuotesForNtsUsers(session.user.id, companyId);
+            console.log('Admin rejected quotes:', quotesData);
             setRejectedQuotes(quotesData);
         } else {
             // Fetch the user's profile
@@ -147,7 +155,7 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
 
     useEffect(() => {
         fetchInitialQuotes();
-    }, [fetchInitialQuotes]);
+    }, [fetchInitialQuotes, refreshTrigger]); // Add refreshTrigger to dependencies
 
     useEffect(() => {
         const checkUserType = async () => {
@@ -189,6 +197,58 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
         checkUserType();
     }, [session, fetchRejectedQuotesForNtsUsers, fetchRejectedQuotes, fetchInitialQuotes, fetchProfiles, companyId]);
 
+    const duplicateQuoteInternal = async (quote: Quote) => {
+        const { data, error } = await supabase
+            .from('shippingquotes')
+            .insert({
+                ...quote,
+                id: undefined, // Let the database generate a new ID
+                due_date: null,
+                price: null,
+                status: 'Quote', // Reset to Quote status
+                created_at: new Date().toISOString(),
+            })
+            .select();
+
+        if (error) {
+            console.error('Error duplicating quote:', error.message);
+        } else {
+            if (data && data.length > 0) {
+                setPopupMessage(`Duplicate Quote Request Added - Quote #${data[0].id}`);
+            }
+            fetchInitialQuotes();
+        }
+    };
+
+    const reverseQuoteInternal = async (quote: Quote) => {
+        const { data, error } = await supabase
+            .from('shippingquotes')
+            .insert({
+                ...quote,
+                id: undefined, // Let the database generate a new ID
+                due_date: null,
+                price: null,
+                status: 'Quote', // Reset to Quote status
+                origin_city: quote.destination_city,
+                origin_state: quote.destination_state,
+                origin_zip: quote.destination_zip,
+                destination_city: quote.origin_city,
+                destination_state: quote.origin_state,
+                destination_zip: quote.origin_zip,
+                created_at: new Date().toISOString(),
+            })
+            .select();
+
+        if (error) {
+            console.error('Error reversing quote:', error.message);
+        } else {
+            if (data && data.length > 0) {
+                setPopupMessage(`Flip Route Duplicate Request Added - Quote #${data[0].id}`);
+            }
+            fetchInitialQuotes();
+        }
+    };
+
     const unRejectQuote = async (quote: Quote) => {
         const { error } = await supabase
             .from('shippingquotes')
@@ -203,9 +263,20 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
         setRejectedQuotes(rejectedQuotes.filter((q) => q.id !== quote.id));
     }
 
+    // Popup message auto-hide effect
+    useEffect(() => {
+        if (popupMessage) {
+            const timer = setTimeout(() => {
+                setPopupMessage(null);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [popupMessage]);
+
     return (
         <div className="w-full bg-white0 max-h-max flex-grow">
             {!!errorText && <div className="text-red-500">{errorText}</div>}
+            {!!popupMessage && <div className="text-green-500 mb-4 p-3 bg-green-50 border border-green-200 rounded">{popupMessage}</div>}
             <div className="hidden lg:block overflow-x-auto">
                 <RejectedTable
                     quotes={rejectedQuotes}
@@ -214,6 +285,8 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
                     handleStatusChange={() => { }}
                     unRejectQuote={unRejectQuote}
                     isAdmin={isAdmin}
+                    duplicateQuote={duplicateQuote || duplicateQuoteInternal}
+                    reverseQuote={reverseQuote || reverseQuoteInternal}
                 />
             </div>
             <div className="block md:hidden">

@@ -14,7 +14,9 @@ import {
     Edit,
     CheckCircle,
     Clock,
-    ChevronUp
+    ChevronUp,
+    Copy,
+    RotateCcw
 } from 'lucide-react';
 
 interface OrderTableProps {
@@ -27,6 +29,8 @@ interface OrderTableProps {
     handleEditClick: (order: Database['public']['Tables']['shippingquotes']['Row']) => void;
     isAdmin: boolean;
     handleMarkAsComplete: (id: number) => React.MouseEventHandler<HTMLButtonElement>;
+    duplicateQuote: (quote: Database['public']['Tables']['shippingquotes']['Row']) => void;
+    reverseQuote: (quote: Database['public']['Tables']['shippingquotes']['Row']) => void;
     searchTerm: string;
     setSearchTerm: (term: string) => void;
     searchColumn: string;
@@ -51,6 +55,8 @@ const OrderTable: React.FC<OrderTableProps> = ({
     handleEditClick,
     isAdmin,
     handleMarkAsComplete,
+    duplicateQuote,
+    reverseQuote,
     searchTerm,
     setSearchTerm,
     searchColumn,
@@ -402,25 +408,48 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                                 {order.status || 'In Progress'}
                                             </span>
                                         </td>
-                                        <td className="px-3 py-4 whitespace-nowrap text-sm">
+                                        <td className="px-3 py-4 whitespace-nowrap text-md font-semibold">
                                             <div className="flex items-center gap-1">
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         handleEditClick(order);
                                                     }}
-                                                    className="text-green-600 hover:text-green-800 flex items-center gap-1"
+                                                    className="bg-slate-600 text-white px-2 py-1 rounded hover:bg-slate-800 flex items-center gap-1"
                                                 >
                                                     <Edit className="w-4 h-4" />
                                                     <span className="text-xs">Edit</span>
                                                 </button>
                                                 <button
-                                                    onClick={handleMarkAsComplete(order.id)}
-                                                    className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        duplicateQuote(order);
+                                                    }}
+                                                    className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-800 flex items-center gap-1"
                                                 >
-                                                    <CheckCircle className="w-4 h-4" />
-                                                    <span className="text-xs">Complete</span>
+                                                    <Copy className="w-4 h-4" />
+                                                    <span className="text-xs">Duplicate Route</span>
                                                 </button>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        reverseQuote(order);
+                                                    }}
+                                                    className="bg-green-700 text-white px-2 py-1 rounded hover:bg-green-900 flex items-center gap-1"
+                                                >
+                                                    <RotateCcw className="w-4 h-4" />
+                                                    <span className="text-xs">Flip Route</span>
+                                                </button>
+                                                {/* Only admins (NTS users) can mark orders as complete */}
+                                                {isAdmin && (
+                                                    <button
+                                                        onClick={handleMarkAsComplete(order.id)}
+                                                        className="text-red-600 hover:text-red-800 flex items-center gap-1"
+                                                    >
+                                                        <CheckCircle className="w-4 h-4" />
+                                                        <span className="text-xs">Complete</span>
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>

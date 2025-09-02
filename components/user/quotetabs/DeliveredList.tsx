@@ -292,6 +292,52 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
         }
     };
 
+    const reverseQuote = async (quote: Database['public']['Tables']['shippingquotes']['Row']) => {
+        const newQuote = {
+            user_id: quote.user_id,
+            company_id: quote.company_id,
+            assigned_sales_user: quote.assigned_sales_user,
+            origin_zip: quote.destination_zip, // Flip
+            origin_city: quote.destination_city, // Flip
+            origin_state: quote.destination_state, // Flip
+            destination_zip: quote.origin_zip, // Flip
+            destination_city: quote.origin_city, // Flip
+            destination_state: quote.origin_state, // Flip
+            due_date: null,
+            freight_type: quote.freight_type,
+            status: 'Quote',
+            inserted_at: new Date().toISOString(),
+            is_complete: false,
+            is_archived: false,
+            year: quote.year,
+            make: quote.make,
+            model: quote.model,
+            length: quote.length,
+            width: quote.width,
+            height: quote.height,
+            weight: quote.weight,
+            commodity: quote.commodity,
+            pallet_count: quote.pallet_count,
+            price: null, // Reset price
+            notes: quote.notes,
+        };
+
+        const { data, error } = await supabase
+            .from('shippingquotes')
+            .insert([newQuote])
+            .select();
+
+        if (error) {
+            console.error('Error reversing quote:', error.message);
+            setErrorText('Error reversing quote');
+        } else {
+            if (data && data.length > 0) {
+                setPopupMessage(`Flip Route Duplicate Request Added - Quote #${data[0].id}`);
+            }
+            fetchDeliveredQuotesForCompany(companyId); // Fetch delivered quotes to update the list
+        }
+    };
+
     return (
         <div className="w-full bg-white max-h-max flex-grow">
             {!!errorText && <div className="text-red-500">{errorText}</div>}
@@ -304,6 +350,7 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
                     handleEditClick={handleEditQuote}
                     handleMarkAsComplete={handleMarkAsComplete}
                     duplicateQuote={duplicateQuote} // Pass the duplicateQuote function
+                    reverseQuote={reverseQuote} // Pass the reverseQuote function
                     isAdmin={isAdmin}
                     sortConfig={{ column: 'id', order: 'asc' }} // Example sortConfig
                     handleSort={(key) => console.log(`Sorting by ${key}`)} // Example handleSort function

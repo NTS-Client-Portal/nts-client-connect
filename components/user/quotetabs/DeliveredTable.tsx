@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Database } from '@/lib/database.types';
 import TableHeaderSort from './TableHeaderSort';
 import { formatDate, renderAdditionalDetails, freightTypeMapping } from './QuoteUtils';
-import { Search, Filter, Package, MapPin, Calendar, Truck, DollarSign, CheckCircle, Copy } from 'lucide-react';
+import { Search, Filter, Package, MapPin, Calendar, Truck, DollarSign, CheckCircle, Copy, RotateCcw } from 'lucide-react';
 
 type ShippingQuotesRow = Database['public']['Tables']['shippingquotes']['Row'];
 
@@ -16,7 +16,7 @@ interface DeliveredTableProps {
     handleEditClick: (quote: ShippingQuotesRow) => void;
     handleMarkAsComplete: (id: number) => void;
     duplicateQuote: (quote: ShippingQuotesRow) => void;
-    
+    reverseQuote: (quote: ShippingQuotesRow) => void;
 }
 
 const DeliveredTable: React.FC<DeliveredTableProps> = ({
@@ -26,6 +26,7 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
     handleStatusChange,
     handleEditClick,
     duplicateQuote,
+    reverseQuote,
     handleMarkAsComplete,
     fetchDeliveredQuotes,
     isAdmin,
@@ -195,14 +196,23 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
                                                 {quote.status || 'Delivered'}
                                             </span>
                                         </td>
-                                        <td className="px-3 py-4 whitespace-nowrap text-sm">
-                                            <button
-                                                onClick={() => duplicateQuote(quote)}
-                                                className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                                            >
-                                                <Copy className="w-4 h-4" />
-                                                <span className="text-xs">Duplicate</span>
-                                            </button>
+                                        <td className="px-3 py-4 whitespace-nowrap text-md font-semibold">
+                                            <div className="flex items-center gap-1">
+                                                <button
+                                                    onClick={() => duplicateQuote(quote)}
+                                                    className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-800 flex items-center gap-1"
+                                                >
+                                                    <Copy className="w-4 h-4" />
+                                                    <span className="text-xs">Duplicate</span>
+                                                </button>
+                                                <button
+                                                    onClick={() => reverseQuote(quote)}
+                                                    className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-800 flex items-center gap-1"
+                                                >
+                                                    <RotateCcw className="w-4 h-4" />
+                                                    <span className="text-xs">Flip Route</span>
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}

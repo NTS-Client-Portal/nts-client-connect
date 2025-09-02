@@ -43,6 +43,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
     const [searchColumn, setSearchColumn] = useState<string>(searchColumnParam as string || 'id');
     const [assignedSalesUser, setAssignedSalesUser] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(true);
+    const [rejectedRefreshTrigger, setRejectedRefreshTrigger] = useState<number>(0);
 
     const fetchUserProfile = useCallback(async () => {
         if (!session?.user?.id) return;
@@ -126,6 +127,8 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
         } else {
             console.log('Fetched Quotes:', data);
             setQuotes(data);
+            // Trigger refresh for rejected quotes when main quotes are fetched
+            setRejectedRefreshTrigger(prev => prev + 1);
         }
     }, [session, companyId, supabase]);
 
@@ -332,7 +335,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
     };
 
     return (
-        <div className="w-full h-full">
+        <div className="w-full h-full absolute !z-0">
             {quotes ? (
                 <div className="flex mb-4">
                     <p className='text-start font-semibold py-2 text-gray-800 text-nowrap'>Welcome {profilesUser?.first_name} {profilesUser?.last_name} <br /> Manage your shipments here</p>
@@ -373,7 +376,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
             )}
 
             {isMobile ? (
-                <div className="relative z-0">
+                <div className="relative z-[-50]">
                     <label htmlFor="tab-select" className="sr-only">Select shipment tab</label>
                     <select
                         id="tab-select"
@@ -470,6 +473,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                         fetchQuotes={fetchQuotes}
                         selectedUserId={selectedUserId}
                         companyId={companyId}
+                        refreshTrigger={rejectedRefreshTrigger}
                     />
                 )}
             </div>

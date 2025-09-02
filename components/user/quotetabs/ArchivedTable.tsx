@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Database } from '@/lib/database.types';
 import TableHeaderSort from './TableHeaderSort';
 import { formatDate, freightTypeMapping } from './QuoteUtils';
-import { Search, Filter, Package, MapPin, Calendar, Truck, DollarSign, RotateCcw, Archive } from 'lucide-react';
+import { Search, Filter, Package, MapPin, Calendar, Truck, DollarSign, RotateCcw, Archive, Copy } from 'lucide-react';
 
 type ShippingQuotesRow = Database['public']['Tables']['shippingquotes']['Row'];
 
@@ -16,6 +16,8 @@ interface ArchivedTableProps {
     isNtsUser: boolean;
     isCompanyUser: boolean;
     companyId: string;
+    duplicateQuote: (quote: ShippingQuotesRow) => void;
+    reverseQuote: (quote: ShippingQuotesRow) => void;
 }
 
 const ArchivedTable: React.FC<ArchivedTableProps> = ({
@@ -28,6 +30,8 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
     isNtsUser,
     isCompanyUser,
     companyId,
+    duplicateQuote,
+    reverseQuote,
 }) => {
     const [archivedQuotes, setArchivedQuotes] = useState<ShippingQuotesRow[]>(quotes);
     const [searchTerm, setSearchTerm] = useState('');
@@ -210,14 +214,30 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
                                             {quote.status || 'Archived'}
                                         </span>
                                     </td>
-                                    <td className="px-3 py-4 whitespace-nowrap text-sm">
-                                        <button
-                                            onClick={() => unArchive(quote)}
-                                            className="text-gray-600 hover:text-gray-800 flex items-center gap-1"
-                                        >
-                                            <RotateCcw className="w-4 h-4" />
-                                            <span className="text-xs">Restore</span>
-                                        </button>
+                                    <td className="px-3 py-4 whitespace-nowrap text-md font-semibold">
+                                        <div className="flex items-center gap-1">
+                                            <button
+                                                onClick={() => unArchive(quote)}
+                                                className="bg-gray-600 text-white px-2 py-1 rounded hover:bg-gray-800 flex items-center gap-1"
+                                            >
+                                                <RotateCcw className="w-4 h-4" />
+                                                <span className="text-xs">Restore</span>
+                                            </button>
+                                            <button
+                                                onClick={() => duplicateQuote(quote)}
+                                                className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-800 flex items-center gap-1"
+                                            >
+                                                <Copy className="w-4 h-4" />
+                                                <span className="text-xs">Duplicate</span>
+                                            </button>
+                                            <button
+                                                onClick={() => reverseQuote(quote)}
+                                                className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-800 flex items-center gap-1"
+                                            >
+                                                <RotateCcw className="w-4 h-4" />
+                                                <span className="text-xs">Flip Route</span>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

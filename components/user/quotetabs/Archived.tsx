@@ -233,6 +233,58 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
         }
     };
 
+    const duplicateQuote = async (quote: Database['public']['Tables']['shippingquotes']['Row']) => {
+        const { data, error } = await supabase
+            .from('shippingquotes')
+            .insert({
+                ...quote,
+                id: undefined, // Let the database generate a new ID
+                due_date: null,
+                price: null,
+                status: 'Quote', // Reset to Quote status
+                created_at: new Date().toISOString(),
+            })
+            .select();
+
+        if (error) {
+            console.error('Error duplicating quote:', error.message);
+        } else {
+            if (data && data.length > 0) {
+                setPopupMessage(`Duplicate Quote Request Added - Quote #${data[0].id}`);
+            }
+            fetchInitialQuotes();
+        }
+    };
+
+    const reverseQuote = async (quote: Database['public']['Tables']['shippingquotes']['Row']) => {
+        const { data, error } = await supabase
+            .from('shippingquotes')
+            .insert({
+                ...quote,
+                id: undefined, // Let the database generate a new ID
+                due_date: null,
+                price: null,
+                status: 'Quote', // Reset to Quote status
+                origin_city: quote.destination_city,
+                origin_state: quote.destination_state,
+                origin_zip: quote.destination_zip,
+                destination_city: quote.origin_city,
+                destination_state: quote.origin_state,
+                destination_zip: quote.origin_zip,
+                created_at: new Date().toISOString(),
+            })
+            .select();
+
+        if (error) {
+            console.error('Error reversing quote:', error.message);
+        } else {
+            if (data && data.length > 0) {
+                setPopupMessage(`Flip Route Duplicate Request Added - Quote #${data[0].id}`);
+            }
+            fetchInitialQuotes();
+        }
+    };
+
     return (
         <div className="w-full bg-white max-h-max flex-grow">
             {!!errorText && <div className="text-red-500">{errorText}</div>}
@@ -247,6 +299,8 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
                     isNtsUser={isNtsUser}
                     isCompanyUser={isCompanyUser}
                     companyId={companyId}
+                    duplicateQuote={duplicateQuote}
+                    reverseQuote={reverseQuote}
                 />
             </div>
             <div className="block md:hidden">
