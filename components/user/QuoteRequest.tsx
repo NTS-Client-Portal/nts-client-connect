@@ -336,19 +336,16 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
 
     return (
         <div className="w-full h-full absolute !z-0">
-            {quotes ? (
-                <div className="flex mb-4">
-                    <p className='text-start font-semibold py-2 text-gray-800 text-nowrap'>Welcome {profilesUser?.first_name} {profilesUser?.last_name} <br /> Manage your shipments here</p>
-                </div>
-            ) : quotes.length === 0 ? (
-                <div className="w-full">
-                    <div className='flex flex-col justify-center items-center gap-2 mb-4'>
-                        <button onClick={() => setIsModalOpen(true)} className="text-base text-white rounded bg-zinc-900 px-2 py-1 cursor-point font-semibold">
-                            {activeTab === 'orders' ? 'Request a Shipping Order' : 'Request a Shipping Estimate'}
-                        </button>
-                    </div>
-                </div>
-            ) : ("")}
+            <div className="flex justify-between items-center mb-4">
+                <p className='text-start font-semibold py-2 text-gray-800 text-nowrap'>Manage your shipments here</p>
+                <button 
+                    onClick={() => setIsModalOpen(true)} 
+                    className="text-base text-white rounded-md bg-blue-900 hover:bg-blue-800 px-4 py-2 font-semibold transition-colors"
+                >
+                    {activeTab === 'orders' ? 'Request a Shipping Order' : 'Request a Shipping Estimate'}
+                </button>
+            </div>
+            
             {activeTab === 'requests' ? (
                 <QuoteForm
                     session={session}

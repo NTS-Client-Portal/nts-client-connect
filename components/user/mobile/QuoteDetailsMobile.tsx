@@ -331,15 +331,14 @@ const QuoteDetailsMobile: React.FC<QuoteDetailsMobileProps> = ({
                                 {/* Notes */}
                                 {quote.notes && (
                                     <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
-                                        <div className="text-xs text-blue-700 dark:text-blue-300 uppercase tracking-wide font-medium mb-1">Notes</div>
-                                        <div className="text-sm text-blue-800 dark:text-blue-200">{quote.notes}</div>
+                                        <div className="text-xs text-blue-700 uppercase tracking-wide font-medium mb-1">Notes</div>
+                                        <div className="text-sm text-blue-800 ">{quote.notes}</div>
                                     </div>
                                 )}
 
                                 {/* Pricing Section */}
                                 <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3">
                                     <div className="flex items-center space-x-3">
-                                        <DollarSign className="w-5 h-5 text-green-600 flex-shrink-0" />
                                         <div className="flex-1">
                                             {isAdmin ? (
                                                 showPriceInput === quote.id ? (
@@ -415,18 +414,33 @@ const QuoteDetailsMobile: React.FC<QuoteDetailsMobileProps> = ({
                                                 )
                                             ) : (
                                                 <div>
-                                                    <div className="text-xs text-green-700 uppercase tracking-wide font-medium mb-1">Quote Price</div>
+                                                    <div className="text-base text-center text-green-700 uppercase tracking-wide font-medium mb-1">Quote Price</div>
                                                     {quote.price ? (
-                                                        <div className="text-2xl font-bold text-green-700 ">
-                                                            ${quote.price.toLocaleString()}
-                                                        </div>
+                                                       <div>
+                                                         <div className="text-2xl font-bold text-green-700 mb-2 flex justify-center">
+                                                             ${quote.price.toLocaleString()}
+                                                         </div>
+                                                     <button
+                                                    onClick={() => handleCreateOrderClick(quote.id)}
+                                                    className="w-full flex items-center justify-center space-x-2 bg-green-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors touch-manipulation active:scale-95"
+                                                >
+                                                    <CheckCircle className="w-5 h-5" />
+                                                    <span>Create Order</span>
+                                                </button>
+                                                       </div>
                                                     ) : (
-                                                        <div className="flex items-center space-x-2">
-                                                            <Clock className="w-4 h-4 text-gray-400" />
-                                                            <span className="text-sm text-gray-600 dark:text-gray-400 italic">
-                                                                Awaiting price quote
+                                                   <>
+                                                            <div className="flex items-center space-x-1">
+                                                                <Clock className="w-4 h-4 text-gray-400" />
+                                                                <span className="text-base text-gray-800 dark:text-gray-400">
+                                                                    Your quote is being processed.
+                                                                </span>
+                                                            </div>
+                                                                                                                            <br />
+                                                            <span className="text-sm flex justify-center text-center text-gray-600 italic">
+                                                                (If this is urgent, please contact your sales representative.)
                                                             </span>
-                                                        </div>
+                                                   </>
                                                     )}
                                                 </div>
                                             )}
@@ -438,7 +452,7 @@ const QuoteDetailsMobile: React.FC<QuoteDetailsMobileProps> = ({
                                 {expandedQuoteId === quote.id && (
                                     <div className="border-t border-gray-100 dark:border-gray-700 pt-4 space-y-4 animate-in slide-in-from-top duration-200">
                                         {/* Primary Actions */}
-                                        <div className="space-y-3">
+                                        <div className="flex flex-col gap-3">
                                             {quote.price && (
                                                 <button
                                                     onClick={() => handleCreateOrderClick(quote.id)}
@@ -486,14 +500,14 @@ const QuoteDetailsMobile: React.FC<QuoteDetailsMobileProps> = ({
                                             {quote.price && (
                                                 <button
                                                     onClick={() => handleRejectClick(quote.id)}
-                                                    className="w-full text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm font-medium py-2 touch-manipulation active:opacity-70"
+                                                    className="w-full bg-red-600 hover:bg-red-700 text-white rounded text-sm font-medium py-2 touch-manipulation active:opacity-70"
                                                 >
                                                     Reject Quote
                                                 </button>
                                             )}
                                             <button
                                                 onClick={() => archiveQuote(quote.id)}
-                                                className="w-full flex items-center justify-center space-x-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 text-sm font-medium py-2 touch-manipulation active:opacity-70"
+                                                className="w-full flex items-center justify-center space-x-1 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 text-sm font-medium py-2 touch-manipulation active:opacity-70"
                                             >
                                                 <Archive className="w-4 h-4" />
                                                 <span>Archive Quote</span>
