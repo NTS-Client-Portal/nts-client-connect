@@ -62,7 +62,7 @@ const FeedBack = () => {
     return (
         <Popover>
             <PopoverTrigger asChild>
-                <Button className='dark-btn py-0 font-bold'>Feedback</Button>
+                <Button className='bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded font-bold'>Feedback</Button>
             </PopoverTrigger>
             <PopoverContent className="w-80">
                 <form onSubmit={handleSubmit} className="grid gap-4">
@@ -93,7 +93,7 @@ const FeedBack = () => {
                                 onChange={(e) => setScreenshot(e.target.files?.[0] || null)}
                             />
                         </div>
-                        <Button className='cancel-btn' type="submit">Submit</Button>
+                        <Button className='bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded font-bold' type="submit">Submit</Button>
                     </div>
                 </form>
             </PopoverContent>

@@ -257,7 +257,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '', toggleSidebar }
                                         </Link>
                                         
                                         <div className="md:hidden">
-                                            <div className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700">
+                                            <div className="flex items-center gap-3 px-4 py-3 text-sm text-blue-700">
                                                 <MessageSquare className="w-4 h-4" />
                                                 <span>Feedback</span>
                                                 <FeedBack />
