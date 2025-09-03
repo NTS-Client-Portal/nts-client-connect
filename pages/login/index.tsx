@@ -84,6 +84,39 @@ export default function LoginPage() {
                 
                 <div className="min-h-screen bg-slate-100">
                     <div className="grid grid-cols-1 md:grid-cols-2 min-h-screen">
+                                                <div className="flex items-center justify-center p-8 lg:p-12">
+                            <div className="w-full max-w-md">
+                                {/* Header */}
+                                <div className="text-center mb-8">
+                                    <div className="mx-auto h-16 w-16 bg-blue-700 rounded-lg flex items-center justify-center shadow-md mb-4">
+                                        <Truck className="h-10 w-10 text-white" />
+                                    </div>
+                                    <h2 className="text-3xl font-bold text-slate-800 mb-2">Welcome Back</h2>
+                                    <p className="text-slate-600 font-medium">Sign in to your account</p>
+                                </div>
+
+                                {/* Sign In Form Card */}
+                                <div className="bg-white rounded-lg shadow-md border border-slate-200 p-6">
+                                    <CustomSignInForm />
+                                </div>
+
+                                {/* Footer Links */}
+                                <div className="mt-6 space-y-4 text-center">
+                                    <div className="text-slate-600">
+                                        Don't have an account?{' '}
+                                        <Link href="/signup" className="text-blue-700 hover:text-blue-800 font-semibold transition-colors duration-200">
+                                            Sign up here
+                                        </Link>
+                                    </div>
+
+                                    <div className="pt-3 border-t border-slate-200">
+                                        <Link href="/forgot-password" className="text-slate-600 hover:text-slate-800 text-sm transition-colors duration-200">
+                                            Forgot your password?
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         {/* Left Side - Branding */}
                         <div className="relative bg-blue-700 flex flex-col justify-center p-8 lg:p-12 text-white">
                             {/* Header */}
@@ -155,39 +188,7 @@ export default function LoginPage() {
                         </div>
 
                         {/* Right Side - Login Form */}
-                        <div className="flex items-center justify-center p-8 lg:p-12">
-                            <div className="w-full max-w-md">
-                                {/* Header */}
-                                <div className="text-center mb-8">
-                                    <div className="mx-auto h-16 w-16 bg-blue-700 rounded-lg flex items-center justify-center shadow-md mb-4">
-                                        <Truck className="h-10 w-10 text-white" />
-                                    </div>
-                                    <h2 className="text-3xl font-bold text-slate-800 mb-2">Welcome Back</h2>
-                                    <p className="text-slate-600 font-medium">Sign in to your account</p>
-                                </div>
 
-                                {/* Sign In Form Card */}
-                                <div className="bg-white rounded-lg shadow-md border border-slate-200 p-6">
-                                    <CustomSignInForm />
-                                </div>
-
-                                {/* Footer Links */}
-                                <div className="mt-6 space-y-4 text-center">
-                                    <div className="text-slate-600">
-                                        Don't have an account?{' '}
-                                        <Link href="/signup" className="text-blue-700 hover:text-blue-800 font-semibold transition-colors duration-200">
-                                            Sign up here
-                                        </Link>
-                                    </div>
-
-                                    <div className="pt-3 border-t border-slate-200">
-                                        <Link href="/forgot-password" className="text-slate-600 hover:text-slate-800 text-sm transition-colors duration-200">
-                                            Forgot your password?
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </>
