@@ -18,7 +18,8 @@ import {
   Shield,
   Crown,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  LogOut
 } from 'lucide-react';
 
 interface SuperadminDashboardProps {
@@ -163,6 +164,23 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
         setSelectedUser(null);
     };
 
+    const handleLogout = async () => {
+        try {
+            // Sign out from Supabase (this clears auth cookies/tokens)
+            await supabase.auth.signOut();
+            
+            // Clear any additional local storage items if needed
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Redirect to login page
+            router.push('/superadmin-login');
+        } catch (error) {
+            console.error('Error logging out:', error);
+            setError('Failed to log out. Please try again.');
+        }
+    };
+
     const handleAssignSalesUser = async () => {
         if (!selectedCompanyId || !selectedSalesUserId) {
             setError('Please select a company and a sales user');
@@ -241,9 +259,19 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                                 <p className="text-slate-600">System Management & Administration</p>
                             </div>
                         </div>
-                        <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-purple-100 px-4 py-2 rounded-lg">
-                            <Shield className="h-5 w-5 text-blue-600" />
-                            <span className="text-slate-700 font-medium">Super Administrator</span>
+                        <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-purple-100 px-4 py-2 rounded-lg">
+                                <Shield className="h-5 w-5 text-blue-600" />
+                                <span className="text-slate-700 font-medium">Super Administrator</span>
+                            </div>
+                            <button
+                                onClick={handleLogout}
+                                className="flex items-center space-x-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors duration-200 border border-red-200 hover:border-red-300"
+                                title="Logout"
+                            >
+                                <LogOut className="h-4 w-4" />
+                                <span className="font-medium">Logout</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -268,7 +296,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
             )}
 
             {/* Main Content */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="min-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Tab Navigation */}
                 <div className="mb-8">
                     <div className="flex space-x-1 bg-white p-1 rounded-xl shadow-lg border border-slate-200 w-fit mx-auto">
