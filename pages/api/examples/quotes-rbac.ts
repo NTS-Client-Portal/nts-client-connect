@@ -51,7 +51,7 @@ const getQuotes = async (req: AuthenticatedRequest, res: NextApiResponse) => {
       }
     } else if (userContext?.userType === 'nts_user') {
       // Sales reps can see assigned companies' quotes
-      if (userContext.role === UserRole.SALES_REP || userContext.role === UserRole.MANAGER) {
+      if (userContext.role === UserRole.SALES_REP) {
         if (userContext.assignedCompanyIds.length > 0) {
           query = query.in('company_id', userContext.assignedCompanyIds);
         } else {
@@ -124,7 +124,7 @@ const createQuote = async (req: AuthenticatedRequest, res: NextApiResponse) => {
       companyId = userContext.companyId;
     } else if (userContext?.userType === 'nts_user') {
       // Sales reps can create quotes for assigned companies
-      if (userContext.role === UserRole.SALES_REP || userContext.role === UserRole.MANAGER) {
+      if (userContext.role === UserRole.SALES_REP) {
         if (!companyId || !userContext.assignedCompanyIds.includes(companyId)) {
           return res.status(403).json(apiResponse.forbidden('Cannot create quote for this company'));
         }

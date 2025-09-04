@@ -54,7 +54,7 @@ const CustomSignInForm = () => {
             .insert({
               id: session.user.id,
               email: session.user.email,
-              team_role: 'manager',
+              team_role: 'shipper',
               inserted_at: new Date().toISOString(),
             })
             .select();
@@ -119,7 +119,7 @@ const CustomSignInForm = () => {
             .insert({
               id: authData.user.id,
               email: authData.user.email,
-              team_role: 'manager',
+              team_role: 'shipper',
               inserted_at: new Date().toISOString(),
             })
             .select()

@@ -7,7 +7,7 @@
 
 # testing
 /coverage
-
+*.sql
 # next.js
 /.next/
 /out/

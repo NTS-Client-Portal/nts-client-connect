@@ -83,7 +83,7 @@ export const useRoleBasedAccess = (): UseRoleState & {
       isAdmin: [UserRole.ADMIN, UserRole.SUPER_ADMIN].includes(state.userContext!.role),
       isShipper: state.userContext!.role === UserRole.SHIPPER,
       isSalesRep: state.userContext!.role === UserRole.SALES_REP,
-      isManager: state.userContext!.role === UserRole.MANAGER
+      isManager: false
     };
   }, [state.userContext, state.assignedCompanyIds]);
 
@@ -136,7 +136,7 @@ export const useRoleBasedAccess = (): UseRoleState & {
         // Fetch assigned company IDs for sales reps and managers
         let assignedCompanyIds: string[] = [];
         
-        if (userContext.role === UserRole.SALES_REP || userContext.role === UserRole.MANAGER) {
+        if (userContext.role === UserRole.SALES_REP) {
           const { data: assignmentData, error: assignmentError } = await supabase
             .from('company_sales_users')
             .select('company_id')
@@ -275,11 +275,11 @@ export const useRoleFlags = () => {
     return {
       isShipper: userContext.role === UserRole.SHIPPER,
       isSalesRep: userContext.role === UserRole.SALES_REP,
-      isManager: userContext.role === UserRole.MANAGER,
+      isManager: false,
       isAdmin: userContext.role === UserRole.ADMIN,
       isSuperAdmin: userContext.role === UserRole.SUPER_ADMIN,
       isSupport: userContext.role === UserRole.SUPPORT,
-      isElevated: [UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER].includes(userContext.role),
+      isElevated: [UserRole.ADMIN, UserRole.SUPER_ADMIN].includes(userContext.role),
       userType: userContext.userType
     };
   }, [userContext]);

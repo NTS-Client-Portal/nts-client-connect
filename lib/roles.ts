@@ -18,7 +18,6 @@ export enum UserRole {
   SALES_REP = 'sales',
   ADMIN = 'admin', 
   SUPER_ADMIN = 'super_admin',
-  MANAGER = 'manager',
   SUPPORT = 'support'
 }
 
@@ -93,28 +92,6 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.SUPPORT_TICKETS
   ],
   
-  [UserRole.MANAGER]: [
-    Permission.VIEW_QUOTES,
-    Permission.CREATE_QUOTES,
-    Permission.EDIT_QUOTES,
-    Permission.DELETE_QUOTES,
-    Permission.VIEW_ORDERS,
-    Permission.CREATE_ORDERS,
-    Permission.EDIT_ORDERS,
-    Permission.DELETE_ORDERS,
-    Permission.FULFILL_ORDERS,
-    Permission.VIEW_COMPANIES,
-    Permission.EDIT_COMPANIES,
-    Permission.ASSIGN_SALES_USERS,
-    Permission.VIEW_USERS,
-    Permission.EDIT_USERS,
-    Permission.VIEW_REPORTS,
-    Permission.VIEW_ANALYTICS,
-    Permission.EXPORT_DATA,
-    Permission.VIEW_CHAT,
-    Permission.SUPPORT_TICKETS
-  ],
-  
   [UserRole.ADMIN]: [
     Permission.VIEW_QUOTES,
     Permission.CREATE_QUOTES,
@@ -185,8 +162,8 @@ export const createUserContext = (
   
   if (userType === 'shipper') {
     const profile = user as ProfilesRow;
-    // Shippers can be managers within their company
-    role = profile.team_role === 'manager' ? UserRole.MANAGER : UserRole.SHIPPER;
+    // All profiles users are shippers
+    role = UserRole.SHIPPER;
   } else {
     const ntsUser = user as NtsUsersRow;
     // Map nts_users role string to UserRole enum with legacy support
@@ -203,9 +180,6 @@ export const createUserContext = (
       case 'super_admin':
       case 'superadmin': // Legacy format
         role = UserRole.SUPER_ADMIN;
-        break;
-      case 'manager':
-        role = UserRole.MANAGER;
         break;
       case 'support':
       case 'customer_support':
@@ -286,7 +260,7 @@ export const canAccessCompany = (
   }
   
   // Sales reps can access assigned companies
-  if (userContext.role === UserRole.SALES_REP || userContext.role === UserRole.MANAGER) {
+  if (userContext.role === UserRole.SALES_REP) {
     if (!assignedCompanyIds) {
       // If assigned companies not provided, fall back to their company_id
       return userContext.companyId === companyId;
@@ -315,8 +289,8 @@ export const getAccessibleCompanyIds = (
     return [userContext.companyId];
   }
   
-  // Sales reps and managers access assigned companies
-  if ((userContext.role === UserRole.SALES_REP || userContext.role === UserRole.MANAGER) && assignedCompanyIds) {
+  // Sales reps access assigned companies
+  if (userContext.role === UserRole.SALES_REP && assignedCompanyIds) {
     return assignedCompanyIds;
   }
   
@@ -346,11 +320,6 @@ export const canAssignRole = (
     return true;
   }
   
-  // Managers can assign sales rep and support roles
-  if (assignerRole === UserRole.MANAGER) {
-    return targetRole === UserRole.SALES_REP || targetRole === UserRole.SUPPORT || targetRole === UserRole.SHIPPER;
-  }
-  
   return false;
 };
 
@@ -361,7 +330,6 @@ export const getRoleDisplayName = (role: UserRole): string => {
   const displayNames: Record<UserRole, string> = {
     [UserRole.SHIPPER]: 'Shipper',
     [UserRole.SALES_REP]: 'Sales Representative', 
-    [UserRole.MANAGER]: 'Manager',
     [UserRole.ADMIN]: 'Administrator',
     [UserRole.SUPER_ADMIN]: 'Super Administrator',
     [UserRole.SUPPORT]: 'Support'
@@ -374,5 +342,5 @@ export const getRoleDisplayName = (role: UserRole): string => {
  * Check if role has elevated privileges (admin-level)
  */
 export const isElevatedRole = (role: UserRole): boolean => {
-  return [UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER].includes(role);
+  return [UserRole.ADMIN, UserRole.SUPER_ADMIN].includes(role);
 };

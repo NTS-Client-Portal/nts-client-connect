@@ -121,7 +121,7 @@ export const withAuth = (
         // Fetch assigned company IDs for sales reps and managers
         let assignedCompanyIds: string[] = [];
         
-        if (userContext.role === UserRole.SALES_REP || userContext.role === UserRole.MANAGER) {
+        if (userContext.role === UserRole.SALES_REP) {
           const { data: assignmentData, error: assignmentError } = await supabase
             .from('company_sales_users')
             .select('company_id')
@@ -269,7 +269,7 @@ export const withCompanyAccess = (
         hasAccess = userContext.companyId === companyId;
       }
       // Sales reps and managers can access assigned companies
-      else if ([UserRole.SALES_REP, UserRole.MANAGER].includes(userContext.role)) {
+      else if (userContext.role === UserRole.SALES_REP) {
         hasAccess = userContext.assignedCompanyIds.includes(companyId);
       }
       

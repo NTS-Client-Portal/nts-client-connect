@@ -7,16 +7,15 @@
 import { UserRole } from './roles';
 
 // Legacy role mapping
-export const LEGACY_ROLE_MAPPING: Record<string, UserRole> = {
-  'superadmin': UserRole.SUPER_ADMIN,
-  'super_admin': UserRole.SUPER_ADMIN,
-  'admin': UserRole.ADMIN,
-  'administrator': UserRole.ADMIN,
-  'manager': UserRole.MANAGER,
+const STRING_TO_ROLE_MAP: Record<string, UserRole> = {
+  'shipper': UserRole.SHIPPER,
   'sales': UserRole.SALES_REP,
   'sales_rep': UserRole.SALES_REP,
-  'broker': UserRole.SALES_REP, // Legacy broker = sales rep
-  'shipper': UserRole.SHIPPER,
+  'broker': UserRole.SALES_REP, // Legacy broker maps to sales rep
+  'admin': UserRole.ADMIN,
+  'administrator': UserRole.ADMIN,
+  'super_admin': UserRole.SUPER_ADMIN,
+  'superadmin': UserRole.SUPER_ADMIN,
   'support': UserRole.SUPPORT,
   'customer_support': UserRole.SUPPORT
 };
@@ -25,7 +24,6 @@ export const LEGACY_ROLE_MAPPING: Record<string, UserRole> = {
 export const RBAC_TO_DB_ROLE: Record<UserRole, string> = {
   [UserRole.SUPER_ADMIN]: 'super_admin',
   [UserRole.ADMIN]: 'admin',
-  [UserRole.MANAGER]: 'manager',
   [UserRole.SALES_REP]: 'sales',
   [UserRole.SHIPPER]: 'shipper',
   [UserRole.SUPPORT]: 'support'
@@ -38,8 +36,8 @@ export const normalizeLegacyRole = (legacyRole: string): UserRole => {
   const normalizedInput = legacyRole.toLowerCase().trim();
   
   // Direct mapping
-  if (LEGACY_ROLE_MAPPING[normalizedInput]) {
-    return LEGACY_ROLE_MAPPING[normalizedInput];
+  if (STRING_TO_ROLE_MAP[normalizedInput]) {
+    return STRING_TO_ROLE_MAP[normalizedInput];
   }
   
   // Fuzzy matching for common variations
@@ -52,7 +50,7 @@ export const normalizeLegacyRole = (legacyRole: string): UserRole => {
   }
   
   if (normalizedInput.includes('manager') || normalizedInput.includes('mgr')) {
-    return UserRole.MANAGER;
+    return UserRole.SALES_REP; // Map manager to sales rep since we removed manager role
   }
   
   if (normalizedInput.includes('sales') || normalizedInput.includes('broker')) {
@@ -105,18 +103,6 @@ export const isValidRoleTransition = (
     return { valid: true };
   }
   
-  // Managers can only manage sales reps and shippers
-  if (requestorRole === UserRole.MANAGER) {
-    const allowedRoles = [UserRole.SALES_REP, UserRole.SHIPPER, UserRole.SUPPORT];
-    if (!allowedRoles.includes(newRole)) {
-      return {
-        valid: false,
-        reason: 'Managers can only assign sales rep, shipper, and support roles'
-      };
-    }
-    return { valid: true };
-  }
-  
   // Regular users cannot change roles
   return { 
     valid: false, 
@@ -131,7 +117,6 @@ export const getRoleDescription = (role: UserRole): string => {
   const descriptions: Record<UserRole, string> = {
     [UserRole.SUPER_ADMIN]: 'Full system access, can manage everything including other admins',
     [UserRole.ADMIN]: 'Administrative access, can manage users, companies, and system settings',
-    [UserRole.MANAGER]: 'Team management access, can oversee sales reps and assign companies',
     [UserRole.SALES_REP]: 'Sales representative access, can manage assigned companies and quotes',
     [UserRole.SHIPPER]: 'Shipper access, can create quotes and manage their company profile',
     [UserRole.SUPPORT]: 'Support team access, can view data and handle support tickets'
@@ -151,7 +136,7 @@ export const hasAdminPrivileges = (role: UserRole): boolean => {
  * Check if role can manage other users
  */
 export const canManageUsers = (role: UserRole): boolean => {
-  return [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER].includes(role);
+  return [UserRole.SUPER_ADMIN, UserRole.ADMIN].includes(role);
 };
 
 /**
@@ -165,14 +150,6 @@ export const getAssignableRoles = (requestorRole: UserRole): UserRole[] => {
     case UserRole.ADMIN:
       return [
         UserRole.ADMIN,
-        UserRole.MANAGER,
-        UserRole.SALES_REP,
-        UserRole.SHIPPER,
-        UserRole.SUPPORT
-      ];
-      
-    case UserRole.MANAGER:
-      return [
         UserRole.SALES_REP,
         UserRole.SHIPPER,
         UserRole.SUPPORT
@@ -253,7 +230,6 @@ function getRoleDisplayName(role: UserRole): string {
   const displayNames: Record<UserRole, string> = {
     [UserRole.SHIPPER]: 'Shipper',
     [UserRole.SALES_REP]: 'Sales Representative', 
-    [UserRole.MANAGER]: 'Manager',
     [UserRole.ADMIN]: 'Administrator',
     [UserRole.SUPER_ADMIN]: 'Super Administrator',
     [UserRole.SUPPORT]: 'Support'

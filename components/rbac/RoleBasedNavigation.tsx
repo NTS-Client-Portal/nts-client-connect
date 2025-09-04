@@ -175,13 +175,6 @@ export const DashboardShortcuts: React.FC = () => {
           { label: 'Customer Support', href: '/support', icon: '🎧' }
         ];
 
-      case UserRole.MANAGER:
-        return [
-          { label: 'Team Dashboard', href: '/dashboard/team', icon: '👥' },
-          { label: 'Performance Reports', href: '/reports/performance', icon: '📊' },
-          { label: 'Company Assignments', href: '/assignments', icon: '🔗' }
-        ];
-
       case UserRole.ADMIN:
       case UserRole.SUPER_ADMIN:
         return [
@@ -245,12 +238,6 @@ export const RoleBadge: React.FC<RoleBadgeProps> = ({
           label: 'Sales Rep', 
           color: 'bg-green-100 text-green-800 border-green-200',
           icon: '💼'
-        };
-      case UserRole.MANAGER:
-        return { 
-          label: 'Manager', 
-          color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-          icon: '👨‍💼'
         };
       case UserRole.ADMIN:
         return { 

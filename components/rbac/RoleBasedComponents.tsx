@@ -88,9 +88,6 @@ export const AdminOnly: React.FC<AdminOnlyProps> = ({
     roles.push(UserRole.SUPER_ADMIN);
   }
   
-  if (includeManager) {
-    roles.push(UserRole.MANAGER);
-  }
 
   return (
     <RoleGate roles={roles} fallback={fallback}>
@@ -123,21 +120,7 @@ interface SalesRepOnlyProps {
   includeManager?: boolean;
 }
 
-export const SalesRepOnly: React.FC<SalesRepOnlyProps> = ({ 
-  fallback = null, 
-  children,
-  includeManager = true
-}) => {
-  const roles = includeManager 
-    ? [UserRole.SALES_REP, UserRole.MANAGER]
-    : [UserRole.SALES_REP];
 
-  return (
-    <RoleGate roles={roles} fallback={fallback}>
-      {children}
-    </RoleGate>
-  );
-};
 
 // Loading Boundary - shows loading state while roles are being fetched
 interface LoadingBoundaryProps {

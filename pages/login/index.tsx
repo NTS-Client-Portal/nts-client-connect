@@ -27,7 +27,7 @@ export default function LoginPage() {
             if (session && session.user.email_confirmed_at) {
                 const { data: userProfile, error } = await supabase
                     .from('profiles')
-                    .select('role')
+                    .select('team_role')
                     .eq('id', session.user.id)
                     .single();
 
@@ -36,11 +36,8 @@ export default function LoginPage() {
                     return;
                 }
 
-                if (userProfile.role === 'admin') {
-                    router.push('/admin/admin-dashboard');
-                } else {
-                    router.push('/user/freight-rfq');
-                }
+                // All profiles users are shippers, redirect to freight RFQ
+                router.push('/user/freight-rfq');
             }
         };
 
