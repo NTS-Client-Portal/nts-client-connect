@@ -131,10 +131,10 @@ export default function LoginPage() {
                             <div className="space-y-8">
                                 <div className="space-y-4">
                                     <h2 className="text-3xl lg:text-4xl font-bold leading-tight">
-                                        Professional Freight Services
+                                        Professional Freight & Logistics
                                     </h2>
                                     <p className="text-lg text-blue-100 leading-relaxed">
-                                        Reliable transportation solutions for contractors, builders, and businesses.
+                                        Comprehensive transportation solutions for all your shipping needs nationwide.
                                     </p>
                                 </div>
 
@@ -145,8 +145,8 @@ export default function LoginPage() {
                                             <CheckCircle2 className="h-6 w-6" />
                                         </div>
                                         <div>
-                                            <p className="font-semibold">On-Time Delivery Guaranteed</p>
-                                            <p className="text-sm text-blue-100">Your materials arrive when you need them</p>
+                                            <p className="font-semibold">Reliable On-Time Delivery</p>
+                                            <p className="text-sm text-blue-100">Your freight arrives when you need it</p>
                                         </div>
                                     </div>
 
@@ -156,7 +156,7 @@ export default function LoginPage() {
                                         </div>
                                         <div>
                                             <p className="font-semibold">Fully Insured & Licensed</p>
-                                            <p className="text-sm text-blue-100">Complete protection for your cargo</p>
+                                            <p className="text-sm text-blue-100">Complete protection for all freight types</p>
                                         </div>
                                     </div>
 
@@ -175,12 +175,12 @@ export default function LoginPage() {
                                 <div className="pt-6 border-t border-blue-600">
                                     <div className="grid grid-cols-2 gap-4 text-center">
                                         <div>
-                                            <div className="text-2xl font-bold">15+</div>
-                                            <div className="text-sm text-blue-200">Years Experience</div>
+                                            <div className="text-2xl font-bold">150K+</div>
+                                            <div className="text-sm text-blue-200">Trucks Nationwide</div>
                                         </div>
                                         <div>
-                                            <div className="text-2xl font-bold">99%</div>
-                                            <div className="text-sm text-blue-200">On-Time Rate</div>
+                                            <div className="text-2xl font-bold">30K+</div>
+                                            <div className="text-sm text-blue-200">Carriers</div>
                                         </div>
                                     </div>
                                 </div>

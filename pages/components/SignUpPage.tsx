@@ -353,7 +353,7 @@ const SignUpPage = () => {
                   Sign Up for NTS Logistics
                 </h1>
                 <p className="mt-2 text-slate-600 font-medium">
-                  Professional freight and trucking services
+                  Nationwide freight and logistics solutions
                 </p>
               </div>
 
@@ -480,10 +480,10 @@ const SignUpPage = () => {
             <div className="flex flex-col justify-center px-8 text-white">
               <div className="mb-8">
                 <h2 className="text-3xl font-bold mb-4">
-                  Reliable Freight Solutions
+                  Comprehensive Freight Solutions
                 </h2>
                 <p className="text-lg text-blue-100">
-                  Trusted by contractors, builders, and businesses across America
+                  From auto transport to heavy equipment - trusted by businesses nationwide
                 </p>
               </div>
 
@@ -493,8 +493,8 @@ const SignUpPage = () => {
                     <Truck className="h-6 w-6" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold mb-2">On-Time Delivery</h3>
-                    <p className="text-blue-100">Your materials and equipment arrive when you need them</p>
+                    <h3 className="text-lg font-bold mb-2">Reliable Delivery</h3>
+                    <p className="text-blue-100">Your freight arrives safely and on schedule</p>
                   </div>
                 </div>
 
@@ -504,7 +504,7 @@ const SignUpPage = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold mb-2">Fully Insured</h3>
-                    <p className="text-blue-100">Complete protection for your valuable cargo and equipment</p>
+                    <p className="text-blue-100">Complete protection for all types of freight and cargo</p>
                   </div>
                 </div>
 
@@ -513,8 +513,8 @@ const SignUpPage = () => {
                     <Package className="h-6 w-6" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold mb-2">Any Size Load</h3>
-                    <p className="text-blue-100">From small parts to heavy machinery - we handle it all</p>
+                    <h3 className="text-lg font-bold mb-2">All Freight Types</h3>
+                    <p className="text-blue-100">Cars, equipment, machinery - we handle everything</p>
                   </div>
                 </div>
 
@@ -536,12 +536,12 @@ const SignUpPage = () => {
                     <div className="text-sm text-blue-200">In Business</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold">50,000+</div>
-                    <div className="text-sm text-blue-200">Loads Delivered</div>
+                    <div className="text-2xl font-bold">150K+</div>
+                    <div className="text-sm text-blue-200">Trucks Available</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold">99%</div>
-                    <div className="text-sm text-blue-200">On-Time Rate</div>
+                    <div className="text-2xl font-bold">30K+</div>
+                    <div className="text-sm text-blue-200">Carriers</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold">$0</div>

@@ -24,8 +24,8 @@ export default function HomePage() {
   return (
     <>
       <Head>
-        <title>NTS Logistics - Professional Heavy Equipment Transport</title>
-        <meta name="description" content="Specialized in heavy equipment transport - Caterpillar dozers, excavators, and construction machinery nationwide" />
+        <title>NTS Logistics - Professional Freight & Transportation Services</title>
+        <meta name="description" content="Nationwide freight shipping solutions - auto transport, heavy equipment, machinery, and general freight. 15+ years experience with 150K+ trucks nationwide." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/hc-28.png" />
       </Head>
@@ -52,7 +52,7 @@ export default function HomePage() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">NTS Logistics</h1>
-                <p className="text-sm text-blue-200 font-medium">Heavy Equipment Transport</p>
+                <p className="text-sm text-blue-200 font-medium">Nationwide Freight Solutions</p>
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-6">
@@ -78,13 +78,13 @@ export default function HomePage() {
                   
                   <h1 className="text-4xl lg:text-6xl font-bold text-white leading-tight">
                     Professional
-                    <span className="block text-blue-400">Heavy Equipment</span>
-                    <span className="block">Transport</span>
+                    <span className="block text-blue-400">Freight & Logistics</span>
+                    <span className="block">Solutions</span>
                   </h1>
                   
                   <p className="text-xl lg:text-2xl text-slate-300 leading-relaxed">
-                    Specializing in Caterpillar dozers, excavators, and construction machinery nationwide. 
-                    <span className="block mt-2 text-blue-200 font-semibold">Hundreds of successful D8T transports and counting.</span>
+                    From auto transport to heavy equipment, agricultural machinery to general freight - we handle it all. 
+                    <span className="block mt-2 text-blue-200 font-semibold">Honest, dependable, efficient, and productive transportation nationwide.</span>
                   </p>
                 </div>
 
@@ -95,12 +95,12 @@ export default function HomePage() {
                     <div className="text-sm text-slate-300">Years Experience</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl lg:text-4xl font-bold text-blue-400">500+</div>
-                    <div className="text-sm text-slate-300">Heavy Transports</div>
+                    <div className="text-3xl lg:text-4xl font-bold text-blue-400">150K+</div>
+                    <div className="text-sm text-slate-300">Trucks Nationwide</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl lg:text-4xl font-bold text-blue-400">100%</div>
-                    <div className="text-sm text-slate-300">On-Time Delivery</div>
+                    <div className="text-3xl lg:text-4xl font-bold text-blue-400">30K+</div>
+                    <div className="text-sm text-slate-300">Contracted Carriers</div>
                   </div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-8 lg:p-10">
@@ -145,15 +145,15 @@ export default function HomePage() {
                       Forgot your password?
                     </Link>
                     <div className="text-xs text-slate-400">
-                      <p className="mb-1">Questions about heavy equipment transport?</p>
+                      <p className="mb-1">Questions about freight shipping?</p>
                       <p>
                         Call us at{' '}
-                        <a href="tel:+1234567890" className="text-blue-400 hover:text-blue-300 font-semibold">
-                          (123) 456-7890
+                        <a href="tel:+18773830580" className="text-blue-400 hover:text-blue-300 font-semibold">
+                          (877) 383-0580
                         </a>
                         {' '}or email{' '}
-                        <a href="mailto:transport@ntslogistics.com" className="text-blue-400 hover:text-blue-300 font-semibold">
-                          transport@ntslogistics.com
+                        <a href="mailto:quotes@ntslogistics.com" className="text-blue-400 hover:text-blue-300 font-semibold">
+                          quotes@ntslogistics.com
                         </a>
                       </p>
                     </div>
@@ -168,19 +168,19 @@ export default function HomePage() {
                   <div className="space-y-3">
                     <div className="flex items-center space-x-3">
                       <Shield className="h-5 w-5 text-green-400 flex-shrink-0" />
-                      <span className="text-slate-200">Fully insured & licensed for heavy equipment</span>
+                      <span className="text-slate-200">Fully insured & licensed nationwide</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <Clock className="h-5 w-5 text-blue-400 flex-shrink-0" />
-                      <span className="text-slate-200">GPS tracking & real-time updates</span>
+                      <span className="text-slate-200">Real-time tracking & updates</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <Users className="h-5 w-5 text-purple-400 flex-shrink-0" />
-                      <span className="text-slate-200">Dedicated project managers</span>
+                      <span className="text-slate-200">Dedicated logistics specialists</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <Truck className="h-5 w-5 text-orange-400 flex-shrink-0" />
-                      <span className="text-slate-200">Specialized lowboy & heavy haul trailers</span>
+                      <span className="text-slate-200">All freight types - cars to heavy equipment</span>
                     </div>
                   </div>
                 </div>
@@ -198,10 +198,10 @@ export default function HomePage() {
                     </div>
                     <div>
                       <p className="text-yellow-100 text-sm font-medium italic">
-                        "NTS has transported our D8T dozer hundreds of times. Always professional, always on time. 
-                        They're the only company we trust with our heavy equipment."
+                        "NTS has handled everything from our car shipments to heavy machinery transports. Always professional, reliable service. 
+                        They're our go-to logistics partner for any shipping need."
                       </p>
-                      <p className="text-yellow-200/80 text-xs mt-2 font-semibold">— Top Construction Client</p>
+                      <p className="text-yellow-200/80 text-xs mt-2 font-semibold">— Long-term Client</p>
                     </div>
                   </div>
                 </div>
@@ -216,8 +216,8 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-4 py-6">
             <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
               <div className="text-center md:text-left">
-                <h3 className="text-xl font-bold text-white">Ready to ship your heavy equipment?</h3>
-                <p className="text-blue-100">Get a quote in minutes for your next D8T, excavator, or dozer transport</p>
+                <h3 className="text-xl font-bold text-white">Ready to ship your freight?</h3>
+                <p className="text-blue-100">Get a quote in minutes for cars, equipment, or any freight nationwide</p>
               </div>
               <div className="flex space-x-4">
                 <Link 
@@ -227,7 +227,7 @@ export default function HomePage() {
                   Request Quote
                 </Link>
                 <a 
-                  href="tel:+1234567890" 
+                  href="tel:+18773830580" 
                   className="bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-colors"
                 >
                   Call Now
