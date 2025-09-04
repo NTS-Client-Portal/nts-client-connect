@@ -200,22 +200,32 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
                 return [];
             }
 
-            const { data: quotes, error: quotesError } = await supabase
+            // DEBUGGING: First fetch ALL quotes for this company to see what's there
+            const { data: allQuotes, error: allQuotesError } = await supabase
                 .from("shippingquotes")
                 .select("*")
                 .eq("company_id", companyId)
-                .eq("status", "Quote")
-                .or("is_archived.is.null,is_archived.eq.false");
+                .order('created_at', { ascending: false });
 
-            if (quotesError) {
-                console.error(
-                    "Error fetching quotes for nts_user:",
-                    quotesError.message
-                );
+            if (allQuotesError) {
+                console.error("Error fetching all quotes:", allQuotesError.message);
                 return [];
             }
 
-            return quotes;
+            console.log('ALL quotes for company:', allQuotes);
+            console.log('Quotes by status:', allQuotes?.reduce((acc, q) => {
+                acc[q.status] = (acc[q.status] || 0) + 1;
+                return acc;
+            }, {}));
+
+            // Filter for quotes that NTS users should see (more inclusive)
+            const filteredQuotes = allQuotes?.filter(quote => 
+                (quote.status === "Quote" || quote.status === "quote" || quote.status === "Pending" || quote.status === null) &&
+                (quote.is_archived !== true)
+            ) || [];
+
+            console.log('Filtered quotes for NTS user:', filteredQuotes);
+            return filteredQuotes;
         },
         [supabase]
     );
@@ -274,8 +284,19 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
                 "postgres_changes",
                 { event: "*", schema: "public", table: "shippingquotes" },
                 (payload) => {
-                    console.log("Change received!", payload);
-                    fetchInitialQuotes(); // Update DOM or fetch updated data
+                    console.log("Real-time change received!", payload);
+                    console.log("Event type:", payload.eventType);
+                    console.log("New data:", payload.new);
+                    console.log("Old data:", payload.old);
+                    
+                    // Check if this change is relevant to the current company
+                    const newData = payload.new as any;
+                    if (newData && newData.company_id === companyId) {
+                        console.log("Change is relevant to current company, refreshing quotes...");
+                        fetchInitialQuotes(); // Update DOM or fetch updated data
+                    } else {
+                        console.log("Change not relevant to current company");
+                    }
                 }
             )
             .subscribe();
@@ -283,7 +304,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
         return () => {
             supabase.removeChannel(channel); // Cleanup subscription
         };
-    }, [supabase, fetchInitialQuotes]);
+    }, [supabase, fetchInitialQuotes, companyId]);
 
     useEffect(() => {
         fetchInitialQuotes();

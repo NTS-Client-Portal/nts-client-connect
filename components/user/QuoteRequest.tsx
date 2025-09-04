@@ -252,6 +252,38 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
         }
 
         console.log('Quote added successfully:', shippingQuoteData);
+        
+        // ADD: Notify assigned sales users about the new quote
+        if (shippingQuoteData && shippingQuoteData.length > 0) {
+            try {
+                const { data: assignedUsers, error: assignedError } = await supabase
+                    .from('company_sales_users')
+                    .select('sales_user_id')
+                    .eq('company_id', companyId);
+
+                if (!assignedError && assignedUsers) {
+                    console.log('Notifying assigned users:', assignedUsers);
+                    
+                    for (const user of assignedUsers) {
+                        await supabase
+                            .from('notifications')
+                            .insert({
+                                nts_user_id: user.sales_user_id,
+                                message: `New quote request #${shippingQuoteData[0].id} from ${quote.first_name} ${quote.last_name}`,
+                                type: 'quote_request',
+                                is_read: false,
+                                created_at: new Date().toISOString()
+                            });
+                    }
+                    console.log('Notifications sent successfully');
+                } else {
+                    console.error('Error fetching assigned users for notifications:', assignedError);
+                }
+            } catch (error) {
+                console.error('Error sending notifications:', error);
+            }
+        }
+        
         setQuotes([...quotes, ...(shippingQuoteData || [])]);
 
         setErrorText('');

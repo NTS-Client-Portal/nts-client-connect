@@ -166,6 +166,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
 
         const quote = {
             user_id: session.user.id,
+            company_id: companyId, // ADD: Include company_id in the quote object
             origin_zip: originZip,
             origin_city: originCity,
             origin_state: originState,
@@ -258,112 +259,132 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
     if (!isOpen) return null;
 
     return (
-        <div className={isModal ? "fixed z-50 top-20 inset-0 bg-zinc-600 bg-opacity-50 flex justify-center h-fit-content items-center" : "container mx-auto p-4"}>
-            <div className={isModal ? "border-2 bg-ntsBlue border-t-orange-500 border-x-0 border-b-0 drop-shadow-xl pt-2 rounded w-sm md:w-1/2 md:max-w-none overflow-y-auto relative z-50" : ""}>
-                <h2 className={isModal ? "text-xl text-white font-semibold pl-4 mb-2" : "text-xl font-semibold mb-4"}>Request a Shipping Estimate</h2>
-                <form onSubmit={handleSubmit} className={isModal ? "flex flex-col gap-3 bg-white relative z-50 p-4" : "flex flex-col gap-3"}>
-                    <label className='dark:text-zinc-100 font-medium'>Select Inventory Item
-                        <select
-                            className="rounded text-zinc-800 bg-white w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
-                            value={selectedInventoryItem}
-                            onChange={handleInventoryChange}
-                            disabled={!!selectedOption}
-                        >
-                            <option value="">Select an item</option>
-                            {inventoryItems.map((item) => (
-                                <option key={item.id} value={item.id}>
-                                    {item.year} {item.make} {item.model}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-                    <span className='flex items-center w-1/2'>
-                        <span className='border-b p-0 border-zinc-400 w-1/6'></span>
-                        <span className='font-semibold'>Or</span>
-                        <span className='border-b p-0 border-zinc-400 w-1/6'></span>
-                    </span>
-                    <SelectOption
-                        selectedOption={selectedOption}
-                        setSelectedOption={(option) => {
-                            setSelectedOption(option);
-                            if (option) {
-                                setSelectedInventoryItem('');
-                            }
-                        }}
-                        setErrorText={setErrorText}
-                        session={session}
-                        setFormData={setFormData}
-                        formData={formData} // Pass formData to SelectOption
-                        disabled={false}
-                    />
-                    <div className='flex flex-col md:flex-row gap-2 w-full'>
-                        <div className='flex flex-col items-start'>
-                            <label className='text-zinc-900 font-medium'>Origin</label>
-                            <input
-                                className="rounded w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                placeholder='Zip or City, State'
-                                value={originInput}
-                                onChange={(e) => setOriginInput(e.target.value)}
-                                onBlur={handleOriginInputBlur}
-                            />
+        <div className={isModal ? "fixed z-50 inset-0 bg-zinc-600 bg-opacity-50 flex justify-center items-center p-2" : "container mx-auto p-4"}>
+            <div className={isModal ? "border-2 bg-blue-600 border-x-0 border-b-0 pt-2 rounded w-full max-w-6xl max-h-[95vh] flex flex-col" : ""}>
+                <h2 className={isModal ? "text-lg text-white font-semibold pl-4 mb-2 flex-shrink-0" : "text-xl font-semibold mb-4"}>Request a Shipping Estimate</h2>
+                <div className={isModal ? "flex-1 overflow-y-auto bg-white" : ""}>
+                    <form onSubmit={handleSubmit} className={isModal ? "flex flex-col gap-3 p-4" : "flex flex-col gap-4"}>
+                        {/* Inventory Selection & Route - Combined Top Row */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                            {/* Inventory Selection */}
+                            <div className="bg-gray-50 rounded-lg p-3">
+                                <h4 className="text-sm font-medium text-gray-900 mb-2">Select From Inventory</h4>
+                                <select
+                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    value={selectedInventoryItem}
+                                    onChange={handleInventoryChange}
+                                    disabled={!!selectedOption}
+                                >
+                                    <option value="">Select an item</option>
+                                    {inventoryItems.map((item) => (
+                                        <option key={item.id} value={item.id}>
+                                            {item.year} {item.make} {item.model}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
 
-                            <input type="hidden" value={originCity} />
-                            <input type="hidden" value={originState} />
-                            <input type="hidden" value={originZip} />
+                            {/* Route & Schedule */}
+                            <div className="bg-gray-50 rounded-lg p-3">
+                                <h4 className="text-sm font-medium text-gray-900 mb-2">Route & Schedule</h4>
+                                <div className='grid grid-cols-3 gap-2'>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-700 mb-1">Origin</label>
+                                        <input
+                                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            type="text"
+                                            placeholder='City, State or ZIP'
+                                            value={originInput}
+                                            onChange={(e) => setOriginInput(e.target.value)}
+                                            onBlur={handleOriginInputBlur}
+                                        />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-700 mb-1">Destination</label>
+                                        <input
+                                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            type="text"
+                                            placeholder='City, State or ZIP'
+                                            value={destinationInput}
+                                            onChange={(e) => setDestinationInput(e.target.value)}
+                                            onBlur={handleDestinationInputBlur}
+                                        />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-700 mb-1">Ship Date</label>
+                                        <input
+                                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            type="date"
+                                            value={dueDate || ''}
+                                            onChange={(e) => {
+                                                setErrorText('');
+                                                setDueDate(e.target.value || null);
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div className='flex flex-col items-start'>
-                            <label className='text-zinc-900 font-medium'>Destination</label>
-                            <input
-                                className="rounded w-full p-1 py-1.5 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                placeholder='Zip or City, State'
-                                value={destinationInput}
-                                onChange={(e) => setDestinationInput(e.target.value)}
-                                onBlur={handleDestinationInputBlur}
-                            />
 
-                            <input type="hidden" value={destinationCity} />
-                            <input type="hidden" value={destinationState} />
-                            <input type="hidden" value={destinationZip} />
+                        {/* Divider */}
+                        <div className='flex items-center justify-center gap-3 my-1'>
+                            <div className='border-b border-gray-300 flex-grow'></div>
+                            <span className='text-gray-500 text-sm font-medium'>Freight Details</span>
+                            <div className='border-b border-gray-300 flex-grow'></div>
                         </div>
-                        <div className='md:ml-12'>
-                            <label className='text-zinc-900 dark:text-zinc-100 font-medium'>Shipping Date
-                                <input
-                                    className="rounded w-full dark:text-zinc-800 px-1 py-1.5 border border-zinc-900/30 shadow-md text-zinc-500"
-                                    type="date"
-                                    value={dueDate || ''} // Ensure dueDate is either a valid timestamp or an empty string
-                                    onChange={(e) => {
-                                        setErrorText('');
-                                        setDueDate(e.target.value || null); // Set dueDate to null if the input is empty
-                                    }}
-                                />
-                            </label>
-                        </div>
-                    </div>
-                    <div className='flex gap-2'>
-                        <label className='text-zinc-900 dark:text-zinc-100 font-medium' />
-                        <input
-                            type="checkbox"
-                            checked={saveToInventory}
-                            onChange={(e) => setSaveToInventory(e.target.checked)}
-                            placeholder="Save to Inventory"
-                            title="Save to Inventory"
+
+                        {/* Freight Type Selection */}
+                        <SelectOption
+                            selectedOption={selectedOption}
+                            setSelectedOption={(option) => {
+                                setSelectedOption(option);
+                                if (option) {
+                                    setSelectedInventoryItem('');
+                                }
+                            }}
+                            setErrorText={setErrorText}
+                            session={session}
+                            setFormData={setFormData}
+                            formData={formData}
+                            disabled={false}
                         />
-                        Save to Inventory
-                    </div>
 
-                    <div className='flex justify-center'>
-                        <div className='flex gap-2 w-full justify-around'>
-                            <button type="submit" className="body-btn w-2/3 text-sm place-self-center">
-                                Request a Shipping Estimate
-                            </button>
-                            <button onClick={onClose} className="cancel-btn mt-4 w-1/4 place-self-center">
-                                Close
-                            </button>
+                        {/* Options & Actions - Combined Bottom Row */}
+                        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-3 border-t border-gray-200">
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="saveToInventory"
+                                    checked={saveToInventory}
+                                    onChange={(e) => setSaveToInventory(e.target.checked)}
+                                    className="rounded border-gray-300"
+                                />
+                                <label htmlFor="saveToInventory" className="text-sm text-gray-700">
+                                    Save to Inventory
+                                </label>
+                            </div>
+                            
+                            <div className='flex gap-3'>
+                                <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm rounded-md font-medium transition-colors">
+                                    Request Estimate
+                                </button>
+                                <button type="button" onClick={onClose} className="px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-colors">
+                                    Cancel
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </form>
+
+                        {/* Hidden inputs for parsed location data */}
+                        <input type="hidden" value={originCity} />
+                        <input type="hidden" value={originState} />
+                        <input type="hidden" value={originZip} />
+                        <input type="hidden" value={destinationCity} />
+                        <input type="hidden" value={destinationState} />
+                        <input type="hidden" value={destinationZip} />
+                    </form>
+                </div>
             </div>
         </div>
     );
