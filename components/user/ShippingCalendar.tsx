@@ -51,11 +51,10 @@ const ShippingCalendar: React.FC<ShippingCalendarProps> = () => {
     const session = useSession();
 
     const fetchSchedulesForCompany = useCallback(async (companyId: string) => {
-        const { data: schedules, error } = await supabase
+        const { data: allSchedules, error } = await supabase
             .from('shippingquotes')
-            .select('id, earliest_pickup_date, latest_pickup_date, origin_city, origin_state, destination_city, destination_state, brokers_status')
+            .select('id, earliest_pickup_date, latest_pickup_date, origin_city, origin_state, destination_city, destination_state, brokers_status, status')
             .eq('company_id', companyId)
-            .eq('status', 'Order')
             .or('is_complete.is.null,is_complete.eq.false')
             .or('is_archived.is.null,is_archived.eq.false');
 
@@ -64,6 +63,12 @@ const ShippingCalendar: React.FC<ShippingCalendarProps> = () => {
             setErrorText('Error fetching schedules');
             return [];
         }
+
+        // Filter for orders with case-insensitive status check
+        const schedules = allSchedules?.filter(schedule => {
+            const status = schedule.status?.toLowerCase() || '';
+            return status === 'order';
+        }) || [];
 
         return schedules;
     }, []);

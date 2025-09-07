@@ -110,6 +110,19 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
             <div className="nts-sidebar-content">
                 {/* Header */}
                 <div className="nts-sidebar-header">
+                    {/* Mobile Close Button - Only show on mobile */}
+                    {!isDesktop && (
+                        <div className="flex justify-end mb-4">
+                            <button
+                                onClick={toggleSidebar}
+                                className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all duration-200 hover:scale-105 active:scale-95"
+                                aria-label="Close menu"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                    )}
+
                     {/* Brand */}
                     <div className="flex items-center justify-center mb-8">
                         <div className="flex items-center gap-3">

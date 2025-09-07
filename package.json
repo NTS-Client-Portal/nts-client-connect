@@ -54,7 +54,7 @@
         "@types/node": "^22.13.5",
         "class-variance-authority": "^0.7.1",
         "docx": "^9.2.0",
-        "dotenv": "^16.4.7",
+        "dotenv": "^16.6.1",
         "formidable": "^3.5.3",
         "framer-motion": "^12.4.7",
         "fuse.js": "^7.1.0",

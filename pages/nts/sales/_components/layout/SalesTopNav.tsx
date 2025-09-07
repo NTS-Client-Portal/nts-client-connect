@@ -53,34 +53,31 @@ const SalesTopNav: React.FC<SalesTopNavProps> = ({ session, className = '', isSi
     };
 
     return (
-        <div className={`w-full px-6 py-4 ${className}`}>
+        <div className={`w-full px-6 py-4 relative z-[9999] ${className}`}>
             <div className="flex items-center justify-between">
                 {/* Left side - Sidebar toggle and breadcrumbs */}
                 <div className="flex items-center gap-4">
-                    {/* Desktop Sidebar Toggle */}
-                    <button
+                    {/* Desktop Sidebar Toggle - Only show on desktop */}
+                    {/* <button
                         onClick={toggleSidebar}
-                        className="xs:hidden md:flex items-center justify-center w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-white transition-all duration-200 hover:scale-105 active:scale-95"
+                        className="hidden md:flex items-center justify-center w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-white transition-all duration-200 hover:scale-105 active:scale-95"
                         aria-label={isSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
                     >
                      {isSidebarOpen ? (
-                            <X className="w-5 h-5" />
+                            <X className="w-5 h-5 " />
                         ) : (
                             <Menu className="w-5 h-5" />
                         )}
-                    </button>
+                    </button> */}
 
-                    {/* Mobile Menu Toggle */}
+                    {/* Mobile Menu Toggle - Only show on mobile/tablet when closed */}
                     <button
                         onClick={toggleSidebar}
-                        className="md:hidden xs:flex items-center justify-center w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-white transition-all duration-200 hover:scale-105 active:scale-95"
-                        aria-label={isSidebarOpen ? 'Close menu' : 'Open menu'}
+                        className="flex md:hidden items-center justify-center w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-white transition-all duration-200 hover:scale-105 active:scale-95"
+                        aria-label="Open menu"
+                        style={{ display: isSidebarOpen ? 'none' : 'flex' }}
                     >
-                        {isSidebarOpen ? (
-                            <X className="w-5 h-5" />
-                        ) : (
-                            <Menu className="w-5 h-5" />
-                        )}
+                        <Menu className="w-5 h-5" />
                     </button>
 
                     {/* Page Title/Breadcrumb */}

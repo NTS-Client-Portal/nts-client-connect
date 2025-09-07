@@ -59,17 +59,22 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
 
     const fetchOrders = useCallback(
         async (profileIds: string[]) => {
-            const { data: orders, error } = await supabase
+            const { data: allOrders, error } = await supabase
                 .from("shippingquotes")
                 .select("*")
                 .in("user_id", profileIds)
-                .eq("status", "Order")
                 .not('is_complete', 'is', true);
 
             if (error) {
                 console.error("Error fetching orders:", error.message);
                 return [];
             }
+
+            // Filter for orders with case-insensitive status check
+            const orders = allOrders?.filter(order => {
+                const status = order.status?.toLowerCase() || '';
+                return status === 'order';
+            }) || [];
 
             return orders;
         },
@@ -102,11 +107,10 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                 return [];
             }
 
-            const { data: orders, error: ordersError } = await supabase
+            const { data: allOrders, error: ordersError } = await supabase
                 .from("shippingquotes")
                 .select("*")
                 .eq("company_id", companyId)
-                .eq("status", "Order")
                 .not('is_complete', 'is', true);
 
             if (ordersError) {
@@ -116,6 +120,12 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                 );
                 return [];
             }
+
+            // Filter for orders with case-insensitive status check
+            const orders = allOrders?.filter(order => {
+                const status = order.status?.toLowerCase() || '';
+                return status === 'order';
+            }) || [];
 
             return orders;
         },
@@ -174,7 +184,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                     .from('nts_users')
                     .select('id')
                     .eq('id', session.user.id)
-                    .single();
+                    .maybeSingle();
 
                 if (ntsUserError) {
                     console.error('Error fetching nts_user role:', ntsUserError.message);
@@ -246,7 +256,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
     const archiveOrder = async (quoteId: number) => {
         const { error } = await supabase
             .from('shippingquotes')
-            .update({ is_archived: true, status: 'Archived' })
+            .update({ is_archived: true, status: 'archived' })
             .eq('id', quoteId);
 
         if (error) {
@@ -370,15 +380,25 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
     };
 
     const duplicateQuote = async (quote: Database['public']['Tables']['shippingquotes']['Row']) => {
+        // Implement failsafe system: preserve or failsafe company_id
+        let finalCompanyId: string | null = quote.company_id || companyId || null;
+        
+        // If no company_id available, allow duplication but flag for admin review
+        if (!finalCompanyId) {
+            console.warn('⚠️ Duplicate quote being created without company_id - will need admin review');
+        }
+
         const { data, error } = await supabase
             .from('shippingquotes')
             .insert({
                 ...quote,
                 id: undefined, // Let the database generate a new ID
+                company_id: finalCompanyId, // Use failsafe company_id
                 due_date: null,
                 price: null,
-                status: 'Quote', // Reset to Quote status
+                status: 'quote', // Reset to quote status
                 created_at: new Date().toISOString(),
+                needs_admin_review: !finalCompanyId, // Flag for admin review if needed
             })
             .select();
 
@@ -387,6 +407,16 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
             setErrorText('Error duplicating quote');
         } else {
             if (data && data.length > 0) {
+                // If quote was saved without company_id, log critical alert
+                if (!finalCompanyId) {
+                    console.error('🚨🚨🚨 MANUAL REVIEW NEEDED 🚨🚨🚨', {
+                        message: 'Duplicate quote created without company assignment from OrderList',
+                        quote_id: data[0].id,
+                        original_order_id: quote.id,
+                        timestamp: new Date().toISOString(),
+                        action_required: 'Admin needs to assign company_id to this duplicate quote ASAP'
+                    });
+                }
                 console.log(`Duplicate Quote Request Added - Quote #${data[0].id}`);
             }
             fetchInitialQuotes();
@@ -394,14 +424,23 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
     };
 
     const reverseQuote = async (quote: Database['public']['Tables']['shippingquotes']['Row']) => {
+        // Implement failsafe system: preserve or failsafe company_id
+        let finalCompanyId: string | null = quote.company_id || companyId || null;
+        
+        // If no company_id available, allow reverse but flag for admin review
+        if (!finalCompanyId) {
+            console.warn('⚠️ Reverse quote being created without company_id - will need admin review');
+        }
+
         const { data, error } = await supabase
             .from('shippingquotes')
             .insert({
                 ...quote,
                 id: undefined, // Let the database generate a new ID
+                company_id: finalCompanyId, // Use failsafe company_id
                 due_date: null,
                 price: null,
-                status: 'Quote', // Reset to Quote status
+                status: 'quote', // Reset to quote status
                 origin_city: quote.destination_city,
                 origin_state: quote.destination_state,
                 origin_zip: quote.destination_zip,
@@ -409,6 +448,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                 destination_state: quote.origin_state,
                 destination_zip: quote.origin_zip,
                 created_at: new Date().toISOString(),
+                needs_admin_review: !finalCompanyId, // Flag for admin review if needed
             })
             .select();
 
@@ -417,6 +457,16 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
             setErrorText('Error reversing quote');
         } else {
             if (data && data.length > 0) {
+                // If quote was saved without company_id, log critical alert
+                if (!finalCompanyId) {
+                    console.error('🚨🚨🚨 MANUAL REVIEW NEEDED 🚨🚨🚨', {
+                        message: 'Reverse quote created without company assignment from OrderList',
+                        quote_id: data[0].id,
+                        original_order_id: quote.id,
+                        timestamp: new Date().toISOString(),
+                        action_required: 'Admin needs to assign company_id to this reverse quote ASAP'
+                    });
+                }
                 console.log(`Flip Route Duplicate Request Added - Quote #${data[0].id}`);
             }
             fetchInitialQuotes();
@@ -445,8 +495,11 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                 { event: '*', schema: 'public', table: 'shippingquotes' },
                 (payload) => {
                     console.log('Change received!', payload);
-                    if (payload.eventType === 'UPDATE' && payload.new.status === 'Order') {
-                        fetchInitialQuotes();
+                    if (payload.eventType === 'UPDATE' && payload.new && typeof payload.new === 'object') {
+                        const status = (payload.new as any)?.status?.toLowerCase() || '';
+                        if (status === 'order') {
+                            fetchInitialQuotes();
+                        }
                     }
                 }
             )

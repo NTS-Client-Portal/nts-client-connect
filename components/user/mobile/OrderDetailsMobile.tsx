@@ -231,6 +231,164 @@ const OrderDetailsMobile: React.FC<OrderDetailsMobileProps> = ({
                                 {/* Expanded Actions */}
                                 {expandedOrderId === order.id && (
                                     <div className="border-t border-gray-100 dark:border-gray-700 pt-4 space-y-4 animate-in slide-in-from-top duration-200">
+                                        
+                                        {/* Detailed Order Information */}
+                                        <div className="space-y-3">
+                                            {/* Contact Details */}
+                                            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+                                                <h5 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2 flex items-center gap-2">
+                                                    <MapPin className="w-4 h-4" />
+                                                    Contact Information
+                                                </h5>
+                                                <div className="grid grid-cols-1 gap-3">
+                                                    {(order.origin_name || order.origin_phone || order.origin_street) && (
+                                                        <div className="bg-white dark:bg-gray-800 rounded p-2">
+                                                            <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Pickup Contact</div>
+                                                            {order.origin_name && <div className="text-sm text-gray-900 dark:text-white">{order.origin_name}</div>}
+                                                            {order.origin_phone && <div className="text-sm text-gray-600 dark:text-gray-400">{order.origin_phone}</div>}
+                                                            {order.origin_street && <div className="text-xs text-gray-500 dark:text-gray-500">{order.origin_street}</div>}
+                                                        </div>
+                                                    )}
+                                                    {(order.destination_name || order.destination_phone || order.destination_street) && (
+                                                        <div className="bg-white dark:bg-gray-800 rounded p-2">
+                                                            <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Delivery Contact</div>
+                                                            {order.destination_name && <div className="text-sm text-gray-900 dark:text-white">{order.destination_name}</div>}
+                                                            {order.destination_phone && <div className="text-sm text-gray-600 dark:text-gray-400">{order.destination_phone}</div>}
+                                                            {order.destination_street && <div className="text-xs text-gray-500 dark:text-gray-500">{order.destination_street}</div>}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Load Specifications */}
+                                            {(order.length || order.width || order.height || order.weight || order.make || order.model) && (
+                                                <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
+                                                    <h5 className="text-sm font-semibold text-purple-900 dark:text-purple-100 mb-2 flex items-center gap-2">
+                                                        <Package className="w-4 h-4" />
+                                                        Load Specifications
+                                                    </h5>
+                                                    <div className="bg-white dark:bg-gray-800 rounded p-2 space-y-2">
+                                                        {(order.make || order.model || order.year) && (
+                                                            <div className="grid grid-cols-2 gap-2">
+                                                                <div>
+                                                                    <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Equipment</div>
+                                                                    <div className="text-sm text-gray-900 dark:text-white">{order.year} {order.make} {order.model}</div>
+                                                                </div>
+                                                                <div>
+                                                                    <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Operational</div>
+                                                                    <div className="text-sm text-gray-900 dark:text-white">{order.operational_condition ? 'Yes' : 'No'}</div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        {(order.length || order.width || order.height) && (
+                                                            <div className="grid grid-cols-3 gap-2">
+                                                                {order.length && (
+                                                                    <div>
+                                                                        <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Length</div>
+                                                                        <div className="text-sm text-gray-900 dark:text-white">{order.length} {order.length_unit || 'ft'}</div>
+                                                                    </div>
+                                                                )}
+                                                                {order.width && (
+                                                                    <div>
+                                                                        <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Width</div>
+                                                                        <div className="text-sm text-gray-900 dark:text-white">{order.width} {order.width_unit || 'ft'}</div>
+                                                                    </div>
+                                                                )}
+                                                                {order.height && (
+                                                                    <div>
+                                                                        <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Height</div>
+                                                                        <div className="text-sm text-gray-900 dark:text-white">{order.height} {order.height_unit || 'ft'}</div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                        {order.weight && (
+                                                            <div>
+                                                                <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Weight</div>
+                                                                <div className="text-sm text-gray-900 dark:text-white">{order.weight} {order.weight_unit || 'lbs'}</div>
+                                                            </div>
+                                                        )}
+                                                        {order.vin && (
+                                                            <div>
+                                                                <div className="text-xs font-medium text-gray-700 dark:text-gray-300">VIN/Serial</div>
+                                                                <div className="text-sm text-gray-900 dark:text-white font-mono">{order.vin}</div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Additional Details */}
+                                            {(order.loading_unloading_requirements || order.auction || order.lot_number || order.buyer_number || order.notes) && (
+                                                <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-3">
+                                                    <h5 className="text-sm font-semibold text-orange-900 dark:text-orange-100 mb-2 flex items-center gap-2">
+                                                        <Clock className="w-4 h-4" />
+                                                        Additional Details
+                                                    </h5>
+                                                    <div className="bg-white dark:bg-gray-800 rounded p-2 space-y-2">
+                                                        {order.loading_unloading_requirements && (
+                                                            <div>
+                                                                <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Loading/Unloading Requirements</div>
+                                                                <div className="text-sm text-gray-900 dark:text-white">{order.loading_unloading_requirements}</div>
+                                                            </div>
+                                                        )}
+                                                        {(order.auction || order.lot_number || order.buyer_number) && (
+                                                            <div className="grid grid-cols-2 gap-2">
+                                                                {order.auction && (
+                                                                    <div>
+                                                                        <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Auction</div>
+                                                                        <div className="text-sm text-gray-900 dark:text-white">{order.auction}</div>
+                                                                    </div>
+                                                                )}
+                                                                {order.lot_number && (
+                                                                    <div>
+                                                                        <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Lot #</div>
+                                                                        <div className="text-sm text-gray-900 dark:text-white">{order.lot_number}</div>
+                                                                    </div>
+                                                                )}
+                                                                {order.buyer_number && (
+                                                                    <div>
+                                                                        <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Buyer #</div>
+                                                                        <div className="text-sm text-gray-900 dark:text-white">{order.buyer_number}</div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                        {order.notes && (
+                                                            <div>
+                                                                <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Notes</div>
+                                                                <div className="text-sm text-gray-900 dark:text-white">{order.notes}</div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Pickup Window */}
+                                            {(order.earliest_pickup_date || order.latest_pickup_date) && (
+                                                <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3">
+                                                    <h5 className="text-sm font-semibold text-green-900 dark:text-green-100 mb-2 flex items-center gap-2">
+                                                        <Calendar className="w-4 h-4" />
+                                                        Pickup Window
+                                                    </h5>
+                                                    <div className="bg-white dark:bg-gray-800 rounded p-2 grid grid-cols-2 gap-2">
+                                                        {order.earliest_pickup_date && (
+                                                            <div>
+                                                                <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Earliest</div>
+                                                                <div className="text-sm text-gray-900 dark:text-white">{formatDate(order.earliest_pickup_date)}</div>
+                                                            </div>
+                                                        )}
+                                                        {order.latest_pickup_date && (
+                                                            <div>
+                                                                <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Latest</div>
+                                                                <div className="text-sm text-gray-900 dark:text-white">{formatDate(order.latest_pickup_date)}</div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
                                         {/* Date Management */}
                                         <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 space-y-3">
                                             <h5 className="text-sm font-medium text-gray-900 dark:text-white">Schedule Dates</h5>

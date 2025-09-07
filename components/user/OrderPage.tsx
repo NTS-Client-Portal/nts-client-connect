@@ -75,8 +75,28 @@ const OrderPage: React.FC<OrderPageProps> = ({ onClose, addOrder, errorText, set
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        if (!session) {
+            setErrorText('You must be logged in to submit an order');
+            return;
+        }
+
+        // Input validation
+        if (!originZip || !destinationZip) {
+            setErrorText('Please fill in origin and destination zip codes');
+            return;
+        }
+
+        // Implement failsafe system: never block submissions
+        let finalCompanyId: string | null = companyId || null;
+        
+        // If no company_id available, allow submission but flag for admin review
+        if (!finalCompanyId) {
+            console.warn('⚠️ Order being submitted without company_id - will need admin review');
+        }
+
         const order = {
             user_id: session?.user.id,
+            company_id: finalCompanyId, // Use failsafe company_id
             origin_street: originStreet,
             origin_zip: originZip,
             origin_city: originCity,
@@ -92,15 +112,17 @@ const OrderPage: React.FC<OrderPageProps> = ({ onClose, addOrder, errorText, set
             earliest_pickup_date: earliestPickupDate,
             latest_pickup_date: latestPickupDate,
             freight_type: selectedOption,
-            status: 'Order',
+            status: 'order', // Already lowercase
             ...formData,
             save_to_inventory: saveToInventory,
+            needs_admin_review: !finalCompanyId, // Flag for admin review if needed
         };
 
         try {
-            const { error } = await supabase
+            const { data, error } = await supabase
                 .from('shippingquotes')
-                .insert([order]);
+                .insert([order])
+                .select();
 
             if (error) {
                 console.error('Error submitting order:', error.message);
@@ -110,60 +132,74 @@ const OrderPage: React.FC<OrderPageProps> = ({ onClose, addOrder, errorText, set
                 fetchOrders();
                 onClose();
 
-                // Fetch the broker's user ID
-                const { data: brokerData, error: brokerError } = await supabase
-                    .from('company_sales_users')
-                    .select('sales_user_id')
-                    .eq('company_id', companyId) // Ensure the correct company_id is used
-                    .single();
+                // If order was saved without company_id, log critical alert
+                if (data && data.length > 0 && !finalCompanyId) {
+                    console.error('🚨🚨🚨 MANUAL REVIEW NEEDED 🚨🚨🚨', {
+                        message: 'Order submitted without company assignment from OrderPage',
+                        order_id: data[0].id,
+                        user_id: session?.user.id,
+                        timestamp: new Date().toISOString(),
+                        action_required: 'Admin needs to assign company_id to this order ASAP'
+                    });
+                }
 
-                if (brokerError) {
-                    console.error('Error fetching broker user ID:', brokerError.message);
-                } else if (brokerData) {
-                    const brokerUserId = brokerData.sales_user_id;
+                // Fetch the broker's user ID (only if we have a company_id)
+                if (finalCompanyId) {
+                    const { data: brokerData, error: brokerError } = await supabase
+                        .from('company_sales_users')
+                        .select('sales_user_id')
+                        .eq('company_id', finalCompanyId)
+                        .maybeSingle(); // Use maybeSingle instead of single
 
-                    if (brokerUserId) {
-                        // Send notification to the broker
-                        const notificationMessage = `A new order has been submitted by ${assignedSalesUser}`;
-                        const { error: notificationError } = await supabase
-                            .from('notifications')
-                            .insert({
-                                user_id: brokerUserId,
-                                message: notificationMessage,
-                            });
+                    if (brokerError) {
+                        console.error('Error fetching broker user ID:', brokerError.message);
+                    } else if (brokerData) {
+                        const brokerUserId = brokerData.sales_user_id;
 
-                        if (notificationError) {
-                            console.error('Error sending notification to broker:', notificationError.message);
+                        if (brokerUserId) {
+                            // Send notification to the broker
+                            const notificationMessage = `A new order has been submitted by ${assignedSalesUser}`;
+                            const { error: notificationError } = await supabase
+                                .from('notifications')
+                                .insert({
+                                    user_id: brokerUserId,
+                                    message: notificationMessage,
+                                });
+
+                            if (notificationError) {
+                                console.error('Error sending notification to broker:', notificationError.message);
+                            }
+                        } else {
+                            console.error('Broker user ID is undefined');
                         }
-                    } else {
-                        console.error('Broker user ID is undefined');
                     }
                 }
-            }
 
-            if (saveToInventory) {
-                const freightData = {
-                    user_id: session?.user.id,
-                    year: formData.year,
-                    make: formData.make,
-                    model: formData.model,
-                    length: formData.length,
-                    width: formData.width,
-                    height: formData.height,
-                    weight: formData.weight,
-                    freight_type: selectedOption,
-                    commodity: formData.commodity,
-                    pallet_count: formData.pallet_count,
-                    serial_number: formData.vin,
-                };
+                // Handle inventory saving if requested
+                if (saveToInventory) {
+                    const freightData = {
+                        user_id: session?.user.id,
+                        year: formData.year,
+                        make: formData.make,
+                        model: formData.model,
+                        length: formData.length,
+                        width: formData.width,
+                        height: formData.height,
+                        weight: formData.weight,
+                        freight_type: selectedOption,
+                        commodity: formData.commodity,
+                        pallet_count: formData.pallet_count,
+                        serial_number: formData.vin,
+                    };
 
-                const { error: inventoryError } = await supabase
-                    .from('freight')
-                    .insert([freightData]);
+                    const { error: inventoryError } = await supabase
+                        .from('freight')
+                        .insert([freightData]);
 
-                if (inventoryError) {
-                    console.error('Error saving to inventory:', inventoryError.message);
-                    setErrorText('Error saving to inventory');
+                    if (inventoryError) {
+                        console.error('Error saving to inventory:', inventoryError.message);
+                        setErrorText('Error saving to inventory');
+                    }
                 }
             }
         } catch (error) {

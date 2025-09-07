@@ -367,99 +367,314 @@ const OrderTable: React.FC<OrderTableProps> = ({
                             </thead>
                             <tbody>
                                 {currentRows.map((order, index) => (
-                                    <tr 
-                                        key={order.id}
-                                        onClick={() => handleRowClick(order.id)}
-                                        className={`cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-green-50 transition-colors duration-200`}
-                                    >
-                                        <td className="modern-table-cell font-medium text-green-600 underline">
-                                            #{order.id}
-                                        </td>
-                                        <td className="modern-table-cell text-gray-900">
-                                            <div className="flex items-center gap-2">
-                                                <Truck className="w-4 h-4 text-gray-400" />
-                                                <span className="text-sm">{freightTypeMapping[order.freight_type?.toLowerCase()] || order.freight_type}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-3 py-4 text-sm text-gray-500">
-                                            <div className="flex items-center gap-1">
-                                                <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                                                <div className="flex flex-col space-y-1">
-                                                    <div className="text-xs text-gray-700">
-                                                        <span className="font-medium">From:</span> {order.origin_city}, {order.origin_state}
-                                                    </div>
-                                                    <div className="text-xs text-gray-700">
-                                                        <span className="font-medium">To:</span> {order.destination_city}, {order.destination_state}
-                                                    </div>
+                                    <React.Fragment key={order.id}>
+                                        <tr 
+                                            onClick={() => handleRowClick(order.id)}
+                                            className={`cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-green-50 transition-colors duration-200`}
+                                        >
+                                            <td className="modern-table-cell font-medium text-green-600 underline">
+                                                <div className="flex items-center gap-2">
+                                                    #{order.id}
+                                                    <ChevronUp 
+                                                        className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+                                                            expandedRow === order.id ? 'rotate-180' : ''
+                                                        }`} 
+                                                    />
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <div className="flex items-center gap-1">
-                                                <Calendar className="w-4 h-4 text-gray-400" />
-                                                <span className="text-xs">{formatDate(order.due_date)}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-3 py-4 whitespace-nowrap text-sm">
-                                            {order.price ? (
+                                            </td>
+                                            <td className="modern-table-cell text-gray-900">
+                                                <div className="flex items-center gap-2">
+                                                    <Truck className="w-4 h-4 text-gray-400" />
+                                                    <span className="text-sm">{freightTypeMapping[order.freight_type?.toLowerCase()] || order.freight_type}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-3 py-4 text-sm text-gray-500">
                                                 <div className="flex items-center gap-1">
-                                                    <DollarSign className="w-4 h-4 text-green-500" />
-                                                    <span className="font-semibold text-green-600 text-xs">${order.price}</span>
+                                                    <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                                    <div className="flex flex-col space-y-1">
+                                                        <div className="text-xs text-gray-700">
+                                                            <span className="font-medium">From:</span> {order.origin_city}, {order.origin_state}
+                                                        </div>
+                                                        <div className="text-xs text-gray-700">
+                                                            <span className="font-medium">To:</span> {order.destination_city}, {order.destination_state}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            ) : (
-                                                <span className="text-xs text-gray-500">N/A</span>
-                                            )}
-                                        </td>
-                                        <td className="px-3 py-4 whitespace-nowrap text-sm">
-                                            <span className={getStatusClasses(order.status || 'In Progress')}>
-                                                {order.status || 'In Progress'}
-                                            </span>
-                                        </td>
-                                        <td className="px-3 py-4 whitespace-nowrap text-md font-semibold">
-                                            <div className="flex items-center gap-1">
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleEditClick(order);
-                                                    }}
-                                                    className="bg-slate-600 text-white px-2 py-1 rounded hover:bg-slate-800 flex items-center gap-1"
-                                                >
-                                                    <Edit className="w-4 h-4" />
-                                                    <span className="text-xs">Edit</span>
-                                                </button>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        duplicateQuote(order);
-                                                    }}
-                                                    className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-800 flex items-center gap-1"
-                                                >
-                                                    <Copy className="w-4 h-4" />
-                                                    <span className="text-xs">Duplicate Route</span>
-                                                </button>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        reverseQuote(order);
-                                                    }}
-                                                    className="bg-green-700 text-white px-2 py-1 rounded hover:bg-green-900 flex items-center gap-1"
-                                                >
-                                                    <RotateCcw className="w-4 h-4" />
-                                                    <span className="text-xs">Flip Route</span>
-                                                </button>
-                                                {/* Only admins (NTS users) can mark orders as complete */}
-                                                {isAdmin && (
-                                                    <button
-                                                        onClick={handleMarkAsComplete(order.id)}
-                                                        className="text-red-600 hover:text-red-800 flex items-center gap-1"
-                                                    >
-                                                        <CheckCircle className="w-4 h-4" />
-                                                        <span className="text-xs">Complete</span>
-                                                    </button>
+                                            </td>
+                                            <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <div className="flex items-center gap-1">
+                                                    <Calendar className="w-4 h-4 text-gray-400" />
+                                                    <span className="text-xs">{formatDate(order.earliest_pickup_date || order.due_date)}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-3 py-4 whitespace-nowrap text-sm">
+                                                {order.price ? (
+                                                    <div className="flex items-center gap-1">
+                                                        <DollarSign className="w-4 h-4 text-green-500" />
+                                                        <span className="font-semibold text-green-600 text-xs">${order.price}</span>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-xs text-gray-500">N/A</span>
                                                 )}
-                                            </div>
-                                        </td>
-                                    </tr>
+                                            </td>
+                                            <td className="px-3 py-4 whitespace-nowrap text-sm">
+                                                <span className={getStatusClasses(order.status || 'In Progress')}>
+                                                    {order.status || 'In Progress'}
+                                                </span>
+                                            </td>
+                                            <td className="px-3 py-4 whitespace-nowrap text-md font-semibold">
+                                                <div className="flex items-center gap-1">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleEditClick(order);
+                                                        }}
+                                                        className="bg-slate-600 text-white px-2 py-1 rounded hover:bg-slate-800 flex items-center gap-1"
+                                                    >
+                                                        <Edit className="w-4 h-4" />
+                                                        <span className="text-xs">Edit</span>
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            duplicateQuote(order);
+                                                        }}
+                                                        className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-800 flex items-center gap-1"
+                                                    >
+                                                        <Copy className="w-4 h-4" />
+                                                        <span className="text-xs">Duplicate Route</span>
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            reverseQuote(order);
+                                                        }}
+                                                        className="bg-green-700 text-white px-2 py-1 rounded hover:bg-green-900 flex items-center gap-1"
+                                                    >
+                                                        <RotateCcw className="w-4 h-4" />
+                                                        <span className="text-xs">Flip Route</span>
+                                                    </button>
+                                                    {/* Only admins (NTS users) can mark orders as complete */}
+                                                    {isAdmin && (
+                                                        <button
+                                                            onClick={handleMarkAsComplete(order.id)}
+                                                            className="text-red-600 hover:text-red-800 flex items-center gap-1"
+                                                        >
+                                                            <CheckCircle className="w-4 h-4" />
+                                                            <span className="text-xs">Complete</span>
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                        {/* Expanded Row Content */}
+                                        {expandedRow === order.id && (
+                                            <tr className="bg-gray-50">
+                                                <td colSpan={7} className="px-4 py-6">
+                                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                                        {/* Pickup Details */}
+                                                        <div className="bg-white rounded-lg p-4 border border-gray-200">
+                                                            <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                                                <MapPin className="w-5 h-5 text-green-600" />
+                                                                Pickup Details
+                                                            </h4>
+                                                            <div className="space-y-3">
+                                                                <div className="grid grid-cols-2 gap-4">
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">Contact Name</label>
+                                                                        <p className="text-sm text-gray-900">{order.origin_name || 'N/A'}</p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">Phone</label>
+                                                                        <p className="text-sm text-gray-900">{order.origin_phone || 'N/A'}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <label className="text-sm font-medium text-gray-700">Street Address</label>
+                                                                    <p className="text-sm text-gray-900">{order.origin_street || 'N/A'}</p>
+                                                                </div>
+                                                                <div className="grid grid-cols-3 gap-4">
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">City</label>
+                                                                        <p className="text-sm text-gray-900">{order.origin_city}</p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">State</label>
+                                                                        <p className="text-sm text-gray-900">{order.origin_state}</p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">ZIP</label>
+                                                                        <p className="text-sm text-gray-900">{order.origin_zip}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="grid grid-cols-2 gap-4">
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">Earliest Pickup</label>
+                                                                        <p className="text-sm text-gray-900">{formatDate(order.earliest_pickup_date) || 'N/A'}</p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">Latest Pickup</label>
+                                                                        <p className="text-sm text-gray-900">{formatDate(order.latest_pickup_date) || 'N/A'}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Delivery Details */}
+                                                        <div className="bg-white rounded-lg p-4 border border-gray-200">
+                                                            <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                                                <MapPin className="w-5 h-5 text-blue-600" />
+                                                                Delivery Details
+                                                            </h4>
+                                                            <div className="space-y-3">
+                                                                <div className="grid grid-cols-2 gap-4">
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">Contact Name</label>
+                                                                        <p className="text-sm text-gray-900">{order.destination_name || 'N/A'}</p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">Phone</label>
+                                                                        <p className="text-sm text-gray-900">{order.destination_phone || 'N/A'}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <label className="text-sm font-medium text-gray-700">Street Address</label>
+                                                                    <p className="text-sm text-gray-900">{order.destination_street || 'N/A'}</p>
+                                                                </div>
+                                                                <div className="grid grid-cols-3 gap-4">
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">City</label>
+                                                                        <p className="text-sm text-gray-900">{order.destination_city}</p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">State</label>
+                                                                        <p className="text-sm text-gray-900">{order.destination_state}</p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">ZIP</label>
+                                                                        <p className="text-sm text-gray-900">{order.destination_zip}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Load Information */}
+                                                        <div className="bg-white rounded-lg p-4 border border-gray-200">
+                                                            <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                                                <Package className="w-5 h-5 text-purple-600" />
+                                                                Load Information
+                                                            </h4>
+                                                            <div className="space-y-3">
+                                                                <div className="grid grid-cols-2 gap-4">
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">Freight Type</label>
+                                                                        <p className="text-sm text-gray-900">{order.freight_type}</p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">Operational</label>
+                                                                        <p className="text-sm text-gray-900">{order.operational_condition ? 'Yes' : 'No'}</p>
+                                                                    </div>
+                                                                </div>
+                                                                {order.freight_type?.toLowerCase() === 'equipment' && (
+                                                                    <div className="grid grid-cols-2 gap-4">
+                                                                        <div>
+                                                                            <label className="text-sm font-medium text-gray-700">Make/Model</label>
+                                                                            <p className="text-sm text-gray-900">{order.year} {order.make} {order.model}</p>
+                                                                        </div>
+                                                                        <div>
+                                                                            <label className="text-sm font-medium text-gray-700">VIN/Serial</label>
+                                                                            <p className="text-sm text-gray-900">{order.vin || 'N/A'}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                                <div className="grid grid-cols-3 gap-4">
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">Length</label>
+                                                                        <p className="text-sm text-gray-900">{order.length || 'N/A'} {order.length_unit || ''}</p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">Width</label>
+                                                                        <p className="text-sm text-gray-900">{order.width || 'N/A'} {order.width_unit || ''}</p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">Height</label>
+                                                                        <p className="text-sm text-gray-900">{order.height || 'N/A'} {order.height_unit || ''}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <label className="text-sm font-medium text-gray-700">Weight</label>
+                                                                    <p className="text-sm text-gray-900">{order.weight || 'N/A'} {order.weight_unit || ''}</p>
+                                                                </div>
+                                                                {order.commodity && (
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">Commodity</label>
+                                                                        <p className="text-sm text-gray-900">{order.commodity}</p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Additional Details */}
+                                                        <div className="bg-white rounded-lg p-4 border border-gray-200">
+                                                            <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                                                <Clock className="w-5 h-5 text-orange-600" />
+                                                                Additional Details
+                                                            </h4>
+                                                            <div className="space-y-3">
+                                                                {order.loading_unloading_requirements && (
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">Loading/Unloading Requirements</label>
+                                                                        <p className="text-sm text-gray-900">{order.loading_unloading_requirements}</p>
+                                                                    </div>
+                                                                )}
+                                                                {(order.auction || order.lot_number || order.buyer_number) && (
+                                                                    <div className="grid grid-cols-3 gap-4">
+                                                                        {order.auction && (
+                                                                            <div>
+                                                                                <label className="text-sm font-medium text-gray-700">Auction</label>
+                                                                                <p className="text-sm text-gray-900">{order.auction}</p>
+                                                                            </div>
+                                                                        )}
+                                                                        {order.lot_number && (
+                                                                            <div>
+                                                                                <label className="text-sm font-medium text-gray-700">Lot #</label>
+                                                                                <p className="text-sm text-gray-900">{order.lot_number}</p>
+                                                                            </div>
+                                                                        )}
+                                                                        {order.buyer_number && (
+                                                                            <div>
+                                                                                <label className="text-sm font-medium text-gray-700">Buyer #</label>
+                                                                                <p className="text-sm text-gray-900">{order.buyer_number}</p>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                )}
+                                                                {order.notes && (
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">Notes</label>
+                                                                        <p className="text-sm text-gray-900">{order.notes}</p>
+                                                                    </div>
+                                                                )}
+                                                                <div className="grid grid-cols-2 gap-4">
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">Status</label>
+                                                                        <p className="text-sm text-gray-900">{order.brokers_status || order.status || 'In Progress'}</p>
+                                                                    </div>
+                                                                    {order.price && (
+                                                                        <div>
+                                                                            <label className="text-sm font-medium text-gray-700">Order Value</label>
+                                                                            <p className="text-lg font-semibold text-green-600">${order.price.toLocaleString()}</p>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
                                 ))}
                             </tbody>
                         </table>

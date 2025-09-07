@@ -49,16 +49,21 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
 
     const fetchArchivedQuotes = useCallback(
         async (profileIds: string[]) => {
-            const { data: quotes, error } = await supabase
+            const { data: allQuotes, error } = await supabase
                 .from("shippingquotes")
                 .select("*")
-                .in("user_id", profileIds)
-                .eq("status", "Archived");
+                .in("user_id", profileIds);
 
             if (error) {
                 console.error("Error fetching archived quotes:", error.message);
                 return [];
             }
+
+            // Filter for archived quotes with case-insensitive status check
+            const quotes = allQuotes?.filter(quote => {
+                const status = quote.status?.toLowerCase() || '';
+                return status === 'archived';
+            }) || [];
 
             return quotes;
         },
@@ -91,11 +96,10 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
                 return [];
             }
 
-            const { data: quotes, error: quotesError } = await supabase
+            const { data: allQuotes, error: quotesError } = await supabase
                 .from("shippingquotes")
                 .select("*")
-                .eq("company_id", companyId)
-                .eq("status", "Archived");
+                .eq("company_id", companyId);
 
             if (quotesError) {
                 console.error(
@@ -104,6 +108,12 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
                 );
                 return [];
             }
+
+            // Filter for archived quotes with case-insensitive status check
+            const quotes = allQuotes?.filter(quote => {
+                const status = quote.status?.toLowerCase() || '';
+                return status === 'archived';
+            }) || [];
 
             return quotes;
         },
@@ -162,7 +172,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
                     .from('nts_users')
                     .select('id')
                     .eq('id', session.user.id)
-                    .single();
+                    .maybeSingle();
 
                 if (ntsUserError) {
                     console.error('Error fetching nts_user role:', ntsUserError.message);
@@ -203,8 +213,11 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
                 { event: '*', schema: 'public', table: 'shippingquotes' },
                 (payload) => {
                     console.log('Change received!', payload);
-                    if (payload.eventType === 'UPDATE' && payload.new.status === 'Archived') {
-                        fetchInitialQuotes();
+                    if (payload.eventType === 'UPDATE' && payload.new && typeof payload.new === 'object') {
+                        const status = (payload.new as any)?.status?.toLowerCase() || '';
+                        if (status === 'archived') {
+                            fetchInitialQuotes();
+                        }
                     }
                 }
             )
@@ -222,7 +235,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
                 ...quote,
                 id: undefined, // Let the database generate a new ID
                 due_date: null, // Require the user to fill out a new shipping date
-                status: 'Quote', // Set the status back to 'Quote'
+                status: 'quote', // Set the status back to 'quote'
             })
             .select();
 
@@ -244,7 +257,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
                 id: undefined, // Let the database generate a new ID
                 due_date: null,
                 price: null,
-                status: 'Quote', // Reset to Quote status
+                status: 'quote', // Reset to quote status
                 created_at: new Date().toISOString(),
             })
             .select();
@@ -267,7 +280,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
                 id: undefined, // Let the database generate a new ID
                 due_date: null,
                 price: null,
-                status: 'Quote', // Reset to Quote status
+                status: 'quote', // Reset to quote status
                 origin_city: quote.destination_city,
                 origin_state: quote.destination_state,
                 origin_zip: quote.destination_zip,

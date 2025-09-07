@@ -97,7 +97,7 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
                     .from('nts_users')
                     .select('id')
                     .eq('id', session.user.id)
-                    .single();
+                    .maybeSingle();
 
                 if (ntsUserError) {
                     console.error('Error fetching nts_user role:', ntsUserError.message);

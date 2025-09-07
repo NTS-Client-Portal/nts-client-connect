@@ -7,6 +7,7 @@ import AddNtsUserForm from './AddNtsUserForm';
 import TemplateManager from './TemplateManager';
 import EditNtsUserForm from './EditNtsUserForm';
 import ShipperUserManagement from './ShipperUserManagement';
+import OrphanedQuotesMonitor from '@/components/admin/OrphanedQuotesMonitor';
 import { 
   Users, 
   Building2, 
@@ -19,7 +20,8 @@ import {
   Crown,
   AlertCircle,
   CheckCircle2,
-  LogOut
+  LogOut,
+  Activity
 } from 'lucide-react';
 
 interface SuperadminDashboardProps {
@@ -41,7 +43,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
     const [isNtsUserModalOpen, setIsNtsUserModalOpen] = useState(false);
     const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
     const [selectedSalesUserId, setSelectedSalesUserId] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState<'analytics' | 'shipperUserManagement' | 'templateManager' | 'userManagement' >('userManagement');
+    const [activeTab, setActiveTab] = useState<'analytics' | 'shipperUserManagement' | 'templateManager' | 'userManagement' | 'dataHealth'>('userManagement');
     const [isSessionChecked, setIsSessionChecked] = useState(false);
     const [selectedUser, setSelectedUser] = useState<NtsUser | null>(null);
     const [userToDelete, setUserToDelete] = useState<NtsUser | null>(null);
@@ -344,6 +346,17 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                             <BarChart3 className="h-5 w-5" />
                             <span>Analytics</span>
                         </button>
+                        <button
+                            onClick={() => setActiveTab('dataHealth')}
+                            className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                                activeTab === 'dataHealth'
+                                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-105'
+                                    : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50'
+                            }`}
+                        >
+                            <Activity className="h-5 w-5" />
+                            <span>Data Health</span>
+                        </button>
                     </div>
                 </div>
 
@@ -502,6 +515,29 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                 {activeTab === 'analytics' && (
                     <div className="bg-white rounded-xl shadow-lg border border-slate-200 min-h-[600px]">
                         <AdminAnalytics />
+                    </div>
+                )}
+
+                {activeTab === 'dataHealth' && (
+                    <div className="space-y-6">
+                        {/* Header */}
+                        <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg">
+                                    <Activity className="h-6 w-6 text-white" />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-bold text-slate-800">Data Health Monitor</h2>
+                                    <p className="text-slate-600">Monitor and repair data integrity issues</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Orphaned Quotes Monitor */}
+                        <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
+                            <h3 className="text-lg font-semibold text-slate-800 mb-4">Quote Assignment Monitor</h3>
+                            <OrphanedQuotesMonitor />
+                        </div>
                     </div>
                 )}
             </div>

@@ -103,7 +103,7 @@ const QuoteDetailsMobile: React.FC<QuoteDetailsMobileProps> = ({
                             .from('nts_users')
                             .select('company_id')
                             .eq('id', session.user.id)
-                            .single();
+                            .maybeSingle();
 
                         if (error) {
                             console.error('Error fetching company ID from nts_users:', error.message);

@@ -99,7 +99,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                             />
                         </div>
                         <div className="nts-form-group">
-                            <label className="nts-label">VIN/Serial Number</label>
+                            <label className="nts-label">VIN/Serial Number<span className='text-gray-500'>(optional)</span></label>
                             <input
                                 className="nts-input"
                                 type="text"
@@ -241,7 +241,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                             </select>
                         </div>
                         <div className="nts-form-group">
-                            <label className="nts-label">Equipment Value</label>
+                            <label className="nts-label">Equipment Value<span className='text-gray-500'>(optional)</span></label>
                             <input
                                 className="nts-input"
                                 type="text"

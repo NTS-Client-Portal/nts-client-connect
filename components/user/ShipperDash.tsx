@@ -50,29 +50,30 @@ const ShipperDash = () => {
         if (!session?.user?.id) return;
 
         try {
-            // Fetch active orders
-            const { data: activeOrdersData } = await supabase
+            // Fetch all shippingquotes for this user first
+            const { data: allQuotes } = await supabase
                 .from('shippingquotes')
-                .select('price')
-                .eq('user_id', session.user.id)
-                .eq('status', 'Order')
-                .or('is_archived.is.null,is_archived.eq.false')
-                .or('is_complete.is.null,is_complete.eq.false');
+                .select('price, status, is_archived, is_complete')
+                .eq('user_id', session.user.id);
 
-            // Fetch pending quotes
-            const { data: pendingQuotesData } = await supabase
-                .from('shippingquotes')
-                .select('price')
-                .eq('user_id', session.user.id)
-                .eq('status', 'Quote')
-                .or('is_archived.is.null,is_archived.eq.false');
+            // Filter for active orders with case-insensitive status check
+            const activeOrdersData = allQuotes?.filter(quote => {
+                const status = quote.status?.toLowerCase() || '';
+                return status === 'order' && 
+                       (quote.is_archived === null || quote.is_archived === false) &&
+                       (quote.is_complete === null || quote.is_complete === false);
+            });
 
-            // Fetch completed orders
-            const { data: completedOrdersData } = await supabase
-                .from('shippingquotes')
-                .select('price')
-                .eq('user_id', session.user.id)
-                .eq('is_complete', true);
+            // Filter for pending quotes with case-insensitive status check
+            const pendingQuotesData = allQuotes?.filter(quote => {
+                const status = quote.status?.toLowerCase() || '';
+                return status === 'quote' && (quote.is_archived === null || quote.is_archived === false);
+            });
+
+            // Filter for completed orders
+            const completedOrdersData = allQuotes?.filter(quote => {
+                return quote.is_complete === true;
+            });
 
             // Calculate stats
             const activeOrders = activeOrdersData?.length || 0;

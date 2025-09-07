@@ -48,16 +48,21 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
     const fetchRejectedQuotes = useCallback(
         async (profileIds: string[]) => {
             console.log('Fetching rejected quotes for profile IDs:', profileIds);
-            const { data: quotes, error } = await supabase
+            const { data: allQuotes, error } = await supabase
                 .from("shippingquotes")
                 .select("*")
-                .in("user_id", profileIds)
-                .eq("status", "Rejected");
+                .in("user_id", profileIds);
 
             if (error) {
                 console.error("Error fetching rejected quotes:", error.message);
                 return [];
             }
+
+            // Filter for rejected quotes with case-insensitive status check
+            const quotes = allQuotes?.filter(quote => {
+                const status = quote.status?.toLowerCase() || '';
+                return status === 'rejected';
+            }) || [];
 
             console.log('Found rejected quotes:', quotes);
             return quotes;
@@ -94,11 +99,10 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
             const profilesData = await fetchProfiles(companyId);
             const profileIds = profilesData.map((profile) => profile.id);
 
-            const { data: quotes, error: quotesError } = await supabase
+            const { data: allQuotes, error: quotesError } = await supabase
                 .from("shippingquotes")
                 .select("*")
-                .in("user_id", profileIds)
-                .eq("status", "Rejected");
+                .in("user_id", profileIds);
 
             if (quotesError) {
                 console.error(
@@ -107,6 +111,12 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
                 );
                 return [];
             }
+
+            // Filter for rejected quotes with case-insensitive status check
+            const quotes = allQuotes?.filter(quote => {
+                const status = quote.status?.toLowerCase() || '';
+                return status === 'rejected';
+            }) || [];
 
             return quotes;
         },
@@ -167,7 +177,7 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
                     .from('nts_users')
                     .select('id')
                     .eq('id', session.user.id)
-                    .single();
+                    .maybeSingle();
 
                 if (ntsUserError) {
                     console.error('Error fetching nts_user role:', ntsUserError.message);

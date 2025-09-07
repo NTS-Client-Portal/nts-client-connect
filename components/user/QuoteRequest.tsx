@@ -68,7 +68,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                 .from('nts_users')
                 .select('company_id')
                 .eq('id', session.user.id)
-                .single();
+                .maybeSingle();
 
             if (error) {
                 console.error('Error fetching user profile from nts_users:', error.message);
@@ -178,7 +178,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                 .from('nts_users')
                 .select('id')
                 .eq('id', session.user.id)
-                .single();
+                .maybeSingle();
 
             if (error) {
                 console.error('Error fetching user role:', error.message);
@@ -209,40 +209,60 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
     const addQuote = async (quote: Partial<Database['public']['Tables']['shippingquotes']['Insert'] & { containerLength?: number | null; containerType?: string | null; contentsDescription?: string | null; selectedOption?: string | null; }>) => {
         if (!session?.user?.id) return;
 
-        // Log the quote object to check if company_id is included
-        console.log('Adding quote:', quote);
+        // 🚨 CRITICAL FAILSAFE: NEVER block quote submissions!
+        // Customer experience and sales opportunities are the priority
+        const finalCompanyId = quote.company_id || companyId || null;
+        
+        // Log warning if company_id is missing but DO NOT block submission
+        if (!finalCompanyId) {
+            console.warn('🚨 ALERT: Quote submitted without company_id - needs admin review!', {
+                user_id: session.user.id,
+                quote_data: quote,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                url: window.location.href
+            });
+        }
+
+        // Log the quote object for debugging
+        console.log('Adding quote with company_id:', finalCompanyId, quote);
+
+        // Prepare quote data with failsafe defaults
+        const safeQuoteData = {
+            ...quote,
+            user_id: session.user.id,
+            company_id: finalCompanyId, // Allow null - we'll fix this later
+            first_name: quote.first_name || null,
+            last_name: quote.last_name || null,
+            email: quote.email || null,
+            inserted_at: quote.inserted_at || new Date().toISOString(),
+            is_complete: quote.is_complete || false,
+            is_archived: quote.is_archived || false,
+            year: quote.year?.toString() || null,
+            make: quote.make || null,
+            model: quote.model || null,
+            auto_year: quote.auto_year?.toString() || null,
+            auto_make: quote.auto_make || null,
+            auto_model: quote.auto_model || null,
+            commodity: quote.commodity || null,
+            packaging_type: quote.packaging_type || null,
+            load_description: quote.load_description || null,
+            length: quote.length?.toString() || null,
+            length_unit: quote.length_unit || null,
+            width: quote.width?.toString() || null,
+            width_unit: quote.width_unit || null,
+            height: quote.height?.toString() || null,
+            height_unit: quote.height_unit || null,
+            weight: quote.weight?.toString() || null,
+            weight_unit: quote.weight_unit || null,
+            status: quote.status || 'quote',
+            // Add metadata for admin review if needed
+            needs_admin_review: !finalCompanyId,
+        };
 
         const { data: shippingQuoteData, error: shippingQuoteError } = await supabase
             .from('shippingquotes')
-            .insert([{
-                ...quote,
-                user_id: session.user.id,
-                company_id: quote.company_id || companyId,
-                first_name: quote.first_name || null,
-                last_name: quote.last_name || null,
-                email: quote.email || null,
-                inserted_at: quote.inserted_at || new Date().toISOString(),
-                is_complete: quote.is_complete || false,
-                is_archived: quote.is_archived || false,
-                year: quote.year?.toString() || null,
-                make: quote.make || null,
-                model: quote.model || null,
-                auto_year: quote.auto_year?.toString() || null,
-                auto_make: quote.auto_make || null,
-                auto_model: quote.auto_model || null,
-                commodity: quote.commodity || null,
-                packaging_type: quote.packaging_type || null,
-                load_description: quote.load_description || null,
-                length: quote.length?.toString() || null,
-                length_unit: quote.length_unit || null,
-                width: quote.width?.toString() || null,
-                width_unit: quote.width_unit || null,
-                height: quote.height?.toString() || null,
-                height_unit: quote.height_unit || null,
-                weight: quote.weight?.toString() || null,
-                weight_unit: quote.weight_unit || null,
-                status: quote.status || 'Quote',
-            }])
+            .insert([safeQuoteData])
             .select();
 
         if (shippingQuoteError) {
@@ -253,13 +273,29 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
 
         console.log('Quote added successfully:', shippingQuoteData);
         
-        // ADD: Notify assigned sales users about the new quote
-        if (shippingQuoteData && shippingQuoteData.length > 0) {
+        // If quote was saved without company_id, log critical alert for manual review
+        if (shippingQuoteData && shippingQuoteData.length > 0 && !finalCompanyId) {
+            // Log critical alert to console for monitoring and manual review
+            console.error('🚨🚨🚨 MANUAL REVIEW NEEDED 🚨🚨🚨', {
+                message: 'Quote submitted without company assignment',
+                quote_id: shippingQuoteData[0].id,
+                user_id: session.user.id,
+                timestamp: new Date().toISOString(),
+                action_required: 'Admin needs to assign company_id to this quote ASAP',
+                customer_impact: 'Customer submitted quote successfully but NTS users cannot see it yet'
+            });
+            
+            // Also show a user-friendly message
+            setErrorText('Quote submitted successfully! Our team will review and respond shortly.');
+        }
+        
+        // Try to notify assigned sales users (if company_id exists)
+        if (shippingQuoteData && shippingQuoteData.length > 0 && finalCompanyId) {
             try {
                 const { data: assignedUsers, error: assignedError } = await supabase
                     .from('company_sales_users')
                     .select('sales_user_id')
-                    .eq('company_id', companyId);
+                    .eq('company_id', finalCompanyId);
 
                 if (!assignedError && assignedUsers) {
                     console.log('Notifying assigned users:', assignedUsers);
@@ -294,6 +330,18 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
     const addOrder = async (order: Partial<Database['public']['Tables']['shippingquotes']['Insert'] & { containerLength?: number | null; containerType?: string | null; contentsDescription?: string | null; selectedOption?: string | null; origin_address?: string | null; origin_name?: string | null; origin_phone?: string | null; earliest_pickup_date?: string | null; latest_pickup_date?: string | null; destination_street?: string | null; destination_name?: string | null; destination_phone?: string | null; }>) => {
         if (!session?.user?.id) return;
 
+        // 🚨 CRITICAL FAILSAFE: NEVER block order submissions!
+        const finalCompanyId = order.company_id || companyId || null;
+        
+        // Log warning if company_id is missing but DO NOT block submission
+        if (!finalCompanyId) {
+            console.warn('🚨 ALERT: Order submitted without company_id - needs admin review!', {
+                user_id: session.user.id,
+                order_data: order,
+                timestamp: new Date().toISOString()
+            });
+        }
+
         console.log('Adding order:', order);
 
         const { data: shippingQuoteData, error: shippingQuoteError } = await supabase
@@ -301,7 +349,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
             .insert([{
                 ...order,
                 user_id: session.user.id,
-                company_id: order.company_id || companyId,
+                company_id: finalCompanyId, // Allow null - we'll fix this later
                 first_name: order.first_name || null,
                 last_name: order.last_name || null,
                 email: order.email || null,
@@ -324,7 +372,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                 height_unit: order.height_unit || null,
                 weight: order.weight?.toString() || null,
                 weight_unit: order.weight_unit || null,
-                status: order.status || 'Order',
+                status: order.status || 'order',
                 origin_address: order.origin_address || null,
                 origin_name: order.origin_name || null,
                 origin_phone: order.origin_phone || null,
@@ -333,6 +381,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                 destination_street: order.destination_street || null,
                 destination_name: order.destination_name || null,
                 destination_phone: order.destination_phone || null,
+                needs_admin_review: !finalCompanyId,
             }])
             .select();
 
@@ -340,6 +389,17 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
             console.error('Error adding order:', shippingQuoteError.message);
             setErrorText('Error adding order');
             return;
+        }
+
+        // If order was saved without company_id, log critical alert
+        if (shippingQuoteData && shippingQuoteData.length > 0 && !finalCompanyId) {
+            console.error('🚨🚨🚨 MANUAL REVIEW NEEDED 🚨🚨🚨', {
+                message: 'Order submitted without company assignment',
+                order_id: shippingQuoteData[0].id,
+                user_id: session.user.id,
+                timestamp: new Date().toISOString(),
+                action_required: 'Admin needs to assign company_id to this order ASAP'
+            });
         }
 
         console.log('Order added successfully:', shippingQuoteData);
@@ -367,12 +427,12 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
     };
 
     return (
-        <div className="w-full h-full absolute !z-0">
-            <div className="flex justify-between items-center mb-4">
-                <p className='text-start font-semibold py-2 text-gray-800 text-nowrap'>Manage your shipments here</p>
+        <div className="w-full h-full absolute !z-0 p-3">
+            <div className="flex flex-col justify-start md:flex-row md:justify-between items-center mb-4">
+                <p className='font-semibold py-2 text-gray-800 text-nowrap'>Manage your shipments here</p>
                 <button 
                     onClick={() => setIsModalOpen(true)} 
-                    className="text-base text-white rounded-md bg-blue-700 hover:bg-blue-800 px-4 py-2 font-semibold transition-colors"
+                    className="text-base mr-6 text-white rounded-md bg-blue-700 hover:bg-blue-800 px-4 py-2 font-semibold transition-colors"
                 >
                     {activeTab === 'orders' ? 'Request a Shipping Order' : 'Request a Shipping Estimate'}
                 </button>

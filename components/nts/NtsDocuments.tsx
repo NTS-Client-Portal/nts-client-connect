@@ -58,7 +58,7 @@ const NtsDocuments: React.FC<DocumentsProps> = ({ session }) => {
                     .from('nts_users')
                     .select('id')
                     .eq('id', session.user.id)
-                    .single();
+                    .maybeSingle();
 
                 if (data) {
                     setIsNtsUser(true);

@@ -65,11 +65,29 @@ const QuotePage: React.FC<QuotePageProps> = ({ onClose, addQuote, errorText, set
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
+        if (!session) {
+            setErrorText('You must be logged in to submit a quote');
+            return;
+        }
+
+        // Input validation
+        if (!originZip || !destinationZip) {
+            setErrorText('Please fill in origin and destination zip codes');
+            return;
+        }
+
+        // Implement failsafe system: never block submissions
+        let finalCompanyId: string | null = companyId || null;
+        
+        // If no company_id available, allow submission but flag for admin review
+        if (!finalCompanyId) {
+            console.warn('⚠️ Quote being submitted without company_id - will need admin review');
+        }
 
         const quote = {
             user_id: session?.user.id,
+            company_id: finalCompanyId, // Include company_id with failsafe
             origin_zip: originZip,
             origin_city: originCity,
             origin_state: originState,
@@ -78,15 +96,17 @@ const QuotePage: React.FC<QuotePageProps> = ({ onClose, addQuote, errorText, set
             destination_state: destinationState,
             due_date: dueDate,
             freight_type: selectedOption,
-            status: 'Quote',
+            status: 'quote', // Use lowercase for consistency
             ...formData,
             save_to_inventory: saveToInventory,
+            needs_admin_review: !finalCompanyId, // Flag for admin review if needed
         };
 
         try {
-            const { error } = await supabase
+            const { data, error } = await supabase
                 .from('shippingquotes')
-                .insert([quote]);
+                .insert([quote])
+                .select();
 
             if (error) {
                 console.error('Error submitting quote:', error.message);
@@ -96,60 +116,69 @@ const QuotePage: React.FC<QuotePageProps> = ({ onClose, addQuote, errorText, set
                 fetchQuotes();
                 onClose();
 
-                // Fetch the broker's user ID
-                const { data: brokerData, error: brokerError } = await supabase
-                    .from('company_sales_users')
-                    .select('sales_user_id')
-                    .eq('company_id', companyId) // Ensure the correct company_id is used
-                    .single();
+                // If quote was saved without company_id, log critical alert
+                if (data && data.length > 0 && !finalCompanyId) {
+                    console.error('🚨🚨🚨 MANUAL REVIEW NEEDED 🚨🚨🚨', {
+                        message: 'Quote submitted without company assignment from QuotePage',
+                        quote_id: data[0].id,
+                        user_id: session?.user.id,
+                        timestamp: new Date().toISOString(),
+                        action_required: 'Admin needs to assign company_id to this quote ASAP'
+                    });
+                }
 
-                if (brokerError) {
-                    console.error('Error fetching broker user ID:', brokerError.message);
-                } else if (brokerData) {
-                    const brokerUserId = brokerData.sales_user_id;
+                // Process any additional logic (broker assignments, inventory saving)
+                if (data && data.length > 0) {
+                    const quoteId = data[0].id;
+                    
+                    // Handle broker assignment if available
+                    if (assignedSalesUser) {
+                        const brokerUser = await supabase
+                            .from('nts_users')
+                            .select('id')
+                            .eq('email', assignedSalesUser)
+                            .maybeSingle();
 
-                    if (brokerUserId) {
-                        // Send notification to the broker
-                        const notificationMessage = `A new quote has been submitted by ${assignedSalesUser}`;
-                        const { error: notificationError } = await supabase
-                            .from('notifications')
-                            .insert({
-                                user_id: brokerUserId,
-                                message: notificationMessage,
-                            });
+                        if (brokerUser.data?.id) {
+                            const { error: assignmentError } = await supabase
+                                .from('shippingquotes')
+                                .update({ assigned_sales_user: brokerUser.data.id })
+                                .eq('id', quoteId);
 
-                        if (notificationError) {
-                            console.error('Error sending notification to broker:', notificationError.message);
+                            if (assignmentError) {
+                                console.error('Error assigning broker:', assignmentError.message);
+                            }
+                        } else {
+                            console.error('Broker user ID is undefined');
                         }
-                    } else {
-                        console.error('Broker user ID is undefined');
                     }
                 }
-            }
 
-            if (saveToInventory) {
-                const freightData = {
-                    user_id: session?.user.id,
-                    year: formData.year,
-                    make: formData.make,
-                    model: formData.model,
-                    length: formData.length,
-                    width: formData.width,
-                    height: formData.height,
-                    weight: formData.weight,
-                    freight_type: selectedOption,
-                    commodity: formData.commodity,
-                    pallet_count: formData.pallet_count,
-                    serial_number: formData.vin,
-                };
+                // Handle inventory saving if requested
+                if (saveToInventory) {
+                    const freightData = {
+                        user_id: session?.user.id,
+                        year: formData.year,
+                        make: formData.make,
+                        model: formData.model,
+                        length: formData.length,
+                        width: formData.width,
+                        height: formData.height,
+                        weight: formData.weight,
+                        freight_type: selectedOption,
+                        commodity: formData.commodity,
+                        pallet_count: formData.pallet_count,
+                        serial_number: formData.vin,
+                    };
 
-                const { error: inventoryError } = await supabase
-                    .from('freight')
-                    .insert([freightData]);
+                    const { error: inventoryError } = await supabase
+                        .from('freight')
+                        .insert([freightData]);
 
-                if (inventoryError) {
-                    console.error('Error saving to inventory:', inventoryError.message);
-                    setErrorText('Error saving to inventory');
+                    if (inventoryError) {
+                        console.error('Error saving to inventory:', inventoryError.message);
+                        setErrorText('Error saving to inventory');
+                    }
                 }
             }
         } catch (error) {

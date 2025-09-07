@@ -157,17 +157,22 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
 
     const fetchShippingQuotes = useCallback(
         async (profileIds: string[]) => {
-            const { data: quotes, error } = await supabase
+            const { data: allQuotes, error } = await supabase
                 .from("shippingquotes")
                 .select("*")
                 .in("user_id", profileIds)
-                .eq("status", "Quote")
                 .or("is_archived.is.null,is_archived.eq.false");
 
             if (error) {
                 console.error("Error fetching shipping quotes:", error.message);
                 return [];
             }
+
+            // Filter for quotes with case-insensitive status check
+            const quotes = allQuotes?.filter(quote => {
+                const status = quote.status?.toLowerCase() || '';
+                return (status === "quote" || status === "pending" || status === '' || quote.status === null);
+            }) || [];
 
             return quotes;
         },
@@ -200,11 +205,11 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
                 return [];
             }
 
-            // DEBUGGING: First fetch ALL quotes for this company to see what's there
+            // DEBUGGING: Fetch ALL quotes for this company AND orphaned quotes (company_id = null)
             const { data: allQuotes, error: allQuotesError } = await supabase
                 .from("shippingquotes")
                 .select("*")
-                .eq("company_id", companyId)
+                .or(`company_id.eq.${companyId},company_id.is.null`)
                 .order('created_at', { ascending: false });
 
             if (allQuotesError) {
@@ -212,19 +217,23 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
                 return [];
             }
 
-            console.log('ALL quotes for company:', allQuotes);
+            console.log('ALL quotes for company + orphaned:', allQuotes);
             console.log('Quotes by status:', allQuotes?.reduce((acc, q) => {
                 acc[q.status] = (acc[q.status] || 0) + 1;
                 return acc;
             }, {}));
 
-            // Filter for quotes that NTS users should see (more inclusive)
-            const filteredQuotes = allQuotes?.filter(quote => 
-                (quote.status === "Quote" || quote.status === "quote" || quote.status === "Pending" || quote.status === null) &&
-                (quote.is_archived !== true)
-            ) || [];
+            // Filter for quotes that NTS users should see (more inclusive, case-insensitive)
+            // Include orphaned quotes (company_id = null) so NTS users can see and fix them
+            const filteredQuotes = allQuotes?.filter(quote => {
+                const status = quote.status?.toLowerCase() || '';
+                return (
+                    (status === "quote" || status === "pending" || status === '' || quote.status === null) &&
+                    (quote.is_archived !== true)
+                );
+            }) || [];
 
-            console.log('Filtered quotes for NTS user:', filteredQuotes);
+            console.log('Filtered quotes for NTS user (including orphaned):', filteredQuotes);
             return filteredQuotes;
         },
         [supabase]
@@ -536,14 +545,25 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
     const duplicateQuote = async (
         quote: Database["public"]["Tables"]["shippingquotes"]["Row"]
     ) => {
+        // Implement failsafe system: preserve or failsafe company_id
+        let finalCompanyId: string | null = quote.company_id || companyId || null;
+        
+        // If no company_id available, allow duplication but flag for admin review
+        if (!finalCompanyId) {
+            console.warn('⚠️ Duplicate quote being created without company_id - will need admin review');
+        }
+
         const { data, error } = await supabase
             .from("shippingquotes")
             .insert({
                 ...quote,
                 id: undefined, // Let the database generate a new ID
+                company_id: finalCompanyId, // Use failsafe company_id
                 due_date: null,
                 price: null,
+                status: "quote", // Always set status to quote for duplicates
                 created_at: new Date().toISOString(), // Set the current timestamp
+                needs_admin_review: !finalCompanyId, // Flag for admin review if needed
             })
             .select();
 
@@ -551,6 +571,16 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
             console.error("Error duplicating quote:", error.message);
         } else {
             if (data && data.length > 0) {
+                // If quote was saved without company_id, log critical alert
+                if (!finalCompanyId) {
+                    console.error('🚨🚨🚨 MANUAL REVIEW NEEDED 🚨🚨🚨', {
+                        message: 'Duplicate quote created without company assignment from QuoteList',
+                        quote_id: data[0].id,
+                        original_quote_id: quote.id,
+                        timestamp: new Date().toISOString(),
+                        action_required: 'Admin needs to assign company_id to this duplicate quote ASAP'
+                    });
+                }
                 setPopupMessage(`Duplicate Quote Request Added - Quote #${data[0].id}`);
             }
             fetchInitialQuotes();
@@ -560,12 +590,22 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
     const reverseQuote = async (
         quote: Database["public"]["Tables"]["shippingquotes"]["Row"]
     ) => {
+        // Implement failsafe system: preserve or failsafe company_id
+        let finalCompanyId: string | null = quote.company_id || companyId || null;
+        
+        // If no company_id available, allow reverse but flag for admin review
+        if (!finalCompanyId) {
+            console.warn('⚠️ Reverse quote being created without company_id - will need admin review');
+        }
+
         const { data, error } = await supabase
             .from("shippingquotes")
             .insert({
                 ...quote,
                 id: undefined, // Let the database generate a new ID
+                company_id: finalCompanyId, // Use failsafe company_id
                 due_date: null, // Require the user to fill out a new shipping date
+                status: "quote", // Always set status to quote for reversed quotes
                 origin_city: quote.destination_city,
                 origin_state: quote.destination_state,
                 origin_zip: quote.destination_zip,
@@ -573,6 +613,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
                 destination_state: quote.origin_state,
                 destination_zip: quote.origin_zip,
                 created_at: new Date().toISOString(), // Set the current timestamp
+                needs_admin_review: !finalCompanyId, // Flag for admin review if needed
             })
             .select();
 
@@ -580,6 +621,16 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
             console.error("Error reversing quote:", error.message);
         } else {
             if (data && data.length > 0) {
+                // If quote was saved without company_id, log critical alert
+                if (!finalCompanyId) {
+                    console.error('🚨🚨🚨 MANUAL REVIEW NEEDED 🚨🚨🚨', {
+                        message: 'Reverse quote created without company assignment from QuoteList',
+                        quote_id: data[0].id,
+                        original_quote_id: quote.id,
+                        timestamp: new Date().toISOString(),
+                        action_required: 'Admin needs to assign company_id to this reverse quote ASAP'
+                    });
+                }
                 setPopupMessage(
                     `Flip Route Duplicate Request Added - Quote #${data[0].id}`
                 );
