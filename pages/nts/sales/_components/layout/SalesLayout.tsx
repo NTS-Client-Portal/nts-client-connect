@@ -10,16 +10,21 @@ interface SalesLayoutProps {
 
 const SalesLayout: React.FC<SalesLayoutProps> = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isDesktop, setIsDesktop] = useState(false);
+    const [mounted, setMounted] = useState(false);
     const session = useSession();
     const { userProfile } = useNtsUsers();
 
     useEffect(() => {
+        setMounted(true);
         const mediaQuery = window.matchMedia('(min-width: 1024px)'); // lg breakpoint
+        setIsDesktop(mediaQuery.matches);
         if (mediaQuery.matches) {
             setIsSidebarOpen(true);
         }
 
         const handleMediaQueryChange = (e: MediaQueryListEvent) => {
+            setIsDesktop(e.matches);
             setIsSidebarOpen(e.matches);
         };
 
@@ -29,6 +34,11 @@ const SalesLayout: React.FC<SalesLayoutProps> = ({ children }) => {
             mediaQuery.removeEventListener('change', handleMediaQueryChange);
         };
     }, []);
+
+    // Prevent hydration issues
+    if (!mounted) {
+        return <div>Loading...</div>;
+    }
 
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
@@ -43,7 +53,7 @@ const SalesLayout: React.FC<SalesLayoutProps> = ({ children }) => {
                     <SalesSideNav
                         isSidebarOpen={isSidebarOpen}
                         toggleSidebar={toggleSidebar}
-                        isDesktop={true}
+                        isDesktop={isDesktop}
                     />
                 </aside>
 
@@ -67,17 +77,19 @@ const SalesLayout: React.FC<SalesLayoutProps> = ({ children }) => {
                 </div>
             </div>
 
-            {/* Mobile Sidebar Overlay */}
-            <div className={`nts-mobile-overlay ${isSidebarOpen ? 'nts-mobile-overlay--visible' : ''}`}>
-                <div className="nts-mobile-backdrop" onClick={toggleSidebar}></div>
-                <aside className="nts-mobile-sidebar">
-                    <SalesSideNav
-                        isSidebarOpen={isSidebarOpen}
-                        toggleSidebar={toggleSidebar}
-                        isDesktop={false}
-                    />
-                </aside>
-            </div>
+            {/* Mobile Sidebar Overlay - Only show on mobile */}
+            {!isDesktop && (
+                <div className={`nts-mobile-overlay ${isSidebarOpen ? 'nts-mobile-overlay--visible' : ''}`}>
+                    <div className="nts-mobile-backdrop" onClick={toggleSidebar}></div>
+                    <aside className="nts-mobile-sidebar">
+                        <SalesSideNav
+                            isSidebarOpen={isSidebarOpen}
+                            toggleSidebar={toggleSidebar}
+                            isDesktop={false}
+                        />
+                    </aside>
+                </div>
+            )}
         </div>
     );
 };

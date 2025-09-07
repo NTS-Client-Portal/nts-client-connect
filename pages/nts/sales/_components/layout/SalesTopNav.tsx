@@ -60,20 +60,20 @@ const SalesTopNav: React.FC<SalesTopNavProps> = ({ session, className = '', isSi
                     {/* Desktop Sidebar Toggle */}
                     <button
                         onClick={toggleSidebar}
-                        className="hidden lg:flex items-center justify-center w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 transition-all duration-200 hover:scale-105"
-                        aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+                        className="xs:hidden md:flex items-center justify-center w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-white transition-all duration-200 hover:scale-105 active:scale-95"
+                        aria-label={isSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
                     >
-                        {isSidebarOpen ? (
-                            <X className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+                     {isSidebarOpen ? (
+                            <X className="w-5 h-5" />
                         ) : (
-                            <Menu className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+                            <Menu className="w-5 h-5" />
                         )}
                     </button>
 
                     {/* Mobile Menu Toggle */}
                     <button
                         onClick={toggleSidebar}
-                        className="lg:hidden flex items-center justify-center w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-white transition-all duration-200 hover:scale-105 active:scale-95"
+                        className="md:hidden xs:flex items-center justify-center w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-white transition-all duration-200 hover:scale-105 active:scale-95"
                         aria-label={isSidebarOpen ? 'Close menu' : 'Open menu'}
                     >
                         {isSidebarOpen ? (

@@ -265,36 +265,55 @@ const Crm: React.FC = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="space-y-2">
-                        {getShippingQuotesForCompany(company.id).map(quote => (
-                          <div key={quote.id} className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                                <Package className="w-3 h-3 mr-1" />
-                                Quote #{quote.id}
-                              </span>
-                              <span className="text-xs text-gray-500">New</span>
-                            </div>
-                            <div className="space-y-1 text-sm">
-                              <div className="flex items-center gap-1 text-gray-600">
-                                <MapPin className="w-3 h-3" />
-                                <span className="font-medium">Route:</span> {quote.origin_city}, {quote.origin_state} → {quote.destination_city}, {quote.destination_state}
-                              </div>
-                              <div className="flex items-center gap-1 text-gray-600">
-                                <Truck className="w-3 h-3" />
-                                <span className="font-medium">Load:</span> {quote.year} {quote.make} {quote.model}
-                              </div>
-                              {quote.due_date && (
-                                <div className="flex items-center gap-1 text-gray-600">
-                                  <Calendar className="w-3 h-3" />
-                                  <span className="font-medium">Due:</span> {new Date(quote.due_date).toLocaleDateString()}
+                        {(() => {
+                          const companyQuotes = getShippingQuotesForCompany(company.id);
+                          const displayQuotes = companyQuotes.slice(0, 2); // Show only first 2 quotes
+                          const remainingCount = companyQuotes.length - 2;
+                          
+                          return (
+                            <>
+                              {displayQuotes.map(quote => (
+                                <div key={quote.id} className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                      <Package className="w-3 h-3 mr-1" />
+                                      Quote #{quote.id}
+                                    </span>
+                                    <span className="text-xs text-gray-500">New</span>
+                                  </div>
+                                  <div className="space-y-1 text-sm">
+                                    <div className="flex items-center gap-1 text-gray-600">
+                                      <MapPin className="w-3 h-3" />
+                                      <span className="font-medium">Route:</span> {quote.origin_city}, {quote.origin_state} → {quote.destination_city}, {quote.destination_state}
+                                    </div>
+                                    <div className="flex items-center gap-1 text-gray-600">
+                                      <Truck className="w-3 h-3" />
+                                      <span className="font-medium">Load:</span> {quote.year} {quote.make} {quote.model}
+                                    </div>
+                                    {quote.due_date && (
+                                      <div className="flex items-center gap-1 text-gray-600">
+                                        <Calendar className="w-3 h-3" />
+                                        <span className="font-medium">Due:</span> {new Date(quote.due_date).toLocaleDateString()}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                              
+                              {remainingCount > 0 && (
+                                <div className="text-center py-2">
+                                  <span className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                                    +{remainingCount} more quote{remainingCount !== 1 ? 's' : ''}
+                                  </span>
                                 </div>
                               )}
-                            </div>
-                          </div>
-                        ))}
-                        {getShippingQuotesForCompany(company.id).length === 0 && (
-                          <p className="text-gray-500 text-sm italic">No active quotes</p>
-                        )}
+                              
+                              {companyQuotes.length === 0 && (
+                                <p className="text-gray-500 text-sm italic">No active quotes</p>
+                              )}
+                            </>
+                          );
+                        })()}
                       </div>
                     </td>
                   </tr>

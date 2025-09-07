@@ -106,21 +106,6 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
 
     return (
         <>
-            {/* Mobile Menu Toggle */}
-            {!isDesktop && (
-                <button
-                    className="fixed top-6 left-6 z-[2001] lg:hidden text-slate-900 hover:text-slate-800 p-3 rounded-xl shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
-                    onClick={toggleSidebar}
-                    aria-label={isSidebarOpen ? 'Close menu' : 'Open menu'}
-                >
-                    {isSidebarOpen ? (
-                        <X className="w-6 h-6 text-slate-900" />
-                    ) : (
-                        <Menu className="w-6 h-6 text-slate-900" />
-                    )}
-                </button>
-            )}
-
             {/* Sidebar Content */}
             <div className="nts-sidebar-content">
                 {/* Header */}
@@ -234,9 +219,9 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                         className="w-full group flex items-center p-3 rounded-xl transition-all duration-300 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 hover:shadow-lg hover:shadow-red-500/20"
                     >
                         <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-500/20 group-hover:bg-white/20">
-                            <LogOut className="w-4 h-4 text-red-400 group-hover:text-white" />
+                            <LogOut className="w-4 h-4 text-slate-400 group-hover:text-white" />
                         </div>
-                        <span className="ml-3 text-sm font-medium">Logout</span>
+                        <span className="ml-3 text-sm font-medium text-slate-300">Logout</span>
                     </button>
                 </div>
             </div>
