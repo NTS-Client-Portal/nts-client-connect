@@ -74,13 +74,6 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
     const navigationItems = [
         {
             href: '/nts/sales',
-            icon: ChartArea,
-            label: 'Dashboard',
-            description: 'Overview & Analytics',
-            color: 'from-blue-500 to-blue-600'
-        },
-        {
-            href: '/nts/sales/shipper-management',
             icon: TrendingUp,
             label: 'Shipper Management',
             description: 'Manage Customers',
