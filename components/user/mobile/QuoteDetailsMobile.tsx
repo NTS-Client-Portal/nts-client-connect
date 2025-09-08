@@ -425,7 +425,7 @@ const QuoteDetailsMobile: React.FC<QuoteDetailsMobileProps> = ({
                                                     className="w-full flex items-center justify-center space-x-2 bg-green-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors touch-manipulation active:scale-95"
                                                 >
                                                     <CheckCircle className="w-5 h-5" />
-                                                    <span>Create Order</span>
+                                                    <span>Accept</span>
                                                 </button>
                                                        </div>
                                                     ) : (
@@ -459,7 +459,7 @@ const QuoteDetailsMobile: React.FC<QuoteDetailsMobileProps> = ({
                                                     className="w-full flex items-center justify-center space-x-2 bg-green-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors touch-manipulation active:scale-95"
                                                 >
                                                     <CheckCircle className="w-5 h-5" />
-                                                    <span>Create Order</span>
+                                                    <span>Accept Quote</span>
                                                 </button>
                                             )}
                                             <button

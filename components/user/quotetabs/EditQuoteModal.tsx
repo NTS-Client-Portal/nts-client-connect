@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ShippingQuote } from '@/lib/schema';
 import EditHistory from '../../EditHistory';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { Database } from '@/lib/database.types';
 import axios from 'axios';
 
 interface EditQuoteModalProps {
@@ -8,9 +11,21 @@ interface EditQuoteModalProps {
     onClose: () => void;
     onSubmit: (updatedQuote: ShippingQuote) => void;
     quote: ShippingQuote | null;
+    isAdmin: boolean; // Whether the user is an NTS user (can make direct edits)
+    session: any; // User session for identifying the requester
+    companyId: string; // Company ID for the edit request
 }
 
-const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubmit, quote }) => {
+const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ 
+    isOpen, 
+    onClose, 
+    onSubmit, 
+    quote, 
+    isAdmin, 
+    session, 
+    companyId 
+}) => {
+    const supabase = useSupabaseClient<Database>();
     const [updatedQuote, setUpdatedQuote] = useState<ShippingQuote | null>(quote);
     const [originZip, setOriginZip] = useState('');
     const [originInput, setOriginInput] = useState('');
@@ -21,6 +36,8 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
     const [destinationState, setDestinationState] = useState('');
     const [errorText, setErrorText] = useState<string>('');
     const [destinationInput, setDestinationInput] = useState('');
+    const [editReason, setEditReason] = useState<string>(''); // Reason for edit request
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
     useEffect(() => {
         if (quote) {
@@ -85,10 +102,71 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (updatedQuote) {
-            onSubmit(updatedQuote);
+        if (!updatedQuote || !session?.user?.id) return;
+
+        setIsSubmitting(true);
+        setErrorText('');
+
+        try {
+            if (isAdmin) {
+                // NTS users can make direct edits
+                onSubmit(updatedQuote);
+            } else {
+                // Shippers must submit edit requests for broker approval
+                const originalQuote = quote;
+                if (!originalQuote) {
+                    setErrorText('Original quote data not available');
+                    return;
+                }
+
+                // Calculate the changes between original and updated quote
+                const changes: Record<string, any> = {};
+                Object.keys(updatedQuote).forEach(key => {
+                    const originalValue = originalQuote[key as keyof ShippingQuote];
+                    const updatedValue = updatedQuote[key as keyof ShippingQuote];
+                    if (originalValue !== updatedValue) {
+                        changes[key] = {
+                            from: originalValue,
+                            to: updatedValue
+                        };
+                    }
+                });
+
+                // Only submit if there are actual changes
+                if (Object.keys(changes).length === 0) {
+                    setErrorText('No changes detected');
+                    return;
+                }
+
+                // Submit edit request to database
+                const { error } = await supabase
+                    .from('edit_requests')
+                    .insert({
+                        quote_id: updatedQuote.id,
+                        requested_by: session.user.id,
+                        requested_changes: changes,
+                        reason: editReason || null,
+                        company_id: companyId,
+                        status: 'pending'
+                    });
+
+                if (error) {
+                    console.error('Error submitting edit request:', error);
+                    setErrorText('Failed to submit edit request. Please try again.');
+                    return;
+                }
+
+                // Show success message and close modal
+                alert('Edit request submitted successfully! A broker will review your request and respond shortly.');
+                onClose();
+            }
+        } catch (error) {
+            console.error('Error in handleSubmit:', error);
+            setErrorText('An unexpected error occurred. Please try again.');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -278,120 +356,120 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
                 );
             case 'containers':
                 return (
-                    <>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Container Length</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Container Length</label>
                             <input
                                 type="number"
                                 name="container_length"
                                 value={updatedQuote.container_length || ''}
                                 onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                             />
                         </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Container Type</label>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Container Type</label>
                             <input
                                 type="text"
                                 name="container_type"
                                 value={updatedQuote.container_type || ''}
                                 onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                             />
                         </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Contents Description</label>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Contents Description</label>
                             <input
                                 type="text"
                                 name="contents_description"
                                 value={updatedQuote.contents_description || ''}
                                 onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                             />
                         </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Destination Surface Type</label>
-                            <input
-                                type="text"
-                                name="destination_surface_type"
-                                value={updatedQuote.destination_surface_type || ''}
-                                onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Destination Type</label>
-                            <select
-                                name="destination_type"
-                                value={updatedQuote.destination_type === null ? '' : updatedQuote.destination_type ? 'Business' : 'Residential'}
-                                onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'Business' ? 'true' : 'false' } })}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            >
-                                <option value="">Select...</option>
-                                <option value="Business">Business</option>
-                                <option value="Residential">Residential</option>
-                            </select>
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Goods Value</label>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Goods Value</label>
                             <input
                                 type="text"
                                 name="goods_value"
                                 value={updatedQuote.goods_value || ''}
                                 onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                             />
                         </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Is Loaded</label>
-                            <select
-                                name="is_loaded"
-                                value={updatedQuote.is_loaded === null ? '' : updatedQuote.is_loaded ? 'yes' : 'no'}
-                                onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'yes' ? 'true' : 'false' } })}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            >
-                                <option value="">Select...</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
-                            </select>
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Loading By</label>
-                            <select
-                                name="loading_by"
-                                value={updatedQuote.loading_by === null ? '' : updatedQuote.loading_by ? 'yes' : 'no'}
-                                onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'yes' ? 'true' : 'false' } })}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            >
-                                <option value="">Select...</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
-                            </select>
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Origin Surface Type</label>
-                            <input
-                                type="text"
-                                name="origin_surface_type"
-                                value={updatedQuote.origin_surface_type || ''}
-                                onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Origin Type</label>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Origin Type</label>
                             <select
                                 name="origin_type"
                                 value={updatedQuote.origin_type === null ? '' : updatedQuote.origin_type ? 'Business' : 'Residential'}
                                 onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'Business' ? 'true' : 'false' } })}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                             >
                                 <option value="">Select...</option>
                                 <option value="Business">Business</option>
                                 <option value="Residential">Residential</option>
                             </select>
                         </div>
-                    </>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Destination Type</label>
+                            <select
+                                name="destination_type"
+                                value={updatedQuote.destination_type === null ? '' : updatedQuote.destination_type ? 'Business' : 'Residential'}
+                                onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'Business' ? 'true' : 'false' } })}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            >
+                                <option value="">Select...</option>
+                                <option value="Business">Business</option>
+                                <option value="Residential">Residential</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Origin Surface Type</label>
+                            <input
+                                type="text"
+                                name="origin_surface_type"
+                                value={updatedQuote.origin_surface_type || ''}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Destination Surface Type</label>
+                            <input
+                                type="text"
+                                name="destination_surface_type"
+                                value={updatedQuote.destination_surface_type || ''}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Is Loaded</label>
+                            <select
+                                name="is_loaded"
+                                value={updatedQuote.is_loaded === null ? '' : updatedQuote.is_loaded ? 'yes' : 'no'}
+                                onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'yes' ? 'true' : 'false' } })}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            >
+                                <option value="">Select...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Loading By</label>
+                            <select
+                                name="loading_by"
+                                value={updatedQuote.loading_by === null ? '' : updatedQuote.loading_by ? 'yes' : 'no'}
+                                onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'yes' ? 'true' : 'false' } })}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            >
+                                <option value="">Select...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+                    </div>
                 );
             case 'Boats':
                 return (
@@ -797,66 +875,155 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({ isOpen, onClose, onSubm
 
     if (!isOpen || !updatedQuote) return null;
 
-    return (
-        <div className="fixed inset-0 flex overflow-y-auto  items-center justify-center bg-black bg-opacity-50">
-            <div className="relative z-50 top-5 flex mt-10 md:mt-0 gap-2 bg-white h-[90vh] md:h-4/5 overflow-y-auto p-4 rounded shadow-lg w-[98vw] md:w-fit">
-                <form className='border-r px-2 ' onSubmit={handleSubmit}>
-                    <h2 className="text-xl font-bold mb-4">Edit Quote</h2>
-                    <div className='flex flex-col md:flex-row gap-2 w-full'>
-                        <div className='flex flex-col items-start'>
-                            <label className='text-zinc-900 font-medium'>Origin</label>
-                            <input
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                placeholder='Zip or City, State'
-                                value={originInput}
-                                onChange={(e) => setOriginInput(e.target.value)}
-                                onBlur={handleZipCodeBlur}
-                            />
-
-                            <input type="hidden" value={originCity} />
-                            <input type="hidden" value={originState} />
-                            <input type="hidden" value={originZip} />
+    return createPortal(
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" style={{ zIndex: 99999 }}>
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+                {/* Header */}
+                <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h2 className="text-xl font-bold text-gray-900">
+                                {isAdmin ? 'Edit Quote' : 'Request Quote Edit'}
+                            </h2>
+                            <p className="text-sm text-gray-600 mt-1">
+                                {isAdmin 
+                                    ? 'Make direct changes to the quote details' 
+                                    : 'Submit an edit request for broker approval'
+                                }
+                            </p>
                         </div>
-                        <div className='flex flex-col items-start'>
-                            <label className='text-zinc-900 font-medium'>Destination</label>
-                            <input
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                                type="text"
-                                placeholder='Zip or City, State'
-                                value={destinationInput}
-                                onChange={(e) => setDestinationInput(e.target.value)}
-                                onBlur={handleZipCodeBlur}
-                            />
-
-                            <input type="hidden" value={destinationCity} />
-                            <input type="hidden" value={destinationState} />
-                            <input type="hidden" value={destinationZip} />
-                        </div>
-                    </div>
-                    <div>
-                        <label className='block text-sm font-medium text-gray-700'>Requested Shipping Date</label>
-                        <input
-                            type='date'
-                            name='due_date'
-                            value={updatedQuote.due_date || ''}
-                            onChange={handleChange}
-                            className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
-                        />
-                    </div>
-                    {renderInputFields()}
-                    <div className="flex justify-end py-4">
-                        <button type="button" onClick={onClose} className="mr-2 px-4 py-2 bg-gray-300 rounded">
-                            Cancel
-                        </button>
-                        <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">
-                            Save
+                        <button
+                            onClick={onClose}
+                            className="text-gray-400 hover:text-gray-600 transition-colors"
+                            disabled={isSubmitting}
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
                         </button>
                     </div>
-                </form>
-                {/* <EditHistory quoteId={quote?.id || 0} searchTerm="" searchColumn="id" editHistory={[]} /> */}
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 overflow-y-auto">
+                    <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                        {/* Route Information */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="flex items-center gap-2 text-sm font-medium text-gray-900">
+                                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                    Origin
+                                </label>
+                                <input
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    type="text"
+                                    placeholder='ZIP code or City, State'
+                                    value={originInput}
+                                    onChange={(e) => setOriginInput(e.target.value)}
+                                    onBlur={handleZipCodeBlur}
+                                />
+                                <input type="hidden" value={originCity} />
+                                <input type="hidden" value={originState} />
+                                <input type="hidden" value={originZip} />
+                            </div>
+                            
+                            <div className="space-y-2">
+                                <label className="flex items-center gap-2 text-sm font-medium text-gray-900">
+                                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                    Destination
+                                </label>
+                                <input
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    type="text"
+                                    placeholder='ZIP code or City, State'
+                                    value={destinationInput}
+                                    onChange={(e) => setDestinationInput(e.target.value)}
+                                    onBlur={handleZipCodeBlur}
+                                />
+                                <input type="hidden" value={destinationCity} />
+                                <input type="hidden" value={destinationState} />
+                                <input type="hidden" value={destinationZip} />
+                            </div>
+                        </div>
+
+                        {/* Shipping Date */}
+                        <div className="space-y-2">
+                            <label className='block text-sm font-medium text-gray-700'>Requested Shipping Date</label>
+                            <input
+                                type='date'
+                                name='due_date'
+                                value={updatedQuote.due_date || ''}
+                                onChange={handleChange}
+                                className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all'
+                            />
+                        </div>
+
+                        {/* Freight Details */}
+                        <div className="bg-gray-50 rounded-lg p-6">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Freight Details</h3>
+                            {renderInputFields()}
+                        </div>
+                        
+                        {/* Edit reason field for shippers */}
+                        {!isAdmin && (
+                            <div className="bg-blue-50 rounded-lg p-4 space-y-3">
+                                <label className="block text-sm font-medium text-gray-900">
+                                    Reason for Edit Request (Optional)
+                                </label>
+                                <textarea
+                                    value={editReason}
+                                    onChange={(e) => setEditReason(e.target.value)}
+                                    placeholder="Please explain why this edit is needed (e.g., changed pickup date, different destination, etc.)..."
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all"
+                                    rows={3}
+                                    maxLength={500}
+                                />
+                                <p className="text-xs text-blue-700">
+                                    💡 Providing a clear reason helps brokers process your request faster
+                                </p>
+                            </div>
+                        )}
+                        
+                        {errorText && (
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                                <div className="flex items-center gap-2">
+                                    <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                    </svg>
+                                    <p className="text-red-700 text-sm font-medium">{errorText}</p>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {/* Actions */}
+                        <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
+                            <button 
+                                type="button" 
+                                onClick={onClose} 
+                                className="px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all font-medium"
+                                disabled={isSubmitting}
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                type="submit" 
+                                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium flex items-center gap-2"
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting && (
+                                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                )}
+                                {isSubmitting ? 'Processing...' : isAdmin ? 'Save Changes' : 'Submit Request'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

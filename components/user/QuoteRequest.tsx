@@ -482,7 +482,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
             )}
 
             {isMobile ? (
-                <div className="relative z-[-50]">
+                <div className="relative">
                     <label htmlFor="tab-select" className="sr-only">Select shipment tab</label>
                     <select
                         id="tab-select"
@@ -505,31 +505,31 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                             className={`nts-tab ${activeTab === 'requests' ? 'active' : ''}`}
                             onClick={() => handleTabChange('requests')}
                         >
-                            📋 Shipping Requests
+                            Shipping Requests
                         </button>
                         <button
                             className={`nts-tab ${activeTab === 'orders' ? 'active' : ''}`}
                             onClick={() => handleTabChange('orders')}
                         >
-                            🚛 Active Orders
+                            Active Orders
                         </button>
                         <button
                             className={`nts-tab ${activeTab === 'delivered' ? 'active' : ''}`}
                             onClick={() => handleTabChange('delivered')}
                         >
-                            ✅ Delivered
+                            Delivered
                         </button>
                         <button
                             className={`nts-tab ${activeTab === 'archived' ? 'active' : ''}`}
                             onClick={() => handleTabChange('archived')}
                         >
-                            📁 Archived
+                            Archived
                         </button>
                         <button
                             className={`nts-tab ${activeTab === 'rejected' ? 'active' : ''}`}
                             onClick={() => handleTabChange('rejected')}
                         >
-                            ❌ Rejected
+                            Rejected
                         </button>
                     </div>
                 </div>

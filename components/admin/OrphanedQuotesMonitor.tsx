@@ -11,6 +11,7 @@ interface OrphanedQuote {
     last_name: string | null;
     created_at: string;
     freight_type: string | null;
+    needs_admin_review?: boolean | null;
 }
 
 const OrphanedQuotesMonitor: React.FC = () => {
@@ -22,10 +23,11 @@ const OrphanedQuotesMonitor: React.FC = () => {
     const fetchOrphanedQuotes = async () => {
         setLoading(true);
         try {
+            // Query for quotes needing admin review (either missing company_id OR explicitly flagged)
             const { data, error } = await supabase
                 .from('shippingquotes')
-                .select('id, user_id, status, first_name, last_name, created_at, freight_type')
-                .is('company_id', null)
+                .select('id, user_id, status, first_name, last_name, created_at, freight_type, needs_admin_review')
+                .or('company_id.is.null,needs_admin_review.eq.true')
                 .order('created_at', { ascending: false });
 
             if (error) {
@@ -72,6 +74,7 @@ const OrphanedQuotesMonitor: React.FC = () => {
                     .from('shippingquotes')
                     .update({ 
                         company_id: companyId,
+                        needs_admin_review: false, // Clear the review flag when repaired
                         updated_at: new Date().toISOString()
                     })
                     .eq('id', quoteId);
@@ -139,8 +142,8 @@ const OrphanedQuotesMonitor: React.FC = () => {
             </div>
             
             <p className="text-sm text-yellow-700 mb-4">
-                These quotes were submitted successfully but are missing company assignments. 
-                NTS users cannot see them until they are properly assigned.
+                These quotes were submitted successfully but are missing company assignments or flagged for review. 
+                NTS users cannot see them until they are properly assigned and the review flag is cleared.
             </p>
 
             <div className="space-y-3">
@@ -148,7 +151,14 @@ const OrphanedQuotesMonitor: React.FC = () => {
                     <div key={quote.id} className="p-3 bg-white border border-yellow-300 rounded">
                         <div className="flex justify-between items-start">
                             <div>
-                                <div className="font-medium">Quote #{quote.id}</div>
+                                <div className="font-medium flex items-center gap-2">
+                                    Quote #{quote.id}
+                                    {quote.needs_admin_review && (
+                                        <span className="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full border border-red-200">
+                                            Review Required
+                                        </span>
+                                    )}
+                                </div>
                                 <div className="text-sm text-gray-600">
                                     {quote.first_name} {quote.last_name} • {quote.freight_type} • {quote.status}
                                 </div>

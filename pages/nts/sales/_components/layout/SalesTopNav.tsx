@@ -53,7 +53,7 @@ const SalesTopNav: React.FC<SalesTopNavProps> = ({ session, className = '', isSi
     };
 
     return (
-        <div className={`w-full px-6 py-4 relative z-[9999] ${className}`}>
+        <div className={`w-full px-6 py-4 relative z-[999] ${className}`}>
             <div className="flex items-center justify-between">
                 {/* Left side - Sidebar toggle and breadcrumbs */}
                 <div className="flex items-center gap-4">

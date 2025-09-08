@@ -83,7 +83,7 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
                     {/* Main Content Wrapper */}
                     <div className={`nts-main-wrapper ${isSidebarOpen ? 'nts-main-wrapper--shifted' : ''}`}>
                         {/* Top Navigation */}
-                        <UserTopNav className="sticky top-0 z-30" toggleSidebar={toggleSidebar} />
+                        <UserTopNav className="sticky top-0 z-10" toggleSidebar={toggleSidebar} />
                         
                         {/* Main Content */}
                         <main className="nts-main-content">

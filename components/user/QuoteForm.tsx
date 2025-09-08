@@ -291,12 +291,49 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
         }
     };
 
+    // Prevent body scroll when modal is open
+    useEffect(() => {
+        if (isOpen && isModal) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+
+        // Cleanup when component unmounts
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isOpen, isModal]);
+
     if (!isOpen) return null;
 
     return (
-        <div className={isModal ? "fixed z-50 inset-0 bg-zinc-600 bg-opacity-50 flex justify-center items-center p-2" : "container mx-auto p-4"}>
-            <div className={isModal ? "border-2 bg-blue-600 border-x-0 border-b-0 pt-2 rounded w-full max-w-6xl max-h-[95vh] flex flex-col" : ""}>
-                <h2 className={isModal ? "text-lg text-white font-semibold pl-4 mb-2 flex-shrink-0" : "text-xl font-semibold mb-4"}>Request a Shipping Estimate</h2>
+        <div 
+            className={isModal ? "fixed inset-0 z-50 bg-zinc-600 bg-opacity-50 flex justify-center items-center p-2" : "container mx-auto p-4"} 
+            style={isModal ? { 
+                zIndex: 99999,
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0
+            } : {}}
+        >
+            <div className={isModal ? "border-2  bg-blue-600 border-x-0 border-b-0 pt-2 rounded w-full max-w-6xl max-h-[95vh] flex flex-col" : ""}>
+                <div className={isModal ? "flex items-center justify-between pl-4 pr-3 mb-2 flex-shrink-0" : ""}>
+                    <h2 className={isModal ? "text-lg text-white font-semibold" : "text-xl font-semibold mb-4"}>Request a Shipping Estimate</h2>
+                    {isModal && (
+                        <button
+                            onClick={onClose}
+                            className="text-white hover:text-gray-200 transition-colors p-1 rounded-md hover:bg-blue-700"
+                            aria-label="Close modal"
+                        >
+                            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    )}
+                </div>
                 <div className={isModal ? "flex-1 overflow-y-auto bg-white" : ""}>
                     <form onSubmit={handleSubmit} className={isModal ? "flex flex-col gap-3 p-4" : "flex flex-col gap-4"}>
                         {/* Inventory Selection & Route - Combined Top Row */}

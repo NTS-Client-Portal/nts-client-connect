@@ -99,7 +99,7 @@ const QuotePage: React.FC<QuotePageProps> = ({ onClose, addQuote, errorText, set
             status: 'quote', // Use lowercase for consistency
             ...formData,
             // save_to_inventory: saveToInventory,
-            // needs_admin_review: !finalCompanyId, // Flag for admin review if needed
+            needs_admin_review: !finalCompanyId, // Flag for admin review if needed
         };
 
         try {

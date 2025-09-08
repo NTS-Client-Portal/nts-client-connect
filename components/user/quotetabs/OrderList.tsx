@@ -5,6 +5,7 @@ import { supabase } from '@/lib/initSupabase';
 import Modal from '@/components/ui/Modal';
 import OrderTable from './OrderTable';
 import OrderDetailsMobile from '../mobile/OrderDetailsMobile';
+import EditQuoteModal from './EditQuoteModal';
 import { formatDate, renderAdditionalDetails, freightTypeMapping } from './QuoteUtils';
 import { generatePDF, uploadPDFToSupabase, insertDocumentRecord } from '@/components/GeneratePDF';
 import { useRouter } from 'next/router';
@@ -31,8 +32,8 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
     const [loadDates, setLoadDates] = useState<{ [key: number]: string }>({});
     const [deliveryDates, setDeliveryDates] = useState<{ [key: number]: string }>({});
     const [getStatusClasses, setGetStatusClasses] = useState(() => (status: string) => 'bg-gray-100 text-gray-800');
-    const [isEditMode, setIsEditMode] = useState<boolean>(false);
-    const [editData, setEditData] = useState<Partial<ShippingQuotesRow>>({});
+    const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+    const [quoteToEdit, setQuoteToEdit] = useState<ShippingQuotesRow | null>(null);
     const [isNtsUser, setIsNtsUser] = useState(false);
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [searchColumn, setSearchColumn] = useState<string>('id');
@@ -318,40 +319,35 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
     };
 
     const handleEditQuote = (quote: ShippingQuotesRow) => {
-        setIsEditMode(true);
-        setEditData(quote);
-        setSelectedQuoteId(quote.id);
-        console.log('Editing quote:', quote); // Log the quote being edited
+        setQuoteToEdit(quote);
+        setIsEditModalOpen(true);
     };
 
-    const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setEditData(prevData => ({ ...prevData, [name]: value }));
-        console.log('Edit data:', { ...editData, [name]: value }); // Log the updated editData
-    };
-
-    const handleEditSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (selectedQuoteId === null) return;
+    const handleEditModalSubmit = async (updatedQuote: ShippingQuotesRow) => {
+        if (!session?.user?.id) return;
 
         try {
-            const { error } = await supabase
+            const { error: updateError } = await supabase
                 .from('shippingquotes')
-                .update(editData)
-                .eq('id', selectedQuoteId);
+                .update(updatedQuote)
+                .eq('id', updatedQuote.id);
 
-            if (error) {
-                console.error('Error editing quote:', error.message);
-                setErrorText('Error editing quote');
-            } else {
-                setQuotes(quotes.map(quote => (quote.id === selectedQuoteId ? { ...quote, ...editData } : quote)));
-                setIsEditMode(false);
-                setSelectedQuoteId(null);
-                setEditData({});
+            if (updateError) {
+                console.error('Error updating quote:', updateError.message);
+                setErrorText('Error updating quote');
+                return;
             }
+
+            // Update local state
+            setQuotes(quotes.map(quote => 
+                quote.id === updatedQuote.id ? updatedQuote : quote
+            ));
+            
+            setIsEditModalOpen(false);
+            setQuoteToEdit(null);
         } catch (error) {
-            console.error('Error editing quote:', error);
-            setErrorText('Error editing quote. Please check your internet connection and try again.');
+            console.error('Error updating quote:', error);
+            setErrorText('Error updating quote');
         }
     };
 
@@ -571,70 +567,16 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
                     </div>
                 )}
             </Modal>
-            {isEditMode && isAdmin && (
-                <Modal className='w-1/3' isOpen={isEditMode} onClose={() => setIsEditMode(false)}>
-                    <h2 className="text-xl mb-4">Edit Order</h2>
-                    <form onSubmit={handleEditSubmit}>
-                        <div className="mb-4">
-                            <label htmlFor="origin_street" className="block text-sm text-zinc-700">
-                                Origin Street
-                            </label>
-                            <input
-                                type="text"
-                                id="origin_street"
-                                name="origin_street"
-                                value={editData.origin_street || ''}
-                                onChange={handleEditChange}
-                                className="mt-1 p-2 border border-zinc-300 rounded w-fit-content"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label htmlFor="destination_street" className="block text-sm text-zinc-700">
-                                Destination Street
-                            </label>
-                            <input
-                                type="text"
-                                id="destination_street"
-                                name="destination_street"
-                                value={editData.destination_street || ''}
-                                onChange={handleEditChange}
-                                className="mt-1 p-2 border border-zinc-300 rounded w-fit-content"
-                            />
-                        </div>
-                        <div className="mb-4 flex gap-4">
-                            <div className='flex flex-col gap-2'>
-                                <label htmlFor="earliest_pickup_date" className="block text-sm text-zinc-700">
-                                    Earliest Pickup Date
-                                </label>
-                                <input
-                                    type="date"
-                                    id="earliest_pickup_date"
-                                    name="earliest_pickup_date"
-                                    value={editData.earliest_pickup_date || ''}
-                                    onChange={handleEditChange}
-                                    className="mt-1 p-2 border border-zinc-300 rounded w-full"
-                                />
-                            </div>
-                            <div className='flex flex-col gap-2'>
-                                <label htmlFor="latest_pickup_date" className="block text-sm text-zinc-700">
-                                    Latest Pickup Date
-                                </label>
-                                <input
-                                    type="date"
-                                    id="latest_pickup_date"
-                                    name="latest_pickup_date"
-                                    value={editData.latest_pickup_date || ''}
-                                    onChange={handleEditChange}
-                                    className="mt-1 p-2 border border-zinc-300 rounded w-full"
-                                />
-                            </div>
-                        </div>
-                        <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">
-                            Submit Changes
-                        </button>
-                    </form>
-                </Modal>
-            )}
+            
+            <EditQuoteModal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                onSubmit={handleEditModalSubmit}
+                quote={quoteToEdit}
+                isAdmin={isAdmin}
+                session={session}
+                companyId={companyId}
+            />
         </div>
     );
 };

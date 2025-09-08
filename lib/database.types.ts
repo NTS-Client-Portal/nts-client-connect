@@ -576,6 +576,69 @@ export type Database = {
           },
         ]
       }
+      edit_requests: {
+        Row: {
+          company_id: string | null
+          created_at: string | null
+          id: number
+          quote_id: number
+          reason: string | null
+          requested_at: string | null
+          requested_by: string
+          requested_changes: Json
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string | null
+          id?: number
+          quote_id: number
+          reason?: string | null
+          requested_at?: string | null
+          requested_by: string
+          requested_changes: Json
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string | null
+          id?: number
+          quote_id?: number
+          reason?: string | null
+          requested_at?: string | null
+          requested_by?: string
+          requested_changes?: Json
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "edit_requests_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "edit_requests_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "shippingquotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       equipment: {
         Row: {
           auction: string | null
@@ -1659,6 +1722,7 @@ export type Database = {
           make: string | null
           model: string | null
           motorized_or_trailer: string | null
+          needs_admin_review: boolean | null
           notes: string | null
           operational_condition: boolean | null
           origin_address: string | null
@@ -1754,6 +1818,7 @@ export type Database = {
           make?: string | null
           model?: string | null
           motorized_or_trailer?: string | null
+          needs_admin_review?: boolean | null
           notes?: string | null
           operational_condition?: boolean | null
           origin_address?: string | null
@@ -1849,6 +1914,7 @@ export type Database = {
           make?: string | null
           model?: string | null
           motorized_or_trailer?: string | null
+          needs_admin_review?: boolean | null
           notes?: string | null
           operational_condition?: boolean | null
           origin_address?: string | null

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Session } from '@supabase/auth-helpers-react';
 import SelectOption from './SelectOption';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
@@ -263,12 +264,47 @@ const OrderForm: React.FC<OrderFormProps> = ({ isOpen, onClose, addOrder, errorT
         }
     };
 
+    // Prevent body scroll when modal is open
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+
+        // Cleanup when component unmounts
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed z-50 inset-0 bg-zinc-600 bg-opacity-50 flex justify-center items-center p-4">
-            <div className="border-2 bg-blue-600 border-x-0 border-b-0 pt-2 rounded w-full max-w-6xl max-h-[95vh] flex flex-col">
-                <h2 className="text-xl text-white font-semibold pl-4 mb-2 flex-shrink-0">Request a Shipping Order</h2>
+    const modalContent = (
+        <div 
+            className="fixed inset-0 bg-zinc-600 bg-opacity-50 flex justify-center items-center p-4" 
+            style={{ 
+                zIndex: 999999,
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0
+            }}
+        >
+            <div className="border-2 bg-blue-600 border-x-0 border-b-0 pt-2 rounded w-full max-w-6xl max-h-[90vh] flex flex-col">
+                <div className="flex items-center justify-between pl-4 pr-3 mb-2 flex-shrink-0">
+                    <h2 className="text-xl text-white font-semibold">Request a Shipping Order</h2>
+                    <button
+                        onClick={onClose}
+                        className="text-white hover:text-gray-200 transition-colors p-1 rounded-md hover:bg-blue-700"
+                        aria-label="Close modal"
+                    >
+                        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
                 <div className="flex-1 overflow-y-auto bg-white">
                     <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-6">
                     {/* Inventory Selection Section */}
@@ -516,6 +552,8 @@ const OrderForm: React.FC<OrderFormProps> = ({ isOpen, onClose, addOrder, errorT
             </div>
         </div>
     );
+
+    return createPortal(modalContent, document.body);
 }
 
 export default OrderForm;

@@ -16,6 +16,7 @@ import { freightTypeMapping, formatDate, renderAdditionalDetails } from "./Quote
 import QuoteTable from "./QuoteTable";
 import RejectReasonModal from "./RejectReasonModal";
 import { generateAndUploadDocx, replaceShortcodes } from "@/components/GenerateDocx";
+import EditRequestManager from "@/components/admin/EditRequestManager";
 
 interface QuoteListProps {
     session: any;
@@ -49,6 +50,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
     const [errorText, setErrorText] = useState<string>("");
     const [showPriceInput, setShowPriceInput] = useState<number | null>(null);
     const [priceInput, setPriceInput] = useState<string>("");
+    const [showEditRequests, setShowEditRequests] = useState(false);
 
     const user = session?.user;
 
@@ -680,68 +682,107 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
                     {popupMessage}
                 </div>
             )}
-            <OrderFormModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSubmit={handleModalSubmit}
-                quote={quote}
-            />
-            <RejectReasonModal
-                isOpen={isRejectedModalOpen}
-                onClose={() => setIsRejectedModalOpen(false)}
-                onSubmit={handleRejectSubmit}
-                quote={quote}
-            />
-            <EditQuoteModal
-                isOpen={isEditModalOpen}
-                onClose={() => setIsEditModalOpen(false)}
-                onSubmit={handleEditModalSubmit}
-                quote={quoteToEdit}
-            />
-            <div className="hidden xl:block">
-                <QuoteTable
-                    sortConfig={sortConfig}
-                    handleSort={handleSort}
-                    quotes={sortedQuotes}
-                    setActiveTab={setActiveTab}
-                    activeTab={activeTab}
-                    editHistory={editHistory}
-                    expandedRow={expandedRow}
-                    handleRowClick={handleRowClick}
-                    archiveQuote={archiveQuote}
-                    handleEditClick={handleEditClick}
-                    duplicateQuote={duplicateQuote}
-                    reverseQuote={reverseQuote}
-                    quoteToEdit={quoteToEdit}
-                    quote={quote}
-                    companyId={session?.user?.id}
-                    fetchEditHistory={fetchEditHistory}
-                    handleCreateOrderClick={handleCreateOrderClick}
-                    handleRespond={handleRespond}
-                    isAdmin={isAdmin}
-                    handleRejectClick={handleRejectClick}
-                    isUser={isUser}
-                />
-            </div>
-            <div className="block xl:hidden">
-                <QuoteDetailsMobile
-                    quotes={quotes}
-                    handleStatusChange={handleStatusChange}
-                    getStatusClasses={getStatusClasses}
-                    formatDate={formatDate}
-                    archiveQuote={archiveQuote}
-                    handleEditClick={handleEditClick}
-                    handleCreateOrderClick={handleCreateOrderClick}
-                    handleRespond={handleRespond}
-                    isAdmin={isAdmin} // Replace with actual isAdmin value
-                    isUser={isUser}
-                    setShowPriceInput={setShowPriceInput}
-                    showPriceInput={showPriceInput}
-                    priceInput={priceInput}
-                    setPriceInput={setPriceInput}
-                    handleRejectClick={handleRejectClick}
-                />
-            </div>
+            
+            {/* Header with Edit Requests toggle for NTS users */}
+            {isAdmin && (
+                <div className="p-4 border-b border-gray-200 bg-gray-50">
+                    <div className="flex justify-between items-center">
+                        <h2 className="text-lg font-semibold text-gray-900">
+                            {showEditRequests ? 'Edit Requests' : 'Quotes'}
+                        </h2>
+                        <button
+                            onClick={() => setShowEditRequests(!showEditRequests)}
+                            className={`px-4 py-2 rounded transition-colors ${
+                                showEditRequests
+                                    ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                    : 'bg-blue-500 text-white hover:bg-blue-600'
+                            }`}
+                        >
+                            {showEditRequests ? 'View Quotes' : 'View Edit Requests'}
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Show Edit Requests Manager for NTS users when toggled */}
+            {showEditRequests && isAdmin ? (
+                <div className="p-4">
+                    <EditRequestManager
+                        session={session}
+                        companyId={companyId}
+                        isAdmin={isAdmin}
+                    />
+                </div>
+            ) : (
+                <>
+                    {/* Regular quote management UI */}
+                    <OrderFormModal
+                        isOpen={isModalOpen}
+                        onClose={() => setIsModalOpen(false)}
+                        onSubmit={handleModalSubmit}
+                        quote={quote}
+                    />
+                    <RejectReasonModal
+                        isOpen={isRejectedModalOpen}
+                        onClose={() => setIsRejectedModalOpen(false)}
+                        onSubmit={handleRejectSubmit}
+                        quote={quote}
+                    />
+                    <EditQuoteModal
+                        isOpen={isEditModalOpen}
+                        onClose={() => setIsEditModalOpen(false)}
+                        onSubmit={handleEditModalSubmit}
+                        quote={quoteToEdit}
+                        isAdmin={isAdmin}
+                        session={session}
+                        companyId={companyId}
+                    />
+                    <div className="hidden xl:block">
+                        <QuoteTable
+                            sortConfig={sortConfig}
+                            handleSort={handleSort}
+                            quotes={sortedQuotes}
+                            setActiveTab={setActiveTab}
+                            activeTab={activeTab}
+                            editHistory={editHistory}
+                            expandedRow={expandedRow}
+                            handleRowClick={handleRowClick}
+                            archiveQuote={archiveQuote}
+                            handleEditClick={handleEditClick}
+                            duplicateQuote={duplicateQuote}
+                            reverseQuote={reverseQuote}
+                            quoteToEdit={quoteToEdit}
+                            quote={quote}
+                            companyId={session?.user?.id}
+                            fetchEditHistory={fetchEditHistory}
+                            handleCreateOrderClick={handleCreateOrderClick}
+                            handleRespond={handleRespond}
+                            isAdmin={isAdmin}
+                            handleRejectClick={handleRejectClick}
+                            isUser={isUser}
+                        />
+                    </div>
+                    <div className="block xl:hidden">
+                        <QuoteDetailsMobile
+                            quotes={quotes}
+                            handleStatusChange={handleStatusChange}
+                            getStatusClasses={getStatusClasses}
+                            formatDate={formatDate}
+                            archiveQuote={archiveQuote}
+                            handleEditClick={handleEditClick}
+                            handleCreateOrderClick={handleCreateOrderClick}
+                            handleRespond={handleRespond}
+                            isAdmin={isAdmin} // Replace with actual isAdmin value
+                            isUser={isUser}
+                            setShowPriceInput={setShowPriceInput}
+                            showPriceInput={showPriceInput}
+                            priceInput={priceInput}
+                            setPriceInput={setPriceInput}
+                            handleRejectClick={handleRejectClick}
+                        />
+                    </div>
+                </>
+            )}
         </div>
     );
 };

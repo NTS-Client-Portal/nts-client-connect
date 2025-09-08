@@ -114,7 +114,7 @@ const OrderPage: React.FC<OrderPageProps> = ({ onClose, addOrder, errorText, set
             freight_type: selectedOption,
             status: 'order', // Already lowercase
             ...formData,
-            save_to_inventory: saveToInventory, // Flag for admin review if needed
+            needs_admin_review: !finalCompanyId,
         };
 
         try {
