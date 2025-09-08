@@ -123,7 +123,7 @@ const CompanyPage: React.FC = () => {
     return (
         <NtsUsersProvider>
             <SalesLayout>
-                <div>
+                <div >
                     <h1 className='sm:text-center md:text-start md:p-3 font-bold text-lg'>{company.name}</h1>
                     <QuoteRequest 
                         session={session} 

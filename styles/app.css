@@ -4835,6 +4835,9 @@ main:is(.dark *) {
   backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(226, 232, 240, 0.8);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  min-height: 4rem; /* Ensure consistent height */
+  display: flex;
+  align-items: center;
 }
 
 .dark .nts-topnav {
@@ -4846,7 +4849,14 @@ main:is(.dark *) {
 .nts-main-content {
   flex: 1;
   background: rgba(248, 250, 252, 0.5);
-  min-height: 0; /* Important for flex child */
+  min-height: 100vh; /* Ensure background covers full height */
+  height: 100% !important; /* Allow main content to grow with table content */
+}
+
+/* Sales Layout specific adjustment - when topnav header exists */
+.nts-main-wrapper:has(.nts-topnav) .nts-main-content,
+.nts-main-wrapper .nts-main-content {
+  padding-top: 0; /* Remove any top padding since topnav handles spacing */
 }
 
 
@@ -4856,6 +4866,8 @@ main:is(.dark *) {
   max-width: none;
   margin: 0;
   min-height: calc(100vh - 4rem);
+  height: 100% !important;
+  padding: 1rem; /* Add consistent padding */
 }
 
 .nts-content-container > * {
@@ -4864,15 +4876,12 @@ main:is(.dark *) {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   border: 1px solid rgba(226, 232, 240, 0.8);
   min-height: calc(100vh - 8rem);
+  height: 100%; /* Allow child content to grow dynamically */
   position: relative;
   z-index: 20;
 }
 
-.dark .nts-content-container > * {
-  background: rgb(0, 3, 7);
-  border-color: rgba(0, 32, 76, 0.8);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-}
+
 
 /* Mobile Overlay System */
 .nts-mobile-overlay {

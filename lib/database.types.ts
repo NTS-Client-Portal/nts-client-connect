@@ -1680,6 +1680,8 @@ export type Database = {
           shipment_items: Json | null
           status: string | null
           tarping: boolean | null
+          temperature_instructions: string | null
+          temperature_range: string | null
           template_id: string | null
           trailer: boolean | null
           type: string | null
@@ -1773,6 +1775,8 @@ export type Database = {
           shipment_items?: Json | null
           status?: string | null
           tarping?: boolean | null
+          temperature_instructions?: string | null
+          temperature_range?: string | null
           template_id?: string | null
           trailer?: boolean | null
           type?: string | null
@@ -1866,6 +1870,8 @@ export type Database = {
           shipment_items?: Json | null
           status?: string | null
           tarping?: boolean | null
+          temperature_instructions?: string | null
+          temperature_range?: string | null
           template_id?: string | null
           trailer?: boolean | null
           type?: string | null

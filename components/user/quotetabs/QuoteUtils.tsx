@@ -5,6 +5,14 @@ export const freightTypeMapping: { [key: string]: string } = {
     semi_trucks: 'Semi Trucks',
     boats: 'Boats',
     ltl_ftl: 'LTL/FTL',
+    freight: 'Freight',
+    // New subcategory mappings
+    LTL: 'LTL (Less Than Truckload)',
+    FTL: 'FTL (Full Truckload)',
+    Flatbed: 'Flatbed',
+    Reefer: 'Reefer (Temperature-Controlled)',
+    'Dry Van': 'Dry Van',
+    'Other': 'Other/Specialty',
 };
 
 export const formatDate = (dateString: string | null) => {
@@ -130,20 +138,62 @@ export const renderAdditionalDetails = (quote: any) => {
                 </>
             );
         case 'LTL/FTL':
+        case 'Freight':
             return (
                 <>
-                    <div><strong>Load Description:</strong> {quote.commodity}</div>
-                    <div><strong>Freight Class:</strong> {quote.freight_class}</div>
-                    <div><strong>Loading Assistance:</strong> {quote.loading_assistance}</div>
-                    <div><strong>Packaging Type:</strong> {quote.packaging_type}</div>
-                    <div><strong>Length</strong>{quote.length}</div>
-                    <div><strong>Width</strong>{quote.width}</div>
-                    <div><strong>Height</strong>{quote.height}</div>
-
-                    <div><strong>Weight per Pallet/Unit:</strong> {quote.weight_per_pallet_unit}</div>
-                    <div><strong>Number of Pallets/Units:</strong> {quote.number_of_pallets_units}</div>
-                    <div><strong>Stackable:</strong> {quote.stackable ? 'Yes' : 'No'}</div>
-                    <div><strong>Dock / No Dock:</strong> {quote.dock_no_dock ? 'Dock' : 'No Dock'}</div>
+                    <div className="grid grid-cols-3 gap-6">
+                        <div className="space-y-2">
+                            <h3 className="text-zinc-800 font-bold text-lg">Freight Details:</h3>
+                            <div><strong>Freight Type:</strong> {quote.freight_type}</div>
+                            <div><strong>Load Description:</strong> {quote.commodity}</div>
+                            <div><strong>Packaging Type:</strong> {quote.packaging_type}</div>
+                            <div><strong>Freight Class:</strong> {quote.freight_class || 'Not specified'}</div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                            <h3 className="text-zinc-800 font-bold text-lg">Dimensions & Weight:</h3>
+                            <div className="flex gap-4">
+                                <div><strong>L:</strong> {quote.length}{quote.length_unit || 'ft'}</div>
+                                <div><strong>W:</strong> {quote.width}{quote.width_unit || 'ft'}</div>
+                                <div><strong>H:</strong> {quote.height}{quote.height_unit || 'ft'}</div>
+                            </div>
+                            <div><strong>Weight:</strong> {quote.weight} {quote.weight_unit || 'lbs'}</div>
+                            <div><strong>Value:</strong> {quote.goods_value || 'Not specified'}</div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                            <h3 className="text-zinc-800 font-bold text-lg">Requirements:</h3>
+                            <div><strong>Loading Assistance:</strong> {quote.loading_assistance || 'Not specified'}</div>
+                            <div><strong>Dock Available:</strong> {quote.dock_no_dock || 'Not specified'}</div>
+                            {quote.weight_per_pallet_unit && (
+                                <div><strong>Weight per Unit:</strong> {quote.weight_per_pallet_unit}</div>
+                            )}
+                        </div>
+                    </div>
+                    
+                    {/* Temperature Requirements for Reefer Freight */}
+                    {(quote.temperature_range || quote.temperature_instructions) && (
+                        <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <h4 className="text-blue-900 font-semibold mb-2 flex items-center gap-2">
+                                <span className="text-blue-600">❄️</span>
+                                Temperature Control Requirements
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {quote.temperature_range && (
+                                    <div>
+                                        <strong className="text-blue-800">Temperature Range:</strong>
+                                        <span className="ml-2">{quote.temperature_range}</span>
+                                    </div>
+                                )}
+                                {quote.temperature_instructions && (
+                                    <div>
+                                        <strong className="text-blue-800">Special Instructions:</strong>
+                                        <span className="ml-2">{quote.temperature_instructions}</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </>
             );
         case 'Auto':

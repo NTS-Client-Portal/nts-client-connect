@@ -511,7 +511,7 @@ const OrderList: React.FC<OrderListProps> = ({ session, isAdmin, companyId, fetc
     }, [fetchInitialQuotes]);
 
     return (
-        <div className="w-full bg-white  shadow rounded-md max-h-max flex-grow">
+        <div className="w-full h-auto min-h-full">
             {!!errorText && <div className="text-red-500">{errorText}</div>}
             <div className="hidden xl:block overflow-x-auto md:overflow-x-hidden">
                 <OrderTable

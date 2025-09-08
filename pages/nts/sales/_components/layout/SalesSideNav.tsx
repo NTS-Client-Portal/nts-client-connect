@@ -154,7 +154,7 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                                     <User className="w-10 h-10 text-slate-300" />
                                 </div>
                             )}
-                            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-green-400 to-green-500 rounded-full border-3 border-slate-800 shadow-lg"></div>
+                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-br from-green-400 to-green-500 rounded-full border-3 border-slate-800 shadow-lg"></div>
                         </div>
                         
                         <div>

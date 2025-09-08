@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import EditHistory from '../../EditHistory';
 import { formatDate, renderAdditionalDetails, freightTypeMapping } from './QuoteUtils';
+import { formatQuoteId } from '@/lib/quoteUtils';
 import { supabase } from '@/lib/initSupabase';
 import { useSession } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
@@ -39,7 +40,8 @@ import {
     Clock,
     Building2,
     ChevronDown,
-    ChevronUp
+    ChevronUp,
+    Settings
 } from 'lucide-react';
 
 interface QuoteTableProps {
@@ -441,7 +443,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                 <Package className="w-5 h-5 text-blue-600" />
                                             </div>
                                             <div>
-                                                <h3 className="text-lg font-semibold text-gray-900">Quote #{quote.id}</h3>
+                                                <h3 className="text-lg font-semibold text-gray-900">Quote {formatQuoteId(quote.id)}</h3>
                                                 <p className="text-sm text-gray-500">{formatDate(quote.created_at)}</p>
                                             </div>
                                         </div>
@@ -679,7 +681,14 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                             className={`cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors duration-200`}
                                         >
                                             <td className="modern-table-cell font-medium text-blue-600 underline">
-                                                #{quote.id}
+                                                <div className="flex items-center gap-2">
+                                                    {formatQuoteId(quote.id)}
+                                                    <ChevronUp 
+                                                        className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+                                                            expandedRow === quote.id ? 'rotate-180' : ''
+                                                        }`} 
+                                                    />
+                                                </div>
                                             </td>
                                             <td className="modern-table-cell text-gray-500">
                                                 {quote.created_at ? new Date(quote.created_at).toLocaleDateString() : 'N/A'}
@@ -813,7 +822,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                             className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-800 flex items-center gap-1"
                                                         >
                                                             <CheckCircle className="w-4 h-4" />
-                                                            <span className="text-xs">Order</span>
+                                                            <span className="text-xs">Accept</span>
                                                         </button>
                                                     )}
                                                     {isUser && quote.price && (
@@ -839,59 +848,51 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                             </td>
                                         </tr>
                                         {expandedRow === quote.id && (
-                                            <tr>
-                                                <td colSpan={8} className="px-6 py-4 bg-gray-50">
-                                                    <div className="space-y-4">
-                                                        <div className="flex gap-2 border-b border-gray-200 pb-2">
-                                                            <button
-                                                                className={`px-4 py-2 text-sm font-medium rounded-t-lg ${activeTab === 'quotes' ? 'bg-white text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
-                                                                onClick={() => setActiveTab('quotes')}
-                                                            >
+                                            <tr className="bg-gray-50">
+                                                <td colSpan={8} className="px-4 py-6">
+                                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                                        {/* Quote Details Card */}
+                                                        <div className="bg-white rounded-lg p-4 border border-gray-200">
+                                                            <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                                                <Package className="w-4 h-4 text-blue-600" />
                                                                 Quote Details
-                                                            </button>
-                                                            <button
-                                                                className={`px-4 py-2 text-sm font-medium rounded-t-lg ${activeTab === 'editHistory' ? 'bg-white text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
-                                                                onClick={() => setActiveTab('editHistory')}
-                                                            >
-                                                                Edit History
-                                                            </button>
-                                                        </div>
-                                                        {activeTab === 'quotes' && (
-                                                            <div className="bg-white rounded-lg p-4">
+                                                            </h4>
+                                                            <div className="space-y-2">
                                                                 {renderAdditionalDetails(quote)}
-                                                                <div className="flex gap-2 mt-4">
-                                                                    <button 
-                                                                        onClick={(e) => { e.stopPropagation(); duplicateQuote(quote); }} 
-                                                                        className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                                                                    >
-                                                                        <Copy className="w-4 h-4 mr-2" />
-                                                                        Duplicate
-                                                                    </button>
-                                                                    <button 
-                                                                        onClick={(e) => { e.stopPropagation(); reverseQuote(quote); }} 
-                                                                        className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                                                                    >
-                                                                        <RotateCcw className="w-4 h-4 mr-2" />
-                                                                        Flip Route
-                                                                    </button>
-                                                                </div>
                                                             </div>
-                                                        )}
-                                                        {activeTab === 'editHistory' && (
-                                                            <div className="bg-white rounded-lg p-4 max-h-64 overflow-y-auto">
-                                                                <EditHistory quoteId={quote.id} searchTerm="" searchColumn="id" editHistory={editHistory} />
+                                                            <div className="flex gap-2 mt-4 pt-3 border-t border-gray-200">
+                                                                <button 
+                                                                    onClick={(e) => { e.stopPropagation(); duplicateQuote(quote); }} 
+                                                                    className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                                                                >
+                                                                    <Copy className="w-4 h-4 mr-2" />
+                                                                    Duplicate
+                                                                </button>
+                                                                <button 
+                                                                    onClick={(e) => { e.stopPropagation(); reverseQuote(quote); }} 
+                                                                    className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                                                                >
+                                                                    <RotateCcw className="w-4 h-4 mr-2" />
+                                                                    Flip Route
+                                                                </button>
                                                             </div>
-                                                        )}
+                                                        </div>
+
+                                                        {/* Admin Controls Card */}
                                                         {(isAdmin || !isUser) && (
-                                                            <div className="bg-white rounded-lg p-4 space-y-3">
-                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <div className="bg-white rounded-lg p-4 border border-gray-200">
+                                                                <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                                                    <Settings className="w-4 h-4 text-blue-600" />
+                                                                    Admin Controls
+                                                                </h4>
+                                                                <div className="space-y-4">
                                                                     <div>
                                                                         <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                                                                         <select
                                                                             aria-label="Quote Status"
                                                                             value={quote.brokers_status}
                                                                             onChange={(e) => handleStatusChange(e, quote.id)}
-                                                                            className={`w-full border border-gray-300 rounded-md px-3 py-2 text-sm ${getStatusClasses(quote.brokers_status)}`}
+                                                                            className={`w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${getStatusClasses(quote.brokers_status)}`}
                                                                         >
                                                                             <option value="in_progress">In Progress</option>
                                                                             <option value="need_more_info">Need More Info</option>
@@ -903,20 +904,53 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                                         </select>
                                                                     </div>
                                                                     {showPriceInput === quote.id ? (
-                                                                        <div>
-                                                                            <label className="block text-sm font-medium text-gray-700 mb-1">Quote Price</label>
-                                                                            <form onSubmit={(e) => handlePriceSubmit(e, quote.id)} className="flex gap-2">
-                                                                                <input
-                                                                                    type="number"
-                                                                                    name="quotePrice"
-                                                                                    value={carrierPayInput}
-                                                                                    onChange={(e) => setCarrierPayInput(e.target.value)}
-                                                                                    placeholder="Enter price"
-                                                                                    className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm"
-                                                                                />
-                                                                                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">
-                                                                                    Submit
-                                                                                </button>
+                                                                        <div 
+                                                                            className="bg-blue-50 border border-blue-200 rounded-lg p-3 shadow-sm"
+                                                                            onClick={(e) => e.stopPropagation()}
+                                                                        >
+                                                                            <form onSubmit={(e) => handlePriceSubmit(e, quote.id)} className="space-y-3" onClick={(e) => e.stopPropagation()}>
+                                                                                <div className="flex items-center gap-2 mb-2">
+                                                                                    <DollarSign className="w-4 h-4 text-blue-600" />
+                                                                                    <span className="text-sm font-medium text-blue-800">Set Quote Price</span>
+                                                                                </div>
+                                                                                
+                                                                                <div>
+                                                                                    <label htmlFor={`quotePrice-${quote.id}`} className="block text-xs font-medium text-gray-700 mb-1">
+                                                                                        Customer Price ($)
+                                                                                    </label>
+                                                                                    <input
+                                                                                        id={`quotePrice-${quote.id}`}
+                                                                                        type="number"
+                                                                                        step="0.01"
+                                                                                        name="quotePrice"
+                                                                                        placeholder="Enter price"
+                                                                                        className="w-full bg-white px-3 py-2 text-sm border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 "
+                                                                                        required
+                                                                                        autoFocus
+                                                                                        onClick={(e) => e.stopPropagation()}
+                                                                                    />
+                                                                                </div>
+                                                                                
+                                                                                <div className="flex gap-2 pt-1">
+                                                                                    <button
+                                                                                        type="submit"
+                                                                                        className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 py-2 rounded-md text-xs font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center justify-center gap-1.5 shadow-sm"
+                                                                                        onClick={(e) => e.stopPropagation()}
+                                                                                    >
+                                                                                        <CheckCircle className="w-3 h-3" />
+                                                                                        Submit Price
+                                                                                    </button>
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        onClick={(e) => {
+                                                                                            e.stopPropagation();
+                                                                                            setShowPriceInput(null);
+                                                                                        }}
+                                                                                        className="px-3 py-2 text-xs font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200"
+                                                                                    >
+                                                                                        Cancel
+                                                                                    </button>
+                                                                                </div>
                                                                             </form>
                                                                         </div>
                                                                     ) : (
@@ -927,24 +961,37 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                                                     e.stopPropagation();
                                                                                     setShowPriceInput(quote.id);
                                                                                 }}
-                                                                                className="w-full bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700"
+                                                                                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm flex items-center justify-center gap-2"
                                                                             >
+                                                                                <DollarSign className="w-4 h-4" />
                                                                                 {quote.price ? 'Edit Quote' : 'Price Quote Request'}
                                                                             </button>
                                                                         </div>
                                                                     )}
-                                                                </div>
-                                                                <div className="flex gap-2 pt-2">
-                                                                    <SelectTemplate quoteId={quote.id} />
-                                                                    <button 
-                                                                        onClick={() => archiveQuote(quote.id)} 
-                                                                        className="text-red-600 px-4 py-2 border border-red-300 rounded-md text-sm font-medium hover:bg-red-50"
-                                                                    >
-                                                                        Archive Quote
-                                                                    </button>
+                                                                    
+                                                                    <div className="flex gap-2 pt-2 border-t border-gray-200">
+                                                                        <SelectTemplate quoteId={quote.id} />
+                                                                        <button 
+                                                                            onClick={() => archiveQuote(quote.id)} 
+                                                                            className="text-red-600 px-4 py-2 border border-red-300 rounded-md text-sm font-medium hover:bg-red-50 transition-colors"
+                                                                        >
+                                                                            Archive Quote
+                                                                        </button>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         )}
+
+                                                        {/* Edit History Card */}
+                                                        <div className="bg-white rounded-lg p-4 border border-gray-200 lg:col-span-2">
+                                                            <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                                                <Clock className="w-4 h-4 text-blue-600" />
+                                                                Edit History
+                                                            </h4>
+                                                            <div className="max-h-64 overflow-y-auto">
+                                                                <EditHistory quoteId={quote.id} searchTerm="" searchColumn="id" editHistory={editHistory} />
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </td>
                                             </tr>

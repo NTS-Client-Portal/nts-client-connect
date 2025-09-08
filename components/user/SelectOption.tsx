@@ -31,11 +31,11 @@ const SelectOption: React.FC<SelectOptionProps> = ({
         <div className="nts-form-section">
             <div className="nts-form-section-header">
                 <Package className="w-5 h-5 text-blue-600" />
-                <h3 className="text-lg font-semibold text-gray-900">Freight Type</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Load Type</h3>
             </div>
             <div className="nts-form-section-body space-y-6">
                 <div className="nts-form-group">
-                    <label className="nts-label" htmlFor="freight-category-select">Select Freight Category</label>
+                    <label className="nts-label" htmlFor="freight-category-select">Select Load Category</label>
                     <select
                         id="freight-category-select"
                         className="nts-input"
@@ -45,14 +45,13 @@ const SelectOption: React.FC<SelectOptionProps> = ({
                             setSelectedOption(e.target.value);
                         }}
                     >
-                        <option value="">Choose freight type...</option>
-                        <option value="Equipment">Equipment/Machinery</option>
-                        <option value="Containers">Containers</option>
-                        <option value="Semi/Heavy Duty Trucks">Semi Trucks</option>
-                        <option value="LTL/FTL">LTL/FTL</option>
-                        <option value="Auto">Auto</option>
-                        <option value="Trailers">Trailers/RV/Campers</option>
-                        <option value="Boats">Boats</option>
+                        <option value="">Choose load type...</option>
+                        <option value="Freight">General Freight</option>
+                        <option value="Equipment">Heavy Machinery & Equipment</option>
+                        <option value="Containers">Container Transport</option>
+                        <option value="Semi/Heavy Duty Trucks">Commercial Vehicle/Trucks</option>
+                        <option value="Auto">Auto Transport</option>
+                        <option value="Freight">Other</option>
                     </select>
                 </div>
 
@@ -64,7 +63,7 @@ const SelectOption: React.FC<SelectOptionProps> = ({
                     />
                 )}
 
-                {selectedOption === 'LTL/FTL' && (
+                {selectedOption === 'Freight' && (
                     <FreightForm
                         setFormData={setFormData}
                         setErrorText={setErrorText}
@@ -97,13 +96,6 @@ const SelectOption: React.FC<SelectOptionProps> = ({
                         setFormData={setFormData}
                         setErrorText={setErrorText}
                         formData={formData}
-                    />
-                )}
-
-                {selectedOption === 'Boats' && (
-                    <BoatForm
-                        setFormData={setFormData}
-                        setErrorText={setErrorText}
                     />
                 )}
             </div>

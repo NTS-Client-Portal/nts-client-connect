@@ -98,8 +98,8 @@ const QuotePage: React.FC<QuotePageProps> = ({ onClose, addQuote, errorText, set
             freight_type: selectedOption,
             status: 'quote', // Use lowercase for consistency
             ...formData,
-            save_to_inventory: saveToInventory,
-            needs_admin_review: !finalCompanyId, // Flag for admin review if needed
+            // save_to_inventory: saveToInventory,
+            // needs_admin_review: !finalCompanyId, // Flag for admin review if needed
         };
 
         try {
@@ -356,7 +356,7 @@ const QuotePage: React.FC<QuotePageProps> = ({ onClose, addQuote, errorText, set
                     </div>
 
                     {/* Save to Inventory */}
-                    <div className="nts-form-section">
+                    {/* <div className="nts-form-section">
                         <div className="nts-form-section-body">
                             <label className="flex items-center gap-3 text-gray-900 font-medium select-none cursor-pointer">
                                 <span>Save to Inventory</span>
@@ -376,7 +376,7 @@ const QuotePage: React.FC<QuotePageProps> = ({ onClose, addQuote, errorText, set
                                 <span className="text-sm text-gray-600">Save this item to your freight inventory</span>
                             </label>
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Submit Button */}
                     <div className="flex justify-end pt-6 border-t border-gray-200">
