@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Database } from '@/lib/database.types';
 import TableHeaderSort from './TableHeaderSort';
 import { formatDate, freightTypeMapping } from './QuoteUtils';
-import { Search, Filter, Package, MapPin, Calendar, Truck, DollarSign, RotateCcw, Archive, Copy } from 'lucide-react';
+import { Search, Filter, Package, MapPin, Calendar, Truck, DollarSign, RotateCcw, Archive, Copy, Zap } from 'lucide-react';
 
 type ShippingQuotesRow = Database['public']['Tables']['shippingquotes']['Row'];
 
@@ -36,6 +36,7 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
     const [archivedQuotes, setArchivedQuotes] = useState<ShippingQuotesRow[]>(quotes);
     const [searchTerm, setSearchTerm] = useState('');
     const [searchColumn, setSearchColumn] = useState('id');
+    const [expandedRow, setExpandedRow] = useState<number | null>(null);
 
     useEffect(() => {
         setArchivedQuotes(quotes);
@@ -220,7 +221,7 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
 
                                 {/* Actions */}
                                 <div className="px-4 py-3 bg-gray-50 rounded-b-lg">
-                                    <div className="flex flex-wrap gap-2">
+                                    <div className="flex flex-wrap gap-2 mb-3">
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -230,26 +231,42 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
                                         >
                                             Restore
                                         </button>
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                duplicateQuote(quote);
-                                            }}
-                                            className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 transition-colors"
-                                        >
-                                            <Copy className="w-3 h-3" />
-                                            Duplicate
-                                        </button>
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                reverseQuote(quote);
-                                            }}
-                                            className="flex items-center gap-1 px-3 py-1.5 bg-purple-600 text-white text-xs rounded-md hover:bg-purple-700 transition-colors"
-                                        >
-                                            <RotateCcw className="w-3 h-3" />
-                                            Flip Route
-                                        </button>
+                                    </div>
+                                    
+                                    {/* Quick Actions Section */}
+                                    <div className="bg-blue-100 rounded-lg p-3 border border-blue-200">
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <Zap className="w-4 h-4 text-blue-600" />
+                                            <h4 className="text-sm font-semibold text-blue-800">Quick Actions</h4>
+                                        </div>
+                                        <div className="grid grid-cols-1 gap-2">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    duplicateQuote(quote);
+                                                }}
+                                                className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors text-xs"
+                                            >
+                                                <Copy className="w-3 h-3" />
+                                                <div className="text-left">
+                                                    <div className="font-medium">Copy as New Quote</div>
+                                                    <div className="text-xs opacity-90">Create a new quote request with the same details</div>
+                                                </div>
+                                            </button>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    reverseQuote(quote);
+                                                }}
+                                                className="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2 transition-colors text-xs"
+                                            >
+                                                <RotateCcw className="w-3 h-3" />
+                                                <div className="text-left">
+                                                    <div className="font-medium">Copy with Reversed Route</div>
+                                                    <div className="text-xs opacity-90">Create new quote swapping pickup ↔ delivery locations</div>
+                                                </div>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -286,10 +303,10 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
                         </thead>
                         <tbody>
                             {sortedQuotes.map((quote, index) => (
-                                <tr 
-                                    key={quote.id}
-                                    className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-100 transition-colors duration-200`}
-                                >
+                                <React.Fragment key={quote.id}>
+                                    <tr 
+                                        className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-100 transition-colors duration-200`}
+                                    >
                                     <td className="modern-table-cell font-medium text-gray-600">
                                         #{quote.id}
                                     </td>
@@ -343,22 +360,49 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
                                                 <span className="text-xs">Restore</span>
                                             </button>
                                             <button
-                                                onClick={() => duplicateQuote(quote)}
-                                                className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-800 flex items-center gap-1"
+                                                onClick={() => setExpandedRow(expandedRow === quote.id ? null : quote.id)}
+                                                className="text-blue-600 hover:text-blue-800 font-medium ml-2"
                                             >
-                                                <Copy className="w-4 h-4" />
-                                                <span className="text-xs">Duplicate</span>
-                                            </button>
-                                            <button
-                                                onClick={() => reverseQuote(quote)}
-                                                className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-800 flex items-center gap-1"
-                                            >
-                                                <RotateCcw className="w-4 h-4" />
-                                                <span className="text-xs">Flip Route</span>
+                                                {expandedRow === quote.id ? 'Hide Details' : 'View Details'}
                                             </button>
                                         </div>
                                     </td>
                                 </tr>
+                                {expandedRow === quote.id && (
+                                    <tr className="bg-blue-50">
+                                        <td colSpan={7} className="px-4 py-6">
+                                            <div className="bg-blue-100 rounded-lg p-4 border border-blue-200">
+                                                <div className="flex items-center gap-2 mb-4">
+                                                    <Zap className="w-5 h-5 text-blue-600" />
+                                                    <h4 className="text-lg font-semibold text-blue-800">Quick Actions</h4>
+                                                </div>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <button
+                                                        onClick={() => duplicateQuote(quote)}
+                                                        className="bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors"
+                                                    >
+                                                        <Copy className="w-4 h-4" />
+                                                        <div className="text-left">
+                                                            <div className="font-medium">Copy as New Quote</div>
+                                                            <div className="text-sm opacity-90">Create a new quote request with the same details</div>
+                                                        </div>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => reverseQuote(quote)}
+                                                        className="bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 flex items-center gap-2 transition-colors"
+                                                    >
+                                                        <RotateCcw className="w-4 h-4" />
+                                                        <div className="text-left">
+                                                            <div className="font-medium">Copy with Reversed Route</div>
+                                                            <div className="text-sm opacity-90">Create new quote swapping pickup ↔ delivery locations</div>
+                                                        </div>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
+                                </React.Fragment>
                             ))}
                         </tbody>
                     </table>

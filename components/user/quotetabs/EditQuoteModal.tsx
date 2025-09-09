@@ -39,6 +39,48 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
     const [editReason, setEditReason] = useState<string>(''); // Reason for edit request
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
+    // Mapping function to normalize freight types for the switch statement
+    const normalizeFreightType = (freightType: string | null): string => {
+        if (!freightType) return '';
+        
+        const normalized = freightType.toLowerCase();
+        
+        // Map various input formats to consistent switch case values
+        const mappings: { [key: string]: string } = {
+            'equipment': 'equipment',
+            'heavy machinery & equipment': 'equipment',
+            'machinery': 'equipment',
+            
+            'freight': 'freight',
+            'general freight': 'freight',
+            'ltl': 'freight',
+            'ftl': 'freight',
+            'ltl/ftl': 'freight',
+            'other': 'freight',
+            
+            'containers': 'containers',
+            'container transport': 'containers',
+            
+            'semi/heavy duty trucks': 'semi_trucks',
+            'commercial vehicle/trucks': 'semi_trucks',
+            'semi trucks': 'semi_trucks',
+            'trucks': 'semi_trucks',
+            
+            'auto': 'auto',
+            'auto transport': 'auto',
+            'vehicles': 'auto',
+            
+            'boats': 'boats',
+            'marine': 'boats',
+            
+            'rv/trailers': 'trailers',
+            'trailers': 'trailers',
+            'rv': 'trailers'
+        };
+        
+        return mappings[normalized] || normalized;
+    };
+
     useEffect(() => {
         if (quote) {
             setUpdatedQuote(quote);
@@ -48,44 +90,174 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
             setDestinationZip(quote.destination_zip || '');
             setDestinationCity(quote.destination_city || '');
             setDestinationState(quote.destination_state || '');
+            
+            // Set the input display values
+            if (quote.origin_city && quote.origin_state) {
+                setOriginInput(`${quote.origin_city}, ${quote.origin_state}${quote.origin_zip ? ' ' + quote.origin_zip : ''}`);
+            }
+            if (quote.destination_city && quote.destination_state) {
+                setDestinationInput(`${quote.destination_city}, ${quote.destination_state}${quote.destination_zip ? ' ' + quote.destination_zip : ''}`);
+            }
         }
     }, [quote]);
 
-    const handleZipCodeBlur = async () => {
-        if (originInput.match(/^\d{5}$/)) {
-            // Input is a zip code
-            try {
-                const response = await axios.get(`https://api.zippopotam.us/us/${originInput}`);
-                if (response.status === 200) {
-                    const data = response.data;
-                    const city = data.places[0]['place name'];
-                    const state = data.places[0]['state abbreviation'];
+    const handleOriginZipCodeBlur = async () => {
+        // Only proceed if originInput has a value
+        if (!originInput || originInput.trim() === '') {
+            console.log('handleOriginZipCodeBlur: No input provided, skipping API call');
+            return;
+        }
+
+        console.log('handleOriginZipCodeBlur: Processing input:', originInput);
+        
+        const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+        
+        if (!apiKey) {
+            console.error('handleOriginZipCodeBlur: Google Maps API key not found');
+            return;
+        }
+        
+        try {
+            // Use Google Places API Geocoding
+            const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json`, {
+                params: {
+                    address: originInput + ', USA',
+                    key: apiKey,
+                    components: 'country:US'
+                },
+                timeout: 5000
+            });
+
+            console.log('handleOriginZipCodeBlur: Google API response:', response.data);
+
+            if (response.data.status === 'OK' && response.data.results.length > 0) {
+                const result = response.data.results[0];
+                const addressComponents = result.address_components;
+                
+                let city = '';
+                let state = '';
+                let zipCode = '';
+
+                // Parse address components
+                addressComponents.forEach(component => {
+                    if (component.types.includes('locality')) {
+                        city = component.long_name;
+                    }
+                    if (component.types.includes('administrative_area_level_1')) {
+                        state = component.short_name;
+                    }
+                    if (component.types.includes('postal_code')) {
+                        zipCode = component.long_name;
+                    }
+                });
+
+                // If we got valid data, update the state
+                if (city && state && zipCode) {
                     setOriginCity(city);
                     setOriginState(state);
-                    setOriginZip(originInput);
-                    setOriginInput(`${city}, ${state} ${originInput}`);
-                }
-            } catch (error) {
-                console.error('Error fetching city and state:', error);
-            }
-        } else {
-            // Input is a city and state
-            const [city, state] = originInput.split(',').map((str) => str.trim());
-            if (city && state) {
-                try {
-                    const response = await axios.get(`https://api.zippopotam.us/us/${state}/${city}`);
-                    if (response.status === 200) {
-                        const data = response.data;
-                        const zip = data.places[0]['post code'];
-                        setOriginCity(city);
-                        setOriginState(state);
-                        setOriginZip(zip);
-                        setOriginInput(`${city}, ${state} ${zip}`);
+                    setOriginZip(zipCode);
+                    setOriginInput(`${city}, ${state} ${zipCode}`);
+                    
+                    // Update the quote with the parsed data
+                    if (updatedQuote) {
+                        setUpdatedQuote({
+                            ...updatedQuote,
+                            origin_city: city,
+                            origin_state: state,
+                            origin_zip: zipCode
+                        });
                     }
-                } catch (error) {
-                    console.error('Error fetching zip code:', error);
+                    console.log('handleOriginZipCodeBlur: Successfully updated location data with Google API');
+                } else {
+                    console.log('handleOriginZipCodeBlur: Incomplete address data from Google API');
                 }
+            } else {
+                console.log('handleOriginZipCodeBlur: No results from Google API or API error:', response.data.status);
             }
+        } catch (error) {
+            console.error('handleOriginZipCodeBlur: Error with Google Places API:', error);
+            console.error('handleOriginZipCodeBlur: Full error details:', error.response?.data);
+            // Silently fail - the user can manually enter the information
+        }
+    };
+
+    const handleDestinationZipCodeBlur = async () => {
+        // Only proceed if destinationInput has a value
+        if (!destinationInput || destinationInput.trim() === '') {
+            console.log('handleDestinationZipCodeBlur: No input provided, skipping API call');
+            return;
+        }
+
+        console.log('handleDestinationZipCodeBlur: Processing input:', destinationInput);
+        
+        const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+        
+        if (!apiKey) {
+            console.error('handleDestinationZipCodeBlur: Google Maps API key not found');
+            return;
+        }
+        
+        try {
+            // Use Google Places API Geocoding
+            const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json`, {
+                params: {
+                    address: destinationInput + ', USA',
+                    key: apiKey,
+                    components: 'country:US'
+                },
+                timeout: 5000
+            });
+
+            console.log('handleDestinationZipCodeBlur: Google API response:', response.data);
+
+            if (response.data.status === 'OK' && response.data.results.length > 0) {
+                const result = response.data.results[0];
+                const addressComponents = result.address_components;
+                
+                let city = '';
+                let state = '';
+                let zipCode = '';
+
+                // Parse address components
+                addressComponents.forEach(component => {
+                    if (component.types.includes('locality')) {
+                        city = component.long_name;
+                    }
+                    if (component.types.includes('administrative_area_level_1')) {
+                        state = component.short_name;
+                    }
+                    if (component.types.includes('postal_code')) {
+                        zipCode = component.long_name;
+                    }
+                });
+
+                // If we got valid data, update the state
+                if (city && state && zipCode) {
+                    setDestinationCity(city);
+                    setDestinationState(state);
+                    setDestinationZip(zipCode);
+                    setDestinationInput(`${city}, ${state} ${zipCode}`);
+                    
+                    // Update the quote with the parsed data
+                    if (updatedQuote) {
+                        setUpdatedQuote({
+                            ...updatedQuote,
+                            destination_city: city,
+                            destination_state: state,
+                            destination_zip: zipCode
+                        });
+                    }
+                    console.log('handleDestinationZipCodeBlur: Successfully updated location data with Google API');
+                } else {
+                    console.log('handleDestinationZipCodeBlur: Incomplete address data from Google API');
+                }
+            } else {
+                console.log('handleDestinationZipCodeBlur: No results from Google API or API error:', response.data.status);
+            }
+        } catch (error) {
+            console.error('handleDestinationZipCodeBlur: Error with Google Places API:', error);
+            console.error('handleDestinationZipCodeBlur: Full error details:', error.response?.data);
+            // Silently fail - the user can manually enter the information
         }
     };
 
@@ -141,7 +313,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                 }
 
                 // Submit edit request to database
-                const { error } = await supabase
+                const { data: editRequestData, error } = await supabase
                     .from('edit_requests')
                     .insert({
                         quote_id: updatedQuote.id,
@@ -150,12 +322,57 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                         reason: editReason || null,
                         company_id: companyId,
                         status: 'pending'
-                    });
+                    })
+                    .select()
+                    .single();
 
                 if (error) {
                     console.error('Error submitting edit request:', error);
                     setErrorText('Failed to submit edit request. Please try again.');
                     return;
+                }
+
+                // Create notification for the assigned broker
+                try {
+                    // Get the assigned sales user for this company
+                    console.log('Looking for assigned sales user for company:', companyId);
+                    const { data: assignmentData, error: assignmentError } = await supabase
+                        .from('company_sales_users')
+                        .select('sales_user_id')
+                        .eq('company_id', companyId);
+
+                    if (assignmentError) {
+                        console.error('Error getting company assignment:', assignmentError);
+                    } else if (assignmentData && assignmentData.length > 0) {
+                        // Use the first assigned sales user if multiple exist
+                        const salesUserId = assignmentData[0].sales_user_id;
+                        console.log('Found assigned sales user:', salesUserId);
+                        
+                        // Create notification for the assigned broker
+                        const changedFields = Object.keys(changes).join(', ');
+                        const notificationMessage = `New edit request #${editRequestData.id} submitted for Quote #${updatedQuote.id}. Fields requested to change: ${changedFields}${editReason ? `. Reason: ${editReason}` : ''}`;
+                        
+                        console.log('Creating notification with message:', notificationMessage);
+                        
+                        const { error: notificationError } = await supabase
+                            .from('notifications')
+                            .insert({
+                                nts_user_id: salesUserId,
+                                message: notificationMessage,
+                                type: 'edit_request'
+                            });
+
+                        if (notificationError) {
+                            console.error('Error creating notification:', notificationError);
+                        } else {
+                            console.log('Notification created successfully');
+                        }
+                    } else {
+                        console.log('No assigned sales user found for company:', companyId);
+                    }
+                } catch (notificationError) {
+                    console.error('Error in notification creation:', notificationError);
+                    // Don't fail the edit request if notification fails
                 }
 
                 // Show success message and close modal
@@ -173,703 +390,923 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
     const renderInputFields = () => {
         if (!updatedQuote) return null;
 
-        switch (updatedQuote.freight_type) {
+        const normalizedType = normalizeFreightType(updatedQuote.freight_type);
+
+        switch (normalizedType) {
             case 'equipment':
                 return (
-                    <>
-                        <div className='flex gap-3 mt-2'>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Year</label>
+                    <div className="space-y-4">
+                        {/* Equipment Details */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Year</label>
                                 <input
                                     type="text"
                                     name="year"
                                     value={updatedQuote.year || ''}
                                     onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 />
                             </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Make</label>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Make</label>
                                 <input
                                     type="text"
                                     name="make"
                                     value={updatedQuote.make || ''}
                                     onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 />
                             </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Model</label>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Model</label>
                                 <input
                                     type="text"
                                     name="model"
                                     value={updatedQuote.model || ''}
                                     onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 />
                             </div>
                         </div>
-                        <div className='flex gap-3 mt-2'>
-                            <div className="flex flex-col justify-center items-center mb-2">
-                                <label className="block text-sm font-medium text-gray-700">Length</label>
-                                <input
-                                    type="text"
-                                    name="length"
-                                    value={updatedQuote.length || ''}
-                                    onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                                />
+
+                        {/* Dimensions */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Length</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="number"
+                                        name="length"
+                                        value={updatedQuote.length || ''}
+                                        onChange={handleChange}
+                                        className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    />
+                                    <select
+                                        name="length_unit"
+                                        value={updatedQuote.length_unit || 'ft'}
+                                        onChange={handleChange}
+                                        className="px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    >
+                                        <option value="ft">ft</option>
+                                        <option value="in">in</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Width</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="number"
+                                        name="width"
+                                        value={updatedQuote.width || ''}
+                                        onChange={handleChange}
+                                        className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    />
+                                    <select
+                                        name="width_unit"
+                                        value={updatedQuote.width_unit || 'ft'}
+                                        onChange={handleChange}
+                                        className="px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    >
+                                        <option value="ft">ft</option>
+                                        <option value="in">in</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Height</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="number"
+                                        name="height"
+                                        value={updatedQuote.height || ''}
+                                        onChange={handleChange}
+                                        className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    />
+                                    <select
+                                        name="height_unit"
+                                        value={updatedQuote.height_unit || 'ft'}
+                                        onChange={handleChange}
+                                        className="px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    >
+                                        <option value="ft">ft</option>
+                                        <option value="in">in</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Weight */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Weight</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="number"
+                                        name="weight"
+                                        value={updatedQuote.weight || ''}
+                                        onChange={handleChange}
+                                        className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    />
+                                    <select
+                                        name="weight_unit"
+                                        value={updatedQuote.weight_unit || 'lbs'}
+                                        onChange={handleChange}
+                                        className="px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    >
+                                        <option value="lbs">lbs</option>
+                                        <option value="tons">tons</option>
+                                        <option value="kg">kg</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Operational Condition</label>
                                 <select
-                                    className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900"
-                                    name="length_unit"
-                                    value={updatedQuote.length_unit || 'ft'}
-                                    onChange={handleChange}
+                                    name="operational_condition"
+                                    value={updatedQuote.operational_condition === null ? '' : updatedQuote.operational_condition ? 'operable' : 'inoperable'}
+                                    onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'operable' ? 'true' : 'false' } })}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 >
-                                    <option value="ft">Feet</option>
-                                    <option value="in">Inches</option>
+                                    <option value="">Select...</option>
+                                    <option value="operable">Operable</option>
+                                    <option value="inoperable">Inoperable</option>
                                 </select>
                             </div>
-                            <div className="flex flex-col justify-center items-center mb-2">
-                                <label className="block text-sm font-medium text-gray-700">Width</label>
+                        </div>
+
+                        {/* Additional Equipment Details */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Loading/Unloading Requirements</label>
                                 <input
                                     type="text"
-                                    name="width"
-                                    value={updatedQuote.width || ''}
+                                    name="loading_unloading_requirements"
+                                    value={updatedQuote.loading_unloading_requirements || ''}
                                     onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                    placeholder="e.g., Crane required, Ramp access"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 />
-                                <select className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900"
-                                    name="width_unit"
-                                    value={updatedQuote.width_unit || 'ft'}
-                                    onChange={handleChange}
-                                >
-                                    <option value="ft">Feet</option>
-                                    <option value="in">Inches</option>
-                                </select>
                             </div>
-                            <div className="flex flex-col justify-center items-center mb-2">
-                                <label className="block text-sm font-medium text-gray-700">Height</label>
-                                <input
-                                    type="text"
-                                    name="height"
-                                    value={updatedQuote.height || ''}
-                                    onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                                />
-                                <select className="rounded text-zinc-900 w-full px-2 py-1 border border-zinc-900"
-                                    name="height_unit"
-                                    value={updatedQuote.height_unit || 'ft'}
-                                    onChange={handleChange}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Tarping Required</label>
+                                <select
+                                    name="tarping"
+                                    value={updatedQuote.tarping === null ? '' : updatedQuote.tarping ? 'yes' : 'no'}
+                                    onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'yes' ? 'true' : 'false' } })}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 >
-                                    <option value="ft">Feet</option>
-                                    <option value="in">Inches</option>
+                                    <option value="">Select...</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
                                 </select>
                             </div>
                         </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Operational Condition</label>
-                            <select
-                                name="operational_condition"
-                                value={updatedQuote.operational_condition === null ? '' : updatedQuote.operational_condition ? 'operable' : 'inoperable'}
-                                onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'operable' ? 'true' : 'false' } })}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            >
-                                <option value="">Select...</option>
-                                <option value="operable">Operable</option>
-                                <option value="inoperable">Inoperable</option>
-                            </select>
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Loading/Unloading Requirements</label>
-                            <input
-                                type="text"
-                                name="loading_unloading_requirements"
-                                value={updatedQuote.loading_unloading_requirements || ''}
-                                onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Tarping</label>
-                            <select
-                                name="tarping"
-                                value={updatedQuote.tarping === null ? '' : updatedQuote.tarping ? 'yes' : 'no'}
-                                onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'yes' ? 'true' : 'false' } })}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            >
-                                <option value="">Select...</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
-                            </select>
-                        </div>
-                        <div className='flex gap-3 items-center'>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Auction</label>
+
+                        {/* Auction Information */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Auction</label>
                                 <input
                                     type="text"
                                     name="auction"
                                     value={updatedQuote.auction || ''}
                                     onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                    placeholder="Auction name or ID"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 />
                             </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Buyer Number</label>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Buyer Number</label>
                                 <input
                                     type="text"
                                     name="buyer_number"
                                     value={updatedQuote.buyer_number || ''}
                                     onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 />
                             </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Lot Number</label>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Lot Number</label>
                                 <input
                                     type="text"
                                     name="lot_number"
                                     value={updatedQuote.lot_number || ''}
                                     onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 />
                             </div>
                         </div>
-                        <div className='mb-4'>
-                            <label className="block text-sm font-medium text-gray-700">Pickup Date</label>
-                            <input
-                                type="date"
-                                name="due_date"
-                                value={updatedQuote.due_date || ''}
-                                onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            />
-                        </div>
-                        <div className='mb-4'>
-                            <label className='block text-sm font-medium text-gray-700'>Notes</label>
-                            <textarea
-                                name='notes'
-                                value={updatedQuote.notes || ''}
-                                onChange={handleChange}
-                                className='mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm' />
-                        </div>
-                    </>
+                    </div>
                 );
             case 'containers':
                 return (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Container Length</label>
-                            <input
-                                type="number"
-                                name="container_length"
-                                value={updatedQuote.container_length || ''}
-                                onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                            />
+                    <div className="space-y-4">
+                        {/* Container Details */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Container Length (ft)</label>
+                                <input
+                                    type="number"
+                                    name="container_length"
+                                    value={updatedQuote.container_length || ''}
+                                    onChange={handleChange}
+                                    placeholder="e.g., 20, 40, 53"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Container Type</label>
+                                <input
+                                    type="text"
+                                    name="container_type"
+                                    value={updatedQuote.container_type || ''}
+                                    onChange={handleChange}
+                                    placeholder="e.g., Dry Van, Refrigerated, Flatbed"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Container Type</label>
-                            <input
-                                type="text"
-                                name="container_type"
-                                value={updatedQuote.container_type || ''}
-                                onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                            />
+
+                        {/* Contents and Value */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Contents Description</label>
+                                <input
+                                    type="text"
+                                    name="contents_description"
+                                    value={updatedQuote.contents_description || ''}
+                                    onChange={handleChange}
+                                    placeholder="Brief description of contents"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Goods Value ($)</label>
+                                <input
+                                    type="number"
+                                    name="goods_value"
+                                    value={updatedQuote.goods_value || ''}
+                                    onChange={handleChange}
+                                    placeholder="Total value of goods"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Contents Description</label>
-                            <input
-                                type="text"
-                                name="contents_description"
-                                value={updatedQuote.contents_description || ''}
-                                onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                            />
+
+                        {/* Origin and Destination Types */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Origin Type</label>
+                                <select
+                                    name="origin_type"
+                                    value={updatedQuote.origin_type === null ? '' : updatedQuote.origin_type ? 'Business' : 'Residential'}
+                                    onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'Business' ? 'true' : 'false' } })}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                >
+                                    <option value="">Select...</option>
+                                    <option value="Business">Business</option>
+                                    <option value="Residential">Residential</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Destination Type</label>
+                                <select
+                                    name="destination_type"
+                                    value={updatedQuote.destination_type === null ? '' : updatedQuote.destination_type ? 'Business' : 'Residential'}
+                                    onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'Business' ? 'true' : 'false' } })}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                >
+                                    <option value="">Select...</option>
+                                    <option value="Business">Business</option>
+                                    <option value="Residential">Residential</option>
+                                </select>
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Goods Value</label>
-                            <input
-                                type="text"
-                                name="goods_value"
-                                value={updatedQuote.goods_value || ''}
-                                onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                            />
+
+                        {/* Surface Types */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Origin Surface Type</label>
+                                <input
+                                    type="text"
+                                    name="origin_surface_type"
+                                    value={updatedQuote.origin_surface_type || ''}
+                                    onChange={handleChange}
+                                    placeholder="e.g., Concrete, Gravel, Dirt"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Destination Surface Type</label>
+                                <input
+                                    type="text"
+                                    name="destination_surface_type"
+                                    value={updatedQuote.destination_surface_type || ''}
+                                    onChange={handleChange}
+                                    placeholder="e.g., Concrete, Gravel, Dirt"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Origin Type</label>
-                            <select
-                                name="origin_type"
-                                value={updatedQuote.origin_type === null ? '' : updatedQuote.origin_type ? 'Business' : 'Residential'}
-                                onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'Business' ? 'true' : 'false' } })}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                            >
-                                <option value="">Select...</option>
-                                <option value="Business">Business</option>
-                                <option value="Residential">Residential</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Destination Type</label>
-                            <select
-                                name="destination_type"
-                                value={updatedQuote.destination_type === null ? '' : updatedQuote.destination_type ? 'Business' : 'Residential'}
-                                onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'Business' ? 'true' : 'false' } })}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                            >
-                                <option value="">Select...</option>
-                                <option value="Business">Business</option>
-                                <option value="Residential">Residential</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Origin Surface Type</label>
-                            <input
-                                type="text"
-                                name="origin_surface_type"
-                                value={updatedQuote.origin_surface_type || ''}
-                                onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Destination Surface Type</label>
-                            <input
-                                type="text"
-                                name="destination_surface_type"
-                                value={updatedQuote.destination_surface_type || ''}
-                                onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Is Loaded</label>
-                            <select
-                                name="is_loaded"
-                                value={updatedQuote.is_loaded === null ? '' : updatedQuote.is_loaded ? 'yes' : 'no'}
-                                onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'yes' ? 'true' : 'false' } })}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                            >
-                                <option value="">Select...</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Loading By</label>
-                            <select
-                                name="loading_by"
-                                value={updatedQuote.loading_by === null ? '' : updatedQuote.loading_by ? 'yes' : 'no'}
-                                onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'yes' ? 'true' : 'false' } })}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                            >
-                                <option value="">Select...</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
-                            </select>
+
+                        {/* Loading Information */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Is Container Loaded</label>
+                                <select
+                                    name="is_loaded"
+                                    value={updatedQuote.is_loaded === null ? '' : updatedQuote.is_loaded ? 'yes' : 'no'}
+                                    onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'yes' ? 'true' : 'false' } })}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                >
+                                    <option value="">Select...</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Loading Assistance Required</label>
+                                <select
+                                    name="loading_by"
+                                    value={updatedQuote.loading_by === null ? '' : updatedQuote.loading_by ? 'yes' : 'no'}
+                                    onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'yes' ? 'true' : 'false' } })}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                >
+                                    <option value="">Select...</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 );
-            case 'Boats':
+            case 'boats':
                 return (
-                    <>
-                        <div className='block mb-4'>
-                            <label className='block text-sm font-medium text-gray-700'>Year</label>
-                            <input
-                                type='text'
-                                name='year'
-                                value={updatedQuote.year || ''}
-                                onChange={handleChange}
-                                className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
-                            />
+                    <div className="space-y-4">
+                        {/* Boat Details */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Year</label>
+                                <input
+                                    type="text"
+                                    name="year"
+                                    value={updatedQuote.year || ''}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Make</label>
+                                <input
+                                    type="text"
+                                    name="make"
+                                    value={updatedQuote.make || ''}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Model</label>
+                                <input
+                                    type="text"
+                                    name="model"
+                                    value={updatedQuote.model || ''}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
                         </div>
-                        <div className='block mb-4'>
-                            <label className='block text-sm font-medium text-gray-700'>Make</label>
-                            <input
-                                type='text'
-                                name='make'
-                                value={updatedQuote.make || ''}
-                                onChange={handleChange}
-                                className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
-                            />
-                        </div>
-                        <div className='block mb-4'>
-                            <label className='block text-sm font-medium text-gray-700'>Model</label>
-                            <input
-                                type='text'
-                                name='model'
-                                value={updatedQuote.model || ''}
-                                onChange={handleChange}
-                                className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
-                            />
-                        </div>
-                        <div className='block mb-4'>
-                            <label className='block text-sm font-medium text-gray-700'>Length</label>
-                            <input
-                                type='text'
-                                name='length'
-                                value={updatedQuote.length || ''}
-                                onChange={handleChange}
-                                className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
-                            />
-                        </div>
-                        <div className='block mb-4'>
-                            <label className='block text-sm font-medium text-gray-700'>Beam</label>
-                            <input
-                                type='text'
-                                name='width'
-                                value={updatedQuote.width || ''}
-                                onChange={handleChange}
-                                className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
-                            />
-                        </div>
-                        <div className='block mb-4'>
-                            <label className='block text-sm font-medium text-gray-700'>Height</label>
-                            <input
-                                type='text'
-                                name='height'
-                                value={updatedQuote.height || ''}
-                                onChange={handleChange}
-                                className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
-                            />
-                        </div>
-                    </>
-                );
-            case 'LTL/FTL':
-                return (
-                    <>
-                        <div className='block mb-4'>
-                            <label className='block text-sm font-medium text-gray-700'>Commodity</label>
-                            <input
-                                type='text'
-                                name='commodity'
-                                value={updatedQuote.commodity || ''}
-                                onChange={handleChange}
-                                className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
-                            />
-                        </div>
-                        <div className='block mb-4'>
-                            <label className='block text-sm font-medium text-gray-700'>Packaging</label>
-                            <input
-                                type='text'
-                                name='packaging'
-                                value={updatedQuote.packaging_type || ''}
-                                onChange={handleChange}
-                                className='rounded w-full p-1 border border-zinc-900/30 shadow-md'
-                            />
-                        </div>
-                        <div className='flex gap-1 justify-center items-center'>
-                            <div className="flex flex-col gap-1 items-center">
-                                <label className="block text-sm font-medium text-gray-700">Length</label>
+
+                        {/* Boat Dimensions */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Length (ft)</label>
                                 <input
                                     type="number"
                                     name="length"
                                     value={updatedQuote.length || ''}
                                     onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 />
-                                <select className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                                    name="length_unit"
-                                    value={updatedQuote.length_unit || 'ft'}
-                                    onChange={handleChange}
-                                >
-                                    <option value='in'>Inches</option>
-                                    <option value='ft'>Feet</option>
-                                    <option value='m'>Meters</option>
-                                    <option value='mm'>Millimeters</option>
-                                </select>
                             </div>
-                            <div className="flex flex-col gap-1 items-center">
-                                <label className="block text-sm font-medium text-gray-700">Width</label>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Beam/Width (ft)</label>
                                 <input
                                     type="number"
                                     name="width"
                                     value={updatedQuote.width || ''}
                                     onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 />
-                                <select className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                                    name="width_unit"
-                                    value={updatedQuote.width_unit || 'ft'}
-                                    onChange={handleChange}
-                                >
-                                    <option value='in'>Inches</option>
-                                    <option value='ft'>Feet</option>
-                                    <option value='m'>Meters</option>
-                                    <option value='mm'>Millimeters</option>
-                                </select>
                             </div>
-                            <div className="flex flex-col gap-1 items-center">
-                                <label className="block text-sm font-medium text-gray-700">Height</label>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Height (ft)</label>
                                 <input
                                     type="number"
                                     name="height"
                                     value={updatedQuote.height || ''}
                                     onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 />
-                                <select
-                                    name="height_unit"
-                                    value={updatedQuote.height_unit || 'ft'}
-                                    onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                                >
-                                    <option value='in'>Inches</option>
-                                    <option value='ft'>Feet</option>
-                                    <option value='m'>Meters</option>
-                                    <option value='mm'>Millimeters</option>
-                                </select>
                             </div>
-                            <div className="flex flex-col gap-1 items-center">
-                                <label className="block text-sm font-medium text-gray-700">Weight Per Unit</label>
+                        </div>
+
+                        {/* Additional Boat Information */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Weight (lbs)</label>
                                 <input
                                     type="number"
                                     name="weight"
                                     value={updatedQuote.weight || ''}
                                     onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 />
-                                <label className="block text-sm font-medium text-gray-700">Weight Unit</label>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Operational Condition</label>
                                 <select
-                                    name="weight_unit"
-                                    value={updatedQuote.weight_unit || 'lbs'}
-                                    onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                    name="operational_condition"
+                                    value={updatedQuote.operational_condition === null ? '' : updatedQuote.operational_condition ? 'operable' : 'inoperable'}
+                                    onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'operable' ? 'true' : 'false' } })}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 >
-                                    <option value="lbs">lbs</option>
-                                    <option value="tons">tons</option>
-                                    <option value="kg">kg</option>
-                                    <option value="g">g</option>
+                                    <option value="">Select...</option>
+                                    <option value="operable">Operable</option>
+                                    <option value="inoperable">Inoperable</option>
                                 </select>
                             </div>
                         </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Freight Class</label>
-                            <input
-                                type="text"
-                                name="freight_class"
-                                value={updatedQuote.freight_class || ''}
-                                onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Lift Gate</label>
-                            <select
-                                name="loading_assistance"
-                                value={updatedQuote.loading_assistance || ''}
-                                onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            >
-                                <option value="">Select...</option>
-                                <option value="At Origin">At Origin</option>
-                                <option value="At Destination">At Destination</option>
-                                <option value="Both Origin and Destination">Both Origin and Destination</option>
-                            </select>
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Dock / No Dock</label>
-                            <select
-                                name="dock_no_dock"
-                                value={updatedQuote.dock_no_dock || ''}
-                                onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            >
-                                <option value="">Select...</option>
-                                <option value="At Origin">At Origin</option>
-                                <option value="At Destination">At Destination</option>
-                            </select>
-                        </div>
-                    </>
-                );
-            case 'Trailers':
-                return (
-                    <div className='flex gap-1 justify-center items-center'>
-
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Length</label>
-                            <input
-                                type="text"
-                                name="length"
-                                value={updatedQuote.length || ''}
-                                onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            />
-                            <select
-                                name="length_unit"
-                                value={updatedQuote.length_unit || 'ft'}
-                                onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            >
-                                <option value='ft'>Feet</option>
-                                <option value='in'>Inches</option>
-                                <option value='m'>Meters</option>
-                                <option value='mm'>Millimeters</option>
-                            </select>
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Width</label>
-                            <input
-                                type="text"
-                                name="width"
-                                value={updatedQuote.width || ''}
-                                onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            />
-                            <select
-                                name="width_unit"
-                                value={updatedQuote.width_unit || 'ft'}
-                                onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            >
-                                <option value='ft'>Feet</option>
-                                <option value='in'>Inches</option>
-                                <option value='m'>Meters</option>
-                                <option value='mm'>Millimeters</option>
-                            </select>
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Height</label>
-                            <input
-                                type="text"
-                                name="height"
-                                value={updatedQuote.height || ''}
-                                onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            />
-                            <select
-                                name="height_unit"
-                                value={updatedQuote.height_unit || 'ft'}
-                                onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            >
-                                <option value='ft'>Feet</option>
-                                <option value='in'>Inches</option>
-                                <option value='m'>Meters</option>
-                                <option value='mm'>Millimeters</option>
-                            </select>
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Weight</label>
-                            <input
-                                type="text"
-                                name="weight"
-                                value={updatedQuote.weight || ''}
-                                onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            />
-                            <label className="block text-sm font-medium text-gray-700">Weight Unit</label>
-                            <select
-                                name="weight_unit"
-                                value={updatedQuote.weight_unit || 'lbs'}
-                                onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            >
-                                <option value="lbs">lbs</option>
-                                <option value="tons">tons</option>
-                                <option value="kg">kg</option>
-                                <option value="g">g</option>
-                            </select>
-                        </div>
-
                     </div>
-                )
-            case 'Auto':
+                );
+            case 'freight':
                 return (
-                    <div>
-                        <div className='flex gap-1 justify-center items-center mt-4 '>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Year</label>
+                    <div className="space-y-4">
+                        {/* Load Details */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Commodity</label>
+                                <input
+                                    type="text"
+                                    name="commodity"
+                                    value={updatedQuote.commodity || ''}
+                                    onChange={handleChange}
+                                    placeholder="e.g., Electronics, Machinery, Furniture"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Packaging Type</label>
+                                <input
+                                    type="text"
+                                    name="packaging_type"
+                                    value={updatedQuote.packaging_type || ''}
+                                    onChange={handleChange}
+                                    placeholder="e.g., Palletized, Crated, Loose"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Dimensions */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Length</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="number"
+                                        name="length"
+                                        value={updatedQuote.length || ''}
+                                        onChange={handleChange}
+                                        className="flex-1 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    />
+                                    <select
+                                        name="length_unit"
+                                        value={updatedQuote.length_unit || 'ft'}
+                                        onChange={handleChange}
+                                        className="px-2 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    >
+                                        <option value="in">in</option>
+                                        <option value="ft">ft</option>
+                                        <option value="m">m</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Width</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="number"
+                                        name="width"
+                                        value={updatedQuote.width || ''}
+                                        onChange={handleChange}
+                                        className="flex-1 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    />
+                                    <select
+                                        name="width_unit"
+                                        value={updatedQuote.width_unit || 'ft'}
+                                        onChange={handleChange}
+                                        className="px-2 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    >
+                                        <option value="in">in</option>
+                                        <option value="ft">ft</option>
+                                        <option value="m">m</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Height</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="number"
+                                        name="height"
+                                        value={updatedQuote.height || ''}
+                                        onChange={handleChange}
+                                        className="flex-1 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    />
+                                    <select
+                                        name="height_unit"
+                                        value={updatedQuote.height_unit || 'ft'}
+                                        onChange={handleChange}
+                                        className="px-2 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    >
+                                        <option value="in">in</option>
+                                        <option value="ft">ft</option>
+                                        <option value="m">m</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Weight</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="number"
+                                        name="weight"
+                                        value={updatedQuote.weight || ''}
+                                        onChange={handleChange}
+                                        className="flex-1 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    />
+                                    <select
+                                        name="weight_unit"
+                                        value={updatedQuote.weight_unit || 'lbs'}
+                                        onChange={handleChange}
+                                        className="px-2 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    >
+                                        <option value="lbs">lbs</option>
+                                        <option value="tons">tons</option>
+                                        <option value="kg">kg</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Freight Details */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Freight Class</label>
+                                <input
+                                    type="text"
+                                    name="freight_class"
+                                    value={updatedQuote.freight_class || ''}
+                                    onChange={handleChange}
+                                    placeholder="e.g., 50, 60, 70, 85, etc."
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Lift Gate Required</label>
+                                <select
+                                    name="loading_assistance"
+                                    value={updatedQuote.loading_assistance || ''}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                >
+                                    <option value="">Select...</option>
+                                    <option value="At Origin">At Origin</option>
+                                    <option value="At Destination">At Destination</option>
+                                    <option value="Both Origin and Destination">Both Origin and Destination</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Dock Information */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Dock Access</label>
+                                <select
+                                    name="dock_no_dock"
+                                    value={updatedQuote.dock_no_dock || ''}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                >
+                                    <option value="">Select...</option>
+                                    <option value="At Origin">At Origin</option>
+                                    <option value="At Destination">At Destination</option>
+                                    <option value="Both">Both Locations</option>
+                                    <option value="None">No Dock Access</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Number of Pieces</label>
+                                <input
+                                    type="number"
+                                    name="pieces"
+                                    value={(updatedQuote as any).pieces || ''}
+                                    onChange={handleChange}
+                                    placeholder="Total number of pieces/units"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                );
+            case 'trailers':
+                return (
+                    <div className="space-y-4">
+                        {/* Trailer Details */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Year</label>
                                 <input
                                     type="text"
                                     name="year"
-                                    value={updatedQuote.auto_year || ''}
+                                    value={updatedQuote.year || ''}
                                     onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 />
                             </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Make</label>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Make</label>
                                 <input
                                     type="text"
                                     name="make"
-                                    value={updatedQuote.auto_make || ''}
+                                    value={updatedQuote.make || ''}
                                     onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 />
                             </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Model</label>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Model</label>
                                 <input
                                     type="text"
                                     name="model"
-                                    value={updatedQuote.auto_model || ''}
+                                    value={updatedQuote.model || ''}
                                     onChange={handleChange}
-                                    className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 />
                             </div>
                         </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">VIN</label>
-                            <input
-                                type="text"
-                                name="vin"
-                                value={updatedQuote.vin || ''}
-                                onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            />
+
+                        {/* Trailer Specifications */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Length (ft)</label>
+                                <input
+                                    type="text"
+                                    name="length"
+                                    value={updatedQuote.length || ''}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Weight (lbs)</label>
+                                <input
+                                    type="text"
+                                    name="weight"
+                                    value={updatedQuote.weight || ''}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
                         </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Operational Condition</label>
-                            <select
-                                name="operational_condition"
-                                value={updatedQuote.operational_condition === null ? '' : updatedQuote.operational_condition ? 'operable' : 'inoperable'}
-                                onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'operable' ? 'true' : 'false' } })}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            >
-                                <option value="">Select...</option>
-                                <option value="operable">Operable</option>
-                                <option value="inoperable">Inoperable</option>
-                            </select>
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Running</label>
-                            <select
-                                name="running"
-                                value={updatedQuote.operational_condition === null ? '' : updatedQuote.operational_condition ? 'yes' : 'no'}
-                                onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'yes' ? 'true' : 'false' } })}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            >
-                                <option value="">Select...</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
-                            </select>
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Pickup Date</label>
-                            <input
-                                type="date"
-                                name="due_date"
-                                value={updatedQuote.due_date || ''}
-                                onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Notes</label>
-                            <textarea
-                                name="notes"
-                                value={updatedQuote.notes || ''}
-                                onChange={handleChange}
-                                className="rounded w-full p-1 border border-zinc-900/30 shadow-md"
-                            />
+                    </div>
+                );
+            case 'semi_trucks':
+                return (
+                    <div className="space-y-4">
+                        {/* Semi Truck Details */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Year</label>
+                                <input
+                                    type="text"
+                                    name="year"
+                                    value={updatedQuote.year || ''}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Make</label>
+                                <input
+                                    type="text"
+                                    name="make"
+                                    value={updatedQuote.make || ''}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Model</label>
+                                <input
+                                    type="text"
+                                    name="model"
+                                    value={updatedQuote.model || ''}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
                         </div>
 
+                        {/* Engine and Specifications */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Engine/Notes</label>
+                                <textarea
+                                    name="notes"
+                                    value={updatedQuote.notes || ''}
+                                    onChange={handleChange}
+                                    placeholder="Engine type, specifications, or other details"
+                                    rows={2}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Weight (lbs)</label>
+                                <input
+                                    type="text"
+                                    name="weight"
+                                    value={updatedQuote.weight || ''}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Condition and Details */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Condition</label>
+                                <textarea
+                                    name="notes"
+                                    value={updatedQuote.notes || ''}
+                                    onChange={handleChange}
+                                    placeholder="Vehicle condition details"
+                                    rows={2}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Additional Info</label>
+                                <input
+                                    type="text"
+                                    name="notes"
+                                    value={updatedQuote.notes || ''}
+                                    onChange={handleChange}
+                                    placeholder="Mileage, VIN, or other details"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                        </div>
                     </div>
-                )
+                );
+            case 'auto':
+                return (
+                    <div className="space-y-4">
+                        {/* Vehicle Details */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Year</label>
+                                <input
+                                    type="text"
+                                    name="auto_year"
+                                    value={updatedQuote.auto_year || ''}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Make</label>
+                                <input
+                                    type="text"
+                                    name="auto_make"
+                                    value={updatedQuote.auto_make || ''}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Model</label>
+                                <input
+                                    type="text"
+                                    name="auto_model"
+                                    value={updatedQuote.auto_model || ''}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Vehicle Identification */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">VIN</label>
+                                <input
+                                    type="text"
+                                    name="vin"
+                                    value={updatedQuote.vin || ''}
+                                    onChange={handleChange}
+                                    placeholder="17-character Vehicle Identification Number"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Operational Condition</label>
+                                <select
+                                    name="operational_condition"
+                                    value={updatedQuote.operational_condition === null ? '' : updatedQuote.operational_condition ? 'operable' : 'inoperable'}
+                                    onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === 'operable' ? 'true' : 'false' } })}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                >
+                                    <option value="">Select...</option>
+                                    <option value="operable">Operable</option>
+                                    <option value="inoperable">Inoperable</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Vehicle Specifications */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Length (ft)</label>
+                                <input
+                                    type="number"
+                                    name="length"
+                                    value={updatedQuote.length || ''}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Width (ft)</label>
+                                <input
+                                    type="number"
+                                    name="width"
+                                    value={updatedQuote.width || ''}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Height (ft)</label>
+                                <input
+                                    type="number"
+                                    name="height"
+                                    value={updatedQuote.height || ''}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Additional Vehicle Information */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Weight (lbs)</label>
+                                <input
+                                    type="number"
+                                    name="weight"
+                                    value={updatedQuote.weight || ''}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Modifications</label>
+                                <input
+                                    type="text"
+                                    name="modifications"
+                                    value={(updatedQuote as any).modifications || ''}
+                                    onChange={handleChange}
+                                    placeholder="Any modifications or special equipment"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                );
             default:
-                return null;
+                return (
+                    <div className="space-y-4">
+                        <div className="text-center py-8 text-gray-500">
+                            <p>Please select a freight type to see specific fields for that type.</p>
+                            <p className="text-sm mt-2">Or use the notes section below to provide details about your freight.</p>
+                        </div>
+                    </div>
+                );
         }
     };
 
@@ -877,13 +1314,20 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
 
     return createPortal(
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" style={{ zIndex: 99999 }}>
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden  overflow-y-auto">
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between pt-2">
                         <div>
                             <h2 className="text-xl font-bold text-gray-900">
                                 {isAdmin ? 'Edit Quote' : 'Request Quote Edit'}
+                                {updatedQuote && (
+                                    <span className="ml-2 text-base font-normal text-blue-600">
+                                        ({updatedQuote.freight_type
+                                            ? updatedQuote.freight_type.charAt(0).toUpperCase() + updatedQuote.freight_type.slice(1)
+                                            : 'Unknown Type'})
+                                    </span>
+                                )}
                             </h2>
                             <p className="text-sm text-gray-600 mt-1">
                                 {isAdmin 
@@ -907,8 +1351,38 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto">
                     <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                                                {/* Street Address Information */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Origin Street Address
+                                </label>
+                                <input
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    type="text"
+                                    name="origin_street"
+                                    placeholder='Street address (optional)'
+                                    value={updatedQuote.origin_street || ''}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                            
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Destination Street Address
+                                </label>
+                                <input
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    type="text"
+                                    name="destination_street"
+                                    placeholder='Street address (optional)'
+                                    value={updatedQuote.destination_street || ''}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        </div>
                         {/* Route Information */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <label className="flex items-center gap-2 text-sm font-medium text-gray-900">
                                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -920,7 +1394,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                                     placeholder='ZIP code or City, State'
                                     value={originInput}
                                     onChange={(e) => setOriginInput(e.target.value)}
-                                    onBlur={handleZipCodeBlur}
+                                    onBlur={handleOriginZipCodeBlur}
                                 />
                                 <input type="hidden" value={originCity} />
                                 <input type="hidden" value={originState} />
@@ -938,7 +1412,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                                     placeholder='ZIP code or City, State'
                                     value={destinationInput}
                                     onChange={(e) => setDestinationInput(e.target.value)}
-                                    onBlur={handleZipCodeBlur}
+                                    onBlur={handleDestinationZipCodeBlur}
                                 />
                                 <input type="hidden" value={destinationCity} />
                                 <input type="hidden" value={destinationState} />
@@ -962,6 +1436,19 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                         <div className="bg-gray-50 rounded-lg p-6">
                             <h3 className="text-lg font-semibold text-gray-900 mb-4">Freight Details</h3>
                             {renderInputFields()}
+                        </div>
+
+                        {/* Notes Section - Always Visible */}
+                        <div className="space-y-2">
+                            <label className='block text-sm font-medium text-gray-700'>Additional Notes</label>
+                            <textarea
+                                name='notes'
+                                value={updatedQuote.notes || ''}
+                                onChange={handleChange}
+                                placeholder="Add any special instructions or additional details..."
+                                className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none'
+                                rows={3}
+                            />
                         </div>
                         
                         {/* Edit reason field for shippers */}

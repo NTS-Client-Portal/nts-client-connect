@@ -39,36 +39,130 @@ const OrderPage: React.FC<OrderPageProps> = ({ onClose, addOrder, errorText, set
     const [saveToInventory, setSaveToInventory] = useState(false);
 
     const handleOriginZipBlur = async () => {
-        if (originZip.match(/^\d{5}$/)) {
-            try {
-                const response = await axios.get(`https://api.zippopotam.us/us/${originZip}`);
-                if (response.status === 200) {
-                    const data = response.data;
-                    const city = data.places[0]['place name'];
-                    const state = data.places[0]['state abbreviation'];
+        // Only proceed if originZip has a value
+        if (!originZip || originZip.trim() === '') {
+            console.log('handleOriginZipBlur: No input provided, skipping API call');
+            return;
+        }
+
+        console.log('handleOriginZipBlur: Processing input:', originZip);
+        
+        const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+        
+        if (!apiKey) {
+            console.error('handleOriginZipBlur: Google Maps API key not found');
+            return;
+        }
+        
+        try {
+            // Use Google Places API Geocoding
+            const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json`, {
+                params: {
+                    address: originZip + ', USA',
+                    key: apiKey,
+                    components: 'country:US'
+                },
+                timeout: 5000
+            });
+
+            console.log('handleOriginZipBlur: Google API response:', response.data);
+
+            if (response.data.status === 'OK' && response.data.results.length > 0) {
+                const result = response.data.results[0];
+                const addressComponents = result.address_components;
+                
+                let city = '';
+                let state = '';
+
+                // Parse address components
+                addressComponents.forEach(component => {
+                    if (component.types.includes('locality')) {
+                        city = component.long_name;
+                    }
+                    if (component.types.includes('administrative_area_level_1')) {
+                        state = component.short_name;
+                    }
+                });
+
+                // If we got valid data, update the state
+                if (city && state) {
                     setOriginCity(city);
                     setOriginState(state);
+                    console.log('handleOriginZipBlur: Successfully updated location data with Google API');
+                } else {
+                    console.log('handleOriginZipBlur: Incomplete address data from Google API');
                 }
-            } catch (error) {
-                console.error('Error fetching city and state:', error);
+            } else {
+                console.log('handleOriginZipBlur: No results from Google API or API error:', response.data.status);
             }
+        } catch (error) {
+            console.error('handleOriginZipBlur: Error with Google Places API:', error);
+            console.error('handleOriginZipBlur: Full error details:', error.response?.data);
+            // Silently fail - the user can manually enter the information
         }
     };
 
     const handleDestinationZipBlur = async () => {
-        if (destinationZip.match(/^\d{5}$/)) {
-            try {
-                const response = await axios.get(`https://api.zippopotam.us/us/${destinationZip}`);
-                if (response.status === 200) {
-                    const data = response.data;
-                    const city = data.places[0]['place name'];
-                    const state = data.places[0]['state abbreviation'];
+        // Only proceed if destinationZip has a value
+        if (!destinationZip || destinationZip.trim() === '') {
+            console.log('handleDestinationZipBlur: No input provided, skipping API call');
+            return;
+        }
+
+        console.log('handleDestinationZipBlur: Processing input:', destinationZip);
+        
+        const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+        
+        if (!apiKey) {
+            console.error('handleDestinationZipBlur: Google Maps API key not found');
+            return;
+        }
+        
+        try {
+            // Use Google Places API Geocoding
+            const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json`, {
+                params: {
+                    address: destinationZip + ', USA',
+                    key: apiKey,
+                    components: 'country:US'
+                },
+                timeout: 5000
+            });
+
+            console.log('handleDestinationZipBlur: Google API response:', response.data);
+
+            if (response.data.status === 'OK' && response.data.results.length > 0) {
+                const result = response.data.results[0];
+                const addressComponents = result.address_components;
+                
+                let city = '';
+                let state = '';
+
+                // Parse address components
+                addressComponents.forEach(component => {
+                    if (component.types.includes('locality')) {
+                        city = component.long_name;
+                    }
+                    if (component.types.includes('administrative_area_level_1')) {
+                        state = component.short_name;
+                    }
+                });
+
+                // If we got valid data, update the state
+                if (city && state) {
                     setDestinationCity(city);
                     setDestinationState(state);
+                    console.log('handleDestinationZipBlur: Successfully updated location data with Google API');
+                } else {
+                    console.log('handleDestinationZipBlur: Incomplete address data from Google API');
                 }
-            } catch (error) {
-                console.error('Error fetching city and state:', error);
+            } else {
+                console.log('handleDestinationZipBlur: No results from Google API or API error:', response.data.status);
             }
+        } catch (error) {
+            console.error('handleDestinationZipBlur: Error with Google Places API:', error);
+            console.error('handleDestinationZipBlur: Full error details:', error.response?.data);
+            // Silently fail - the user can manually enter the information
         }
     };
 
@@ -234,7 +328,7 @@ const OrderPage: React.FC<OrderPageProps> = ({ onClose, addOrder, errorText, set
                         <div className="nts-form-section">
                             <div className="nts-form-section-header">
                                 <MapPin className="w-5 h-5 text-green-600" />
-                                <h3 className="text-lg font-semibold text-gray-900">Pickup Location</h3>
+                                <h3 className="text-lg font-semibold text-gray-900">Pickup Address</h3>
                             </div>
                             <div className="nts-form-section-body space-y-4">
                                 <div className="nts-form-group">
@@ -325,7 +419,7 @@ const OrderPage: React.FC<OrderPageProps> = ({ onClose, addOrder, errorText, set
                         <div className="nts-form-section">
                             <div className="nts-form-section-header">
                                 <MapPin className="w-5 h-5 text-blue-600" />
-                                <h3 className="text-lg font-semibold text-gray-900">Delivery Location</h3>
+                                <h3 className="text-lg font-semibold text-gray-900">Delivery Address</h3>
                             </div>
                             <div className="nts-form-section-body space-y-4">
                                 <div className="nts-form-group">

@@ -19,7 +19,8 @@ import {
     Clock,
     ChevronUp,
     Copy,
-    RotateCcw
+    RotateCcw,
+    Zap,
 } from 'lucide-react';
 
 interface OrderTableProps {
@@ -583,26 +584,6 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                                         <Edit className="w-4 h-4" />
                                                         <span className="text-xs">Edit</span>
                                                     </button>
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            duplicateQuote(order);
-                                                        }}
-                                                        className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-800 flex items-center gap-1"
-                                                    >
-                                                        <Copy className="w-4 h-4" />
-                                                        <span className="text-xs">Duplicate Route</span>
-                                                    </button>
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            reverseQuote(order);
-                                                        }}
-                                                        className="bg-green-700 text-white px-2 py-1 rounded hover:bg-green-900 flex items-center gap-1"
-                                                    >
-                                                        <RotateCcw className="w-4 h-4" />
-                                                        <span className="text-xs">Flip Route</span>
-                                                    </button>
                                                     {/* Only admins (NTS users) can mark orders as complete */}
                                                     {isAdmin && (
                                                         <button
@@ -621,6 +602,42 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                         {expandedRow === order.id && (
                                             <tr className="bg-gray-50">
                                                 <td colSpan={7} className="px-4 py-6">
+                                                    {/* Quick Actions Section */}
+                                                    <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-200">
+                                                        <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                                            <Zap className="w-4 h-4 text-blue-600" />
+                                                            Quick Actions
+                                                        </h4>
+                                                        <div className="flex items-center gap-3 flex-wrap">
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    duplicateQuote(order);
+                                                                }}
+                                                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors"
+                                                            >
+                                                                <Copy className="w-4 h-4" />
+                                                                <div className="text-left">
+                                                                    <div className="text-sm font-medium">Copy as New Quote</div>
+                                                                    <div className="text-xs opacity-90">Create a new quote request with the same details</div>
+                                                                </div>
+                                                            </button>
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    reverseQuote(order);
+                                                                }}
+                                                                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2 transition-colors"
+                                                            >
+                                                                <RotateCcw className="w-4 h-4" />
+                                                                <div className="text-left">
+                                                                    <div className="text-sm font-medium">Copy with Reversed Route</div>
+                                                                    <div className="text-xs opacity-90">Create new quote swapping pickup ↔ delivery locations</div>
+                                                                </div>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    
                                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                                                         {/* Route Information - Combined Pickup & Delivery */}
                                                         <div className="lg:col-span-2 bg-white rounded-lg p-4 border border-gray-200">
@@ -631,7 +648,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                                             <div className="grid grid-cols-2 gap-4">
                                                                 {/* Pickup Column */}
                                                                 <div>
-                                                                    <h5 className="text-xs font-semibold text-green-700 mb-2 uppercase tracking-wide">Pickup Location</h5>
+                                                                    <h5 className="text-xs font-semibold text-green-700 mb-2 uppercase tracking-wide">Pickup Address</h5>
                                                                     <div className="space-y-2">
                                                                         <div>
                                                                             <label className="text-xs font-medium text-gray-600">Contact</label>
@@ -661,7 +678,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                                                 
                                                                 {/* Delivery Column */}
                                                                 <div>
-                                                                    <h5 className="text-xs font-semibold text-blue-700 mb-2 uppercase tracking-wide">Delivery Location</h5>
+                                                                    <h5 className="text-xs font-semibold text-blue-700 mb-2 uppercase tracking-wide">Delivery Address</h5>
                                                                     <div className="space-y-2">
                                                                         <div>
                                                                             <label className="text-xs font-medium text-gray-600">Contact</label>

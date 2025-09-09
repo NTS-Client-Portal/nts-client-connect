@@ -41,7 +41,8 @@ import {
     Building2,
     ChevronDown,
     ChevronUp,
-    Settings
+    Settings,
+    Zap
 } from 'lucide-react';
 
 interface QuoteTableProps {
@@ -528,23 +529,36 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                             </div>
                                             {activeTab === 'quotes' && (
                                                 <div className="modern-card p-4">
-                                                    {renderAdditionalDetails(quote)}
-                                                    <div className="flex gap-2 mt-4">
-                                                        <button 
-                                                            onClick={(e) => { e.stopPropagation(); duplicateQuote(quote); }} 
-                                                            className="modern-btn-outline flex-1"
-                                                        >
-                                                            <Copy className="w-4 h-4 mr-2" />
-                                                            Duplicate
-                                                        </button>
-                                                        <button 
-                                                            onClick={(e) => { e.stopPropagation(); reverseQuote(quote); }} 
-                                                            className="modern-btn-outline flex-1"
-                                                        >
-                                                            <RotateCcw className="w-4 h-4 mr-2" />
-                                                            Flip Route
-                                                        </button>
+                                                    {/* Quick Actions Section */}
+                                                    <div className="bg-blue-50 rounded-lg p-3 mb-4 border border-blue-200">
+                                                        <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                                                            <Zap className="w-4 h-4 text-blue-600" />
+                                                            Quick Actions
+                                                        </h4>
+                                                        <div className="flex gap-2">
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); duplicateQuote(quote); }} 
+                                                                className="flex-1 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 transition-colors"
+                                                            >
+                                                                <Copy className="w-4 h-4" />
+                                                                <div className="text-left">
+                                                                    <div className="text-sm font-medium">Copy as New Quote</div>
+                                                                    <div className="text-xs opacity-90">Same details</div>
+                                                                </div>
+                                                            </button>
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); reverseQuote(quote); }} 
+                                                                className="flex-1 bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 flex items-center justify-center gap-2 transition-colors"
+                                                            >
+                                                                <RotateCcw className="w-4 h-4" />
+                                                                <div className="text-left">
+                                                                    <div className="text-sm font-medium">Copy Reversed</div>
+                                                                    <div className="text-xs opacity-90">Swap locations</div>
+                                                                </div>
+                                                            </button>
+                                                        </div>
                                                     </div>
+                                                    {renderAdditionalDetails(quote)}
                                                 </div>
                                             )}
                                             {activeTab === 'editHistory' && (
@@ -691,7 +705,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                 </div>
                                             </td>
                                             <td className="modern-table-cell text-gray-500">
-                                                {quote.created_at ? new Date(quote.created_at).toLocaleDateString() : 'N/A'}
+                                                {formatDate(quote.created_at)}
                                             </td>
                                             <td className="modern-table-cell text-gray-900">
                                                 <div className="flex items-start gap-2">
@@ -850,6 +864,36 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                         {expandedRow === quote.id && (
                                             <tr className="bg-gray-50">
                                                 <td colSpan={8} className="px-4 py-6">
+                                                    {/* Quick Actions Section */}
+                                                    <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-200">
+                                                        <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                                            <Zap className="w-4 h-4 text-blue-600" />
+                                                            Quick Actions
+                                                        </h4>
+                                                        <div className="flex items-center gap-3 flex-wrap">
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); duplicateQuote(quote); }} 
+                                                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors"
+                                                            >
+                                                                <Copy className="w-4 h-4" />
+                                                                <div className="text-left">
+                                                                    <div className="text-sm font-medium">Copy as New Quote</div>
+                                                                    <div className="text-xs opacity-90">Create a new quote request with the same details</div>
+                                                                </div>
+                                                            </button>
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); reverseQuote(quote); }} 
+                                                                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2 transition-colors"
+                                                            >
+                                                                <RotateCcw className="w-4 h-4" />
+                                                                <div className="text-left">
+                                                                    <div className="text-sm font-medium">Copy with Reversed Route</div>
+                                                                    <div className="text-xs opacity-90">Create new quote swapping pickup ↔ delivery locations</div>
+                                                                </div>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    
                                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                                         {/* Quote Details Card */}
                                                         <div className="bg-white rounded-lg p-4 border border-gray-200">
@@ -859,22 +903,6 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                             </h4>
                                                             <div className="space-y-2">
                                                                 {renderAdditionalDetails(quote)}
-                                                            </div>
-                                                            <div className="flex gap-2 mt-4 pt-3 border-t border-gray-200">
-                                                                <button 
-                                                                    onClick={(e) => { e.stopPropagation(); duplicateQuote(quote); }} 
-                                                                    className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                                                                >
-                                                                    <Copy className="w-4 h-4 mr-2" />
-                                                                    Duplicate
-                                                                </button>
-                                                                <button 
-                                                                    onClick={(e) => { e.stopPropagation(); reverseQuote(quote); }} 
-                                                                    className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                                                                >
-                                                                    <RotateCcw className="w-4 h-4 mr-2" />
-                                                                    Flip Route
-                                                                </button>
                                                             </div>
                                                         </div>
 

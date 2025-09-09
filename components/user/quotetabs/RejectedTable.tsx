@@ -157,7 +157,7 @@ const RejectedTable: React.FC<DeliveredTableProps> = ({
                                     >
                                         Accept Quote
                                     </button>
-                                    <div className="grid grid-cols-2 gap-2">
+                                    {/* <div className="grid grid-cols-2 gap-2">
                                         <button
                                             onClick={() => duplicateQuote(quote)}
                                             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
@@ -170,7 +170,7 @@ const RejectedTable: React.FC<DeliveredTableProps> = ({
                                         >
                                             Flip Route
                                         </button>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         ))}
@@ -283,7 +283,7 @@ const RejectedTable: React.FC<DeliveredTableProps> = ({
                                                     <RotateCcw className="w-4 h-4" />
                                                     <span className="text-xs">Accept</span>
                                                 </button>
-                                                <button
+                                                {/* <button
                                                     onClick={() => duplicateQuote(quote)}
                                                     className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-800 flex items-center gap-1"
                                                 >
@@ -296,7 +296,7 @@ const RejectedTable: React.FC<DeliveredTableProps> = ({
                                                 >
                                                     <RotateCcw className="w-4 h-4" />
                                                     <span className="text-xs">Flip Route</span>
-                                                </button>
+                                                </button> */}
                                             </div>
                                         </td>
                                     </tr>

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Database } from '@/lib/database.types';
 import TableHeaderSort from './TableHeaderSort';
 import { formatDate, renderAdditionalDetails, freightTypeMapping } from './QuoteUtils';
-import { Search, Filter, Package, MapPin, Calendar, Truck, DollarSign, CheckCircle, Copy, RotateCcw } from 'lucide-react';
+import { Search, Filter, Package, MapPin, Calendar, Truck, DollarSign, CheckCircle, Copy, RotateCcw, Zap } from 'lucide-react';
 
 type ShippingQuotesRow = Database['public']['Tables']['shippingquotes']['Row'];
 
@@ -33,6 +33,7 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [activeTab, setActiveTab] = useState<'orderdetails' | 'editHistory'>('orderdetails');
+    const [expandedRow, setExpandedRow] = useState<number | null>(null);
     const rowsPerPage = 10;
 
     const indexOfLastRow = currentPage * rowsPerPage;
@@ -176,10 +177,10 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
                             </thead>
                             <tbody>
                                 {currentRows.map((quote, index) => (
-                                    <tr 
-                                        key={quote.id}
-                                        className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors duration-200`}
-                                    >
+                                    <React.Fragment key={quote.id}>
+                                        <tr 
+                                            className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors duration-200`}
+                                        >
                                         <td className="modern-table-cell font-medium text-blue-600">
                                             #{quote.id}
                                         </td>
@@ -224,24 +225,49 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
                                             </span>
                                         </td>
                                         <td className="px-3 py-4 whitespace-nowrap text-md font-semibold">
-                                            <div className="flex items-center gap-1">
-                                                <button
-                                                    onClick={() => duplicateQuote(quote)}
-                                                    className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-800 flex items-center gap-1"
-                                                >
-                                                    <Copy className="w-4 h-4" />
-                                                    <span className="text-xs">Duplicate</span>
-                                                </button>
-                                                <button
-                                                    onClick={() => reverseQuote(quote)}
-                                                    className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-800 flex items-center gap-1"
-                                                >
-                                                    <RotateCcw className="w-4 h-4" />
-                                                    <span className="text-xs">Flip Route</span>
-                                                </button>
-                                            </div>
+                                            <button
+                                                onClick={() => setExpandedRow(expandedRow === quote.id ? null : quote.id)}
+                                                className="text-blue-600 hover:text-blue-800 font-medium"
+                                            >
+                                                {expandedRow === quote.id ? 'Hide Details' : 'View Details'}
+                                            </button>
                                         </td>
                                     </tr>
+                                    {expandedRow === quote.id && (
+                                        <tr className="bg-blue-50">
+                                            <td colSpan={7} className="px-4 py-6">
+                                                <div className="bg-blue-100 rounded-lg p-4 border border-blue-200">
+                                                    <div className="flex items-center gap-2 mb-4">
+                                                        <Zap className="w-5 h-5 text-blue-600" />
+                                                        <h4 className="text-lg font-semibold text-blue-800">Quick Actions</h4>
+                                                    </div>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <button
+                                                            onClick={() => duplicateQuote(quote)}
+                                                            className="bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors"
+                                                        >
+                                                            <Copy className="w-4 h-4" />
+                                                            <div className="text-left">
+                                                                <div className="font-medium">Copy as New Quote</div>
+                                                                <div className="text-sm opacity-90">Create a new quote request with the same details</div>
+                                                            </div>
+                                                        </button>
+                                                        <button
+                                                            onClick={() => reverseQuote(quote)}
+                                                            className="bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 flex items-center gap-2 transition-colors"
+                                                        >
+                                                            <RotateCcw className="w-4 h-4" />
+                                                            <div className="text-left">
+                                                                <div className="font-medium">Copy with Reversed Route</div>
+                                                                <div className="text-sm opacity-90">Create new quote swapping pickup ↔ delivery locations</div>
+                                                            </div>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                    </React.Fragment>
                                 ))}
                             </tbody>
                         </table>

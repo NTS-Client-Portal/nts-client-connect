@@ -254,7 +254,11 @@ const NtsQuoteList: React.FC<NtsQuoteListProps> = ({ session, quotes: initialQuo
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
                 onSubmit={handleEditModalSubmit}
-                quote={quoteToEdit} />
+                quote={quoteToEdit}
+                isAdmin={session?.user?.isAdmin || false}
+                session={session}
+                companyId={session?.user?.id}
+            />
             <div className="hidden lg:block overflow-x-auto">
                 <NtsQuoteTable
                     sortConfig={sortConfig}

@@ -1,14 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
-import { Menu, Upload } from 'lucide-react';
+import { Menu, Upload, Search, Grid3x3, List, FileText, Calendar, Download, Eye, X, AlertTriangle, Folder, FolderHeart, Star, Trash2 } from 'lucide-react';
 import { updateFavoriteStatus } from '@/lib/database';
 import { useDocumentNotification } from '@/context/DocumentNotificationContext';
-import DocumentCard from '@components/documents/DocumentCard';
-import NtsSidebar from '@components/documents/NtsSidebar';
-import Pagination from '@components/documents/Pagination';
-import DeleteConfirmationModal from '@components/documents/DeleteConfirmationModal';
-import { Star, Trash2, Download, Eye } from 'lucide-react';
+import { formatDate } from '../user/quotetabs/QuoteUtils';
 
 interface DocumentsProps {
     session: Session | null;
@@ -24,32 +20,59 @@ const NtsDocuments: React.FC<DocumentsProps> = ({ session }) => {
     const [file, setFile] = useState<File | null>(null);
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [activeSection, setActiveSection] = useState('all'); // State to control active section
-    const [sidebarOpen, setSidebarOpen] = useState(false); // State to control sidebar visibility
-    const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
-    const [documentToDelete, setDocumentToDelete] = useState<number | null>(null); // State to store the document to be deleted
+    const [activeSection, setActiveSection] = useState('all');
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [documentToDelete, setDocumentToDelete] = useState<number | null>(null);
     const [isNtsUser, setIsNtsUser] = useState(false);
-    const [viewFileUrl, setViewFileUrl] = useState<string | null>(null); // State to store the file URL for viewing
-    const [currentPage, setCurrentPage] = useState(1); // State to control pagination
-    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc'); // State to control sort order
-    const itemsPerPage = 15; // Number of items per page for desktop
+    const [viewFileUrl, setViewFileUrl] = useState<string | null>(null);
+    const [viewFileContent, setViewFileContent] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    const [showUploadModal, setShowUploadModal] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    
+    const itemsPerPage = 12;
 
     const { setNewDocumentAdded } = useDocumentNotification();
 
-    const fetchNtsDocuments = useCallback(async () => {
-        setLoading(true);
-        const { data, error } = await supabase
-            .storage
-            .from('nts-documents')
-            .list('', { limit: 100 });
+    const fetchDocuments = useCallback(async () => {
+        if (!session) return;
 
-        if (error) {
-            setError(error.message);
-        } else {
-            setNtsDocuments(data);
+        setLoading(true);
+        try {
+            // Fetch regular documents
+            const { data: docsData, error: docsError } = await supabase
+                .from("documents")
+                .select("*")
+                .eq("nts_user_id", session.user.id)
+                .order("created_at", { ascending: sortOrder === "asc" });
+
+            if (docsError) {
+                setError(docsError.message);
+            } else {
+                setDocuments(docsData);
+                setImportantDocuments(docsData.filter((doc) => doc.is_favorite));
+            }
+
+            // Fetch NTS storage documents
+            const { data: storageData, error: storageError } = await supabase
+                .storage
+                .from('nts-documents')
+                .list('', { limit: 100 });
+
+            if (storageError) {
+                setError(storageError.message);
+            } else {
+                setNtsDocuments(storageData || []);
+            }
+        } catch (err) {
+            setError(err.message);
         }
         setLoading(false);
-    }, [supabase]);
+    }, [session, supabase, sortOrder]);
 
     useEffect(() => {
         const checkNtsUser = async () => {
@@ -67,8 +90,8 @@ const NtsDocuments: React.FC<DocumentsProps> = ({ session }) => {
         };
 
         checkNtsUser();
-        fetchNtsDocuments();
-    }, [session, fetchNtsDocuments, supabase]); // Include 'supabase' in the dependency array
+        fetchDocuments();
+    }, [session, fetchDocuments, supabase]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -76,16 +99,20 @@ const NtsDocuments: React.FC<DocumentsProps> = ({ session }) => {
         }
     };
 
-    const handleUpload = async () => {
-        if (!file || !session) return;
+    const handleUpload = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!file || !session || !title.trim()) return;
 
+        setUploading(true);
         try {
             const filePath = await uploadFileToSupabase(file, session.user.id);
             const documentData = await saveDocumentMetadata(session.user.id, file.name, filePath, title, description);
+            
             setTitle('');
             setDescription('');
             setFile(null);
-            fetchNtsDocuments();
+            setShowUploadModal(false);
+            fetchDocuments();
 
             const { error: notificationError } = await supabase
                 .from('notifications')
@@ -99,10 +126,12 @@ const NtsDocuments: React.FC<DocumentsProps> = ({ session }) => {
                 console.error('Error creating notification:', notificationError.message);
             }
 
-            // Set the notification state
             setNewDocumentAdded(true);
         } catch (error) {
+            console.error('Error uploading document:', error);
             setError(error.message);
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -146,7 +175,7 @@ const NtsDocuments: React.FC<DocumentsProps> = ({ session }) => {
         if (error) {
             setError(error.message);
         } else {
-            fetchNtsDocuments();
+            fetchDocuments();
         }
     };
 
@@ -161,7 +190,7 @@ const NtsDocuments: React.FC<DocumentsProps> = ({ session }) => {
         if (error) {
             setError(error.message);
         } else {
-            fetchNtsDocuments();
+            fetchDocuments();
             setIsModalOpen(false);
             setDocumentToDelete(null);
         }
@@ -205,157 +234,648 @@ const NtsDocuments: React.FC<DocumentsProps> = ({ session }) => {
         setViewFileUrl(url);
     };
 
-    const renderDocuments = (docs: Database['public']['Tables']['documents']['Row'][]) => {
+    const filteredDocuments = (docs: Database["public"]["Tables"]["documents"]["Row"][]) => {
+        return docs.filter(doc => 
+            doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            doc.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            doc.file_name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    };
+
+    const renderDocuments = (docs: Database["public"]["Tables"]["documents"]["Row"][]) => {
+        const filtered = filteredDocuments(docs);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedDocs = filtered.slice(startIndex, endIndex);
+
+        if (viewMode === 'grid') {
+            return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {paginatedDocs.map((doc) => (
+                        <div key={doc.id} className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+                            <div className="p-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="p-2 bg-blue-50 rounded-lg">
+                                        <FileText className="w-6 h-6 text-blue-600" />
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <button 
+                                            onClick={() => handleFavoriteToggle(doc.id, !doc.is_favorite)}
+                                            className="p-1 hover:bg-slate-100 rounded"
+                                        >
+                                            <Star className={`w-4 h-4 ${doc.is_favorite ? 'text-yellow-500 fill-current' : 'text-slate-400'}`} />
+                                        </button>
+                                        <button 
+                                            onClick={() => openDeleteModal(doc.id)}
+                                            className="p-1 hover:bg-slate-100 rounded"
+                                        >
+                                            <Trash2 className="w-4 h-4 text-slate-400 hover:text-red-500" />
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <h3 className="font-semibold text-slate-900 mb-2 line-clamp-2">
+                                    {doc.title}
+                                </h3>
+                                
+                                {doc.description && (
+                                    <p className="text-sm text-slate-600 mb-4 line-clamp-2">
+                                        {doc.description}
+                                    </p>
+                                )}
+                                
+                                <div className="flex items-center text-xs text-slate-500 mb-4">
+                                    <Calendar className="w-3 h-3 mr-1" />
+                                    {formatDate(doc.created_at)}
+                                </div>
+                                
+                                <div className="flex items-center gap-2">
+                                    <button 
+                                        onClick={() => handleView(doc.file_url)}
+                                        className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
+                                    >
+                                        <Eye className="w-3 h-3" />
+                                        View
+                                    </button>
+                                    <button 
+                                        onClick={() => handleDownload(doc.file_url, doc.file_name)}
+                                        className="flex items-center gap-1 px-3 py-1.5 bg-slate-50 text-slate-600 rounded-lg hover:bg-slate-100 transition-colors text-sm font-medium"
+                                    >
+                                        <Download className="w-3 h-3" />
+                                        Download
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        } else {
+            return (
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="divide-y divide-slate-200">
+                        {paginatedDocs.map((doc) => (
+                            <div key={doc.id} className="p-4 hover:bg-slate-50 transition-colors">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3 flex-1">
+                                        <div className="p-2 bg-blue-50 rounded-lg">
+                                            <FileText className="w-5 h-5 text-blue-600" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="font-semibold text-slate-900">{doc.title}</h3>
+                                            {doc.description && (
+                                                <p className="text-sm text-slate-600 mt-1">{doc.description}</p>
+                                            )}
+                                            <div className="flex items-center text-xs text-slate-500 mt-1">
+                                                <Calendar className="w-3 h-3 mr-1" />
+                                                {formatDate(doc.created_at)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <button 
+                                            onClick={() => handleFavoriteToggle(doc.id, !doc.is_favorite)}
+                                            className="p-2 hover:bg-slate-100 rounded"
+                                        >
+                                            <Star className={`w-4 h-4 ${doc.is_favorite ? 'text-yellow-500 fill-current' : 'text-slate-400'}`} />
+                                        </button>
+                                        <button 
+                                            onClick={() => handleView(doc.file_url)}
+                                            className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
+                                        >
+                                            <Eye className="w-3 h-3" />
+                                            View
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDownload(doc.file_url, doc.file_name)}
+                                            className="flex items-center gap-1 px-3 py-1.5 bg-slate-50 text-slate-600 rounded-lg hover:bg-slate-100 transition-colors text-sm font-medium"
+                                        >
+                                            <Download className="w-3 h-3" />
+                                            Download
+                                        </button>
+                                        <button 
+                                            onClick={() => openDeleteModal(doc.id)}
+                                            className="p-2 hover:bg-slate-100 rounded"
+                                        >
+                                            <Trash2 className="w-4 h-4 text-slate-400 hover:text-red-500" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+    };
+
+    const renderNtsDocuments = (docs: any[]) => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
         const paginatedDocs = docs.slice(startIndex, endIndex);
 
-        return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {paginatedDocs.map((doc) => (
-                    <div key={doc.id} className="bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md p-4 border border-zinc-400">
-                        <div className="flex justify-between items-center mb-2">
-                            <div className="text-sm font-extrabold text-zinc-500 dark:text-white">{doc.title}</div>
-                            <div className="flex items-center">
-                                <button onClick={() => handleFavoriteToggle(doc.id, !doc.is_favorite)}>
-                                    {doc.is_favorite ? <Star className="text-yellow-500" /> : <Star />}
-                                </button>
-                                <button onClick={() => openDeleteModal(doc.id)} className="ml-2">
-                                    <Trash2 className="text-red-500" />
-                                </button>
+        if (viewMode === 'grid') {
+            return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {paginatedDocs.map((doc) => (
+                        <div key={doc.name} className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+                            <div className="p-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="p-2 bg-blue-50 rounded-lg">
+                                        <FileText className="w-6 h-6 text-blue-600" />
+                                    </div>
+                                </div>
+                                
+                                <h3 className="font-semibold text-slate-900 mb-2 line-clamp-2">
+                                    {doc.name}
+                                </h3>
+                                
+                                <div className="flex items-center text-xs text-slate-500 mb-4">
+                                    <Calendar className="w-3 h-3 mr-1" />
+                                    {formatDate(doc.created_at)}
+                                </div>
+                                
+                                <div className="flex items-center gap-2">
+                                    <button 
+                                        onClick={() => handleView(doc.name)}
+                                        className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
+                                    >
+                                        <Eye className="w-3 h-3" />
+                                        View
+                                    </button>
+                                    <button 
+                                        onClick={() => handleDownload(doc.name, doc.name)}
+                                        className="flex items-center gap-1 px-3 py-1.5 bg-slate-50 text-slate-600 rounded-lg hover:bg-slate-100 transition-colors text-sm font-medium"
+                                    >
+                                        <Download className="w-3 h-3" />
+                                        Download
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        <div className="text-sm text-zinc-900 dark:text-white mb-2">{doc.description}</div>
-                        <div className="flex gap-2">
-                            <button onClick={() => handleDownload(doc.file_url, doc.title)} className="btn-blue">
-                                Download
-                            </button>
-                            <button onClick={() => handleView(doc.file_url)} className="btn-blue">
-                                View
-                            </button>
-                        </div>
+                    ))}
+                </div>
+            );
+        } else {
+            return (
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="divide-y divide-slate-200">
+                        {paginatedDocs.map((doc) => (
+                            <div key={doc.name} className="p-4 hover:bg-slate-50 transition-colors">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3 flex-1">
+                                        <div className="p-2 bg-blue-50 rounded-lg">
+                                            <FileText className="w-5 h-5 text-blue-600" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="font-semibold text-slate-900">{doc.name}</h3>
+                                            <div className="flex items-center text-xs text-slate-500 mt-1">
+                                                <Calendar className="w-3 h-3 mr-1" />
+                                                {formatDate(doc.created_at)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <button 
+                                            onClick={() => handleView(doc.name)}
+                                            className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
+                                        >
+                                            <Eye className="w-3 h-3" />
+                                            View
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDownload(doc.name, doc.name)}
+                                            className="flex items-center gap-1 px-3 py-1.5 bg-slate-50 text-slate-600 rounded-lg hover:bg-slate-100 transition-colors text-sm font-medium"
+                                        >
+                                            <Download className="w-3 h-3" />
+                                            Download
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
-        );
-    };
-
-    const renderNtsDocuments = (docs: any[]) => {
-        return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {docs.map((doc) => (
-                    <DocumentCard
-                        key={doc.name}
-                        doc={{
-                            id: doc.name,
-                            title: doc.name,
-                            description: '',
-                            file_url: `${doc.name}`,
-                            is_favorite: false,
-                        }}
-                        handleFavoriteToggle={handleFavoriteToggle}
-                        openDeleteModal={openDeleteModal}
-                        handleView={handleView}
-                        handleDownload={handleDownload}
-                    />
-                ))}
-            </div>
-        );
+                </div>
+            );
+        }
     };
 
     const handlePageChange = (pageNumber: number) => {
         setCurrentPage(pageNumber);
     };
 
-    const totalPages = Math.ceil(documents.length / itemsPerPage);
+    const sections = [
+        { id: 'all', label: 'All Documents', icon: Folder, count: documents.length },
+        { id: 'important', label: 'Favorites', icon: FolderHeart, count: importantDocuments.length },
+        { id: 'nts-documents', label: 'NTS Storage', icon: Folder, count: ntsDocuments.length }
+    ];
+
+    const getCurrentDocs = () => {
+        if (activeSection === 'all') return documents;
+        if (activeSection === 'important') return importantDocuments;
+        return []; // NTS documents are handled separately
+    };
+
+    const currentDocs = getCurrentDocs();
+    const filteredCount = activeSection === 'nts-documents' ? ntsDocuments.length : filteredDocuments(currentDocs).length;
+    const totalPages = Math.ceil(filteredCount / itemsPerPage);
 
     return (
-        <div className="flex h-screen">
-            <NtsSidebar
-                sidebarOpen={sidebarOpen}
-                setSidebarOpen={setSidebarOpen}
-                activeSection={activeSection}
-                setActiveSection={setActiveSection}
-            />
+        <div className="min-h-screen bg-slate-50">
+            {/* Mobile Header */}
+            <div className="lg:hidden bg-white border-b border-slate-200 px-4 py-4">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-xl font-bold text-slate-900">NTS Documents</h1>
+                        <p className="text-sm text-slate-600">{filteredCount} documents</p>
+                    </div>
+                    <button
+                        onClick={() => setShowUploadModal(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        <Upload className="w-4 h-4" />
+                        Upload
+                    </button>
+                </div>
+            </div>
 
-            <div className="flex-1 p-4 ml-0">
-                <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center mb-4">
-                    <h1 className="text-2xl text-nowrap font-bold">
-                        {activeSection === 'all' && 'All Documents'}
-                        {activeSection === 'important' && 'Important'}
-                        {activeSection === 'nts-documents' && 'NTS Documents'}
-                    </h1>
-                    <div className="md:hidden flex justify-between md:justify-normal gap-2">
-                        <button className="text-NtsBlue border shadow-sm px-2 py-1 rounded-md flex items-center justify-start gap-1 font-semibold text-sm mt-1" onClick={handleUpload}>
-                            <Upload className='h-4' /> Upload Documents</button>
-                        <button className="md:hidden bg-zinc-700 text-white shadow-md p-2 rounded-md" onClick={() => setSidebarOpen(!sidebarOpen)}>
-                            <Menu className="h-6 w-6" />
+            <div className="max-w-7xl mx-auto lg:flex lg:gap-8 lg:p-8">
+                {/* Sidebar Navigation */}
+                <div className="lg:w-64 lg:flex-shrink-0">
+                    <div className="lg:sticky lg:top-8">
+                        {/* Desktop Header */}
+                        <div className="hidden lg:block mb-8">
+                            <h1 className="text-2xl font-bold text-slate-900">NTS Documents</h1>
+                            <p className="text-slate-600 mt-2">Manage your files and documents</p>
+                        </div>
+
+                        {/* Mobile Section Selector */}
+                        <div className="lg:hidden bg-white border-b border-slate-200">
+                            <div className="flex">
+                                {sections.map((section) => (
+                                    <button
+                                        key={section.id}
+                                        onClick={() => setActiveSection(section.id)}
+                                        className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                                            activeSection === section.id
+                                                ? 'border-blue-600 text-blue-600'
+                                                : 'border-transparent text-slate-600 hover:text-slate-900'
+                                        }`}
+                                    >
+                                        {section.label}
+                                        <span className="ml-2 px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded-full">
+                                            {section.count}
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Desktop Navigation */}
+                        <nav className="hidden lg:block space-y-1 mb-8">
+                            {sections.map((section) => {
+                                const Icon = section.icon;
+                                return (
+                                    <button
+                                        key={section.id}
+                                        onClick={() => setActiveSection(section.id)}
+                                        className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                                            activeSection === section.id
+                                                ? 'bg-blue-50 text-blue-700'
+                                                : 'text-slate-700 hover:bg-slate-100'
+                                        }`}
+                                    >
+                                        <Icon className="w-5 h-5" />
+                                        {section.label}
+                                        <span className="ml-auto px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded-full">
+                                            {section.count}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </nav>
+
+                        {/* Desktop Upload Button */}
+                        <button
+                            onClick={() => setShowUploadModal(true)}
+                            className="hidden lg:flex items-center gap-2 w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                        >
+                            <Upload className="w-5 h-5" />
+                            Upload Document
                         </button>
                     </div>
                 </div>
 
-                <div className="flex items-center justify-between w-full mb-2">
-                    <div className="">
-                        <label className="mr-2">Sort by:</label>
-                        <select
-                            value={sortOrder}
-                            onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
-                            className="rounded p-1 bg-white border shadow-md"
-                        >
-                            <option value="desc">Newest First</option>
-                            <option value="asc">Oldest First</option>
-                        </select>
+                {/* Main Content */}
+                <div className="flex-1 lg:max-w-5xl">
+                    {/* Controls Bar */}
+                    <div className="bg-white lg:rounded-xl lg:shadow-sm lg:border border-slate-200 p-4 mb-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                                <div className="relative flex-1 sm:flex-none sm:w-64">
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+                                    <input
+                                        type="text"
+                                        placeholder="Search documents..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                </div>
+                                <select
+                                    value={sortOrder}
+                                    onChange={(e) => setSortOrder(e.target.value as "asc" | "desc")}
+                                    className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                >
+                                    <option value="desc">Newest First</option>
+                                    <option value="asc">Oldest First</option>
+                                </select>
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setViewMode('grid')}
+                                    className={`p-2 rounded-lg transition-colors ${
+                                        viewMode === 'grid' 
+                                            ? 'bg-blue-100 text-blue-600' 
+                                            : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+                                    }`}
+                                >
+                                    <Grid3x3 className="w-5 h-5" />
+                                </button>
+                                <button
+                                    onClick={() => setViewMode('list')}
+                                    className={`p-2 rounded-lg transition-colors ${
+                                        viewMode === 'list' 
+                                            ? 'bg-blue-100 text-blue-600' 
+                                            : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+                                    }`}
+                                >
+                                    <List className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
-                    {totalPages > 1 && (
-                        <Pagination
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            handlePageChange={handlePageChange}
-                        />
+                    {/* Error Message */}
+                    {error && (
+                        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                            {error}
+                        </div>
                     )}
 
-                    <button className="text-ntsBlue border shadow-sm px-2 py-2 rounded-md flex items-center justify-start gap-1 font-semibold text-sm mt-1" onClick={handleUpload}>
-                        <Upload className='h-4' /> Upload Documents</button>
-                </div>
-
-                {loading ? (
-                    <p>Loading...</p>
-                ) : error ? (
-                    <p className="text-red-600">{error}</p>
-                ) : activeSection === 'all' ? (
-                    renderDocuments(documents)
-                ) : activeSection === 'important' ? (
-                    renderDocuments(importantDocuments)
-                ) : (
-                    renderNtsDocuments(ntsDocuments)
-                )}
-            </div>
-             {viewFileUrl && (
-                <div className="fixed inset-0 flex items-center justify-center z-50">
-                    <div className="fixed inset-0 bg-black opacity-50"></div>
-                    <div className="bg-white rounded-lg shadow-lg p-6 z-50 max-w-3xl w-full">
-                        <h2 className="text-xl font-bold mb-4">View Document</h2>
-                        <div className="mb-4">
-                            <iframe src={viewFileUrl} className="w-full h-96" />
+                    {/* Documents Grid/List */}
+                    {loading ? (
+                        <div className="text-center py-12">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                            <p className="text-slate-600">Loading documents...</p>
                         </div>
-                        <div className="flex justify-end">
+                    ) : (
+                        <>
+                            {activeSection === 'nts-documents' ? (
+                                ntsDocuments.length === 0 ? (
+                                    <div className="text-center py-12">
+                                        <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                                        <h3 className="text-lg font-medium text-slate-900 mb-2">No NTS documents found</h3>
+                                        <p className="text-slate-600 mb-6">Upload documents to get started</p>
+                                        <button
+                                            onClick={() => setShowUploadModal(true)}
+                                            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                                        >
+                                            <Upload className="w-5 h-5" />
+                                            Upload Document
+                                        </button>
+                                    </div>
+                                ) : (
+                                    renderNtsDocuments(ntsDocuments)
+                                )
+                            ) : (
+                                filteredDocuments(currentDocs).length === 0 ? (
+                                    <div className="text-center py-12">
+                                        <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                                        <h3 className="text-lg font-medium text-slate-900 mb-2">
+                                            {searchTerm ? 'No documents found' : 'No documents yet'}
+                                        </h3>
+                                        <p className="text-slate-600 mb-6">
+                                            {searchTerm ? 'Try adjusting your search terms' : 'Upload your first document to get started'}
+                                        </p>
+                                        {!searchTerm && (
+                                            <button
+                                                onClick={() => setShowUploadModal(true)}
+                                                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                                            >
+                                                <Upload className="w-5 h-5" />
+                                                Upload Document
+                                            </button>
+                                        )}
+                                    </div>
+                                ) : (
+                                    renderDocuments(currentDocs)
+                                )
+                            )}
+                            
+                            {/* Pagination */}
+                            {totalPages > 1 && (
+                                <div className="flex items-center justify-between mt-8">
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                                            disabled={currentPage === 1}
+                                            className="px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            Previous
+                                        </button>
+                                        <span className="text-sm text-slate-700">
+                                            Page {currentPage} of {totalPages}
+                                        </span>
+                                        <button
+                                            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                                            disabled={currentPage === totalPages}
+                                            className="px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            Next
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    )}
+                </div>
+            </div>
+
+            {/* Upload Modal */}
+            {showUploadModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+                        <div className="flex items-center justify-between p-6 border-b border-slate-200">
+                            <h2 className="text-lg font-semibold text-slate-900">Upload Document</h2>
                             <button
-                                className="bg-zinc-300 text-zinc-700 px-4 py-2 rounded"
-                                onClick={() => setViewFileUrl(null)}
+                                onClick={() => setShowUploadModal(false)}
+                                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
                             >
-                                Close
+                                <X className="w-5 h-5 text-slate-500" />
                             </button>
+                        </div>
+                        
+                        <form onSubmit={handleUpload} className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                    Document Title *
+                                </label>
+                                <input
+                                    type="text"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="Enter document title"
+                                    required
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                    Description
+                                </label>
+                                <textarea
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    rows={3}
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="Optional description"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                    File *
+                                </label>
+                                <input
+                                    type="file"
+                                    onChange={handleFileChange}
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                />
+                                {file && (
+                                    <p className="text-sm text-slate-600 mt-1">
+                                        Selected: {file.name}
+                                    </p>
+                                )}
+                            </div>
+                            
+                            <div className="flex items-center justify-end gap-3 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowUploadModal(false)}
+                                    className="px-4 py-2 text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={uploading || !file || !title.trim()}
+                                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    {uploading ? (
+                                        <>
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                            Uploading...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Upload className="w-4 h-4" />
+                                            Upload
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+                        <div className="p-6">
+                            <div className="flex items-center gap-4 mb-4">
+                                <div className="p-3 bg-red-100 rounded-full">
+                                    <AlertTriangle className="w-6 h-6 text-red-600" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-medium text-slate-900">Delete Document</h3>
+                                    <p className="text-sm text-slate-600">This action cannot be undone</p>
+                                </div>
+                            </div>
+                            
+                            <p className="text-slate-700 mb-6">
+                                Are you sure you want to delete this document? It will be permanently removed from your account.
+                            </p>
+                            
+                            <div className="flex items-center justify-end gap-3">
+                                <button
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="px-4 py-2 text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleDelete}
+                                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                                >
+                                    Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             )}
-            <DeleteConfirmationModal
-                isModalOpen={isModalOpen}
-                setIsModalOpen={setIsModalOpen}
-                handleDelete={handleDelete} />
+
+            {/* View File Modal */}
+            {viewFileUrl && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+                        <div className="flex items-center justify-between p-6 border-b border-slate-200">
+                            <h2 className="text-lg font-semibold text-slate-900">Document Preview</h2>
+                            <button
+                                onClick={() => setViewFileUrl(null)}
+                                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                            >
+                                <X className="w-5 h-5 text-slate-500" />
+                            </button>
+                        </div>
+                        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+                            <iframe 
+                                src={viewFileUrl} 
+                                className="w-full h-96 border border-slate-200 rounded-lg" 
+                                title="Document Preview"
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* View File Content Modal */}
+            {viewFileContent && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+                        <div className="flex items-center justify-between p-6 border-b border-slate-200">
+                            <h2 className="text-lg font-semibold text-slate-900">Document Preview</h2>
+                            <button
+                                onClick={() => setViewFileContent(null)}
+                                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                            >
+                                <X className="w-5 h-5 text-slate-500" />
+                            </button>
+                        </div>
+                        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+                            <div dangerouslySetInnerHTML={{ __html: viewFileContent }} />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
-}
+};
 
 export default NtsDocuments;

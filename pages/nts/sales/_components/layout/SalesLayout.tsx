@@ -69,8 +69,8 @@ const SalesLayout: React.FC<SalesLayoutProps> = ({ children }) => {
                     </header>
 
                     {/* Main Content */}
-                    <main className="nts-main-content">
-                        <div className="nts-content-container">
+                    <main className="nts-main-content relative">
+                        <div className="nts-content-container relative">
                             {children}
                         </div>
                     </main>

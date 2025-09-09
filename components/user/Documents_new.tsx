@@ -3,6 +3,7 @@ import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Session } from '@supabase/supabase-js';
 import { Database } from '@/lib/database.types';
 import { useDocumentNotification } from '@/context/DocumentNotificationContext';
+import { formatDate } from './quotetabs/QuoteUtils';
 // import { replaceShortcodes } from '@/components/ui/shortcodes';
 // import { updateFavoriteStatus } from '@/lib/utils';
 import {
@@ -339,7 +340,7 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
                                 
                                 <div className="flex items-center text-xs text-slate-500 mb-4">
                                     <Calendar className="w-3 h-3 mr-1" />
-                                    {new Date(doc.created_at).toLocaleDateString()}
+                                    {formatDate(doc.created_at)}
                                 </div>
                                 
                                 <div className="flex items-center gap-2">
@@ -383,7 +384,7 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
                                             </p>
                                             <div className="flex items-center text-xs text-slate-500 mt-1">
                                                 <Calendar className="w-3 h-3 mr-1" />
-                                                {new Date(doc.created_at).toLocaleDateString()}
+                                                {formatDate(doc.created_at)}
                                             </div>
                                         </div>
                                     </div>

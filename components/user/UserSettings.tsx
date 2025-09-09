@@ -446,7 +446,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                            <label className="flex items-center text-sm font-medium text-slate-700 mb-2">
                                                 <Mail className="w-4 h-4 inline mr-1" />
                                                 Email Address
                                             </label>
@@ -459,7 +459,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                            <label className="flex items-center text-sm font-medium text-slate-700 mb-2">
                                                 <Phone className="w-4 h-4 inline mr-1" />
                                                 Phone Number
                                             </label>
@@ -473,7 +473,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                            <label className="flex items-center text-sm font-medium text-slate-700 mb-2">
                                                 <MapPin className="w-4 h-4 inline mr-1" />
                                                 Address
                                             </label>
@@ -632,7 +632,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                                    className="absolute right-3 top-8 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
                                                 >
                                                     {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                                 </button>
@@ -654,7 +654,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => setShowNewPassword(!showNewPassword)}
-                                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                                    className="absolute right-3 top-8 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
                                                 >
                                                     {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                                 </button>
@@ -676,7 +676,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                                    className="absolute right-3 top-8 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
                                                 >
                                                     {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                                 </button>
