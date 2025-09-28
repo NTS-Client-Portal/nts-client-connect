@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Calendar, momentLocalizer, Event as BigCalendarEvent } from 'react-big-calendar';
 import moment from 'moment';
+// @ts-ignore
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { supabase } from '@/lib/initSupabase';
 import { Database } from '@/lib/database.types';
