@@ -582,7 +582,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                                         className="bg-slate-600 text-white px-2 py-1 rounded hover:bg-slate-800 flex items-center gap-1"
                                                     >
                                                         <Edit className="w-4 h-4" />
-                                                        <span className="text-xs">Edit</span>
+                                                        <span className="text-xs">Request Edit</span>
                                                     </button>
                                                     {/* Only admins (NTS users) can mark orders as complete */}
                                                     {isAdmin && (

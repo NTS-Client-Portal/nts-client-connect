@@ -6,6 +6,10 @@
 [build.environment]
   NODE_VERSION = "18.20.4"
 
+# Only use the Next.js plugin, disable lighthouse for local dev
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
 [dev]
   framework = "next"
   command = "npm run dev"

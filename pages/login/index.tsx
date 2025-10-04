@@ -6,6 +6,7 @@ import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import Layout from '../components/Layout';
 import UserLayout from '../components/UserLayout';
 import CustomSignInForm from '@/components/CustomSignInForm';
+import AnimatedWelcome from '@/components/AnimatedWelcome';
 import { 
     ArrowRight, 
     Shield, 
@@ -21,13 +22,16 @@ export default function LoginPage() {
     const [resendLoading, setResendLoading] = useState(false);
     const [resendSuccess, setResendSuccess] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [userName, setUserName] = useState<string>('there');
+    const [showWelcome, setShowWelcome] = useState(false);
 
     useEffect(() => {
         const checkUserRole = async () => {
             if (session && session.user.email_confirmed_at) {
+                // Fetch user profile for name
                 const { data: userProfile, error } = await supabase
                     .from('profiles')
-                    .select('team_role')
+                    .select('first_name, last_name, team_role')
                     .eq('id', session.user.id)
                     .single();
 
@@ -36,8 +40,18 @@ export default function LoginPage() {
                     return;
                 }
 
-                // All profiles users are shippers, redirect to freight RFQ
-                router.push('/user/freight-rfq');
+                // Set the user name for the welcome screen
+                if (userProfile?.first_name) {
+                    setUserName(userProfile.first_name);
+                }
+
+                // Show welcome animation
+                setShowWelcome(true);
+
+                // Redirect after animation (or immediately if skipped)
+                setTimeout(() => {
+                    router.push('/user/freight-rfq');
+                }, 2500); // 2.5 seconds matches the progress bar animation
             }
         };
 
@@ -228,9 +242,12 @@ export default function LoginPage() {
         );
     }
 
+    // Show animated welcome screen
     return (
-        <div>
-            <p>Welcome!</p>
-        </div>
+        <AnimatedWelcome
+            userName={userName}
+            message="Preparing your dashboard"
+            onComplete={() => router.push('/user/freight-rfq')}
+        />
     );
 }

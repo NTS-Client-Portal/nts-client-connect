@@ -367,6 +367,99 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                         } else {
                             console.log('Notification created successfully');
                         }
+
+                        // Send email notification to broker (NON-BLOCKING)
+                        (async () => {
+                            try {
+                                console.log('📧 Sending email notification to broker...');
+                                
+                                // Get broker's email
+                                const { data: brokerData, error: brokerError } = await supabase
+                                    .from('nts_users')
+                                    .select('email, first_name, last_name')
+                                    .eq('id', salesUserId)
+                                    .single();
+
+                                if (brokerError || !brokerData) {
+                                    console.error('⚠️ Error fetching broker email:', brokerError);
+                                    return;
+                                }
+
+                                console.log('📬 Broker email:', brokerData.email);
+
+                                // Get shipper name
+                                const { data: shipperData, error: shipperError } = await supabase
+                                    .from('profiles')
+                                    .select('first_name, last_name')
+                                    .eq('id', session?.user?.id)
+                                    .single();
+
+                                const shipperName = shipperError
+                                    ? 'A shipper'
+                                    : `${shipperData?.first_name || ''} ${shipperData?.last_name || ''}`.trim() || 'A shipper';
+
+                                // Send email
+                                const emailResponse = await fetch('/.netlify/functions/sendEmail', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        to: brokerData.email,
+                                        subject: `🔔 New Edit Request - Quote #${updatedQuote.id}`,
+                                        html: `
+                                            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                                                <h2 style="color: #2563eb;">
+                                                    🔔 New Edit Request
+                                                </h2>
+                                                <p>Hello ${brokerData.first_name || 'there'},</p>
+                                                <p><strong>${shipperName}</strong> has submitted an edit request for <strong>Quote #${updatedQuote.id}</strong>.</p>
+                                                
+                                                <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                                                    <h3 style="margin-top: 0;">Fields Requested to Change:</h3>
+                                                    <ul style="margin: 10px 0;">
+                                                        ${changedFields.split(', ').map(field => `<li><strong>${field.replace(/_/g, ' ')}</strong></li>`).join('')}
+                                                    </ul>
+                                                </div>
+
+                                                ${editReason ? `
+                                                    <div style="background-color: #fef3c7; padding: 15px; border-left: 4px solid #f59e0b; margin: 20px 0;">
+                                                        <strong>Shipper's Reason:</strong>
+                                                        <p style="margin: 5px 0 0 0;">${editReason}</p>
+                                                    </div>
+                                                ` : ''}
+
+                                                <div style="background-color: #dbeafe; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                                                    <p style="margin: 0 0 15px 0;">
+                                                        <strong>📋 What to do next:</strong><br>
+                                                        Review and approve/reject this edit request in your dashboard.
+                                                    </p>
+                                                    <a href="https://www.shipper-connect.com/companies/${companyId}" 
+                                                       style="display: inline-block; background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; text-align: center;">
+                                                        View Company Dashboard →
+                                                    </a>
+                                                </div>
+
+                                                <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+                                                <p style="color: #6b7280; font-size: 14px;">
+                                                    Best regards,<br>
+                                                    NTS Logistics Team
+                                                </p>
+                                            </div>
+                                        `,
+                                        text: `New Edit Request - Quote #${updatedQuote.id}\n\n${shipperName} has submitted an edit request.\n\nFields to change: ${changedFields}\n\n${editReason ? `Reason: ${editReason}\n\n` : ''}Review this request in your dashboard:\nhttps://www.shipper-connect.com/companies/${companyId}\n\nBest regards,\nNTS Logistics Team`
+                                    })
+                                });
+
+                                if (!emailResponse.ok) {
+                                    const errorText = await emailResponse.text();
+                                    console.error('⚠️ Email send failed:', errorText);
+                                } else {
+                                    console.log('✅ Email sent to broker successfully');
+                                }
+                            } catch (emailError) {
+                                console.error('⚠️ Error sending email to broker:', emailError);
+                            }
+                        })();
+
                     } else {
                         console.log('No assigned sales user found for company:', companyId);
                     }

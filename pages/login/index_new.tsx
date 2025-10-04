@@ -39,7 +39,7 @@ export default function LoginPage() {
                 if (userProfile.role === 'admin') {
                     router.push('/admin/admin-dashboard');
                 } else {
-                    router.push('/user/freight-rfq');
+                    router.push('/user/logistics-management');
                 }
             }
         };

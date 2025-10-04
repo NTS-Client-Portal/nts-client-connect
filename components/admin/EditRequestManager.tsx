@@ -73,6 +73,7 @@ const EditRequestManager: React.FC<EditRequestManagerProps> = ({ session, compan
 
         setIsReviewing(true);
         try {
+            // STEP 1: Update the edit request status (CRITICAL - blocks on failure)
             const { error: updateError } = await supabase
                 .from('edit_requests')
                 .update({
@@ -89,7 +90,7 @@ const EditRequestManager: React.FC<EditRequestManagerProps> = ({ session, compan
                 return;
             }
 
-            // If approved, apply the changes to the quote
+            // STEP 2: If approved, apply the changes to the quote (CRITICAL)
             if (status === 'approved' && selectedRequest) {
                 const { error: quoteUpdateError } = await supabase
                     .from('shippingquotes')
@@ -108,6 +109,157 @@ const EditRequestManager: React.FC<EditRequestManagerProps> = ({ session, compan
                 }
             }
 
+            // STEP 3: Send notifications and emails (NON-BLOCKING - runs asynchronously)
+            (async () => {
+                try {
+                    if (!selectedRequest) return;
+
+                    console.log(`📧 Starting notification process for edit request #${requestId} (${status})`);
+
+                    // Get the shipper who requested the edit
+                    const { data: shipperData, error: shipperError } = await supabase
+                        .from('profiles')
+                        .select('id, email, first_name, last_name')
+                        .eq('id', selectedRequest.requested_by)
+                        .single();
+
+                    if (shipperError || !shipperData) {
+                        console.error('⚠️ Error fetching shipper data:', shipperError);
+                        return;
+                    }
+
+                    console.log(`📬 Shipper email: ${shipperData.email}`);
+
+                    // Get the broker's name who reviewed it
+                    const { data: brokerData, error: brokerError } = await supabase
+                        .from('nts_users')
+                        .select('first_name, last_name')
+                        .eq('id', session.user.id)
+                        .single();
+
+                    const brokerName = brokerError 
+                        ? 'Your broker'
+                        : `${brokerData?.first_name || ''} ${brokerData?.last_name || ''}`.trim() || 'Your broker';
+
+                    // Create in-app notification
+                    const notificationMessage = status === 'approved'
+                        ? `Your edit request for Quote #${selectedRequest.quote_id} has been approved by ${brokerName}. The changes have been applied.${reviewNotes ? ` Notes: ${reviewNotes}` : ''}`
+                        : `Your edit request for Quote #${selectedRequest.quote_id} has been rejected by ${brokerName}.${reviewNotes ? ` Reason: ${reviewNotes}` : ''}`;
+
+                    const { error: notificationError } = await supabase
+                        .from('notifications')
+                        .insert({
+                            user_id: shipperData.id,
+                            message: notificationMessage,
+                            type: 'edit_request_response'
+                        });
+
+                    if (notificationError) {
+                        console.error('⚠️ Error creating notification:', notificationError);
+                    } else {
+                        console.log('✅ In-app notification created');
+                    }
+
+                    // Send email notification
+                    console.log('📧 Attempting to send email notification...');
+                    
+                    const changedFields = Object.keys(selectedRequest.requested_changes).join(', ');
+                    const statusText = status === 'approved' ? 'Approved' : 'Rejected';
+                    const statusEmoji = status === 'approved' ? '✅' : '❌';
+
+                    const emailResponse = await fetch('/.netlify/functions/sendEmail', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            to: shipperData.email,
+                            subject: `${statusEmoji} Edit Request ${statusText} - Quote #${selectedRequest.quote_id}`,
+                            html: `
+                                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                                    <h2 style="color: ${status === 'approved' ? '#10b981' : '#ef4444'};">
+                                        ${statusEmoji} Edit Request ${statusText}
+                                    </h2>
+                                    <p>Hello ${shipperData.first_name || 'there'},</p>
+                                    <p>Your edit request for <strong>Quote #${selectedRequest.quote_id}</strong> has been <strong>${status}</strong> by ${brokerName}.</p>
+                                    
+                                    <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                                        <h3 style="margin-top: 0;">Requested Changes:</h3>
+                                        <ul style="margin: 10px 0;">
+                                            ${changedFields.split(', ').map(field => `<li>${field.replace(/_/g, ' ')}</li>`).join('')}
+                                        </ul>
+                                    </div>
+
+                                    ${reviewNotes ? `
+                                        <div style="background-color: #fef3c7; padding: 15px; border-left: 4px solid #f59e0b; margin: 20px 0;">
+                                            <strong>${status === 'approved' ? 'Notes' : 'Reason for Rejection'}:</strong>
+                                            <p style="margin: 5px 0 0 0;">${reviewNotes}</p>
+                                        </div>
+                                    ` : ''}
+
+                                    ${status === 'approved' ? `
+                                        <p style="color: #10b981; font-weight: bold; margin-bottom: 20px;">
+                                            ✓ The changes have been applied to your quote.
+                                        </p>
+                                    ` : `
+                                        <p style="margin-bottom: 20px;">If you have questions about this decision, please contact your broker.</p>
+                                    `}
+
+                                    <div style="text-align: center; margin: 30px 0;">
+                                        <a href="https://www.shipper-connect.com/user/logistics-management?tab=quotes" 
+                                           style="display: inline-block; background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600;">
+                                            View Your Quotes →
+                                        </a>
+                                    </div>
+
+                                    <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+                                    <p style="color: #6b7280; font-size: 14px;">
+                                        Best regards,<br>
+                                        NTS Logistics Team
+                                    </p>
+                                </div>
+                            `,
+                            text: `
+Edit Request ${statusText} - Quote #${selectedRequest.quote_id}
+
+Hello ${shipperData.first_name || 'there'},
+
+Your edit request for Quote #${selectedRequest.quote_id} has been ${status} by ${brokerName}.
+
+Requested Changes: ${changedFields}
+
+${reviewNotes ? `${status === 'approved' ? 'Notes' : 'Reason'}: ${reviewNotes}` : ''}
+
+${status === 'approved' ? 'The changes have been applied to your quote.' : 'If you have questions about this decision, please contact your broker.'}
+
+View your quotes: https://www.shipper-connect.com/user/logistics-management?tab=quotes
+
+Best regards,
+NTS Logistics Team
+                            `
+                        })
+                    });
+
+                    console.log('📧 Email response status:', emailResponse.status);
+                    
+                    if (!emailResponse.ok) {
+                        const errorText = await emailResponse.text();
+                        console.error('⚠️ Email send failed:', {
+                            status: emailResponse.status,
+                            statusText: emailResponse.statusText,
+                            error: errorText
+                        });
+                    } else {
+                        const responseData = await emailResponse.json();
+                        console.log('✅ Email notification sent successfully:', responseData);
+                    }
+
+                } catch (asyncError) {
+                    console.error('⚠️ Error in async notification/email:', asyncError);
+                    console.error('⚠️ Error stack:', asyncError instanceof Error ? asyncError.stack : 'No stack trace');
+                    // Don't fail the edit request review if notifications fail
+                }
+            })();
+
+            // Show success message and close modal
             alert(`Edit request ${status} successfully!`);
             setSelectedRequest(null);
             setReviewNotes('');

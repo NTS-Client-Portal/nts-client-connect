@@ -98,6 +98,10 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [quotesState, setQuotes] = useState(quotes);
+    const [editRequests, setEditRequests] = useState<{ [quoteId: number]: any }>({});
+    const [selectedEditRequest, setSelectedEditRequest] = useState<any>(null);
+    const [reviewNotes, setReviewNotes] = useState('');
+    const [isReviewing, setIsReviewing] = useState(false);
     const rowsPerPage = 10;
     const indexOfLastRow = currentPage * rowsPerPage;
     const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -214,6 +218,230 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
     const currentRows = filteredQuotes.slice(indexOfFirstRow, indexOfLastRow);
     const totalPages = Math.ceil(filteredQuotes.length / rowsPerPage);
 
+    // Fetch edit requests for brokers
+    useEffect(() => {
+        const fetchEditRequests = async () => {
+            if (!isAdmin || !session?.user?.id) return;
+
+            const quoteIds = quotes.map(q => q.id);
+            if (quoteIds.length === 0) return;
+
+            const { data, error } = await supabase
+                .from('edit_requests')
+                .select('*')
+                .in('quote_id', quoteIds)
+                .eq('status', 'pending');
+
+            if (error) {
+                console.error('Error fetching edit requests:', error);
+            } else {
+                const requestsMap: { [quoteId: number]: any } = {};
+                data?.forEach(req => {
+                    requestsMap[req.quote_id] = {
+                        ...req,
+                        requested_changes: typeof req.requested_changes === 'string' 
+                            ? JSON.parse(req.requested_changes) 
+                            : req.requested_changes
+                    };
+                });
+                setEditRequests(requestsMap);
+            }
+        };
+
+        fetchEditRequests();
+    }, [quotes, isAdmin, session, supabase]);
+
+    const handleReviewEditRequest = async (requestId: number, status: 'approved' | 'rejected', request: any) => {
+        if (!session?.user?.id) return;
+
+        setIsReviewing(true);
+        try {
+            // Update the edit request status
+            const { error: updateError } = await supabase
+                .from('edit_requests')
+                .update({
+                    status,
+                    reviewed_by: session.user.id,
+                    reviewed_at: new Date().toISOString(),
+                    review_notes: reviewNotes || null
+                })
+                .eq('id', requestId);
+
+            if (updateError) {
+                console.error('Error updating edit request:', updateError);
+                alert('Failed to update edit request');
+                return;
+            }
+
+            // If approved, apply the changes to the quote
+            if (status === 'approved' && request) {
+                const { error: quoteUpdateError } = await supabase
+                    .from('shippingquotes')
+                    .update(
+                        Object.keys(request.requested_changes).reduce((acc, key) => {
+                            acc[key] = request.requested_changes[key].to;
+                            return acc;
+                        }, {} as Record<string, any>)
+                    )
+                    .eq('id', request.quote_id);
+
+                if (quoteUpdateError) {
+                    console.error('Error applying changes to quote:', quoteUpdateError);
+                    alert('Edit request was approved but failed to apply changes to quote');
+                    return;
+                }
+            }
+
+            // Send notifications and emails (NON-BLOCKING)
+            (async () => {
+                try {
+                    console.log(`📧 Starting notification process for edit request #${requestId} (${status})`);
+
+                    // Get the shipper who requested the edit
+                    const { data: shipperData, error: shipperError } = await supabase
+                        .from('profiles')
+                        .select('id, email, first_name, last_name')
+                        .eq('id', request.requested_by)
+                        .single();
+
+                    if (shipperError || !shipperData) {
+                        console.error('⚠️ Error fetching shipper data:', shipperError);
+                        return;
+                    }
+
+                    // Get the broker's name
+                    const { data: brokerData, error: brokerError } = await supabase
+                        .from('nts_users')
+                        .select('first_name, last_name')
+                        .eq('id', session.user.id)
+                        .single();
+
+                    const brokerName = brokerError 
+                        ? 'Your broker'
+                        : `${brokerData?.first_name || ''} ${brokerData?.last_name || ''}`.trim() || 'Your broker';
+
+                    // Create in-app notification
+                    const notificationMessage = status === 'approved'
+                        ? `Your edit request for Quote #${request.quote_id} has been approved by ${brokerName}. The changes have been applied.${reviewNotes ? ` Notes: ${reviewNotes}` : ''}`
+                        : `Your edit request for Quote #${request.quote_id} has been rejected by ${brokerName}.${reviewNotes ? ` Reason: ${reviewNotes}` : ''}`;
+
+                    const { error: notifError } = await supabase.from('notifications').insert({
+                        user_id: shipperData.id,
+                        message: notificationMessage,
+                        type: 'edit_request_response'
+                    });
+
+                    if (notifError) {
+                        console.error('⚠️ Error creating notification:', notifError);
+                    } else {
+                        console.log('✅ In-app notification created');
+                    }
+
+                    // Send email
+                    console.log('📧 Preparing to send email...');
+                    const changedFields = Object.keys(request.requested_changes).join(', ');
+                    const statusText = status === 'approved' ? 'Approved' : 'Rejected';
+                    const statusEmoji = status === 'approved' ? '✅' : '❌';
+
+                    console.log('📬 Email details:', {
+                        to: shipperData.email,
+                        subject: `${statusEmoji} Edit Request ${statusText} - Quote #${request.quote_id}`,
+                        quoteId: request.quote_id,
+                        status
+                    });
+
+                    const emailResponse = await fetch('/.netlify/functions/sendEmail', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            to: shipperData.email,
+                            subject: `${statusEmoji} Edit Request ${statusText} - Quote #${request.quote_id}`,
+                            html: `
+                                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                                    <h2 style="color: ${status === 'approved' ? '#10b981' : '#ef4444'};">
+                                        ${statusEmoji} Edit Request ${statusText}
+                                    </h2>
+                                    <p>Hello ${shipperData.first_name || 'there'},</p>
+                                    <p>Your edit request for <strong>Quote #${request.quote_id}</strong> has been <strong>${status}</strong> by ${brokerName}.</p>
+                                    
+                                    <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                                        <h3 style="margin-top: 0;">Requested Changes:</h3>
+                                        <ul style="margin: 10px 0;">
+                                            ${changedFields.split(', ').map(field => `<li>${field.replace(/_/g, ' ')}</li>`).join('')}
+                                        </ul>
+                                    </div>
+
+                                    ${reviewNotes ? `
+                                        <div style="background-color: #fef3c7; padding: 15px; border-left: 4px solid #f59e0b; margin: 20px 0;">
+                                            <strong>${status === 'approved' ? 'Notes' : 'Reason for Rejection'}:</strong>
+                                            <p style="margin: 5px 0 0 0;">${reviewNotes}</p>
+                                        </div>
+                                    ` : ''}
+
+                                    ${status === 'approved' ? `
+                                        <p style="color: #10b981; font-weight: bold; margin-bottom: 20px;">
+                                            ✓ The changes have been applied to your quote.
+                                        </p>
+                                    ` : `
+                                        <p style="margin-bottom: 20px;">If you have questions about this decision, please contact your broker.</p>
+                                    `}
+
+                                    <div style="text-align: center; margin: 30px 0;">
+                                        <a href="https://www.shipper-connect.com/user/logistics-management?tab=quotes" 
+                                           style="display: inline-block; background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600;">
+                                            View Your Quotes →
+                                        </a>
+                                    </div>
+
+                                    <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+                                    <p style="color: #6b7280; font-size: 14px;">
+                                        Best regards,<br>
+                                        NTS Logistics Team
+                                    </p>
+                                </div>
+                            `,
+                            text: `Edit Request ${statusText} - Quote #${request.quote_id}\n\nYour edit request has been ${status} by ${brokerName}.\n\nRequested Changes: ${changedFields}\n\n${reviewNotes ? `${status === 'approved' ? 'Notes' : 'Reason'}: ${reviewNotes}` : ''}\n\nView your quotes: https://www.shipper-connect.com/user/logistics-management?tab=quotes`
+                        })
+                    });
+
+                    console.log('📧 Email response status:', emailResponse.status);
+                    
+                    if (!emailResponse.ok) {
+                        const errorText = await emailResponse.text();
+                        console.error('⚠️ Email send failed:', {
+                            status: emailResponse.status,
+                            statusText: emailResponse.statusText,
+                            error: errorText
+                        });
+                    } else {
+                        const responseData = await emailResponse.json();
+                        console.log('✅ Email sent successfully:', responseData);
+                    }
+
+                } catch (asyncError) {
+                    console.error('⚠️ Error in async notification/email:', asyncError);
+                    console.error('⚠️ Error stack:', asyncError instanceof Error ? asyncError.stack : 'No stack trace');
+                }
+            })();
+
+            // Remove from local state
+            const newEditRequests = { ...editRequests };
+            delete newEditRequests[request.quote_id];
+            setEditRequests(newEditRequests);
+
+            alert(`Edit request ${status} successfully!`);
+            setSelectedEditRequest(null);
+            setReviewNotes('');
+            
+            // Refresh quotes
+            fetchQuotes();
+        } catch (error) {
+            console.error('Error reviewing request:', error);
+            alert('Failed to process edit request');
+        } finally {
+            setIsReviewing(false);
+        }
+    };
 
     const handlePageChange = (pageNumber: number) => {
         setCurrentPage(pageNumber);
@@ -571,6 +799,28 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                 )}
                                 
                                 <div className="p-4 bg-gray-50 border-t border-gray-200">
+                                    {/* Edit Request Alert for Mobile */}
+                                    {isAdmin && editRequests[quote.id] && (
+                                        <div className="mb-3 bg-amber-50 border-2 border-amber-400 rounded-lg p-3 animate-pulse">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div className="flex items-center gap-2">
+                                                    <Clock className="w-5 h-5 text-amber-600" />
+                                                    <span className="font-semibold text-amber-900 text-sm">Pending Edit Request</span>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelectedEditRequest(editRequests[quote.id]);
+                                                }}
+                                                className="w-full bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600 flex items-center justify-center gap-2 font-medium"
+                                            >
+                                                <Eye className="w-4 h-4" />
+                                                Review Edit Request
+                                            </button>
+                                        </div>
+                                    )}
+                                    
                                     <div className="flex gap-2">
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); handleEditClick(quote); }} 
@@ -816,41 +1066,56 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                 )}
                                             </td>
                                             <td className="px-3 py-4 whitespace-nowrap text-md font-semibold">
-                                                <div className="flex items-center gap-1">
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleEditClick(quote);
-                                                        }}
-                                                        className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-800 flex items-center gap-1"
-                                                    >
-                                                        <Edit className="w-4 h-4" />
-                                                        <span className="text-xs">Edit</span>
-                                                    </button>
-                                                    {quote.price && (
+                                                <div className="flex flex-col gap-2">
+                                                    <div className="flex items-center gap-1">
                                                         <button
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                handleCreateOrderClick(quote.id);
+                                                                handleEditClick(quote);
                                                             }}
-                                                            className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-800 flex items-center gap-1"
+                                                            className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-800 flex items-center gap-1"
                                                         >
-                                                            <CheckCircle className="w-4 h-4" />
-                                                            <span className="text-xs">Accept</span>
+                                                            <Edit className="w-4 h-4" />
+                                                        {isAdmin ? <span className="text-xs">Edit</span> : <span className="text-xs">Request Edit</span>}
                                                         </button>
-                                                    )}
-                                                    {isUser && quote.price && (
+                                                        {quote.price && (
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleCreateOrderClick(quote.id);
+                                                                }}
+                                                                className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-800 flex items-center gap-1"
+                                                            >
+                                                                <CheckCircle className="w-4 h-4" />
+                                                                <span className="text-xs">Accept</span>
+                                                            </button>
+                                                        )}
+                                                        {isUser && quote.price && (
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleRejectClick(quote.id);
+                                                                }}
+                                                                className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-800 flex items-center gap-1"
+                                                                aria-label="Reject Quote"
+                                                                title="Reject Quote"
+                                                            >
+                                                                <XCircle className="w-4 h-4" />
+                                                                <span className="text-xs">Reject</span>
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                    {/* Edit Request Badge for Brokers */}
+                                                    {isAdmin && editRequests[quote.id] && (
                                                         <button
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                handleRejectClick(quote.id);
+                                                                setSelectedEditRequest(editRequests[quote.id]);
                                                             }}
-                                                            className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-800 flex items-center gap-1"
-                                                            aria-label="Reject Quote"
-                                                            title="Reject Quote"
+                                                            className="bg-amber-500 text-white px-2 py-1 rounded hover:bg-amber-600 flex items-center gap-1 animate-pulse"
                                                         >
-                                                            <XCircle className="w-4 h-4" />
-                                                            <span className="text-xs">Reject</span>
+                                                            <Clock className="w-4 h-4" />
+                                                            <span className="text-xs font-semibold">Review Edit Request</span>
                                                         </button>
                                                     )}
                                                 </div>
@@ -1057,6 +1322,131 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                 onSubmit={() => { }}
                 quote={null}
             />
+
+            {/* Edit Request Review Modal */}
+            {selectedEditRequest && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto shadow-2xl">
+                        <div className="flex justify-between items-start mb-4">
+                            <h3 className="text-xl font-bold text-gray-900">
+                                Review Edit Request for Quote #{selectedEditRequest.quote_id}
+                            </h3>
+                            <button
+                                onClick={() => {
+                                    setSelectedEditRequest(null);
+                                    setReviewNotes('');
+                                }}
+                                className="text-gray-400 hover:text-gray-600"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            {/* Requested Changes */}
+                            <div>
+                                <h4 className="font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                    <Edit className="w-4 h-4" />
+                                    Requested Changes:
+                                </h4>
+                                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                    {Object.entries(selectedEditRequest.requested_changes).map(([key, change]: [string, any]) => (
+                                        <div key={key} className="mb-3 last:mb-0">
+                                            <span className="font-medium text-sm text-gray-800 block mb-1">
+                                                {key.replace(/_/g, ' ').toUpperCase()}:
+                                            </span>
+                                            <div className="ml-4 flex items-center gap-2 text-sm">
+                                                <span className="text-red-600 line-through bg-red-50 px-2 py-1 rounded">
+                                                    {change.from || 'empty'}
+                                                </span>
+                                                <span className="text-gray-400">→</span>
+                                                <span className="text-green-600 font-medium bg-green-50 px-2 py-1 rounded">
+                                                    {change.to || 'empty'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Reason */}
+                            {selectedEditRequest.reason && (
+                                <div>
+                                    <h4 className="font-medium text-gray-700 mb-2">Shipper's Reason:</h4>
+                                    <p className="text-gray-600 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                                        {selectedEditRequest.reason}
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Review Notes */}
+                            <div>
+                                <label className="block font-medium text-gray-700 mb-2">
+                                    Your Review Notes (Optional)
+                                </label>
+                                <textarea
+                                    value={reviewNotes}
+                                    onChange={(e) => setReviewNotes(e.target.value)}
+                                    placeholder="Add notes about your decision (e.g., reason for rejection, clarifications, etc.)..."
+                                    className="w-full p-3 border border-gray-300 rounded-lg h-24 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    maxLength={500}
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    {reviewNotes.length}/500 characters
+                                </p>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex gap-3 pt-4 border-t border-gray-200">
+                                <button
+                                    onClick={() => handleReviewEditRequest(selectedEditRequest.id, 'approved', selectedEditRequest)}
+                                    disabled={isReviewing}
+                                    className="flex-1 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
+                                >
+                                    {isReviewing ? (
+                                        <>
+                                            <Clock className="w-5 h-5 animate-spin" />
+                                            Processing...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <CheckCircle className="w-5 h-5" />
+                                            Approve & Apply Changes
+                                        </>
+                                    )}
+                                </button>
+                                <button
+                                    onClick={() => handleReviewEditRequest(selectedEditRequest.id, 'rejected', selectedEditRequest)}
+                                    disabled={isReviewing}
+                                    className="flex-1 px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
+                                >
+                                    {isReviewing ? (
+                                        <>
+                                            <Clock className="w-5 h-5 animate-spin" />
+                                            Processing...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <XCircle className="w-5 h-5" />
+                                            Reject Request
+                                        </>
+                                    )}
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setSelectedEditRequest(null);
+                                        setReviewNotes('');
+                                    }}
+                                    disabled={isReviewing}
+                                    className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
