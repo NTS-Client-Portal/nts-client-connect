@@ -2,7 +2,7 @@ import React, { ReactNode, useState, useEffect } from 'react';
 import UserSideNav from './UserSideNav';
 import UserTopNav from './UserTopNav';
 import { ProfilesUserProvider, useProfilesUser } from '@/context/ProfilesUserContext';
-import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSession, useSupabaseClient } from '@/lib/supabase/provider';
 
 interface UserLayoutProps {
     children: ReactNode;

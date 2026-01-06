@@ -1,11 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { createClient } from '@supabase/supabase-js';
+import { createAdminClient } from '../../lib/supabase/server';
 import { v4 as uuidv4 } from 'uuid';
 import nodemailer from 'nodemailer';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabase = createAdminClient();
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -22,10 +20,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         try {
             for (const invite of inviteEmails) {
                 const token = uuidv4();
+                const id = uuidv4();
 
                 const { error } = await supabase
                     .from('invitations')
                     .insert({
+                        id,
                         email: invite.email,
                         team_role: invite.role,
                         company_id: companyId,

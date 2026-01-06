@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/router';
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSupabaseClient } from '@/lib/supabase/provider';
 
 const Unauthorized: React.FC = () => {
     const router = useRouter();

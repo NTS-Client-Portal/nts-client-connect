@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSupabaseClient } from '@/lib/supabase/provider';
 import Head from 'next/head';
 
 export default function InvitePage() {
@@ -18,10 +18,13 @@ export default function InvitePage() {
         const fetchInvitation = async () => {
             if (!token) return;
 
+            // Ensure token is a string, not an array
+            const tokenString = Array.isArray(token) ? token[0] : token;
+
             const { data, error } = await supabase
                 .from('invitations')
                 .select('email')
-                .eq('token', token)
+                .eq('token', tokenString)
                 .single();
 
             if (error) {

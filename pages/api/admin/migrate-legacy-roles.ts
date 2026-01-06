@@ -9,7 +9,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { withSuperAdminAccess } from '../../../lib/apiMiddleware';
 import { migrateLegacyRoles } from '../../../lib/roleUtils';
-import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '../../../lib/supabase/server';
+import { Database } from '../../../lib/database.types';
 
 interface MigrationResult {
   success: boolean;
@@ -32,7 +33,7 @@ const handler = async (
   }
 
   try {
-    const supabase = createServerSupabaseClient({ req, res });
+    const supabase = createClient(req);
     
     console.log('🚀 Starting legacy role migration process...');
     

@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Database } from '@/lib/database.types';
 import { supabase } from '@/lib/initSupabase';
-import { useSession } from '@supabase/auth-helpers-react';
+import { useSession } from '@/lib/supabase/provider';
 import { formatDate, renderAdditionalDetails, freightTypeMapping } from './QuoteUtils';
 import { formatQuoteId } from '@/lib/quoteUtils';
 import { generateAndUploadDocx, replaceShortcodes } from "@/components/GenerateDocx";

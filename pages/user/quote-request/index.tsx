@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import QuotePage from '@/components/user/QuotePage';
-import { useSession } from '@supabase/auth-helpers-react';
+import { useSession } from '@/lib/supabase/provider';
 import { useRouter } from 'next/router';
 import { Database } from '@/lib/database.types';
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSupabaseClient } from '@/lib/supabase/provider';
 import { useProfilesUser } from '@/context/ProfilesUserContext';
 import UserLayout from '@/pages/components/UserLayout';
 

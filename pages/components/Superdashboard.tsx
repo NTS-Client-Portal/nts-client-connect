@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSupabaseClient, useSession, Session } from '@supabase/auth-helpers-react';
+import { useSupabaseClient, useSession } from '@/lib/supabase/provider';
+import { Session } from '@supabase/supabase-js';
 import { useRouter } from 'next/router';
 import { Database } from '@/lib/database.types';
 import AdminAnalytics from '@components/admin/AdminAnalytics';
@@ -237,7 +238,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
 
     if (!isSessionChecked) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+            <div className="min-h-screen bg-linear-to-br from-slate-50 to-blue-50 flex items-center justify-center">
                 <div className="text-center">
                     <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                     <p className="mt-4 text-slate-600 font-medium">Loading Dashboard...</p>
@@ -247,13 +248,13 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="min-h-screen bg-linear-to-br from-slate-50 to-blue-50">
             {/* Header */}
             <div className="bg-white shadow-lg border-b border-slate-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between py-6">
                         <div className="flex items-center space-x-3">
-                            <div className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
+                            <div className="p-2 bg-linear-to-r from-blue-600 to-purple-600 rounded-lg">
                                 <Crown className="h-8 w-8 text-white" />
                             </div>
                             <div>
@@ -262,7 +263,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                             </div>
                         </div>
                         <div className="flex items-center space-x-4">
-                            <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-purple-100 px-4 py-2 rounded-lg">
+                            <div className="flex items-center space-x-2 bg-linear-to-r from-blue-100 to-purple-100 px-4 py-2 rounded-lg">
                                 <Shield className="h-5 w-5 text-blue-600" />
                                 <span className="text-slate-700 font-medium">Super Administrator</span>
                             </div>
@@ -283,7 +284,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
             {error && (
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
                     <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center space-x-3">
-                        <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+                        <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
                         <p className="text-red-700">{error}</p>
                     </div>
                 </div>
@@ -291,7 +292,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
             {success && (
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
                     <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center space-x-3">
-                        <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
+                        <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
                         <p className="text-green-700">{success}</p>
                     </div>
                 </div>
@@ -306,7 +307,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                             onClick={() => setActiveTab('userManagement')}
                             className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
                                 activeTab === 'userManagement'
-                                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-105'
+                                    ? 'bg-linear-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-105'
                                     : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50'
                             }`}
                         >
@@ -317,7 +318,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                             onClick={() => setActiveTab('shipperUserManagement')}
                             className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
                                 activeTab === 'shipperUserManagement'
-                                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-105'
+                                    ? 'bg-linear-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-105'
                                     : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50'
                             }`}
                         >
@@ -328,7 +329,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                             onClick={() => setActiveTab('templateManager')}
                             className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
                                 activeTab === 'templateManager'
-                                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-105'
+                                    ? 'bg-linear-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-105'
                                     : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50'
                             }`}
                         >
@@ -339,7 +340,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                             onClick={() => setActiveTab('analytics')}
                             className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
                                 activeTab === 'analytics'
-                                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-105'
+                                    ? 'bg-linear-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-105'
                                     : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50'
                             }`}
                         >
@@ -350,7 +351,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                             onClick={() => setActiveTab('dataHealth')}
                             className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
                                 activeTab === 'dataHealth'
-                                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-105'
+                                    ? 'bg-linear-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-105'
                                     : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50'
                             }`}
                         >
@@ -372,7 +373,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                                 </div>
                                 <button
                                     onClick={() => setIsNtsUserModalOpen(true)}
-                                    className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+                                    className="flex items-center space-x-2 bg-linear-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
                                 >
                                     <Plus className="h-5 w-5" />
                                     <span className="font-medium">Add New User</span>
@@ -425,7 +426,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                         <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
                             <div className="overflow-x-auto">
                                 <table className="w-full">
-                                    <thead className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
+                                    <thead className="bg-linear-to-r from-slate-50 to-slate-100 border-b border-slate-200">
                                         <tr>
                                             <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Name</th>
                                             <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Email</th>
@@ -440,7 +441,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                                             <tr key={user.id} className="hover:bg-slate-50 transition-colors duration-150">
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center space-x-3">
-                                                        <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+                                                        <div className="shrink-0 w-10 h-10 bg-linear-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
                                                             <span className="text-white font-semibold text-sm">
                                                                 {user.first_name?.[0]}{user.last_name?.[0]}
                                                             </span>
@@ -501,19 +502,19 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                 )}
 
                 {activeTab === 'shipperUserManagement' && (
-                    <div className="bg-white rounded-xl shadow-lg border border-slate-200 min-h-[600px]">
+                    <div className="bg-white rounded-xl shadow-lg border border-slate-200 min-h-150">
                         <ShipperUserManagement />
                     </div>
                 )}
 
                 {activeTab === 'templateManager' && (
-                    <div className="bg-white rounded-xl shadow-lg border border-slate-200 min-h-[600px]">
+                    <div className="bg-white rounded-xl shadow-lg border border-slate-200 min-h-150">
                         <TemplateManager />
                     </div>
                 )}
 
                 {activeTab === 'analytics' && (
-                    <div className="bg-white rounded-xl shadow-lg border border-slate-200 min-h-[600px]">
+                    <div className="bg-white rounded-xl shadow-lg border border-slate-200 min-h-150">
                         <AdminAnalytics />
                     </div>
                 )}
@@ -523,7 +524,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                         {/* Header */}
                         <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg">
+                                <div className="p-2 bg-linear-to-r from-green-500 to-blue-500 rounded-lg">
                                     <Activity className="h-6 w-6 text-white" />
                                 </div>
                                 <div>
@@ -581,7 +582,7 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = () => {
                             </p>
                             <div className="bg-white rounded-lg p-3 border border-red-200">
                                 <div className="flex items-center space-x-3">
-                                    <div className="w-10 h-10 bg-gradient-to-r from-red-400 to-pink-500 rounded-full flex items-center justify-center">
+                                    <div className="w-10 h-10 bg-linear-to-r from-red-400 to-pink-500 rounded-full flex items-center justify-center">
                                         <span className="text-white font-semibold text-sm">
                                             {userToDelete.first_name?.[0]}{userToDelete.last_name?.[0]}
                                         </span>

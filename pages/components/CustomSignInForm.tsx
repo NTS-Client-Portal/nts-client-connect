@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSupabaseClient } from '@/lib/supabase/provider';
 
 const CustomSignInForm = () => {
     const supabase = useSupabaseClient();

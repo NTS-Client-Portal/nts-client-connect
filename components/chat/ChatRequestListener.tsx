@@ -3,7 +3,7 @@ import { supabase } from '@lib/initSupabase';
 import { useNtsUsers } from '@/context/NtsUsersContext';
 import { Database } from '@/lib/database.types';
 import FloatingChatWidget from './FloatingChatWidget';
-import { useSession } from '@supabase/auth-helpers-react';
+import { useSession } from '@/lib/supabase/provider';
 
 type ChatRequest = Database['public']['Tables']['chat_requests']['Row'];
 

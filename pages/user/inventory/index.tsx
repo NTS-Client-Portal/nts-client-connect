@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSession } from '@supabase/auth-helpers-react';
+import { useSession } from '@/lib/supabase/provider';
 import UserLayout from '../../components/UserLayout';
 import FreightInventory from '@/components/FreightInventory';
 import { ProfilesUserProvider } from '@/context/ProfilesUserContext';

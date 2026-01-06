@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSession, useSupabaseClient } from '@/lib/supabase/provider';
 import { Session } from '@supabase/supabase-js';
 import { Database } from '@/lib/database.types';
 import { useDocumentNotification } from '@/context/DocumentNotificationContext';

@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
-import { useSession } from "@supabase/auth-helpers-react";
+import { useSession } from "@/lib/supabase/provider";
 import SuperadminDashboard from "../components/Superdashboard";
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
 

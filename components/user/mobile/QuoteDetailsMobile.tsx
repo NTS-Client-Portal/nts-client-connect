@@ -8,7 +8,7 @@ import {
     getStatusLabel,
     getStatusStyle
 } from '@/lib/statusManagement';
-import { useSession } from '@supabase/auth-helpers-react';
+import { useSession } from '@/lib/supabase/provider';
 import SelectTemplate from '@/components/SelectTemplate';
 import QuoteFormModal from '@/components/user/forms/QuoteFormModal';
 import { 

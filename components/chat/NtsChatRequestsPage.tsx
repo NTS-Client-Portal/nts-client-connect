@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@lib/initSupabase';
 import { useNtsUsers } from '@/context/NtsUsersContext';
 import { Database } from '@/lib/database.types';
-import { useSession } from '@supabase/auth-helpers-react';
+import { useSession } from '@/lib/supabase/provider';
 import ForumInterface from '@/components/chat/ForumInterface';
 
 type SupportTicket = Database['public']['Tables']['support_ticket']['Row'];

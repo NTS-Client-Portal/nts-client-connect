@@ -5,7 +5,7 @@ import RvTrailerForm from './forms/RvTrailerForm';
 import SemiTruckForm from './forms/SemiTruckForm';
 import BoatForm from './forms/BoatForm';
 import FreightForm from './forms/FreightForm';
-import { Session } from '@supabase/auth-helpers-react';
+import { Session } from '@supabase/supabase-js';
 import AutoForm from './forms/AutoForm';
 import { Package } from 'lucide-react';
 

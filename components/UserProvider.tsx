@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
+import { useSupabaseClient } from '@/lib/supabase/provider';
+import { Session } from '@supabase/supabase-js';
 import { Database } from '@/lib/database.types';
 
 import { getCanonicalCompanyName } from '@/lib/companyNameUtils';

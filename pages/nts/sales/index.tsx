@@ -1,5 +1,6 @@
 import React from 'react';
-import { useSession, Session } from '@supabase/auth-helpers-react';
+import { useSession } from '@/lib/supabase/provider';
+import { Session } from '@supabase/supabase-js';
 import SalesLayout from './_components/layout/SalesLayout';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
 import Crm from '../components/Crm';

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Session } from '@supabase/auth-helpers-react';
+import { Session } from '@supabase/supabase-js';
 import SelectOption from './SelectOption';
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSupabaseClient } from '@/lib/supabase/provider';
 import { Database } from '@/lib/database.types';
 import axios from 'axios';
 

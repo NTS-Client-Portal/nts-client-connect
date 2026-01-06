@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@lib/initSupabase';
-import { Session } from '@supabase/auth-helpers-react';
+import { Session } from '@supabase/supabase-js';
 import { Database } from '@lib/database.types';
 import { useProfilesUser } from '@/context/ProfilesUserContext';
 

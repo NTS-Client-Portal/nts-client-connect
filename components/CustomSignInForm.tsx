@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSupabaseClient, useSession } from '@supabase/auth-helpers-react';
+import { useSupabaseClient, useSession } from '@/lib/supabase/provider';
 import { useRouter } from 'next/router';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 

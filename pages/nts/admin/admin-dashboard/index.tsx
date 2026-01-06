@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSession, useSupabaseClient } from '@/lib/supabase/provider';
 import { Database } from '@/lib/database.types';
 import AdminAnalytics from '@/components/admin/AdminAnalytics';
 import AdminLayout from '../../../components/admin-portal/AdminLayout'; // Ensure consistent casing

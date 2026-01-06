@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSession, useSupabaseClient } from '@/lib/supabase/provider';
 import { useRouter } from 'next/router'; // Ensure the correct path
 
 const AdminLogin = () => {
@@ -13,7 +13,7 @@ const AdminLogin = () => {
     const checkAdminRole = async () => {
       if (session?.user?.id) {
         const { data, error } = await supabase
-          .from('profiles')
+          .from('nts_users')
           .select('role')
           .eq('id', session.user.id)
           .single();

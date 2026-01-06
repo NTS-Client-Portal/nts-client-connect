@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
+import { useSupabaseClient } from '@/lib/supabase/provider';
+import { Session } from '@supabase/supabase-js';
 import { Database } from '@/lib/database.types';
 import { Menu, Upload, Search, Grid3x3, List, FileText, Calendar, Download, Eye, X, AlertTriangle, Folder, FolderHeart, Star, Trash2 } from 'lucide-react';
 import { updateFavoriteStatus } from '@/lib/database';

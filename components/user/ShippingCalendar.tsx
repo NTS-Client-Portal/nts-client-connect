@@ -6,7 +6,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { supabase } from '@/lib/initSupabase';
 import { Database } from '@/lib/database.types';
 import { useRouter } from 'next/router';
-import { useSession } from '@supabase/auth-helpers-react';
+import { useSession } from '@/lib/supabase/provider';
 
 type ShippingCalendarProps = {
     // Add props here if needed

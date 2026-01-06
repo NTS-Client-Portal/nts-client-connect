@@ -1,7 +1,7 @@
 import React, { ReactNode, useState, useEffect } from 'react';
 import SalesSideNav from './SalesSideNav';
 import SalesTopNav from './SalesTopNav';
-import { useSession } from '@supabase/auth-helpers-react';
+import { useSession } from '@/lib/supabase/provider';
 import { useNtsUsers } from '@/context/NtsUsersContext';
 
 interface SalesLayoutProps {

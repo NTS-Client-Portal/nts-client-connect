@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSession, useSupabaseClient } from '@/lib/supabase/provider';
 import { useEffect, useState } from 'react';
 
 const withManagerRole = (WrappedComponent) => {

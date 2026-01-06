@@ -3,7 +3,8 @@ import { supabase } from '@/lib/initSupabase';
 import { useNtsUsers } from '@/context/NtsUsersContext';
 import Image from 'next/image';
 import NotificationBell from '@/components/NotificationBell';
-import { useSession, Session } from '@supabase/auth-helpers-react';
+import { useSession } from '@/lib/supabase/provider';
+import { Session } from '@supabase/supabase-js';
 
 interface UserTopNavProps {
     session: Session | null;

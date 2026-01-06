@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSupabaseClient } from '@/lib/supabase/provider';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
 import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';

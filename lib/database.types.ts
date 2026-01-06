@@ -2246,38 +2246,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_assigned_company_ids: {
-        Args: Record<PropertyKey, never>
-        Returns: string[]
-      }
-      get_current_user_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_user_company_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      is_admin_user: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_manager_user: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_nts_user: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_shipper: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      purge_user: {
-        Args: { email_to_purge: string }
-        Returns: undefined
-      }
+      get_assigned_company_ids: { Args: never; Returns: string[] }
+      get_current_user_id: { Args: never; Returns: string }
+      get_user_company_id: { Args: never; Returns: string }
+      is_admin_user: { Args: never; Returns: boolean }
+      is_manager_user: { Args: never; Returns: boolean }
+      is_nts_user: { Args: never; Returns: boolean }
+      is_shipper: { Args: never; Returns: boolean }
+      purge_user: { Args: { email_to_purge: string }; Returns: undefined }
     }
     Enums: {
       balance_payment_method_enum:

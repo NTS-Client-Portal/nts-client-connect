@@ -6,7 +6,7 @@
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
-import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from './supabase/server';
 import { 
   UserRole, 
   Permission, 
@@ -78,7 +78,7 @@ export const withAuth = (
   handler: (req: AuthenticatedRequest, res: NextApiResponse) => Promise<void>
 ) => {
   return async (req: NextApiRequest, res: NextApiResponse) => {
-    const supabase = createServerSupabaseClient({ req, res });
+    const supabase = createClient(req);
     
     try {
       // Get session

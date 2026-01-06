@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSession } from '@supabase/auth-helpers-react';
+import { useSession } from '@/lib/supabase/provider';
 import QuoteRequest from '@/components/user/QuoteRequest';
 import ShipperDash from '@/components/user/ShipperDash';
 import UserLayout from '@/pages/components/UserLayout';

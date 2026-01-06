@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/initSupabase';
-import { useSession } from '@supabase/auth-helpers-react';
+import { useSession } from '@/lib/supabase/provider';
 import { Database } from '@/lib/database.types';
 import Image from 'next/image';
 import { useProfilesUser } from '@/context/ProfilesUserContext';
@@ -192,7 +192,7 @@ const ShipperDash = () => {
 
     if (errorText) {
         return (
-            <div className="flex items-center justify-center min-h-[400px]">
+            <div className="flex items-center justify-center min-h-100">
                 <div className="text-center">
                     <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
                     <p className="text-red-600 font-medium">{errorText}</p>
@@ -223,14 +223,14 @@ const ShipperDash = () => {
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 {isLoading ? (
-                    <div className="flex items-center justify-center min-h-[400px]">
+                    <div className="flex items-center justify-center min-h-100">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                         <span className="ml-2 text-gray-600 dark:text-gray-400">Loading dashboard...</span>
                     </div>
                 ) : (
                     <div className="space-y-6">
                         {/* Statistics Cards */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                                 <div className="flex items-center justify-between">
                                     <div>
@@ -338,7 +338,7 @@ const ShipperDash = () => {
                                             
                                             <div className="space-y-4">
                                                 <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                                                    <Mail className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                                                    <Mail className="w-4 h-4 text-gray-500 dark:text-gray-400 shrink-0" />
                                                     <div>
                                                         <p className="text-sm font-medium text-gray-900 dark:text-white">Email</p>
                                                         <a 
@@ -352,7 +352,7 @@ const ShipperDash = () => {
                                                 
                                                 {rep.phone_number && (
                                                     <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                                                        <Phone className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                                                        <Phone className="w-4 h-4 text-gray-500 dark:text-gray-400 shrink-0" />
                                                         <div>
                                                             <p className="text-sm font-medium text-gray-900 dark:text-white">Phone</p>
                                                             <a 

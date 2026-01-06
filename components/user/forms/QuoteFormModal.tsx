@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
+import { useSupabaseClient } from '@/lib/supabase/provider';
+import { Session } from '@supabase/supabase-js';
 import { Database } from '@/lib/database.types';
 import QuoteForm from '../QuoteForm';
 import { Plus, FileText, Package } from 'lucide-react';

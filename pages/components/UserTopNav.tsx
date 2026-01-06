@@ -5,7 +5,7 @@ import Image from 'next/image';
 import NotificationBell from '@/components/NotificationBell';
 import FeedBack from '@/components/ui/FeedBack';
 import Link from 'next/link';
-import { useSession } from '@supabase/auth-helpers-react';
+import { useSession } from '@/lib/supabase/provider';
 import { useRouter } from 'next/router';
 import { 
     User, 

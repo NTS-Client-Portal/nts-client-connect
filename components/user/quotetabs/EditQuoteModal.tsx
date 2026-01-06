@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ShippingQuote } from '@/lib/schema';
 import EditHistory from '../../EditHistory';
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSupabaseClient } from '@/lib/supabase/provider';
 import { Database } from '@/lib/database.types';
 import axios from 'axios';
 

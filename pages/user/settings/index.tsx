@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSession } from '@supabase/auth-helpers-react';
+import { useSession } from '@/lib/supabase/provider';
 import UserLayout from '@/pages/components/UserLayout';
 import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
 import UserSettings from '@/components/user/UserSettings';

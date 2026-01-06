@@ -3,7 +3,7 @@ import EditHistory from '../../EditHistory';
 import { formatDate, renderAdditionalDetails, freightTypeMapping } from './QuoteUtils';
 import { formatQuoteId } from '@/lib/quoteUtils';
 import { supabase } from '@/lib/initSupabase';
-import { useSession } from '@supabase/auth-helpers-react';
+import { useSession } from '@/lib/supabase/provider';
 import { Database } from '@/lib/database.types';
 import { getCompaniesForSalesUser } from '@/lib/companyAssignment';
 import { 

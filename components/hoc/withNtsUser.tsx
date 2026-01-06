@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSession, useSupabaseClient } from '@/lib/supabase/provider';
 import { useRouter } from 'next/router';
 import { Database } from '@/lib/database.types';
 

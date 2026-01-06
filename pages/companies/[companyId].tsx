@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSession, useSupabaseClient } from '@/lib/supabase/provider';
 import { Database } from '@/lib/database.types';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
 import SalesLayout from '../nts/sales/_components/layout/SalesLayout';

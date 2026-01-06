@@ -2,7 +2,7 @@ import React from 'react';
 import SalesLayout from '../_components/layout/SalesLayout';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
 import NtsSettings from '@/components/NtsSettings';
-import { useSession } from '@supabase/auth-helpers-react';
+import { useSession } from '@/lib/supabase/provider';
 
 const SettingsPage: React.FC = () => {
     const session = useSession();

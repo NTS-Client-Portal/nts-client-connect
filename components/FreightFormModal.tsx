@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Session } from '@supabase/auth-helpers-react';
+import { Session } from '@supabase/supabase-js';
 import { Database } from '@/lib/database.types';
 
 interface FreightFormModalProps {

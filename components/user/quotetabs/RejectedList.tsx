@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Session } from '@supabase/auth-helpers-react';
+import { Session } from '@supabase/supabase-js';
 import { Database } from '@/lib/database.types';
 import { supabase } from '@/lib/initSupabase';
 import RejectedTable from './RejectedTable';

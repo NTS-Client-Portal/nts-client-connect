@@ -3,7 +3,7 @@ import { supabase } from '@/lib/initSupabase';
 import { useNtsUsers } from '@/context/NtsUsersContext';
 import Image from 'next/image';
 import NotificationBell from '@/components/NotificationBell';
-import { Session } from '@supabase/auth-helpers-react';
+import { Session } from '@supabase/supabase-js';
 import FeedBack from '@/components/ui/FeedBack';
 import { useRouter } from 'next/router';
 import { Menu, X, User, Bell } from 'lucide-react';

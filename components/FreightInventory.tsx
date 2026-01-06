@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSupabaseClient, Session } from '@supabase/auth-helpers-react';
+import { useSupabaseClient } from '@/lib/supabase/provider';
+import { Session } from '@supabase/supabase-js';
 import Papa from 'papaparse';
 import { Database } from '@lib/database.types';
 import InventoryTab from '@/components/inventory/InventoryTab';

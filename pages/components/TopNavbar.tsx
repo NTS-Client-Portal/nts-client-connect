@@ -1,8 +1,7 @@
 import React from 'react';
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSupabaseClient } from '@/lib/supabase/provider';
 import Link from 'next/link';
 import { MoveHorizontal } from 'lucide-react';
-import ContactUs from './ContactUs';
 
 interface TopNavbarProps {
     className?: string;
@@ -16,7 +15,6 @@ const TopNavbar: React.FC<TopNavbarProps> = ({ className }) => {
                 <nav className="w-full flex gap-2 justify-center md:justify-end items-center m-0">
                     <Link href="/login" className="md:ml-4 dark-light-btn">Sign In</Link>
                     <Link href="/signup" className="hidden md:block ml-4 dark-light-btn">Sign Up</Link>
-                    <Link href="/contact" className="object-center md:ml-12 m-0 dark-light-btn">Contact Us</Link>
                 </nav>
             </div>
         </header>

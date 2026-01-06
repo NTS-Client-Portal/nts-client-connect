@@ -1,5 +1,4 @@
 import React from "react";
-import ContactUs from "@pages/components/ContactUs";
 import Layout from "@pages/components/Layout";
 import TopNavbar from "../components/TopNavbar";
 import Head from "next/head";
@@ -18,7 +17,7 @@ const ContactPage = () => {
             <div className="min-h-screen w-screen flex flex-col">
                 <TopNavbar />
             <main>
-                <ContactUs />
+                {/* <ContactUs /> */}
             </main>
                 <footer className="bg-zinc-900 text-white p-4 flex flex-col justify-center text-center gap-3 ">
                     <Link href="/policies" className="dark-light-btn max-w-max self-center">Policies</Link>

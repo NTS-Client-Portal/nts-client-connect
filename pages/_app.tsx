@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { SessionContextProvider, useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
+import { SupabaseProvider, useSession, useSupabaseClient } from '@/lib/supabase/provider';
 import type { AppProps } from 'next/app';
 import '../styles/app.css';
 import { ProfilesUserProvider } from '@/context/ProfilesUserContext';
 import { NtsUsersProvider } from '@/context/NtsUsersContext';
 import { DocumentNotificationProvider } from '@/context/DocumentNotificationContext';
-import { supabase } from '@/lib/initSupabase';
 
-function MyApp({ Component, pageProps }: AppProps) {
+function AppContent({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const session = useSession();
   const supabaseClient = useSupabaseClient();
@@ -61,19 +60,25 @@ function MyApp({ Component, pageProps }: AppProps) {
   }
 
   return (
-    <SessionContextProvider supabaseClient={supabase}>
-      <DocumentNotificationProvider>
-        {userType === 'nts_user' ? (
-          <NtsUsersProvider>
-            <Component {...pageProps} />
-          </NtsUsersProvider>
-        ) : (
-          <ProfilesUserProvider>
-            <Component {...pageProps} />
-          </ProfilesUserProvider>
-        )}
-      </DocumentNotificationProvider>
-    </SessionContextProvider>
+    <DocumentNotificationProvider>
+      {userType === 'nts_user' ? (
+        <NtsUsersProvider>
+          <Component {...pageProps} />
+        </NtsUsersProvider>
+      ) : (
+        <ProfilesUserProvider>
+          <Component {...pageProps} />
+        </ProfilesUserProvider>
+      )}
+    </DocumentNotificationProvider>
+  );
+}
+
+function MyApp(props: AppProps) {
+  return (
+    <SupabaseProvider>
+      <AppContent {...props} />
+    </SupabaseProvider>
   );
 }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Database } from "@/lib/database.types";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useSupabaseClient } from "@/lib/supabase/provider";
 import { 
     QuoteStatus, 
     BrokersStatus,

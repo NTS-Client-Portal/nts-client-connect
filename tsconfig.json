@@ -16,7 +16,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "baseUrl": ".",
     "paths": {
@@ -52,7 +52,8 @@
     "lib/types.ts",
     "lib/utils.ts",
     "lib/updateUserRole.mjs",
-    "scripts/updateRoleScript.mjs"],
+    "scripts/updateRoleScript.mjs"
+  ],
   "exclude": [
     "node_modules"
   ]
