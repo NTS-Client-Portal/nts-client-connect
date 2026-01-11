@@ -39,7 +39,7 @@ const SideNavbar: React.FC<SideNavbarProps> = ({ isSidebarOpen, toggleSidebar, c
             </button>
             <nav className={`side-navbar bg-stone-900 flex flex-col h-screen z-20 py-6 drop-shadow absolute top-0 left-0 transform ${isSidebarOpen ? 'tranzinc-x-0' : '-tranzinc-x-full'} transition-transform md:tranzinc-x-0 ${className}`}>
                 <h1 className='text-xl mb-4 mt-12 self-center'>NTS Client Portal</h1>
-                <ul className='flex gap-3 flex-col justify-start items-center flex-grow space-y-1 overflow-y-auto'>
+                <ul className='flex gap-3 flex-col justify-start items-center grow space-y-1 overflow-y-auto'>
                     <li className="w-full flex flex-col items-center gap-1 justify-center m-0">
                         <h3 className='font-medium text-lg'>Welcome!</h3>
                     </li>

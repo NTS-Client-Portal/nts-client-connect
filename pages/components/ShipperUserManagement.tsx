@@ -452,7 +452,7 @@ const ShipperUserManagement: React.FC = () => {
                     <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
                         <div className="overflow-x-auto">
                             <table className="w-full">
-                                <thead className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+                                <thead className="bg-linear-to-r from-blue-600 to-blue-700 text-white">
                                     <tr>
                                         <th className="py-4 px-6 text-left font-semibold">Company</th>
                                         <th className="py-4 px-6 text-left font-semibold">Industry</th>
@@ -595,7 +595,7 @@ const ShipperUserManagement: React.FC = () => {
                                                                         {companyProfiles.slice(0, displayCount).map(profile => (
                                                                             <div key={profile.id} className="bg-gray-50 border border-gray-200 rounded-lg p-3 hover:bg-gray-100 transition-colors duration-150">
                                                                                 <div className="flex items-center space-x-3">
-                                                                                    <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center flex-shrink-0">
+                                                                                    <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center shrink-0">
                                                                                         <span className="text-white text-xs font-semibold">
                                                                                             {profile.first_name?.charAt(0)}{profile.last_name?.charAt(0)}
                                                                                         </span>
@@ -611,7 +611,7 @@ const ShipperUserManagement: React.FC = () => {
                                                                                     </div>
                                                                                     
                                                                                     {/* User Status Indicator */}
-                                                                                    <div className="flex-shrink-0">
+                                                                                    <div className="shrink-0">
                                                                                         <div className="w-2 h-2 bg-green-400 rounded-full" title="Active user"></div>
                                                                                     </div>
                                                                                 </div>
@@ -656,7 +656,7 @@ const ShipperUserManagement: React.FC = () => {
                                                         <button
                                                             onClick={() => handleAssignSalesUser(company.id)}
                                                             disabled={!selectedSalesUserIds[company.id]}
-                                                            className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                                                            className="w-full px-4 py-3 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                                                         >
                                                             {assignedSalesUsers.length > 0 ? '+ Add Another Rep' : 'Assign Sales Rep'}
                                                         </button>

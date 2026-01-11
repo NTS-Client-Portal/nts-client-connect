@@ -51,7 +51,7 @@ const DeliveredTab: React.FC<DeliveredTabProps> = ({ session }) => {
     }, [session]);
 
     return (
-        <div className="w-full bg-white  max-h-max flex-grow">
+        <div className="w-full bg-white  max-h-max grow">
             {!!errorText && <div className="text-red-500">{errorText}</div>}
             <div className="hidden 2xl:block overflow-x-auto">
                 <table className="min-w-full divide-y divide-zinc-200">

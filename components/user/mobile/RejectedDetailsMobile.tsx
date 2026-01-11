@@ -74,7 +74,7 @@ const RejectedDetailsMobile: React.FC<RejectedDetailsMobileProps> = ({
     return (
         <div className="w-full h-full overflow-y-auto bg-gray-50 dark:bg-gray-900 pb-safe">
             {loading ? (
-                <div className="flex items-center justify-center min-h-[200px]">
+                <div className="flex items-center justify-center min-h-50">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
                     <span className="ml-2 text-gray-600 dark:text-gray-400">Loading rejected quotes...</span>
                 </div>
@@ -131,7 +131,7 @@ const RejectedDetailsMobile: React.FC<RejectedDetailsMobileProps> = ({
                                 {/* Route Information */}
                                 <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
                                     <div className="flex items-start space-x-3">
-                                        <MapPin className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                                        <MapPin className="w-5 h-5 text-red-600 mt-0.5 shrink-0" />
                                         <div className="flex-1 min-w-0">
                                             <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Route</h4>
                                             <a 
@@ -157,7 +157,7 @@ const RejectedDetailsMobile: React.FC<RejectedDetailsMobileProps> = ({
                                     {/* Freight Type & Due Date Row */}
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="flex items-center space-x-2">
-                                            <Truck className="w-4 h-4 text-red-600 flex-shrink-0" />
+                                            <Truck className="w-4 h-4 text-red-600 shrink-0" />
                                             <div className="min-w-0">
                                                 <div className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wide font-medium">Type</div>
                                                 <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
@@ -167,7 +167,7 @@ const RejectedDetailsMobile: React.FC<RejectedDetailsMobileProps> = ({
                                         </div>
 
                                         <div className="flex items-center space-x-2">
-                                            <Calendar className="w-4 h-4 text-red-600 flex-shrink-0" />
+                                            <Calendar className="w-4 h-4 text-red-600 shrink-0" />
                                             <div className="min-w-0">
                                                 <div className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wide font-medium">Due Date</div>
                                                 <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
@@ -198,7 +198,7 @@ const RejectedDetailsMobile: React.FC<RejectedDetailsMobileProps> = ({
                                 {quote.price && (
                                     <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-3">
                                         <div className="flex items-center space-x-3">
-                                            <DollarSign className="w-5 h-5 text-red-600 flex-shrink-0" />
+                                            <DollarSign className="w-5 h-5 text-red-600 shrink-0" />
                                             <div className="flex-1">
                                                 <div className="text-xs text-red-700 dark:text-red-300 uppercase tracking-wide font-medium mb-1">Rejected Price</div>
                                                 <div className="text-2xl font-bold text-red-700 dark:text-red-300">

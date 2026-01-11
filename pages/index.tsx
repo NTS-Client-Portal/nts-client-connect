@@ -26,7 +26,7 @@ export default function HomePage() {
       <Head>
         <title>NTS Logistics - Professional Freight & Transportation Services</title>
         <meta name="description" content="Nationwide freight shipping solutions - auto transport, heavy equipment, machinery, and general freight. 15+ years experience with 150K+ trucks nationwide." />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <link rel="icon" href="/hc-28.png" />
       </Head>
       
@@ -40,7 +40,7 @@ export default function HomePage() {
             className="object-cover opacity-30"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-slate-900/60 to-slate-900/80" />
+          <div className="absolute inset-0 bg-linear-to-r from-slate-900/80 via-slate-900/60 to-slate-900/80" />
         </div>
 
         {/* Navigation */}
@@ -105,7 +105,7 @@ export default function HomePage() {
                 </div>
                 <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-8 lg:p-10">
                   <div className="text-center mb-8">
-                    <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-xl mb-6">
+                    <div className="mx-auto h-16 w-16 bg-linear-to-r from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-xl mb-6">
                       <Truck className="h-10 w-10 text-white" />
                     </div>
                     <h2 className="text-3xl font-bold text-white mb-3">Client Portal</h2>
@@ -116,7 +116,7 @@ export default function HomePage() {
                     {/* Sign In Button */}
                     <Link 
                       href="/login" 
-                      className="w-full flex items-center justify-center space-x-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 px-8 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-semibold text-lg group shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+                      className="w-full flex items-center justify-center space-x-3 bg-linear-to-r from-blue-600 to-blue-700 text-white py-4 px-8 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-semibold text-lg group shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
                     >
                       <span>Access Portal</span>
                       <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
@@ -167,19 +167,19 @@ export default function HomePage() {
                   </h3>
                   <div className="space-y-3">
                     <div className="flex items-center space-x-3">
-                      <Shield className="h-5 w-5 text-green-400 flex-shrink-0" />
+                      <Shield className="h-5 w-5 text-green-400 shrink-0" />
                       <span className="text-slate-200">Fully insured & licensed nationwide</span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <Clock className="h-5 w-5 text-blue-400 flex-shrink-0" />
+                      <Clock className="h-5 w-5 text-blue-400 shrink-0" />
                       <span className="text-slate-200">Real-time tracking & updates</span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <Users className="h-5 w-5 text-purple-400 flex-shrink-0" />
+                      <Users className="h-5 w-5 text-purple-400 shrink-0" />
                       <span className="text-slate-200">Dedicated logistics specialists</span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <Truck className="h-5 w-5 text-orange-400 flex-shrink-0" />
+                      <Truck className="h-5 w-5 text-orange-400 shrink-0" />
                       <span className="text-slate-200">All freight types - cars to heavy equipment</span>
                     </div>
                   </div>
@@ -191,7 +191,7 @@ export default function HomePage() {
                             {/* Client Testimonial */}
                 <div className="bg-yellow-500/10 backdrop-blur-sm border border-yellow-400/20 rounded-xl p-4">
                   <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0">
+                    <div className="shrink-0">
                       <div className="w-10 h-10 bg-yellow-500/20 rounded-full flex items-center justify-center">
                         <Star className="h-5 w-5 text-yellow-400" />
                       </div>

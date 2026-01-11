@@ -20,7 +20,7 @@ const InventoryTab = ({ freightList = [], editFreight, handleDeleteClick, handle
     };
 
     return (
-        <div className="w-full max-h-max flex-grow">
+        <div className="w-full max-h-max grow">
             {error && <div className="text-red-500 p-4">{error}</div>} {/* Display error message */}
             <div className="hidden xl:flex w-full justify-center overflow-x-auto ">
                 <table className="min-w-full divide-y border border-zinc-200 divide-zinc-200">

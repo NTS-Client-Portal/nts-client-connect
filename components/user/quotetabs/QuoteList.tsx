@@ -25,9 +25,10 @@ interface QuoteListProps {
     fetchQuotes: () => void;
     companyId: string; // Add companyId as a prop
     isUser: boolean;
+    isEmailVerified: boolean;
 }
 
-const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, companyId, isUser }) => {
+const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, companyId, isUser, isEmailVerified }) => {
     const supabase = useSupabaseClient<Database>();
     const [quotes, setQuotes] = useState<Database["public"]["Tables"]["shippingquotes"]["Row"][]>([]);
     const [profiles, setProfiles] = useState<Database["public"]["Tables"]["profiles"]["Row"][]>([]);
@@ -805,7 +806,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
     };
 
     return (
-        <div className="w-full bg-white max-h-max flex-grow overflow-hidden">
+        <div className="w-full bg-white max-h-max grow overflow-hidden">
             {popupMessage && (
                 <div className="absolute top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg animate-fade-in-out z-50">
                     {popupMessage}
@@ -889,6 +890,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
                             isAdmin={isAdmin}
                             handleRejectClick={handleRejectClick}
                             isUser={isUser}
+                            isEmailVerified={isEmailVerified}
                         />
                     </div>
                     <div className="block xl:hidden">

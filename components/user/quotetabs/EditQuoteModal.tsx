@@ -1409,7 +1409,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" style={{ zIndex: 99999 }}>
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden  overflow-y-auto">
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+                <div className="px-6 py-4 border-b border-gray-200 bg-linear-to-r from-blue-50 to-indigo-50">
                     <div className="flex items-center justify-between pt-2">
                         <div>
                             <h2 className="text-xl font-bold text-gray-900">
@@ -1567,7 +1567,7 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                         {errorText && (
                             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                                 <div className="flex items-center gap-2">
-                                    <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg className="w-5 h-5 text-red-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                                     </svg>
                                     <p className="text-red-700 text-sm font-medium">{errorText}</p>

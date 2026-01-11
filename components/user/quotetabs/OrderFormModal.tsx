@@ -104,8 +104,8 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ isOpen, onClose, onSubm
 
     return (
         <div className="fixed z-40 inset-0 flex justify-center items-center p-2 md:p-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(4px)' }}>
-            <div className="bg-gradient-to-br from-white to-zinc-50 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-[95vw] lg:max-w-7xl max-h-[98vh] overflow-y-auto border border-zinc-200">
-                <div className="relative top-0 bg-gradient-to-br from-white to-zinc-50 pb-3 mb-3 border-b border-zinc-200">
+            <div className="bg-linear-to-br from-white to-zinc-50 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-[95vw] lg:max-w-7xl max-h-[98vh] overflow-y-auto border border-zinc-200">
+                <div className="relative top-0 bg-linear-to-br from-white to-zinc-50 pb-3 mb-3 border-b border-zinc-200">
                     <button
                         onClick={onClose}
                         className="float-right -mt-1 -mr-1 p-1.5 hover:bg-red-50 rounded-full transition-colors duration-200 group"

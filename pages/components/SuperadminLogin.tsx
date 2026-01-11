@@ -47,11 +47,11 @@ const SuperadminLogin = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-linear-to-br from-slate-50 to-blue-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8">
                 {/* Header */}
                 <div className="text-center">
-                    <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <div className="mx-auto h-16 w-16 bg-linear-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
                         <Crown className="h-10 w-10 text-white" />
                     </div>
                     <h2 className="mt-6 text-3xl font-bold text-slate-800">
@@ -67,7 +67,7 @@ const SuperadminLogin = () => {
                     {error && (
                         <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
                             <div className="flex items-center space-x-3">
-                                <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+                                <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
                                 <p className="text-red-700 text-sm font-medium">{error}</p>
                             </div>
                         </div>
@@ -119,7 +119,7 @@ const SuperadminLogin = () => {
 
                         <button
                             type="submit"
-                            className="w-full flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-lg transform hover:scale-105 transition-all duration-200"
+                            className="w-full flex items-center justify-center px-6 py-3 bg-linear-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-lg transform hover:scale-105 transition-all duration-200"
                             disabled={loading}
                         >
                             {loading ? (

@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { Home, ArrowLeft, MapPin, Truck } from 'lucide-react';
 
 const Custom404Content = () => (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 via-white to-blue-50 p-4">
         <div className="max-w-2xl w-full text-center">
             {/* 404 Animation */}
             <div className="relative mb-8">
@@ -30,7 +30,7 @@ const Custom404Content = () => (
             {/* Helpful Suggestions */}
             <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 mb-8 max-w-md mx-auto">
                 <div className="flex items-start gap-3 text-left">
-                    <MapPin className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
+                    <MapPin className="w-5 h-5 text-blue-600 mt-1 shrink-0" />
                     <div>
                         <h3 className="font-semibold text-gray-900 mb-2">Lost? Here are some suggestions:</h3>
                         <ul className="text-sm text-gray-600 space-y-1">

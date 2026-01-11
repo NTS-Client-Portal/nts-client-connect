@@ -67,6 +67,7 @@ interface QuoteTableProps {
     duplicateQuote: (quote: Database['public']['Tables']['shippingquotes']['Row']) => void;
     reverseQuote: (quote: Database['public']['Tables']['shippingquotes']['Row']) => void;
     handleRejectClick: (id: number) => void;
+    isEmailVerified: boolean;
 }
 
 const columnDisplayNames: { [key: string]: string } = {
@@ -95,6 +96,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
     isUser,
     duplicateQuote,
     reverseQuote,
+    isEmailVerified,
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [quotesState, setQuotes] = useState(quotes);
@@ -613,7 +615,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
             {/* Search and Filter Section */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3">
                 <div className="flex flex-row flex-nowrap items-center gap-3">
-                                        <div className="flex items-center gap-2 flex-shrink-0">
+                                        <div className="flex items-center gap-2 shrink-0">
                         <Filter className="w-4 h-4 text-gray-500" />
                         <select
                             aria-label="Filter by column"
@@ -629,7 +631,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                         </select>
                     </div>
                     <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <Search className="w-4 h-4 text-gray-400 shrink-0" />
                         <input
                             type="text"
                             value={searchTerm}
@@ -830,13 +832,34 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                             Edit Quote
                                         </button>
                                         {quote.price && (
-                                            <button 
-                                                onClick={(e) => { e.stopPropagation(); handleCreateOrderClick(quote.id); }} 
-                                                className="modern-btn bg-green-600 hover:bg-green-700 text-white flex-1"
-                                            >
-                                                <CheckCircle className="w-4 h-4 mr-2" />
-                                                Create Order
-                                            </button>
+                                            <>
+                                                <button 
+                                                    onClick={(e) => { 
+                                                        e.stopPropagation(); 
+                                                        // Block unverified shippers from creating orders
+                                                        if (isUser && !isEmailVerified) {
+                                                            alert('Please verify your email address before creating orders. Check your inbox for the verification link, or use the banner at the top to resend it.');
+                                                            return;
+                                                        }
+                                                        handleCreateOrderClick(quote.id); 
+                                                    }} 
+                                                    className={`modern-btn flex-1 ${
+                                                        isUser && !isEmailVerified 
+                                                            ? 'bg-gray-400 cursor-not-allowed opacity-50' 
+                                                            : 'bg-green-600 hover:bg-green-700'
+                                                    } text-white`}
+                                                    disabled={isUser && !isEmailVerified}
+                                                    title={isUser && !isEmailVerified ? 'Email verification required to create orders' : 'Create Order'}
+                                                >
+                                                    <CheckCircle className="w-4 h-4 mr-2" />
+                                                    Create Order
+                                                    {isUser && !isEmailVerified && (
+                                                        <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                                        </svg>
+                                                    )}
+                                                </button>
+                                            </>
                                         )}
                                         {isUser && quote.price && (
                                             <button
@@ -911,7 +934,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                     {/* Desktop Table View - Grandma-Friendly Design! */}
                     <div className="hidden lg:block bg-white rounded-lg shadow-sm border border-gray-200">
                         <table className="modern-table">
-                            <thead className="modern-table-header bg-gradient-to-r from-blue-600 text-nowrap to-blue-700 text-white">
+                            <thead className="modern-table-header bg-linear-to-r from-blue-600 text-nowrap to-blue-700 text-white">
                                 <tr>
                                     <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
                                         <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
@@ -959,7 +982,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                             </td>
                                             <td className="modern-table-cell text-gray-900">
                                                 <div className="flex items-start gap-2">
-                                                    <Truck className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
+                                                    <Truck className="w-4 h-4 text-gray-400 mt-1 shrink-0" />
                                                     <div className="flex-1 min-w-0">
                                                         {Array.isArray(quote.shipment_items) ? quote.shipment_items.map((item: any, index) => (
                                                             <React.Fragment key={index}>
@@ -1027,7 +1050,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                             </td>
                                             <td className="px-3 py-4 text-sm text-gray-500">
                                                 <div className="flex items-center gap-1">
-                                                    <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                                    <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
                                                     <a
                                                         href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${quote.origin_city}, ${quote.origin_state} ${quote.origin_zip}`)}&destination=${encodeURIComponent(`${quote.destination_city}, ${quote.destination_state} ${quote.destination_zip}`)}`}
                                                         target="_blank"
@@ -1082,12 +1105,28 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                             <button
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
+                                                                    // Block unverified shippers from creating orders
+                                                                    if (isUser && !isEmailVerified) {
+                                                                        alert('Please verify your email address before creating orders. Check your inbox for the verification link, or use the banner at the top to resend it.');
+                                                                        return;
+                                                                    }
                                                                     handleCreateOrderClick(quote.id);
                                                                 }}
-                                                                className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-800 flex items-center gap-1"
+                                                                className={`px-2 py-1 rounded flex items-center gap-1 ${
+                                                                    isUser && !isEmailVerified
+                                                                        ? 'bg-gray-400 cursor-not-allowed opacity-50'
+                                                                        : 'bg-green-600 hover:bg-green-800'
+                                                                } text-white`}
+                                                                disabled={isUser && !isEmailVerified}
+                                                                title={isUser && !isEmailVerified ? 'Email verification required' : 'Accept quote and create order'}
                                                             >
                                                                 <CheckCircle className="w-4 h-4" />
                                                                 <span className="text-xs">Accept</span>
+                                                                {isUser && !isEmailVerified && (
+                                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                                                    </svg>
+                                                                )}
                                                             </button>
                                                         )}
                                                         {isUser && quote.price && (
@@ -1227,7 +1266,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                                                 <div className="flex gap-2 pt-1">
                                                                                     <button
                                                                                         type="submit"
-                                                                                        className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 py-2 rounded-md text-xs font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center justify-center gap-1.5 shadow-sm"
+                                                                                        className="flex-1 bg-linear-to-r from-blue-600 to-blue-700 text-white px-3 py-2 rounded-md text-xs font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center justify-center gap-1.5 shadow-sm"
                                                                                         onClick={(e) => e.stopPropagation()}
                                                                                     >
                                                                                         <CheckCircle className="w-3 h-3" />
@@ -1254,7 +1293,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                                                     e.stopPropagation();
                                                                                     setShowPriceInput(quote.id);
                                                                                 }}
-                                                                                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm flex items-center justify-center gap-2"
+                                                                                className="w-full bg-linear-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm flex items-center justify-center gap-2"
                                                                             >
                                                                                 <DollarSign className="w-4 h-4" />
                                                                                 {quote.price ? 'Edit Quote' : 'Price Quote Request'}

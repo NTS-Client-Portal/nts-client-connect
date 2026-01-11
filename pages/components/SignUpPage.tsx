@@ -85,7 +85,8 @@ const SignUpPage = () => {
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signUp({
+      // Sign up the user
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
@@ -101,11 +102,25 @@ const SignUpPage = () => {
         }
       });
 
-      if (error) {
-        setError(error.message);
+      if (signUpError) {
+        setError(signUpError.message);
+        return;
+      }
+
+      // Automatically sign in the user after signup
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password
+      });
+
+      if (signInError) {
+        // If auto-login fails, still show success but redirect to login
+        setSuccess('Account created! Please sign in to continue.');
+        setTimeout(() => router.push('/login'), 2000);
       } else {
-        setSuccess('Account created successfully! Please check your email to verify your account.');
-        setTimeout(() => router.push('/login'), 3000);
+        // Auto-login successful - redirect to dashboard
+        setSuccess('Welcome! Taking you to your dashboard...');
+        setTimeout(() => router.push('/user/freight-rfq'), 1500);
       }
     } catch (error) {
       setError('An unexpected error occurred. Please try again.');
@@ -387,7 +402,7 @@ const SignUpPage = () => {
                 {error && (
                   <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
                     <div className="flex items-center space-x-3">
-                      <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+                      <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
                       <p className="text-red-700 font-medium">{error}</p>
                     </div>
                   </div>
@@ -396,7 +411,7 @@ const SignUpPage = () => {
                 {success && (
                   <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
                     <div className="flex items-center space-x-3">
-                      <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
+                      <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
                       <p className="text-green-700 font-medium">{success}</p>
                     </div>
                   </div>
@@ -489,7 +504,7 @@ const SignUpPage = () => {
 
               <div className="space-y-6">
                 <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <div className="shrink-0 w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
                     <Truck className="h-6 w-6" />
                   </div>
                   <div>
@@ -499,7 +514,7 @@ const SignUpPage = () => {
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <div className="shrink-0 w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
                     <Shield className="h-6 w-6" />
                   </div>
                   <div>
@@ -509,7 +524,7 @@ const SignUpPage = () => {
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <div className="shrink-0 w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
                     <Package className="h-6 w-6" />
                   </div>
                   <div>
@@ -519,7 +534,7 @@ const SignUpPage = () => {
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <div className="shrink-0 w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
                     <Users className="h-6 w-6" />
                   </div>
                   <div>

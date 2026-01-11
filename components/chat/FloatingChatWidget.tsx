@@ -147,7 +147,7 @@ const FloatingChatWidget: React.FC<FloatingChatWidgetProps> = ({ brokerId, shipp
                         Minimize
                     </button>
                     <div className="chat-interface flex flex-col h-full w-full">
-                        <div className="messages flex-grow overflow-y-auto mb-2 h-full w-full">
+                        <div className="messages grow overflow-y-auto mb-2 h-full w-full">
                             {messages.map((message) => (
                                 <div key={message.id} className={`p-2 flex ${message.user_type === 'broker' ? 'justify-start' : 'justify-end'}`}>
                                     <div className={`i p-2 rounded-lg ${message.user_type === 'broker' ? 'bg-blue-100 w-2/3' : message.user_type === 'system' ? 'bg-red-100' : 'bg-gray-100 w-2/3'}`}>
@@ -168,7 +168,7 @@ const FloatingChatWidget: React.FC<FloatingChatWidgetProps> = ({ brokerId, shipp
                                     value={newMessage}
                                     onChange={(e) => setNewMessage(e.target.value)}
                                     placeholder="Type a message..."
-                                    className="flex-grow p-2 border border-gray-300 rounded-l-lg"
+                                    className="grow p-2 border border-gray-300 rounded-l-lg"
                                 />
                                 <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-r-lg">
                                     Send

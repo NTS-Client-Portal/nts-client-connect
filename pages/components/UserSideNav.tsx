@@ -200,11 +200,11 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                                     unoptimized
                                 />
                             ) : (
-                                <div className="w-20 h-20 bg-gradient-to-br from-slate-600 to-slate-700 rounded-2xl border-3 border-white/20 shadow-xl flex items-center justify-center">
+                                <div className="w-20 h-20 bg-linear-to-br from-slate-600 to-slate-700 rounded-2xl border-3 border-white/20 shadow-xl flex items-center justify-center">
                                     <User className="w-10 h-10 text-slate-300" />
                                 </div>
                             )}
-                            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-green-400 to-green-500 rounded-full border-3 border-slate-800 shadow-lg"></div>
+                            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-linear-to-br from-green-400 to-green-500 rounded-full border-3 border-slate-800 shadow-lg"></div>
                         </div>
                         
                         <div>
@@ -232,7 +232,7 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                                         <div
                                             className={`group relative flex items-center p-3 rounded-xl transition-all duration-300 cursor-pointer ${
                                                 isActive 
-                                                    ? `bg-gradient-to-r ${item.color} text-white shadow-lg shadow-black/20 border border-white/20` 
+                                                    ? `bg-linear-to-r ${item.color} text-white shadow-lg shadow-black/20 border border-white/20` 
                                                     : 'text-slate-100 hover:text-white hover:bg-white/10 border border-transparent'
                                             }`}
                                         >
@@ -252,10 +252,10 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                                                 </p>
                                             </div>
                                             {item.hasNotification && (
-                                                <div className="w-3 h-3 bg-red-500 rounded-full shadow-lg flex-shrink-0" onClick={() => setNewDocumentAdded(false)}></div>
+                                                <div className="w-3 h-3 bg-red-500 rounded-full shadow-lg shrink-0" onClick={() => setNewDocumentAdded(false)}></div>
                                             )}
                                             {isActive && (
-                                                <div className="w-2 h-2 bg-white rounded-full shadow-lg flex-shrink-0"></div>
+                                                <div className="w-2 h-2 bg-white rounded-full shadow-lg shrink-0"></div>
                                             )}
                                         </div>
                                     </Link>
@@ -311,7 +311,7 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                     {/* Logout */}
                     <button
                         onClick={handleLogout}
-                        className="w-full group flex items-center p-3 rounded-xl transition-all duration-300 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 hover:shadow-lg hover:shadow-red-500/20"
+                        className="w-full group flex items-center p-3 rounded-xl transition-all duration-300 text-slate-300 hover:text-white hover:bg-linear-to-r hover:from-red-500 hover:to-red-600 hover:shadow-lg hover:shadow-red-500/20"
                     >
                         <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-500/20 group-hover:bg-white/20">
                             <LogOut className="w-4 h-4 text-red-400 group-hover:text-white" />

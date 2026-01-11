@@ -218,7 +218,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                 </div>
                 
                 {/* Subtle gradient overlay on hover */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/0 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                <div className="absolute inset-0 bg-linear-to-r from-blue-600/0 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
             </button>
 
             <QuoteForm

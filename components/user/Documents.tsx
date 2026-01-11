@@ -457,7 +457,7 @@ const Documents: React.FC<DocumentsProps> = ({ session }) => {
 
             <div className="max-w-7xl mx-auto lg:flex lg:gap-8 lg:p-8">
                 {/* Sidebar Navigation */}
-                <div className="lg:w-64 lg:flex-shrink-0">
+                <div className="lg:w-64 lg:shrink-0">
                     <div className="lg:sticky lg:top-8">
                         {/* Desktop Header */}
                         <div className="hidden lg:block mb-8">

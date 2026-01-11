@@ -215,7 +215,7 @@ export const Unauthorized: React.FC<{ message?: string }> = ({
   message = "You don't have permission to access this content." 
 }) => {
   return (
-    <div className="flex items-center justify-center min-h-[200px]">
+    <div className="flex items-center justify-center min-h-50">
       <div className="text-center">
         <div className="text-4xl mb-4">🔒</div>
         <h3 className="text-lg font-semibold text-gray-700 mb-2">Access Denied</h3>
@@ -230,7 +230,7 @@ export const Loading: React.FC<{ message?: string }> = ({
   message = "Loading..." 
 }) => {
   return (
-    <div className="flex items-center justify-center min-h-[200px]">
+    <div className="flex items-center justify-center min-h-50">
       <div className="text-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
         <p className="text-gray-500">{message}</p>

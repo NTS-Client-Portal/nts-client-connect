@@ -14,6 +14,20 @@ function AppContent({ Component, pageProps }: AppProps) {
   const [userType, setUserType] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Register Service Worker for PWA
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((registration) => {
+          console.log('Service Worker registered:', registration.scope);
+        })
+        .catch((error) => {
+          console.error('Service Worker registration failed:', error);
+        });
+    }
+  }, []);
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (session) {

@@ -111,7 +111,7 @@ const NtsOrderList: React.FC<NtsOrderListProps> = ({ session, fetchQuotes, archi
     };
 
     return (
-        <div className="w-full bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md border border-zinc-400 max-h-max flex-grow">
+        <div className="w-full bg-white dark:bg-zinc-800 dark:text-white shadow rounded-md border border-zinc-400 max-h-max grow">
             {!!errorText && <div className="text-red-500">{errorText}</div>}
             <div className="hidden 2xl:block overflow-x-auto">
                 <table className="min-w-full divide-y divide-zinc-200 dark:bg-zinc-800 dark:text-white">

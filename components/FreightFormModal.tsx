@@ -85,7 +85,7 @@ const FreightFormModal: React.FC<FreightFormModalProps> = ({
 
     return (
         <div className="fixed inset-0 dark:text-zinc-100 z-50 h-full bg-opacity-50 flex justify-center items-center">
-            <div className="dark:text-zinc-100 dark:bg-zinc-900 border border-zinc-700 shadow-lg bg-zinc-100 z-50 p-4 md:p-8 h-[770px] max-h-max my-16 rounded w-full md:w-1/2 overflow-y-auto">
+            <div className="dark:text-zinc-100 dark:bg-zinc-900 border border-zinc-700 shadow-lg bg-zinc-100 z-50 p-4 md:p-8 h-192.5 max-h-max my-16 rounded w-full md:w-1/2 overflow-y-auto">
                 <h2 className="text-xl dark:text-zinc-100 mb-4">{editingFreight ? 'Edit Inventory' : 'Add Inventory'}</h2>
                 <form onSubmit={onSubmit} className="flex flex-col w-full gap-2 my-2 p-2 bg-zinc-50 dark:bg-zinc-900 dark:text-zinc-100">
                     <div className='flex flex-col gap-4 w-full dark:bg-zinc-900 dark:text-zinc-100'>

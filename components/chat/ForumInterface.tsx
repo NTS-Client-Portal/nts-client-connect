@@ -154,11 +154,11 @@ const ForumInterface: React.FC<ForumInterfaceProps> = ({ brokerId, shipperId, se
             <div className=" w-full">
                 <div className="flex flex-col h-full w-full">
                     <form onSubmit={handleSendMessage} className="bg-white shadow-md p-2 flex flex-col w-full my-2">
-                        <div className="flex-grow">
+                        <div className="grow">
                             <textarea
                                 value={newMessage}
                                 onChange={(e) => setNewMessage(e.target.value)}
-                                className="flex-grow p-2 rounded-t-lg"
+                                className="grow p-2 rounded-t-lg"
                                 style={{ height: '150px' }} // Double the height of the text area
                             />
                         </div>
@@ -177,7 +177,7 @@ const ForumInterface: React.FC<ForumInterfaceProps> = ({ brokerId, shipperId, se
                             </div>
                         </div>
                     </form>
-                    <div className="flex-grow border-2 shadow-md h-full w-full mt-4 overflow-y-auto">
+                    <div className="grow border-2 shadow-md h-full w-full mt-4 overflow-y-auto">
                         {messages.map((message) => (
                             <div key={message.id} className={`p-1 flex w-full bg-ntsBlue/80 border-2 border-t-orange-500 text-white`}>
                                 <div className={`p-2 rounded-lg w-full`}>

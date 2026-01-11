@@ -62,7 +62,7 @@ const AdminSideNav: React.FC<AdminSideNavProps> = ({ isSidebarOpen, toggleSideba
                     <div className="w-full flex flex-col items-center gap-1 justify-center mb-6 border-b border-stone-100/40 pb-4">
                         <h3>Welcome {userProfile?.first_name || 'User'}</h3>
                     </div>
-                    <ul className='flex gap-3 flex-col flex-grow space-y-1 overflow-y-hidden'>
+                    <ul className='flex gap-3 flex-col grow space-y-1 overflow-y-hidden'>
                         <li className={`w-full flex justify-center mt-0 ${router.pathname == "nts/adminadmin-dashboard" ? "active" : ""}`}>
                             <Link href="nts/adminadmin-dashboard" className={`side-nav-btn text-stone-100 font-semibold py-1 w-full ${router.pathname == "nts/adminadmin-dashboard" ? "active" : ""}`}>
                                 <span className='flex items-center flex-nowrap justify-normal gap-2 text-xs'><ChartArea size={'20px'} /> <span className='text-xs md:text-sm'>Analytics</span></span>

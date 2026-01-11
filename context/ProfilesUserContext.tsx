@@ -7,6 +7,7 @@ interface ProfilesUserContextType {
     setUserProfile: React.Dispatch<React.SetStateAction<Database['public']['Tables']['profiles']['Row'] | null>>;
     loading: boolean;
     error: string | null;
+    isEmailVerified: boolean;
 }
 
 const ProfilesUserContext = createContext<ProfilesUserContextType | undefined>(undefined);
@@ -17,13 +18,19 @@ export const ProfilesUserProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const [userProfile, setUserProfile] = useState<Database['public']['Tables']['profiles']['Row'] | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isEmailVerified, setIsEmailVerified] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchUserProfile = async () => {
             if (!session) {
                 setLoading(false);
+                setIsEmailVerified(false);
                 return;
             }
+
+            // Check email verification status
+            const emailConfirmed = !!session.user.email_confirmed_at;
+            setIsEmailVerified(emailConfirmed);
 
             try {
                 const { data, error } = await supabase
@@ -54,7 +61,7 @@ export const ProfilesUserProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }, [session, supabase]);
 
     return (
-        <ProfilesUserContext.Provider value={{ userProfile, setUserProfile, loading, error }}>
+        <ProfilesUserContext.Provider value={{ userProfile, setUserProfile, loading, error, isEmailVerified }}>
             {children}
         </ProfilesUserContext.Provider>
     );

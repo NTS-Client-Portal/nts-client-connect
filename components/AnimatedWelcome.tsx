@@ -14,7 +14,7 @@ const AnimatedWelcome: React.FC<AnimatedWelcomeProps> = ({
     onComplete 
 }) => {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-50 p-4">
+        <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 via-white to-blue-50 p-4">
             <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -49,7 +49,7 @@ const AnimatedWelcome: React.FC<AnimatedWelcomeProps> = ({
                         />
                         
                         {/* Main Icon Circle */}
-                        <div className="relative w-24 h-24 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full shadow-xl flex items-center justify-center">
+                        <div className="relative w-24 h-24 bg-linear-to-br from-blue-600 to-blue-700 rounded-full shadow-xl flex items-center justify-center">
                             <Truck className="w-12 h-12 text-white" />
                         </div>
                         
@@ -118,7 +118,7 @@ const AnimatedWelcome: React.FC<AnimatedWelcomeProps> = ({
                                 ease: "easeInOut"
                             }}
                             onAnimationComplete={onComplete}
-                            className="h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full"
+                            className="h-full bg-linear-to-r from-blue-600 to-blue-400 rounded-full"
                         />
                     </div>
                 </motion.div>

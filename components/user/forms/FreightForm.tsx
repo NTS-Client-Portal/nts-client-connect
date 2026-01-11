@@ -201,7 +201,7 @@ const FreightForm: React.FC<FreightFormProps> = ({
                                         setLength(e.target.value);
                                     }}
                                 />
-                                <select className="nts-input rounded-l-none border-l-0 !w-fit"
+                                <select className="nts-input rounded-l-none border-l-0 w-fit!"
                                     title='length unit selection'
                                     value={lengthUnit} onChange={(e) => setLengthUnit(e.target.value)}>
                                     <option value="ft">ft</option>
@@ -226,7 +226,7 @@ const FreightForm: React.FC<FreightFormProps> = ({
                                         setWidth(e.target.value);
                                     }}
                                 />
-                                <select className="nts-input rounded-l-none border-l-0  !w-fit" 
+                                <select className="nts-input rounded-l-none border-l-0  w-fit!" 
                                     title='width unit selection'
                                     value={widthUnit} onChange={(e) => setWidthUnit(e.target.value)}>
                                     <option value="ft">ft</option>
@@ -251,7 +251,7 @@ const FreightForm: React.FC<FreightFormProps> = ({
                                         setHeight(e.target.value);
                                     }}
                                 />
-                                <select className="nts-input rounded-l-none border-l-0 !w-fit"
+                                <select className="nts-input rounded-l-none border-l-0 w-fit!"
                                     title='height unit selection'
                                     value={heightUnit} onChange={(e) => setHeightUnit(e.target.value)}>
                                     <option value="ft">ft</option>
@@ -275,7 +275,7 @@ const FreightForm: React.FC<FreightFormProps> = ({
                                         setWeight(e.target.value);
                                     }}
                                 />
-                                <select className="nts-input rounded-l-none border-l-0 !w-fit"
+                                <select className="nts-input rounded-l-none border-l-0 w-fit!"
                                     title='weight unit selection'
                                     value={weightUnit} onChange={(e) => setWeightUnit(e.target.value)}>
                                     <option value="lbs">lbs</option>

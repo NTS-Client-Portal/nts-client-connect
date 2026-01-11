@@ -132,7 +132,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                                     onChange={e => { setErrorText(''); setLength(e.target.value); }}
                                 />
                                 <select
-                                    className="nts-input rounded-l-none border-l-0 !w-min flex-shrink-0 text-xs px-1"
+                                    className="nts-input rounded-l-none border-l-0 w-min! shrink-0 text-xs px-1"
                                     title='length unit selection'
                                     value={lengthUnit}
                                     onChange={e => setLengthUnit(e.target.value)}
@@ -155,7 +155,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                                     onChange={e => { setErrorText(''); setWidth(e.target.value); }}
                                 />
                                 <select
-                                    className="nts-input rounded-l-none border-l-0 !w-min flex-shrink-0 text-xs px-1"
+                                    className="nts-input rounded-l-none border-l-0 w-min! shrink-0 text-xs px-1"
                                     title='width unit selection'
                                     value={widthUnit}
                                     onChange={e => setWidthUnit(e.target.value)}
@@ -178,7 +178,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                                     onChange={e => { setErrorText(''); setHeight(e.target.value); }}
                                 />
                                 <select
-                                    className="nts-input rounded-l-none border-l-0 !w-min flex-shrink-0 text-xs px-1"
+                                    className="nts-input rounded-l-none border-l-0 w-min! shrink-0 text-xs px-1"
                                     title='height unit selection'
                                     value={heightUnit}
                                     onChange={e => setHeightUnit(e.target.value)}
@@ -201,7 +201,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                                     onChange={e => { setErrorText(''); setWeight(e.target.value); }}
                                 />
                                 <select
-                                    className="nts-input rounded-l-none border-l-0 !w-min flex-shrink-0 text-xs px-1"
+                                    className="nts-input rounded-l-none border-l-0 w-min! shrink-0 text-xs px-1"
                                     title='weight unit selection'
                                     value={weightUnit}
                                     onChange={e => setWeightUnit(e.target.value)}

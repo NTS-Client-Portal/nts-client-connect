@@ -302,7 +302,7 @@ const Archived: React.FC<ArchivedProps> = ({ session, isAdmin, companyId, fetchQ
     };
 
     return (
-        <div className="w-full bg-white max-h-max flex-grow">
+        <div className="w-full bg-white max-h-max grow">
             {!!errorText && <div className="text-red-500">{errorText}</div>}
             <div className="hidden lg:block overflow-x-auto">
                 <ArchivedTable

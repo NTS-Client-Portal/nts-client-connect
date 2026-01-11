@@ -357,7 +357,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ isOpen, onClose, addOrder, errorT
             }}
         >
             <div className="border-2 bg-blue-600 border-x-0 border-b-0 pt-2 rounded w-full max-w-6xl max-h-[90vh] flex flex-col">
-                <div className="flex items-center justify-between pl-4 pr-3 mb-2 flex-shrink-0">
+                <div className="flex items-center justify-between pl-4 pr-3 mb-2 shrink-0">
                     <h2 className="text-xl text-white font-semibold">Request a Shipping Order</h2>
                     <button
                         onClick={onClose}
@@ -398,9 +398,9 @@ const OrderForm: React.FC<OrderFormProps> = ({ isOpen, onClose, addOrder, errorT
 
                     {/* Divider */}
                     <div className='flex items-center justify-center gap-4'>
-                        <div className='border-b border-gray-300 flex-grow'></div>
+                        <div className='border-b border-gray-300 grow'></div>
                         <span className='text-gray-500 font-medium'>Or Create New</span>
-                        <div className='border-b border-gray-300 flex-grow'></div>
+                        <div className='border-b border-gray-300 grow'></div>
                     </div>
 
                     {/* Freight Type Selection */}

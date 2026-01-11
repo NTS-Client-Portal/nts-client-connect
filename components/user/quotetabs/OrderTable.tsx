@@ -397,7 +397,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                         </select>
                     </div>
                     <div className="nts-search-input">
-                        <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <Search className="w-4 h-4 text-gray-400 shrink-0" />
                         <input
                             type="text"
                             value={searchTerm}
@@ -427,7 +427,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                     {/* Desktop Table View */}
                     <div className="hidden md:block overflow-hidden">
                         <table className="modern-table w-full">
-                            <thead className="bg-gradient-to-r from-green-600 to-green-700 text-white">
+                            <thead className="bg-linear-to-r from-green-600 to-green-700 text-white">
                                 <tr>
                                     <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider rounded-tl-2xl">
                                         <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
@@ -477,7 +477,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                             </td>
                                             <td className="px-3 py-4 text-sm text-gray-500">
                                                 <div className="flex items-center gap-1">
-                                                    <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                                    <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
                                                     <div className="flex flex-col space-y-1">
                                                         <div className="text-xs text-gray-700">
                                                             <span className="font-medium">From:</span> {order.origin_city}, {order.origin_state}
@@ -502,7 +502,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                                     </div>
                                                 ) : showPriceInput === order.id ? (
                                                     <div 
-                                                        className="bg-blue-50 border border-blue-200 rounded-lg p-3 shadow-sm min-w-[280px]"
+                                                        className="bg-blue-50 border border-blue-200 rounded-lg p-3 shadow-sm min-w-70"
                                                         onClick={(e) => e.stopPropagation()}
                                                     >
                                                         <form onSubmit={(e) => handlePriceSubmit(e, order.id)} onClick={(e) => e.stopPropagation()}>
@@ -555,7 +555,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                                             e.stopPropagation();
                                                             setShowPriceInput(order.id);
                                                         }}
-                                                        className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-2 rounded-lg text-xs font-medium hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm flex items-center gap-1.5"
+                                                        className="bg-linear-to-r from-blue-500 to-blue-600 text-white px-3 py-2 rounded-lg text-xs font-medium hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm flex items-center gap-1.5"
                                                     >
                                                         <DollarSign className="w-3 h-3" />
                                                         Set Price

@@ -102,7 +102,7 @@ const StatusAudit: React.FC<StatusAuditProps> = ({ quoteId, showHeader = true })
           <div className="space-y-4">
             {auditEntries.map((entry) => (
               <div key={entry.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <User className="w-5 h-5 text-gray-400" />
                 </div>
                 <div className="flex-1 min-w-0">

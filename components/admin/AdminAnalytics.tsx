@@ -328,7 +328,7 @@ const AdminAnalytics = () => {
                         </div>
 
                         {/* Quick Insights Panel */}
-                        <div className="bg-gradient-to-r from-blue-600 to-purple-700 rounded-xl p-6 text-white">
+                        <div className="bg-linear-to-r from-blue-600 to-purple-700 rounded-xl p-6 text-white">
                             <h3 className="text-xl font-semibold mb-4">📊 Key Business Insights</h3>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div className="bg-white/10 backdrop-blur rounded-lg p-4">

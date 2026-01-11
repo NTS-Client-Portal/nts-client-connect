@@ -342,7 +342,7 @@ const DeliveredList: React.FC<DeliveredListProps> = ({ session, isAdmin, company
     };
 
     return (
-        <div className="w-full bg-white max-h-max flex-grow">
+        <div className="w-full bg-white max-h-max grow">
             {!!errorText && <div className="text-red-500">{errorText}</div>}
             {!!popupMessage && <div className="text-green-500">{popupMessage}</div>}
             <div className="hidden lg:block overflow-x-auto">

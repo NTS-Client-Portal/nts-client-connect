@@ -131,7 +131,7 @@ const SalesTopNav: React.FC<SalesTopNavProps> = ({ session, className = '', isSi
                                     unoptimized
                                 />
                             ) : (
-                                <div className="w-10 h-10 bg-gradient-to-br from-slate-300 to-slate-400 dark:from-slate-600 dark:to-slate-700 rounded-xl border-2 border-slate-200 dark:border-slate-600 shadow-sm flex items-center justify-center hover:scale-105 transition-all duration-200">
+                                <div className="w-10 h-10 bg-linear-to-br from-slate-300 to-slate-400 dark:from-slate-600 dark:to-slate-700 rounded-xl border-2 border-slate-200 dark:border-slate-600 shadow-sm flex items-center justify-center hover:scale-105 transition-all duration-200">
                                     <User className="w-5 h-5 text-slate-600 dark:text-slate-300" />
                                 </div>
                             )}

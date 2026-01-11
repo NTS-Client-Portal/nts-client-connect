@@ -29,8 +29,13 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session if expired
-  await supabase.auth.getUser();
+  // Refresh session if expired - suppress errors for public routes
+  try {
+    await supabase.auth.getUser();
+  } catch (error) {
+    // Silently handle auth errors for public routes
+    // The app will handle authentication requirements per route
+  }
 
   return supabaseResponse;
 }

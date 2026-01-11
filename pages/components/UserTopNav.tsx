@@ -162,7 +162,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '', toggleSidebar }
                                         unoptimized
                                     />
                                 ) : (
-                                    <div className="w-10 h-10 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full border-2 border-slate-200 flex items-center justify-center">
+                                    <div className="w-10 h-10 bg-linear-to-br from-slate-600 to-slate-700 rounded-full border-2 border-slate-200 flex items-center justify-center">
                                         <User className="w-5 h-5 text-white" />
                                     </div>
                                 )}
@@ -203,7 +203,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '', toggleSidebar }
                                                         unoptimized
                                                     />
                                                 ) : (
-                                                    <div className="w-12 h-12 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full border-2 border-slate-200 flex items-center justify-center">
+                                                    <div className="w-12 h-12 bg-linear-to-br from-slate-600 to-slate-700 rounded-full border-2 border-slate-200 flex items-center justify-center">
                                                         <User className="w-6 h-6 text-white" />
                                                     </div>
                                                 )}

@@ -375,7 +375,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
             } : {}}
         >
             <div className={isModal ? "border-2  bg-blue-600 border-x-0 border-b-0 pt-2 rounded w-full max-w-6xl max-h-[95vh] flex flex-col" : ""}>
-                <div className={isModal ? "flex items-center justify-between pl-4 pr-3 mb-2 flex-shrink-0" : ""}>
+                <div className={isModal ? "flex items-center justify-between pl-4 pr-3 mb-2 shrink-0" : ""}>
                     <h2 className={isModal ? "text-lg text-white font-semibold" : "text-xl font-semibold mb-4"}>Request a Shipping Estimate</h2>
                     {isModal && (
                         <button
@@ -457,9 +457,9 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
 
                         {/* Divider */}
                         <div className='flex items-center justify-center gap-3 my-1'>
-                            <div className='border-b border-gray-300 flex-grow'></div>
+                            <div className='border-b border-gray-300 grow'></div>
                             <span className='text-gray-500 text-sm font-medium'>Freight Details</span>
-                            <div className='border-b border-gray-300 flex-grow'></div>
+                            <div className='border-b border-gray-300 grow'></div>
                         </div>
 
                         {/* Freight Type Selection */}

@@ -100,7 +100,7 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
                         </select>
                     </div>
                     <div className="nts-search-input">
-                        <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <Search className="w-4 h-4 text-gray-400 shrink-0" />
                         <input
                             type="text"
                             value={searchTerm}
@@ -150,7 +150,7 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
                     {/* Desktop Table View */}
                     <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200">
                         <table className="modern-table">
-                            <thead className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+                            <thead className="bg-linear-to-r from-blue-600 to-blue-700 text-white">
                                 <tr>
                                     <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
                                         <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
@@ -192,7 +192,7 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
                                         </td>
                                         <td className="px-3 py-4 text-sm text-gray-500">
                                             <div className="flex items-center gap-1">
-                                                <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                                <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
                                                 <div className="flex flex-col space-y-1">
                                                     <div className="text-xs text-gray-700">
                                                         <span className="font-medium">From:</span> {quote.origin_city}, {quote.origin_state}

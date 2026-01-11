@@ -120,7 +120,7 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
                         </select>
                     </div>
                     <div className="nts-search-input">
-                        <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <Search className="w-4 h-4 text-gray-400 shrink-0" />
                         <input
                             type="text"
                             value={searchTerm}
@@ -165,7 +165,7 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
                                 <div className="p-4 space-y-3">
                                     {/* Freight Details */}
                                     <div className="flex items-start space-x-3">
-                                        <Truck className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
+                                        <Truck className="w-4 h-4 text-gray-400 mt-1 shrink-0" />
                                         <div className="flex-1">
                                             <p className="text-sm font-medium text-gray-900">
                                                 {freightTypeMapping[quote.freight_type] || quote.freight_type}
@@ -175,7 +175,7 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
 
                                     {/* Route */}
                                     <div className="flex items-start space-x-3">
-                                        <MapPin className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
+                                        <MapPin className="w-4 h-4 text-gray-400 mt-1 shrink-0" />
                                         <div className="flex-1">
                                             <div className="text-sm">
                                                 <p className="font-medium text-gray-900">
@@ -195,7 +195,7 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
 
                                     {/* Date */}
                                     <div className="flex items-start space-x-3">
-                                        <Calendar className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
+                                        <Calendar className="w-4 h-4 text-gray-400 mt-1 shrink-0" />
                                         <div className="flex-1">
                                             <p className="text-sm text-gray-600">
                                                 Due Date: {quote.due_date ? formatDate(quote.due_date) : 'Not set'}
@@ -276,7 +276,7 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
                     {/* Desktop Table View */}
                     <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200">
                     <table className="modern-table">
-                        <thead className="bg-gradient-to-r from-gray-600 to-gray-700 text-white">
+                        <thead className="bg-linear-to-r from-gray-600 to-gray-700 text-white">
                             <tr>
                                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
                                     <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
@@ -318,7 +318,7 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
                                     </td>
                                     <td className="px-3 py-4 text-sm text-gray-500">
                                         <div className="flex items-center gap-1">
-                                            <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                            <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
                                             <div className="flex flex-col space-y-1">
                                                 <div className="text-xs text-gray-700">
                                                     <span className="font-medium">From:</span> {quote.origin_city}, {quote.origin_state}

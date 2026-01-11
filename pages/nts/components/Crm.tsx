@@ -205,7 +205,7 @@ const Crm: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gradient-to-r from-blue-600 to-blue-700">
+              <thead className="bg-linear-to-r from-blue-600 to-blue-700">
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
                     Company
@@ -223,7 +223,7 @@ const Crm: React.FC = () => {
                   <tr key={company.id} className="hover:bg-gray-50 transition-colors duration-150">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <div className="shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                           <Building2 className="w-5 h-5 text-blue-600" />
                         </div>
                         <div className="ml-4">
@@ -328,7 +328,7 @@ const Crm: React.FC = () => {
         {filteredCompanies.map(company => (
           <div key={company.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             {/* Company Header */}
-            <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 border-b border-gray-200">
+            <div className="bg-linear-to-r from-blue-50 to-blue-100 p-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -404,14 +404,14 @@ const Crm: React.FC = () => {
                     </div>
                     <div className="space-y-2 text-sm">
                       <div className="flex items-start gap-2">
-                        <MapPin className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                        <MapPin className="w-4 h-4 text-gray-500 mt-0.5 shrink-0" />
                         <div>
                           <p className="font-medium text-gray-700">Route</p>
                           <p className="text-gray-600">{quote.origin_city}, {quote.origin_state} → {quote.destination_city}, {quote.destination_state}</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-2">
-                        <Truck className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                        <Truck className="w-4 h-4 text-gray-500 mt-0.5 shrink-0" />
                         <div>
                           <p className="font-medium text-gray-700">Load Details</p>
                           <p className="text-gray-600">{quote.year} {quote.make} {quote.model}</p>
@@ -419,7 +419,7 @@ const Crm: React.FC = () => {
                       </div>
                       {quote.due_date && (
                         <div className="flex items-start gap-2">
-                          <Calendar className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                          <Calendar className="w-4 h-4 text-gray-500 mt-0.5 shrink-0" />
                           <div>
                             <p className="font-medium text-gray-700">Due Date</p>
                             <p className="text-gray-600">{new Date(quote.due_date).toLocaleDateString()}</p>

@@ -126,7 +126,7 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                     {/* Brand */}
                     <div className="flex items-center justify-center mb-8">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                                 <Ship className="w-6 h-6 text-white" />
                             </div>
                             <div>
@@ -150,11 +150,11 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                                     unoptimized
                                 />
                             ) : (
-                                <div className="w-20 h-20 bg-gradient-to-br from-slate-600 to-slate-700 rounded-2xl border-3 border-white/20 shadow-xl flex items-center justify-center">
+                                <div className="w-20 h-20 bg-linear-to-br from-slate-600 to-slate-700 rounded-2xl border-3 border-white/20 shadow-xl flex items-center justify-center">
                                     <User className="w-10 h-10 text-slate-300" />
                                 </div>
                             )}
-                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-br from-green-400 to-green-500 rounded-full border-3 border-slate-800 shadow-lg"></div>
+                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-linear-to-br from-green-400 to-green-500 rounded-full border-3 border-slate-800 shadow-lg"></div>
                         </div>
                         
                         <div>
@@ -181,7 +181,7 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                                     <div
                                         className={`group relative flex items-center p-3 rounded-xl transition-all duration-300 cursor-pointer ${
                                             isActive 
-                                                ? `bg-gradient-to-r ${item.color} text-white shadow-lg shadow-black/20 border border-white/20` 
+                                                ? `bg-linear-to-r ${item.color} text-white shadow-lg shadow-black/20 border border-white/20` 
                                                 : 'text-slate-100 hover:text-white hover:bg-white/10 border border-transparent'
                                         }`}
                                     >
@@ -201,7 +201,7 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                                             </p>
                                         </div>
                                         {isActive && (
-                                            <div className="w-2 h-2 bg-white rounded-full shadow-lg flex-shrink-0"></div>
+                                            <div className="w-2 h-2 bg-white rounded-full shadow-lg shrink-0"></div>
                                         )}
                                     </div>
                                 </Link>
@@ -229,7 +229,7 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
                     {/* Logout */}
                     <button
                         onClick={handleLogout}
-                        className="w-full group flex items-center p-3 rounded-xl transition-all duration-300 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 hover:shadow-lg hover:shadow-red-500/20"
+                        className="w-full group flex items-center p-3 rounded-xl transition-all duration-300 text-slate-300 hover:text-white hover:bg-linear-to-r hover:from-red-500 hover:to-red-600 hover:shadow-lg hover:shadow-red-500/20"
                     >
                         <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-500/20 group-hover:bg-white/20">
                             <LogOut className="w-4 h-4 text-slate-400 group-hover:text-white" />

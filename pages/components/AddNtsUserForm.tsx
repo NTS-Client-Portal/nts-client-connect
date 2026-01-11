@@ -137,7 +137,7 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50">
             <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-4xl mx-4 max-h-[90vh] overflow-hidden">
                 {/* Header */}
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6 text-white relative">
+                <div className="bg-linear-to-r from-blue-600 to-purple-600 px-8 py-6 text-white relative">
                     <button
                         onClick={onClose}
                         className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-lg transition-colors duration-200"
@@ -161,7 +161,7 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                     {error && (
                         <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
                             <div className="flex items-center space-x-3">
-                                <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+                                <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
                                 <p className="text-red-700 font-medium">{error}</p>
                             </div>
                         </div>
@@ -330,7 +330,7 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                                     </p>
                                 </div>
                                 {profilePicture && (
-                                    <div className="flex-shrink-0">
+                                    <div className="shrink-0">
                                         <div className="w-24 h-24 rounded-lg overflow-hidden border border-slate-300">
                                             <Image
                                                 src={URL.createObjectURL(profilePicture)}
@@ -360,7 +360,7 @@ const AddNtsUserForm: React.FC<AddNtsUserFormProps> = ({ isOpen, onClose, onSucc
                                 className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
                                     loading
                                         ? 'bg-slate-400 text-white cursor-not-allowed'
-                                        : 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-lg transform hover:scale-105'
+                                        : 'bg-linear-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-lg transform hover:scale-105'
                                 }`}
                             >
                                 {loading ? (

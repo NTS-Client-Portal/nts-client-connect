@@ -287,7 +287,7 @@ const RejectedList: React.FC<RejectedProps> = ({ session, isAdmin, selectedUserI
     }, [popupMessage]);
 
     return (
-        <div className="w-full bg-white0 max-h-max flex-grow">
+        <div className="w-full bg-white0 max-h-max grow">
             {!!errorText && <div className="text-red-500">{errorText}</div>}
             {!!popupMessage && <div className="text-green-500 mb-4 p-3 bg-green-50 border border-green-200 rounded">{popupMessage}</div>}
             <div className="hidden lg:block overflow-x-auto">

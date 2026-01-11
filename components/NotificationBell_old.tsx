@@ -216,7 +216,7 @@ const NotificationBell = ({ session }) => {
                                         >
                                             <div className="flex items-start gap-3">
                                                 {/* Status Icon */}
-                                                <div className={`flex-shrink-0 mt-1 ${!notification.is_read ? 'text-blue-500' : 'text-slate-400'}`}>
+                                                <div className={`shrink-0 mt-1 ${!notification.is_read ? 'text-blue-500' : 'text-slate-400'}`}>
                                                     {!notification.is_read ? (
                                                         <AlertCircle className="h-5 w-5" />
                                                     ) : (
