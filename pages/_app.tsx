@@ -36,6 +36,12 @@ function AppContent({ Component, pageProps }: AppProps) {
         return;
       }
 
+      // Only run once when session.user.id changes
+      if (userType !== null) {
+        setLoading(false);
+        return;
+      }
+
       try {
         // Check profiles table first
         const { data: profile, error: profileError } = await supabaseClient
@@ -45,6 +51,7 @@ function AppContent({ Component, pageProps }: AppProps) {
           .maybeSingle();
 
         if (profile && !profileError) {
+          console.log('User found in profiles table');
           setUserType('profile');
           setLoading(false);
           return;
@@ -53,17 +60,19 @@ function AppContent({ Component, pageProps }: AppProps) {
         // Check nts_users table
         const { data: ntsUser, error: ntsError } = await supabaseClient
           .from('nts_users')
-          .select('email')
-          .eq('email', session.user.email)
+          .select('id')
+          .eq('id', session.user.id)
           .maybeSingle();
 
         if (ntsUser && !ntsError) {
+          console.log('User found in nts_users table');
           setUserType('nts_user');
           setLoading(false);
           return;
         }
 
         // User not found in either table
+        console.warn('User not found in any table');
         setUserType(null);
         setLoading(false);
         router.push('/unauthorized');
@@ -76,7 +85,7 @@ function AppContent({ Component, pageProps }: AppProps) {
     };
 
     determineUserType();
-  }, [session?.user?.id, supabaseClient, router]); // Only depend on user ID, not full session object
+  }, [session?.user?.id, supabaseClient, router, userType]); // Add userType to prevent re-runs
 
   if (loading) {
     return <div>Loading...</div>;

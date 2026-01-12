@@ -12,12 +12,12 @@ export default function HomePage() {
 
   useEffect(() => {
     // Redirect authenticated users to their dashboard
-    if (session && session.user.email_confirmed_at) {
-      router.push('/user/logistics-management');
+    if (session) {
+      router.push('/user');
     }
-  }, [session, router]);
+  }, [session?.user?.id, router]);
 
-  if (session && session.user.email_confirmed_at) {
+  if (session) {
     return null; // Will redirect
   }
 
