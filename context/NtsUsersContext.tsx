@@ -55,7 +55,7 @@ export const NtsUsersProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         } else {
             setLoading(false);
         }
-    }, [session, supabase]);
+    }, [session?.user?.id, supabase]); // Only depend on user ID, not full session object
 
     return (
         <NtsUsersContext.Provider value={{ userProfile, setUserProfile, loading, error }}>

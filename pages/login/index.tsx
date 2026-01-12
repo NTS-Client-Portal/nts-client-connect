@@ -30,7 +30,7 @@ export default function LoginPage() {
                     .from('profiles')
                     .select('first_name, last_name, team_role')
                     .eq('id', session.user.id)
-                    .single();
+                    .maybeSingle();
 
                 if (error) {
                     console.error('Error fetching user profile:', error.message);
@@ -53,7 +53,7 @@ export default function LoginPage() {
         };
 
         checkUserRole();
-    }, [session, supabase, router]);
+    }, [session?.user?.id, supabase, router]); // Only depend on user ID
 
     // If user is not logged in, show login page
     if (!session) {

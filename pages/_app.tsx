@@ -29,45 +29,54 @@ function AppContent({ Component, pageProps }: AppProps) {
   }, []);
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (session) {
-        try {
-          const { data: profile, error } = await supabaseClient
-            .from('profiles')
-            .select('id')
-            .eq('id', session.user.id)
-            .single();
-
-          if (profile) {
-            setUserType('profile');
-          } else {
-            const { data: ntsUser, error: ntsError } = await supabaseClient
-              .from('nts_users')
-              .select('email')
-              .eq('email', session.user.email)
-              .single();
-
-            if (ntsUser) {
-              setUserType('nts_user');
-            } else {
-              setUserType(null);
-              router.push('/unauthorized');
-            }
-          }
-        } catch (error) {
-          console.error('Error fetching user profile:', error);
-          setUserType(null);
-          router.push('/unauthorized');
-        } finally {
-          setLoading(false);
-        }
-      } else {
+    const determineUserType = async () => {
+      if (!session) {
+        setUserType(null);
         setLoading(false);
+        return;
+      }
+
+      try {
+        // Check profiles table first
+        const { data: profile, error: profileError } = await supabaseClient
+          .from('profiles')
+          .select('id')
+          .eq('id', session.user.id)
+          .maybeSingle();
+
+        if (profile && !profileError) {
+          setUserType('profile');
+          setLoading(false);
+          return;
+        }
+
+        // Check nts_users table
+        const { data: ntsUser, error: ntsError } = await supabaseClient
+          .from('nts_users')
+          .select('email')
+          .eq('email', session.user.email)
+          .maybeSingle();
+
+        if (ntsUser && !ntsError) {
+          setUserType('nts_user');
+          setLoading(false);
+          return;
+        }
+
+        // User not found in either table
+        setUserType(null);
+        setLoading(false);
+        router.push('/unauthorized');
+      } catch (error) {
+        console.error('Error determining user type:', error);
+        setUserType(null);
+        setLoading(false);
+        router.push('/unauthorized');
       }
     };
 
-    fetchUserProfile();
-  }, [session, supabaseClient, router]);
+    determineUserType();
+  }, [session?.user?.id, supabaseClient, router]); // Only depend on user ID, not full session object
 
   if (loading) {
     return <div>Loading...</div>;

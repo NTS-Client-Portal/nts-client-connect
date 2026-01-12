@@ -58,7 +58,7 @@ export const ProfilesUserProvider: React.FC<{ children: React.ReactNode }> = ({ 
         };
 
         fetchUserProfile();
-    }, [session, supabase]);
+    }, [session?.user?.id, supabase]); // Only depend on user ID, not full session object
 
     return (
         <ProfilesUserContext.Provider value={{ userProfile, setUserProfile, loading, error, isEmailVerified }}>
