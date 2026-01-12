@@ -20,13 +20,13 @@ const withNtsUser = (WrappedComponent: React.FC) => {
                     return;
                 }
 
-                console.log(`Checking user in nts_users table with email: ${session.user.email}`);
+                console.log(`Checking user in nts_users table with id: ${session.user.id}`);
 
                 const { data, error } = await supabase
                     .from('nts_users')
                     .select('id')
-                    .eq('email', session.user.email)
-                    .single();
+                    .eq('id', session.user.id)
+                    .maybeSingle();
 
                 if (error) {
                     console.error(`Error checking user in nts_users:`, error.message);
@@ -47,7 +47,7 @@ const withNtsUser = (WrappedComponent: React.FC) => {
             };
 
             checkUserExists();
-        }, [session, supabase, router]);
+        }, [session?.user?.id, supabase, router]);
 
         if (loading) {
             return <p>Loading...</p>;
