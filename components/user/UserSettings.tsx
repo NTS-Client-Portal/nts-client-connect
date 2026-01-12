@@ -63,8 +63,8 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
             const { data, error } = await supabase
                 .from('profiles')
                 .select('first_name, last_name, address, phone_number, profile_picture, email_notifications, company_size, company_id')
-                .eq('email', session.user.email)
-                .single();
+                .eq('id', session.user.id)
+                .maybeSingle();
 
             if (error) {
                 console.error('Error fetching user profile:', error.message);
@@ -187,7 +187,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
                 profile_picture: profilePicturePath,
                 email_notifications: emailNotifications,
             })
-            .eq('email', session.user.email);
+            .eq('id', session.user.id);
 
         if (updateError) {
             console.error('Error updating user profile:', updateError.message);
@@ -567,7 +567,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
                                                     onChange={(e) => setEmailNotifications(e.target.checked)}
                                                     className="sr-only peer"
                                                 />
-                                                <div className="w-11 h-6 bg-slate-200 peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                <div className="w-11 h-6 bg-slate-200 peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                             </label>
                                         </div>
 

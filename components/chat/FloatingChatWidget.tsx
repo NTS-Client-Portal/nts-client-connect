@@ -139,7 +139,7 @@ const FloatingChatWidget: React.FC<FloatingChatWidgetProps> = ({ brokerId, shipp
     return (
         <div className="fixed bottom-4 right-8 z-50">
             {isOpen && (
-                <div className="relative bg-white dark:bg-zinc-900 p-4 rounded-lg shadow-lg w-96 h-[500px]">
+                <div className="relative bg-white dark:bg-zinc-900 p-4 rounded-lg shadow-lg w-96 h-125">
                     <button
                         onClick={toggleChat}
                         className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-blue-500 text-white px-4 py-1 mb-1 w-full shadow-lg"

@@ -1,26 +1,10 @@
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { useSession } from '@/lib/supabase/provider';
+import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Truck, ArrowRight, Users, Shield, Clock, Star, Award } from 'lucide-react';
 
 export default function HomePage() {
-  const session = useSession();
-  const router = useRouter();
-
-  useEffect(() => {
-    // Redirect authenticated users to their dashboard
-    if (session) {
-      router.push('/user');
-    }
-  }, [session?.user?.id, router]);
-
-  if (session) {
-    return null; // Will redirect
-  }
-
   return (
     <>
       <Head>

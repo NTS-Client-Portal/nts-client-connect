@@ -56,8 +56,7 @@ const ShippingCalendar: React.FC<ShippingCalendarProps> = () => {
             .from('shippingquotes')
             .select('id, earliest_pickup_date, latest_pickup_date, origin_city, origin_state, destination_city, destination_state, brokers_status, status')
             .eq('company_id', companyId)
-            .or('is_complete.is.null,is_complete.eq.false')
-            .or('is_archived.is.null,is_archived.eq.false');
+            .or('is_complete.is.null,is_complete.eq.false,is_archived.is.null,is_archived.eq.false');
 
         if (error) {
             console.error('Error fetching schedules:', error.message);

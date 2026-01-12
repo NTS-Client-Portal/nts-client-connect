@@ -836,28 +836,13 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                 <button 
                                                     onClick={(e) => { 
                                                         e.stopPropagation(); 
-                                                        // Block unverified shippers from creating orders
-                                                        if (isUser && !isEmailVerified) {
-                                                            alert('Please verify your email address before creating orders. Check your inbox for the verification link, or use the banner at the top to resend it.');
-                                                            return;
-                                                        }
                                                         handleCreateOrderClick(quote.id); 
                                                     }} 
-                                                    className={`modern-btn flex-1 ${
-                                                        isUser && !isEmailVerified 
-                                                            ? 'bg-gray-400 cursor-not-allowed opacity-50' 
-                                                            : 'bg-green-600 hover:bg-green-700'
-                                                    } text-white`}
-                                                    disabled={isUser && !isEmailVerified}
-                                                    title={isUser && !isEmailVerified ? 'Email verification required to create orders' : 'Create Order'}
+                                                    className="modern-btn flex-1 bg-green-600 hover:bg-green-700 text-white"
+                                                    title="Create Order"
                                                 >
                                                     <CheckCircle className="w-4 h-4 mr-2" />
                                                     Create Order
-                                                    {isUser && !isEmailVerified && (
-                                                        <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                                        </svg>
-                                                    )}
                                                 </button>
                                             </>
                                         )}
@@ -1105,28 +1090,13 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                             <button
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
-                                                                    // Block unverified shippers from creating orders
-                                                                    if (isUser && !isEmailVerified) {
-                                                                        alert('Please verify your email address before creating orders. Check your inbox for the verification link, or use the banner at the top to resend it.');
-                                                                        return;
-                                                                    }
                                                                     handleCreateOrderClick(quote.id);
                                                                 }}
-                                                                className={`px-2 py-1 rounded flex items-center gap-1 ${
-                                                                    isUser && !isEmailVerified
-                                                                        ? 'bg-gray-400 cursor-not-allowed opacity-50'
-                                                                        : 'bg-green-600 hover:bg-green-800'
-                                                                } text-white`}
-                                                                disabled={isUser && !isEmailVerified}
-                                                                title={isUser && !isEmailVerified ? 'Email verification required' : 'Accept quote and create order'}
+                                                                className="px-2 py-1 rounded flex items-center gap-1 bg-green-600 hover:bg-green-800 text-white"
+                                                                title="Accept quote and create order"
                                                             >
                                                                 <CheckCircle className="w-4 h-4" />
                                                                 <span className="text-xs">Accept</span>
-                                                                {isUser && !isEmailVerified && (
-                                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                                                    </svg>
-                                                                )}
                                                             </button>
                                                         )}
                                                         {isUser && quote.price && (

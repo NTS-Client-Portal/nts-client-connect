@@ -45,8 +45,8 @@ const NtsSettings: React.FC<UserProfileFormProps> = () => {
             const { data, error } = await supabase
                 .from('nts_users')
                 .select('id, first_name, last_name, company_id, address, phone_number, profile_picture, email_notifications')
-                .eq('email', session.user.email) // Use the email for matching
-                .single();
+                .eq('id', session.user.id)
+                .maybeSingle();
     
             if (error) {
                 console.error('Error fetching user profile:', error.message);
@@ -190,7 +190,7 @@ const NtsSettings: React.FC<UserProfileFormProps> = () => {
                 profile_picture: profilePicturePath,
                 email_notifications: emailNotifications,
             })
-            .eq('email', session.user.email);
+            .eq('id', session.user.id);
 
         if (updateError) {
             console.error('Error updating user profile:', updateError.message);

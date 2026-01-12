@@ -119,7 +119,6 @@ const CustomSignInForm = () => {
             .insert({
               id: authData.user.id,
               email: authData.user.email,
-              team_role: 'shipper',
               inserted_at: new Date().toISOString(),
             })
             .select()

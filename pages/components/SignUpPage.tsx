@@ -107,6 +107,53 @@ const SignUpPage = () => {
         return;
       }
 
+      if (!signUpData.user) {
+        setError('Account creation failed. Please try again.');
+        return;
+      }
+
+      // First, create the company record
+      const { data: companyData, error: companyError } = await supabase
+        .from('companies')
+        .insert({
+          name: formData.companyName,
+          company_size: formData.companySize,
+          industry: formData.industry,
+        })
+        .select()
+        .single();
+
+      if (companyError) {
+        console.error('Error creating company:', companyError.message);
+        setError('Account created but company setup failed. Please contact support.');
+        return;
+      }
+
+      // Then create profile linked to the company
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: signUpData.user.id,
+          email: formData.email,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          company_id: companyData.id,
+          company_name: formData.companyName,
+          phone_number: formData.phoneNumber,
+          company_size: formData.companySize,
+          industry: formData.industry,
+          inserted_at: new Date().toISOString(),
+        });
+
+      if (profileError) {
+        console.error('Error creating profile:', profileError.message);
+        setError('Account created but profile setup failed. Please contact support.');
+        return;
+      }
+
+      // Wait a moment to ensure database propagation
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       // Automatically sign in the user after signup
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: formData.email,
@@ -120,7 +167,7 @@ const SignUpPage = () => {
       } else {
         // Auto-login successful - redirect to dashboard
         setSuccess('Welcome! Taking you to your dashboard...');
-        setTimeout(() => router.push('/user/freight-rfq'), 1500);
+        setTimeout(() => router.push('/user'), 1500);
       }
     } catch (error) {
       setError('An unexpected error occurred. Please try again.');

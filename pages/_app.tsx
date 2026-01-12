@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { SupabaseProvider, useSession, useSupabaseClient } from '@/lib/supabase/provider';
 import type { AppProps } from 'next/app';
@@ -13,6 +13,7 @@ function AppContent({ Component, pageProps }: AppProps) {
   const supabaseClient = useSupabaseClient();
   const [userType, setUserType] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const hasChecked = useRef(false);
 
   // Register Service Worker for PWA
   useEffect(() => {
@@ -33,14 +34,17 @@ function AppContent({ Component, pageProps }: AppProps) {
       if (!session) {
         setUserType(null);
         setLoading(false);
+        hasChecked.current = false;
         return;
       }
 
-      // Only run once when session.user.id changes
-      if (userType !== null) {
+      // Only run once per session
+      if (hasChecked.current) {
         setLoading(false);
         return;
       }
+
+      hasChecked.current = true;
 
       try {
         // Check profiles table first
@@ -71,21 +75,27 @@ function AppContent({ Component, pageProps }: AppProps) {
           return;
         }
 
-        // User not found in either table
+        // User not found in either table - only redirect if not already on unauthorized page
         console.warn('User not found in any table');
         setUserType(null);
         setLoading(false);
-        router.push('/unauthorized');
+        
+        if (router.pathname !== '/unauthorized' && router.pathname !== '/login' && router.pathname !== '/') {
+          router.push('/unauthorized');
+        }
       } catch (error) {
         console.error('Error determining user type:', error);
         setUserType(null);
         setLoading(false);
-        router.push('/unauthorized');
+        
+        if (router.pathname !== '/unauthorized' && router.pathname !== '/login' && router.pathname !== '/') {
+          router.push('/unauthorized');
+        }
       }
     };
 
     determineUserType();
-  }, [session?.user?.id, supabaseClient, router, userType]); // Add userType to prevent re-runs
+  }, [session?.user?.id, supabaseClient, router]);
 
   if (loading) {
     return <div>Loading...</div>;
