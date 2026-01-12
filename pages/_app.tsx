@@ -88,10 +88,13 @@ function AppContent({ Component, pageProps }: AppProps) {
         <NtsUsersProvider>
           <Component {...pageProps} />
         </NtsUsersProvider>
-      ) : (
+      ) : userType === 'profile' ? (
         <ProfilesUserProvider>
           <Component {...pageProps} />
         </ProfilesUserProvider>
+      ) : (
+        // No user type (public pages) - don't wrap in user context providers
+        <Component {...pageProps} />
       )}
     </DocumentNotificationProvider>
   );
