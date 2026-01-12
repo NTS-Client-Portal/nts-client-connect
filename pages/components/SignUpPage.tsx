@@ -113,9 +113,11 @@ const SignUpPage = () => {
       }
 
       // First, create the company record
+      const companyId = crypto.randomUUID();
       const { data: companyData, error: companyError } = await supabase
         .from('companies')
         .insert({
+          id: companyId,
           name: formData.companyName,
           company_size: formData.companySize,
           industry: formData.industry,
