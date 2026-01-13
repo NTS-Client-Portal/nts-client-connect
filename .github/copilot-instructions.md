@@ -149,12 +149,13 @@ src/
 
 - **Framework:** Next.js 14+ (App Router)
 - **Language:** TypeScript
-- **Database:** Supabase (PostgreSQL + Auth)
+- **Database:** Railway PostgreSQL
+- **Auth:** NextAuth.js with PostgreSQL adapter
 - **Styling:** Tailwind CSS + Shadcn UI
-- **Deployment:** Netlify
+- **Deployment:** Vercel (or Netlify)
 - **State:** React Context (no Redux)
 - **Forms:** React Hook Form + Zod validation
-- **Email:** SendGrid (via Netlify functions)
+- **Email:** SendGrid (via API routes)
 
 ---
 
