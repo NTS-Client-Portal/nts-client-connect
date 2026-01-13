@@ -1,4 +1,9 @@
 {
-    "workbench.editor.wrapTabs": true
+    "workbench.editor.wrapTabs": true,
+    "github.copilot.enable": {
+        "scminput": true,
+        "plaintext": true,
+        "markdown": true
+    },
     
 }
