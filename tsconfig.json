@@ -21,7 +21,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "./*"
+        "./src/*"
       ],
       "@components/*": [
         "components/*"
@@ -37,6 +37,11 @@
       "node",
       "react",
       "react-dom"
+    ],
+    "plugins": [
+      {
+        "name": "next"
+      }
     ]
   },
   "include": [
@@ -52,7 +57,9 @@
     "lib/types.ts",
     "lib/utils.ts",
     "lib/updateUserRole.mjs",
-    "scripts/updateRoleScript.mjs"
+    "scripts/updateRoleScript.mjs",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

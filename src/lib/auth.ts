@@ -60,9 +60,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           .limit(1);
 
         if (shipper) {
-          // Verify password (you'll add password field to users table)
-          // const isValid = await bcrypt.compare(credentials.password as string, user.password);
-          // For now, just return the user with type
+          // Verify password
+          if (!user.password) {
+            return null;
+          }
+          const isValid = await bcrypt.compare(
+            credentials.password as string,
+            user.password
+          );
+          if (!isValid) {
+            return null;
+          }
+
           return {
             id: user.id,
             email: user.email,
@@ -79,6 +88,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           .limit(1);
 
         if (ntsUser) {
+          // Verify password
+          if (!user.password) {
+            return null;
+          }
+          const isValid = await bcrypt.compare(
+            credentials.password as string,
+            user.password
+          );
+          if (!isValid) {
+            return null;
+          }
+
           return {
             id: user.id,
             email: user.email,
