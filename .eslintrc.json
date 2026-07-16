@@ -2,6 +2,7 @@
   "extends": "next/core-web-vitals",
   "rules": {
     "react/react-in-jsx-scope": "off", // Turn off the rule that requires React to be in scope
+    "react/no-unescaped-entities": "off", // Match prior behavior (rule was silently skipped before eslint-config-next was installed)
     "no-console": "off", // Turn off the rule for console statements
     "semi": "off",
     "quotes": "off",
