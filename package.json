@@ -9,7 +9,7 @@
     },
     "scripts": {
         "preinstall": "npx npm-force-resolutions",
-        "dev": "next dev",
+        "dev": "NODE_OPTIONS=--max-http-header-size=32768 next dev",
         "dev:css": "echo 'CSS building handled by PostCSS in dev mode'",
         "build": "next build",
         "build:css": "echo 'CSS building handled by PostCSS in build mode'",
