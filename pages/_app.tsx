@@ -63,15 +63,20 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <SessionContextProvider supabaseClient={supabase}>
       <DocumentNotificationProvider>
-        {userType === 'nts_user' ? (
-          <NtsUsersProvider>
-            <Component {...pageProps} />
-          </NtsUsersProvider>
-        ) : (
+        {/*
+          Always mount BOTH user-profile providers. Components like
+          QuoteRequest call `useProfilesUser()` and `useNtsUsers()`
+          unconditionally, so if only one provider is mounted the
+          other hook throws and produces a client-side exception
+          (e.g. brokers loading /companies/[companyId]).
+          Each provider only fetches when its own table has a row
+          matching the session, so having both mounted is safe.
+        */}
+        <NtsUsersProvider>
           <ProfilesUserProvider>
             <Component {...pageProps} />
           </ProfilesUserProvider>
-        )}
+        </NtsUsersProvider>
       </DocumentNotificationProvider>
     </SessionContextProvider>
   );
