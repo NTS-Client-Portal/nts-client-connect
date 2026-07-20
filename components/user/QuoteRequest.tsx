@@ -327,7 +327,29 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                 console.error('Error sending notifications:', error);
             }
         }
-        
+
+        // Fire-and-log email to assigned broker(s). Server-side endpoint
+        // looks up their real email addresses via service role and sends
+        // via SendGrid. An email failure here must never block the "quote
+        // submitted" success path for the shipper.
+        if (shippingQuoteData && shippingQuoteData.length > 0) {
+            try {
+                const resp = await fetch('/api/notify-quote-submitted', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ quoteId: shippingQuoteData[0].id }),
+                });
+                if (!resp.ok) {
+                    const body = await resp.text().catch(() => '');
+                    console.error(
+                        `Broker email dispatch returned ${resp.status}: ${body}`
+                    );
+                }
+            } catch (emailError) {
+                console.error('Broker email dispatch threw:', emailError);
+            }
+        }
+
         setQuotes([...quotes, ...(shippingQuoteData || [])]);
 
         setErrorText('');

@@ -6,6 +6,7 @@ import OrderFormModal from '../user/quotetabs/OrderFormModal';
 import EditQuoteModal from '../user/quotetabs/EditQuoteModal';
 import QuoteDetailsMobile from '../user/mobile/QuoteDetailsMobile';
 import { freightTypeMapping, formatDate, renderAdditionalDetails } from '../user/quotetabs/QuoteUtils';
+import { setBrokerPrice } from '@/lib/quoteActions';
 
 interface NtsQuoteListProps {
     session: any;
@@ -100,19 +101,30 @@ const NtsQuoteList: React.FC<NtsQuoteListProps> = ({ session, quotes: initialQuo
     };
 
     const handleRespond = async (quoteId: number) => {
-        const price = prompt('Enter the price:');
-        if (price === null) return;
+        const priceInput = prompt('Enter the price:');
+        if (priceInput === null) return;
 
-        const { error } = await supabase
-            .from('shippingquotes')
-            .update({ price: parseFloat(price) })
-            .eq('id', quoteId);
-
-        if (error) {
-            console.error('Error responding to quote:', error.message);
-        } else {
-            setQuotes((prevQuotes) => prevQuotes.map((quote) => quote.id === quoteId ? { ...quote, price: parseFloat(price) } : quote));
+        const price = parseFloat(priceInput);
+        if (!Number.isFinite(price) || price <= 0) {
+            alert('Please enter a valid positive price.');
+            return;
         }
+
+        const result = await setBrokerPrice({ supabase, quoteId, price });
+
+        if (!result.ok) {
+            console.error('Error responding to quote:', result.error);
+            alert(`Could not save price: ${result.error}`);
+            return;
+        }
+
+        setQuotes((prevQuotes) =>
+            prevQuotes.map((quote) =>
+                quote.id === quoteId
+                    ? { ...quote, price, brokers_status: 'priced' }
+                    : quote
+            )
+        );
     };
 
     const handleEditClick = (quote: Database['public']['Tables']['shippingquotes']['Row']) => {

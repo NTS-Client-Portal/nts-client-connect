@@ -22,6 +22,7 @@ import RejectReasonModal from './RejectReasonModal';
 import { generateAndUploadDocx, replaceShortcodes } from "@/components/GenerateDocx";
 import SelectTemplate from '@/components/SelectTemplate';
 import QuoteFormModal from '@/components/user/forms/QuoteFormModal';
+import { setBrokerPrice } from '@/lib/quoteActions';
 import { 
     Search, 
     Filter, 
@@ -495,27 +496,21 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
         };
         const quotePrice = parseFloat(target.quotePrice.value);
 
-        const { error: updateError } = await supabase
-            .from('shippingquotes')
-            .update({ price: quotePrice })
-            .eq('id', quoteId);
+        // Atomic state transition: writes price + brokers_status='priced'
+        // + inserts a notification for the shipper. Shared with the
+        // NtsQuoteList broker flow so both places behave identically.
+        const priceResult = await setBrokerPrice({
+            supabase,
+            quoteId,
+            price: quotePrice,
+        });
 
-        if (updateError) {
-            console.error('Error updating price:', updateError.message);
+        if (!priceResult.ok || !priceResult.quote) {
+            console.error('Error updating price:', priceResult.error);
             return;
         }
 
-        // Fetch the updated quote data
-        const { data: updatedQuote, error: fetchError } = await supabase
-            .from('shippingquotes')
-            .select('*')
-            .eq('id', quoteId)
-            .single();
-
-        if (fetchError) {
-            console.error('Error fetching updated quote:', fetchError.message);
-            return;
-        }
+        const updatedQuote = priceResult.quote;
 
         // Fetch the template content
         const { data: templateData, error: templateError } = await supabase
@@ -526,6 +521,12 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
 
         if (templateError) {
             console.error('Error fetching template:', templateError.message);
+            // Price is already saved & shipper is already notified;
+            // just skip the DOCX generation and refresh the list.
+            fetchQuotes();
+            setShowPriceInput(null);
+            setCarrierPayInput('');
+            setDepositInput('');
             return;
         }
 

@@ -10,6 +10,18 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
+# ─────────────────────────────────────────────────────────────────────
+#  Never cache the service-worker kill switch. If /sw.js is ever
+#  cached by a browser/CDN, the previously-installed stale SW keeps
+#  serving old JS bundles forever. This header guarantees every
+#  request for /sw.js is a fresh network hit.
+# ─────────────────────────────────────────────────────────────────────
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Service-Worker-Allowed = "/"
+
 [dev]
   framework = "next"
   command = "npm run dev"
