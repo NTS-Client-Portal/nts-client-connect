@@ -346,6 +346,7 @@ export type Database = {
       }
       companies: {
         Row: {
+          address: string | null
           assigned_at: string | null
           assigned_sales_user: string | null
           company_name: string | null
@@ -355,6 +356,7 @@ export type Database = {
           name: string
         }
         Insert: {
+          address?: string | null
           assigned_at?: string | null
           assigned_sales_user?: string | null
           company_name?: string | null
@@ -364,6 +366,7 @@ export type Database = {
           name: string
         }
         Update: {
+          address?: string | null
           assigned_at?: string | null
           assigned_sales_user?: string | null
           company_name?: string | null

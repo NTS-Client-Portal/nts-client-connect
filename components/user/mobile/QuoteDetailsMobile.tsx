@@ -439,7 +439,7 @@ const QuoteDetailsMobile: React.FC<QuoteDetailsMobileProps> = ({
                                                             </div>
                                                                                                                             <br />
                                                             <span className="text-sm flex justify-center text-center text-gray-600 italic">
-                                                                (If this is urgent, please contact your sales representative.)
+                                                                (If this is urgent, please contact your dedicated account manager.)
                                                             </span>
                                                    </>
                                                     )}

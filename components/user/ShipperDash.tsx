@@ -312,7 +312,7 @@ const ShipperDash = () => {
                                         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                                             <div className="flex items-center gap-3">
                                                 <User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Your Representative</h3>
+                                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Your Dedicated Account Manager</h3>
                                             </div>
                                         </div>
                                         <div className="p-6">

@@ -227,7 +227,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '', toggleSidebar }
                                     {assignedSalesUsers.length > 0 && (
                                         <div className="p-4 border-b border-slate-100">
                                             <p className="text-sm font-semibold text-slate-700 mb-2">
-                                                Your Sales Representative
+                                                Your Dedicated Account Manager
                                             </p>
                                             {assignedSalesUsers.map((user, index) => (
                                                 <div key={index} className="bg-blue-50 border border-blue-200 rounded-lg p-3">

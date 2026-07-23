@@ -191,6 +191,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                 const shipmentItems = typeof quote.shipment_items === 'string' ? JSON.parse(quote.shipment_items) : quote.shipment_items;
                 const searchString: string = [
                     quote.id,
+                    (quote as any).po_number,
                     quote.freight_type,
                     quote.origin_city,
                     quote.origin_state,
@@ -623,6 +624,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                             className="border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         >
                             <option value="id">Quote ID</option>
+                            <option value="po_number">PO Number</option>
                             <option value="freight_type">Freight Type</option>
                             <option value="origin_city">Origin City</option>
                             <option value="destination_city">Destination City</option>
@@ -954,6 +956,11 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                         }`} 
                                                     />
                                                 </div>
+                                                {(quote as any).po_number && (
+                                                    <div className="mt-0.5 text-xs font-normal text-gray-500 no-underline" title="Your PO number">
+                                                        PO: {(quote as any).po_number}
+                                                    </div>
+                                                )}
                                             </td>
                                             <td className="modern-table-cell text-gray-500">
                                                 {formatDate(quote.created_at)}

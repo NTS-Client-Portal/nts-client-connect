@@ -7,6 +7,7 @@ import UserLayout from '@/pages/components/UserLayout';
 import { formatQuoteId, parseQuoteId } from '@/lib/quoteUtils';
 import { formatDate, freightTypeMapping } from '@/components/user/quotetabs/QuoteUtils';
 import { getStatusLabel, getStatusStyle } from '@/lib/statusManagement';
+import OrderDocuments from '@/components/user/orders/OrderDocuments';
 import {
     ArrowLeft,
     MapPin,
@@ -244,6 +245,11 @@ const OrderDetailPage: React.FC = () => {
                                             <p className="mt-1 text-sm text-blue-100">
                                                 {order.origin_city}, {order.origin_state} &rarr; {order.destination_city}, {order.destination_state}
                                             </p>
+                                            {(order as any).po_number && (
+                                                <p className="mt-1 inline-flex items-center gap-1 rounded-md bg-white/10 px-2 py-0.5 text-xs font-medium text-white">
+                                                    PO: {(order as any).po_number}
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
                                     {order.price ? (
@@ -489,6 +495,18 @@ const OrderDetailPage: React.FC = () => {
                                         <DetailRow label="Notes" value={order.notes} />
                                         <DetailRow label="Order Placed" value={formatDate(order.inserted_at)} />
                                     </div>
+                                </div>
+                            </div>
+
+                            {/* Order Documents */}
+                            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                                <div className="border-b border-slate-100 bg-slate-50 px-6 py-4">
+                                    <p className="text-xs text-slate-500">
+                                        Attach paperwork (BOL, invoice, photos) to this order. Files are private to your company.
+                                    </p>
+                                </div>
+                                <div className="p-6">
+                                    <OrderDocuments quoteId={order.id} userId={session?.user?.id} />
                                 </div>
                             </div>
                         </div>

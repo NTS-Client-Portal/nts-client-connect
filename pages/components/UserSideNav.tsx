@@ -17,6 +17,8 @@ import {
     User,
     ShipIcon as Ship,
     TruckIcon,
+    Upload,
+    Bookmark,
     ChevronDown, 
     ChevronUp
 } from 'lucide-react';
@@ -134,6 +136,18 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                     icon: TfiWrite,
                     label: 'Quote Form',
                     description: 'Request Pricing'
+                },
+                {
+                    href: '/user/logistics-management/import',
+                    icon: Upload,
+                    label: 'Bulk Import',
+                    description: 'Upload CSV / Excel'
+                },
+                {
+                    href: '/user/logistics-management/saved',
+                    icon: Bookmark,
+                    label: 'Saved Library',
+                    description: 'Freight & Locations'
                 },
                 // Hidden for demo — route still reachable by URL
                 // {

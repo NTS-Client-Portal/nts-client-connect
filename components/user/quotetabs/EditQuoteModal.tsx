@@ -1444,6 +1444,20 @@ const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto">
                     <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                                                {/* PO Number (shipper reference) */}
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">
+                                PO # <span className="font-normal text-gray-400">(your reference for searching &amp; identifying this load)</span>
+                            </label>
+                            <input
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                type="text"
+                                name="po_number"
+                                placeholder="e.g. PO-10432"
+                                value={(updatedQuote as any).po_number || ''}
+                                onChange={handleChange}
+                            />
+                        </div>
                                                 {/* Street Address Information */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">

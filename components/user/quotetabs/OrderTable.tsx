@@ -7,6 +7,7 @@ import { formatQuoteId } from '@/lib/quoteUtils';
 import { generateAndUploadDocx, replaceShortcodes } from "@/components/GenerateDocx";
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import OrderDocuments from '@/components/user/orders/OrderDocuments';
 import { 
     Search, 
     Filter, 
@@ -115,6 +116,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                 const shipmentItems = typeof quote.shipment_items === 'string' ? JSON.parse(quote.shipment_items) : quote.shipment_items;
                 const searchString: string = [
                     quote.id,
+                    (quote as any).po_number,
                     quote.freight_type,
                     quote.origin_city,
                     quote.origin_state,
@@ -391,6 +393,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                             className="border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         >
                             <option value="id">Order ID</option>
+                            <option value="po_number">PO Number</option>
                             <option value="freight_type">Freight Type</option>
                             <option value="origin_city">Origin City</option>
                             <option value="destination_city">Destination City</option>
@@ -476,6 +479,11 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                                         }`} 
                                                     />
                                                 </div>
+                                                {(order as any).po_number && (
+                                                    <div className="mt-0.5 text-xs font-normal text-gray-500 no-underline" title="Your PO number">
+                                                        PO: {(order as any).po_number}
+                                                    </div>
+                                                )}
                                             </td>
                                             <td className="modern-table-cell text-gray-900">
                                                 <div className="flex items-center gap-2">
@@ -844,7 +852,16 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                                                 </div>
                                                             </div>
                                                         )}
-                                                    
+
+                                                        {/* Order Documents - Full Width */}
+                                                        <div className="lg:col-span-4 bg-white rounded-lg p-4 border border-gray-200">
+                                                            <OrderDocuments
+                                                                quoteId={order.id}
+                                                                userId={session?.user?.id}
+                                                                compact
+                                                            />
+                                                        </div>
+
                                                 </td>
                                             </tr>
                                         )}

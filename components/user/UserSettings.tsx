@@ -54,6 +54,9 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [companyId, setCompanyId] = useState<string | null>(null);
+    const [companyAddress, setCompanyAddress] = useState('');
+    const [companyError, setCompanyError] = useState('');
+    const [companySuccess, setCompanySuccess] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
@@ -75,14 +78,17 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
                 
                 if (data.company_id) {
                     // Get company name from companies table
-                    const { data: companyData } = await supabase
-                        .from('companies')
-                        .select('name')
+                    // address column added in migration 009; cast until types regenerate
+                    const { data: companyData } = await (supabase
+                        .from('companies') as any)
+                        .select('name, address')
                         .eq('id', data.company_id)
                         .single();
                     setCompanyName(companyData?.name || '');
+                    setCompanyAddress(companyData?.address || '');
                 } else {
                     setCompanyName('');
+                    setCompanyAddress('');
                 }
                 
                 setAddress(data.address || '');
@@ -200,6 +206,34 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
                 : profilePictureUrl;
             setProfilePictureUrl(profilePicUrl);
             setIsEditing(false);
+        }
+        setIsLoading(false);
+    };
+
+    const handleCompanySubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!session) return;
+
+        if (!companyId) {
+            setCompanyError('No company is associated with your account.');
+            return;
+        }
+
+        setIsLoading(true);
+        setCompanyError('');
+        setCompanySuccess('');
+
+        const { error: updateError } = await supabase
+            .from('companies')
+            // address column added in migration 009; cast until types are regenerated
+            .update({ name: companyName, address: companyAddress } as never)
+            .eq('id', companyId);
+
+        if (updateError) {
+            console.error('Error updating company information:', updateError.message);
+            setCompanyError('Error updating company information');
+        } else {
+            setCompanySuccess('Company information updated successfully');
         }
         setIsLoading(false);
     };
@@ -518,17 +552,58 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
                                         <p className="text-sm text-slate-600 mt-1">Update your company details</p>
                                     </div>
 
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-2">
-                                            Company Name
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={companyName}
-                                            onChange={(e) => setCompanyName(e.target.value)}
-                                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        />
-                                    </div>
+                                    {companyError && (
+                                        <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                                            <AlertCircle className="w-5 h-5" />
+                                            {companyError}
+                                        </div>
+                                    )}
+
+                                    {companySuccess && (
+                                        <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
+                                            <Check className="w-5 h-5" />
+                                            {companySuccess}
+                                        </div>
+                                    )}
+
+                                    <form onSubmit={handleCompanySubmit} className="space-y-6">
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                                Company Name
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={companyName}
+                                                onChange={(e) => setCompanyName(e.target.value)}
+                                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="flex items-center text-sm font-medium text-slate-700 mb-2">
+                                                <MapPin className="w-4 h-4 inline mr-1" />
+                                                Company Address
+                                            </label>
+                                            <textarea
+                                                value={companyAddress}
+                                                onChange={(e) => setCompanyAddress(e.target.value)}
+                                                rows={3}
+                                                placeholder="Street, City, State, ZIP"
+                                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            />
+                                        </div>
+
+                                        <div className="flex items-center gap-3 pt-2">
+                                            <button
+                                                type="submit"
+                                                disabled={isLoading}
+                                                className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            >
+                                                <Save className="w-4 h-4" />
+                                                {isLoading ? 'Saving...' : 'Save Changes'}
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
                             )}
 

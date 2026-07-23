@@ -31,6 +31,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
     const [destinationZip, setDestinationZip] = useState('');
     const [dueDate, setDueDate] = useState<string | null>(null);
     const [formData, setFormData] = useState<any>({});
+    const [poNumber, setPoNumber] = useState('');
     const [saveToInventory, setSaveToInventory] = useState(false);
     const [inventoryItems, setInventoryItems] = useState<any[]>([]);
     const [selectedInventoryItem, setSelectedInventoryItem] = useState('');
@@ -252,6 +253,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
             freight_type: selectedOption,
             status: 'quote', // Fix: Use lowercase for consistency
             ...formData,
+            po_number: poNumber || null,
             save_to_inventory: saveToInventory,
             needs_admin_review: !finalCompanyId, // Flag for admin review if needed
         };
@@ -409,6 +411,18 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                                         </option>
                                     ))}
                                 </select>
+                                <div className="mt-2">
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                                        PO # <span className="font-normal text-gray-400">(your reference)</span>
+                                    </label>
+                                    <input
+                                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        type="text"
+                                        placeholder="e.g. PO-10432"
+                                        value={poNumber}
+                                        onChange={(e) => setPoNumber(e.target.value)}
+                                    />
+                                </div>
                             </div>
 
                             {/* Route & Schedule */}
