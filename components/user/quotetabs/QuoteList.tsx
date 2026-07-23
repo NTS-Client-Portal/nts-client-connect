@@ -13,6 +13,7 @@ import OrderFormModal from "./OrderFormModal";
 import EditQuoteModal from "./EditQuoteModal";
 import QuoteDetailsMobile from "../mobile/QuoteDetailsMobile";
 import { freightTypeMapping, formatDate, renderAdditionalDetails } from "./QuoteUtils";
+import { setBrokerPrice } from "@/lib/quoteActions";
 import QuoteTable from "./QuoteTable";
 import RejectReasonModal from "./RejectReasonModal";
 import { generateAndUploadDocx, replaceShortcodes } from "@/components/GenerateDocx";
@@ -537,20 +538,23 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
     };
 
     const handleRespond = async (quoteId: number) => {
-        const price = prompt("Enter the price:");
-        if (price === null) return;
+        const priceInput = prompt("Enter the price:");
+        if (priceInput === null) return;
 
-        const { error } = await supabase
-            .from("shippingquotes")
-            .update({ price: parseFloat(price) })
-            .eq("id", quoteId);
+        const price = parseFloat(priceInput);
+        if (!Number.isFinite(price) || price <= 0) {
+            console.error("Please enter a valid positive price.");
+            return;
+        }
 
-        if (error) {
-            console.error("Error responding to quote:", error.message);
+        const result = await setBrokerPrice({ supabase, quoteId, price });
+
+        if (!result.ok) {
+            console.error("Error responding to quote:", result.error);
         } else {
             setQuotes((prevQuotes) =>
                 prevQuotes.map((quote) =>
-                    quote.id === quoteId ? { ...quote, price: parseFloat(price) } : quote
+                    quote.id === quoteId ? { ...quote, price } : quote
                 )
             );
         }

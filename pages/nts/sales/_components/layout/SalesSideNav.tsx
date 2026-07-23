@@ -86,20 +86,21 @@ const SalesSideNav: React.FC<SalesSideNavProps> = ({ isSidebarOpen, toggleSideba
             description: 'Files & Media',
             color: 'from-orange-500 to-orange-600'
         },
-        {
-            href: '/nts/sales/chat-requests',
-            icon: MessageSquareMore,
-            label: 'Messages',
-            description: 'Customer Chat',
-            color: 'from-purple-500 to-purple-600'
-        },
-        {
-            href: '/nts/sales/equipment-directory',
-            icon: NotebookTabs,
-            label: 'Equipment',
-            description: 'Directory & Specs',
-            color: 'from-indigo-500 to-indigo-600'
-        }
+        // Hidden for demo — routes still reachable by URL
+        // {
+        //     href: '/nts/sales/chat-requests',
+        //     icon: MessageSquareMore,
+        //     label: 'Messages',
+        //     description: 'Customer Chat',
+        //     color: 'from-purple-500 to-purple-600'
+        // },
+        // {
+        //     href: '/nts/sales/equipment-directory',
+        //     icon: NotebookTabs,
+        //     label: 'Equipment',
+        //     description: 'Directory & Specs',
+        //     color: 'from-indigo-500 to-indigo-600'
+        // }
     ];
 
     if (!isDesktop && !isSidebarOpen) return null;

@@ -135,12 +135,13 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                     label: 'Quote Form',
                     description: 'Request Pricing'
                 },
-                {
-                    href: '/user/order-form', 
-                    icon: GrDocumentVerified,
-                    label: 'Order Form',
-                    description: 'Place Orders'
-                }
+                // Hidden for demo — route still reachable by URL
+                // {
+                //     href: '/user/order-form', 
+                //     icon: GrDocumentVerified,
+                //     label: 'Order Form',
+                //     description: 'Place Orders'
+                // }
             ]
         },
         // {
@@ -150,14 +151,15 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
         //     description: 'Stock & Supplies',
         //     color: 'from-orange-500 to-orange-600'
         // },
-        {
-            href: '/user/documents',
-            icon: Folders,
-            label: 'Documents',
-            description: 'Files & Pictures',
-            color: 'from-blue-500 to-blue-600',
-            hasNotification: newDocumentAdded
-        }
+        // Hidden for demo — route still reachable by URL
+        // {
+        //     href: '/user/documents',
+        //     icon: Folders,
+        //     label: 'Documents',
+        //     description: 'Files & Pictures',
+        //     color: 'from-blue-500 to-blue-600',
+        //     hasNotification: newDocumentAdded
+        // }
     ];
 
     const toggleLogisticsDropdown = () => {
@@ -251,7 +253,7 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
                                                     {item.description}
                                                 </p>
                                             </div>
-                                            {item.hasNotification && (
+                                            {'hasNotification' in item && item.hasNotification && (
                                                 <div className="w-3 h-3 bg-red-500 rounded-full shadow-lg flex-shrink-0" onClick={() => setNewDocumentAdded(false)}></div>
                                             )}
                                             {isActive && (

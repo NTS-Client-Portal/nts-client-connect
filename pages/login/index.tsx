@@ -50,7 +50,7 @@ export default function LoginPage() {
 
                 // Redirect after animation (or immediately if skipped)
                 setTimeout(() => {
-                    router.push('/user/freight-rfq');
+                    router.push('/user/logistics-management');
                 }, 2500); // 2.5 seconds matches the progress bar animation
             }
         };

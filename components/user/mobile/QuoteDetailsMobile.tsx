@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/initSupabase';
+import { setBrokerPrice } from '@/lib/quoteActions';
 import { Database } from '@/lib/database.types';
 import { getCompaniesForSalesUser } from '@/lib/companyAssignment';
 import { 
@@ -165,16 +166,16 @@ const QuoteDetailsMobile: React.FC<QuoteDetailsMobileProps> = ({
     const handlePriceSubmit = async (e, quoteId) => {
         e.preventDefault();
         const price = parseFloat(priceInput);
-        const deposit = parseFloat(depositInput);
-        const totalPrice = price + deposit;
 
-        const { error } = await supabase
-            .from('shippingquotes')
-            .update({ price, deposit, total_price: totalPrice })
-            .eq('id', quoteId);
+        if (!Number.isFinite(price) || price <= 0) {
+            console.error('Please enter a valid positive price.');
+            return;
+        }
 
-        if (error) {
-            console.error('Error updating price:', error.message);
+        const result = await setBrokerPrice({ supabase, quoteId, price });
+
+        if (!result.ok) {
+            console.error('Error updating price:', result.error);
         } else {
             setShowPriceInput(null);
             setPriceInput('');
