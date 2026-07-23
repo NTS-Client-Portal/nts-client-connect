@@ -1719,6 +1719,7 @@ export type Database = {
           loading_by: boolean | null
           loading_unloading_requirements: string | null
           lot_number: string | null
+          macropoint_load_id: string | null
           make: string | null
           model: string | null
           motorized_or_trailer: string | null
@@ -1747,6 +1748,9 @@ export type Database = {
           temperature_instructions: string | null
           temperature_range: string | null
           template_id: string | null
+          tracking_number: string | null
+          tracking_number_type: string | null
+          tracking_status: string | null
           trailer: boolean | null
           type: string | null
           unloading_by: boolean | null
@@ -1815,6 +1819,7 @@ export type Database = {
           loading_by?: boolean | null
           loading_unloading_requirements?: string | null
           lot_number?: string | null
+          macropoint_load_id?: string | null
           make?: string | null
           model?: string | null
           motorized_or_trailer?: string | null
@@ -1843,6 +1848,9 @@ export type Database = {
           temperature_instructions?: string | null
           temperature_range?: string | null
           template_id?: string | null
+          tracking_number?: string | null
+          tracking_number_type?: string | null
+          tracking_status?: string | null
           trailer?: boolean | null
           type?: string | null
           unloading_by?: boolean | null
@@ -1911,6 +1919,7 @@ export type Database = {
           loading_by?: boolean | null
           loading_unloading_requirements?: string | null
           lot_number?: string | null
+          macropoint_load_id?: string | null
           make?: string | null
           model?: string | null
           motorized_or_trailer?: string | null
@@ -1939,6 +1948,9 @@ export type Database = {
           temperature_instructions?: string | null
           temperature_range?: string | null
           template_id?: string | null
+          tracking_number?: string | null
+          tracking_number_type?: string | null
+          tracking_status?: string | null
           trailer?: boolean | null
           type?: string | null
           unloading_by?: boolean | null
@@ -2072,6 +2084,118 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      tracking_events: {
+        Row: {
+          completed_at_utc: string | null
+          event_name: string | null
+          id: number
+          notes: string | null
+          quote_id: number
+          raw_payload: string | null
+          received_at: string | null
+          sequence_number: number | null
+          source: string | null
+          stop_name: string | null
+          stop_type: string | null
+        }
+        Insert: {
+          completed_at_utc?: string | null
+          event_name?: string | null
+          id?: number
+          notes?: string | null
+          quote_id: number
+          raw_payload?: string | null
+          received_at?: string | null
+          sequence_number?: number | null
+          source?: string | null
+          stop_name?: string | null
+          stop_type?: string | null
+        }
+        Update: {
+          completed_at_utc?: string | null
+          event_name?: string | null
+          id?: number
+          notes?: string | null
+          quote_id?: number
+          raw_payload?: string | null
+          received_at?: string | null
+          sequence_number?: number | null
+          source?: string | null
+          stop_name?: string | null
+          stop_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tracking_events_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "shippingquotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tracking_locations: {
+        Row: {
+          address_line1: string | null
+          address_line2: string | null
+          city: string | null
+          country_code: string | null
+          created_at_utc: string | null
+          id: number
+          latitude: number | null
+          longitude: number | null
+          postal_code: string | null
+          quote_id: number
+          raw_payload: string | null
+          received_at: string | null
+          source: string | null
+          state_province: string | null
+          uncertainty_miles: number | null
+        }
+        Insert: {
+          address_line1?: string | null
+          address_line2?: string | null
+          city?: string | null
+          country_code?: string | null
+          created_at_utc?: string | null
+          id?: number
+          latitude?: number | null
+          longitude?: number | null
+          postal_code?: string | null
+          quote_id: number
+          raw_payload?: string | null
+          received_at?: string | null
+          source?: string | null
+          state_province?: string | null
+          uncertainty_miles?: number | null
+        }
+        Update: {
+          address_line1?: string | null
+          address_line2?: string | null
+          city?: string | null
+          country_code?: string | null
+          created_at_utc?: string | null
+          id?: number
+          latitude?: number | null
+          longitude?: number | null
+          postal_code?: string | null
+          quote_id?: number
+          raw_payload?: string | null
+          received_at?: string | null
+          source?: string | null
+          state_province?: string | null
+          uncertainty_miles?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tracking_locations_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "shippingquotes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       usage_stats: {
         Row: {
@@ -2246,38 +2370,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_assigned_company_ids: {
-        Args: Record<PropertyKey, never>
-        Returns: string[]
-      }
-      get_current_user_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_user_company_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      is_admin_user: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_manager_user: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_nts_user: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_shipper: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      purge_user: {
-        Args: { email_to_purge: string }
-        Returns: undefined
-      }
+      get_assigned_company_ids: { Args: never; Returns: string[] }
+      get_current_user_id: { Args: never; Returns: string }
+      get_user_company_id: { Args: never; Returns: string }
+      is_admin_user: { Args: never; Returns: boolean }
+      is_manager_user: { Args: never; Returns: boolean }
+      is_nts_user: { Args: never; Returns: boolean }
+      is_shipper: { Args: never; Returns: boolean }
+      purge_user: { Args: { email_to_purge: string }; Returns: undefined }
     }
     Enums: {
       balance_payment_method_enum:

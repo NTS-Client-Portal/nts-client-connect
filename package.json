@@ -14,7 +14,9 @@
         "build": "next build",
         "build:css": "echo 'CSS building handled by PostCSS in build mode'",
         "start": "next start",
-        "supabase": "supabase"
+        "supabase": "supabase",
+        "db:types": "supabase gen types typescript --project-id cbarvnrqvxroetrcuikv --schema public > lib/database.types.ts",
+        "seed:demo": "node scripts/seedDemo.mjs"
     },
     "dependencies": {
         "@ckeditor/ckeditor5-build-classic": "^41.4.2",

@@ -6,6 +6,7 @@ import { formatDate, renderAdditionalDetails, freightTypeMapping } from './Quote
 import { formatQuoteId } from '@/lib/quoteUtils';
 import { generateAndUploadDocx, replaceShortcodes } from "@/components/GenerateDocx";
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { 
     Search, 
     Filter, 
@@ -461,7 +462,14 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                         >
                                             <td className="modern-table-cell font-medium text-green-600 underline">
                                                 <div className="flex items-center gap-2">
-                                                    {formatQuoteId(order.id)}
+                                                    <Link
+                                                        href={`/user/orders/${formatQuoteId(order.id)}`}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        className="hover:text-green-800"
+                                                        title="View order details & tracking"
+                                                    >
+                                                        {formatQuoteId(order.id)}
+                                                    </Link>
                                                     <ChevronUp 
                                                         className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
                                                             expandedRow === order.id ? 'rotate-180' : ''

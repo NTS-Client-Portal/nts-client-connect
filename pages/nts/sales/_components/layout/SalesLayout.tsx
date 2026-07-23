@@ -1,6 +1,7 @@
 import React, { ReactNode, useState, useEffect } from 'react';
 import SalesSideNav from './SalesSideNav';
 import SalesTopNav from './SalesTopNav';
+import DemoBanner from '@/components/common/DemoBanner';
 import { useSession } from '@supabase/auth-helpers-react';
 import { useNtsUsers } from '@/context/NtsUsersContext';
 
@@ -70,6 +71,7 @@ const SalesLayout: React.FC<SalesLayoutProps> = ({ children }) => {
 
                     {/* Main Content */}
                     <main className="nts-main-content relative">
+                        <DemoBanner />
                         <div className="nts-content-container relative">
                             {children}
                         </div>

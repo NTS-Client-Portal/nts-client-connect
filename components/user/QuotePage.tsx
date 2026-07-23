@@ -5,7 +5,7 @@ import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import Link from 'next/link';
 import axios from 'axios';
-import { Package, Calendar, MapPin } from 'lucide-react';
+import { Package, Calendar, MapPin, Truck, ArrowRight, Send, ShieldCheck, AlertCircle } from 'lucide-react';
 
 interface QuotePageProps {
     onClose: () => void;
@@ -159,7 +159,8 @@ const QuotePage: React.FC<QuotePageProps> = ({ onClose, addQuote, errorText, set
         }
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e?: React.FormEvent) => {
+        e?.preventDefault();
         if (!session) {
             setErrorText('You must be logged in to submit a quote');
             return;
@@ -282,24 +283,26 @@ const QuotePage: React.FC<QuotePageProps> = ({ onClose, addQuote, errorText, set
     };
 
     return (
-        <div className="nts-page-layout">
-            <div className="nts-page-header">
-                <h1 className="text-3xl font-bold text-gray-900">New Shipping Quote</h1>
-                <p className="text-gray-600 mt-2">Request a shipping estimate for your freight</p>
-            </div>
+        <div className="min-h-full bg-gradient-to-b from-slate-50 to-slate-100 px-4 py-8 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-4xl">
+                {/* Hero header */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-700 via-blue-600 to-blue-700 shadow-lg">
+                    <Truck className="pointer-events-none absolute -right-6 -bottom-8 h-44 w-44 text-white/10" />
+                    <div className="relative flex items-center gap-4 px-6 py-8 sm:px-10">
+                        <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15">
+                            <Truck className="h-7 w-7 text-white" />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl font-bold text-white sm:text-3xl">New Shipping Quote</h1>
+                            <p className="mt-1 text-sm text-blue-100 sm:text-base">
+                                Tell us about your freight and an NTS broker will send you a rate.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="h-1.5 w-full bg-gradient-to-r from-orange-400 to-orange-500" />
+                </div>
 
-            {/* <div className="mb-6">
-                <Link
-                    href="/user/quotes/inventory"
-                    className="nts-btn-secondary inline-flex items-center gap-2"
-                >
-                    <Package className="w-4 h-4" />
-                    Select from Inventory
-                </Link>
-            </div> */}
-
-            <div className="nts-card max-w-4xl">
-                <form onSubmit={handleSubmit} className="space-y-8">
+                <form onSubmit={handleSubmit} className="mt-6 space-y-6">
                     <SelectOption
                         selectedOption={selectedOption}
                         setSelectedOption={setSelectedOption}
@@ -310,132 +313,129 @@ const QuotePage: React.FC<QuotePageProps> = ({ onClose, addQuote, errorText, set
                         disabled={false}
                     />
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        {/* Origin Information */}
-                        <div className="nts-form-section">
-                            <div className="nts-form-section-header">
-                                <MapPin className="w-5 h-5 text-green-600" />
-                                <h3 className="text-lg font-semibold text-gray-900">Pickup Address</h3>
-                            </div>
-                            <div className="nts-form-section-body space-y-4">
-                                <div className="nts-form-group">
-                                    <label className="nts-label">Street Address</label>
-                                    <input
-                                        className="nts-input"
-                                        type="text"
-                                        placeholder="Enter pickup address"
-                                        value={formData.origin_address || ''}
-                                        onChange={e => setFormData({ ...formData, origin_address: e.target.value })}
-                                    />
-                                </div>
-                                
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="nts-form-group">
-                                        <label className="nts-label">City</label>
-                                        <input
-                                            className="nts-input"
-                                            type="text"
-                                            placeholder="City"
-                                            value={originCity}
-                                            onChange={e => setOriginCity(e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="nts-form-group">
-                                        <label className="nts-label">State</label>
-                                        <input
-                                            className="nts-input"
-                                            type="text"
-                                            placeholder="State"
-                                            value={originState}
-                                            onChange={e => setOriginState(e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="nts-form-group">
-                                    <label className="nts-label">Zip Code</label>
-                                    <input
-                                        className="nts-input"
-                                        type="text"
-                                        placeholder="Zip Code"
-                                        value={originZip}
-                                        onChange={e => setOriginZip(e.target.value)}
-                                        onBlur={handleOriginZipBlur}
-                                    />
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        💡 Enter zip code first to auto-fill city and state
-                                    </p>
-                                </div>
-                            </div>
+                    {/* Shipping Route */}
+                    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                        <div className="flex items-center gap-3 border-b border-slate-100 bg-slate-50 px-6 py-4">
+                            <MapPin className="h-5 w-5 text-blue-600" />
+                            <h3 className="text-base font-semibold text-slate-900">Shipping Route</h3>
                         </div>
-
-                        {/* Destination Information */}
-                        <div className="nts-form-section">
-                            <div className="nts-form-section-header">
-                                <MapPin className="w-5 h-5 text-blue-600" />
-                                <h3 className="text-lg font-semibold text-gray-900">Delivery Address</h3>
+                        <div className="flex flex-col md:flex-row">
+                            {/* Pickup */}
+                            <div className="flex-1 p-6">
+                                <div className="mb-5 flex items-center gap-3">
+                                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-green-100">
+                                        <MapPin className="h-4 w-4 text-green-600" />
+                                    </span>
+                                    <div>
+                                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Pickup</p>
+                                        <p className="text-sm font-semibold text-slate-800">Where it ships from</p>
+                                    </div>
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="nts-form-group">
+                                        <label className="nts-label">Street Address</label>
+                                        <input
+                                            className="nts-input"
+                                            type="text"
+                                            placeholder="Enter pickup address"
+                                            value={formData.origin_address || ''}
+                                            onChange={e => setFormData({ ...formData, origin_address: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="nts-form-group">
+                                        <label className="nts-label">Zip Code</label>
+                                        <input
+                                            className="nts-input"
+                                            type="text"
+                                            placeholder="Zip Code"
+                                            value={originZip}
+                                            onChange={e => setOriginZip(e.target.value)}
+                                            onBlur={handleOriginZipBlur}
+                                        />
+                                        <p className="mt-1 text-xs text-slate-400">Enter zip first to auto-fill city &amp; state</p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="nts-form-group">
+                                            <label className="nts-label">City</label>
+                                            <input className="nts-input" type="text" placeholder="City" value={originCity} onChange={e => setOriginCity(e.target.value)} />
+                                        </div>
+                                        <div className="nts-form-group">
+                                            <label className="nts-label">State</label>
+                                            <input className="nts-input" type="text" placeholder="State" value={originState} onChange={e => setOriginState(e.target.value)} />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="nts-form-section-body space-y-4">
-                                <div className="nts-form-group">
-                                    <label className="nts-label">Street Address</label>
-                                    <input
-                                        className="nts-input"
-                                        type="text"
-                                        placeholder="Enter delivery address"
-                                        value={formData.destination_street || ''}
-                                        onChange={e => setFormData({ ...formData, destination_street: e.target.value })}
-                                    />
-                                </div>
-                                
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="nts-form-group">
-                                        <label className="nts-label">City</label>
-                                        <input
-                                            className="nts-input"
-                                            type="text"
-                                            placeholder="City"
-                                            value={destinationCity}
-                                            onChange={e => setDestinationCity(e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="nts-form-group">
-                                        <label className="nts-label">State</label>
-                                        <input
-                                            className="nts-input"
-                                            type="text"
-                                            placeholder="State"
-                                            value={destinationState}
-                                            onChange={e => setDestinationState(e.target.value)}
-                                        />
-                                    </div>
-                                </div>
 
-                                <div className="nts-form-group">
-                                    <label className="nts-label">Zip Code</label>
-                                    <input
-                                        className="nts-input"
-                                        type="text"
-                                        placeholder="Zip Code"
-                                        value={destinationZip}
-                                        onChange={e => setDestinationZip(e.target.value)}
-                                        onBlur={handleDestinationZipBlur}
-                                    />
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        💡 Enter zip code first to auto-fill city and state
-                                    </p>
+                            {/* Connector */}
+                            <div className="relative flex items-center justify-center px-2 md:w-16">
+                                <div className="hidden md:flex md:flex-col md:items-center">
+                                    <span className="h-14 w-px bg-slate-200" />
+                                    <span className="my-1 flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm">
+                                        <ArrowRight className="h-4 w-4 text-slate-400" />
+                                    </span>
+                                    <span className="h-14 w-px bg-slate-200" />
+                                </div>
+                            </div>
+
+                            {/* Delivery */}
+                            <div className="flex-1 border-t border-slate-100 p-6 md:border-l md:border-t-0">
+                                <div className="mb-5 flex items-center gap-3">
+                                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100">
+                                        <MapPin className="h-4 w-4 text-blue-600" />
+                                    </span>
+                                    <div>
+                                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Delivery</p>
+                                        <p className="text-sm font-semibold text-slate-800">Where it&apos;s going</p>
+                                    </div>
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="nts-form-group">
+                                        <label className="nts-label">Street Address</label>
+                                        <input
+                                            className="nts-input"
+                                            type="text"
+                                            placeholder="Enter delivery address"
+                                            value={formData.destination_street || ''}
+                                            onChange={e => setFormData({ ...formData, destination_street: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="nts-form-group">
+                                        <label className="nts-label">Zip Code</label>
+                                        <input
+                                            className="nts-input"
+                                            type="text"
+                                            placeholder="Zip Code"
+                                            value={destinationZip}
+                                            onChange={e => setDestinationZip(e.target.value)}
+                                            onBlur={handleDestinationZipBlur}
+                                        />
+                                        <p className="mt-1 text-xs text-slate-400">Enter zip first to auto-fill city &amp; state</p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="nts-form-group">
+                                            <label className="nts-label">City</label>
+                                            <input className="nts-input" type="text" placeholder="City" value={destinationCity} onChange={e => setDestinationCity(e.target.value)} />
+                                        </div>
+                                        <div className="nts-form-group">
+                                            <label className="nts-label">State</label>
+                                            <input className="nts-input" type="text" placeholder="State" value={destinationState} onChange={e => setDestinationState(e.target.value)} />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Shipping Date */}
-                    <div className="nts-form-section">
-                        <div className="nts-form-section-body">
-                            <div className="max-w-xs">
-                                <label className="nts-label">
-                                    <Calendar className="w-4 h-4" />
-                                    Shipping Date
-                                </label>
+                    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                        <div className="flex items-center gap-3 border-b border-slate-100 bg-slate-50 px-6 py-4">
+                            <Calendar className="h-5 w-5 text-blue-600" />
+                            <h3 className="text-base font-semibold text-slate-900">Pickup Date</h3>
+                        </div>
+                        <div className="p-6">
+                            <div className="nts-form-group max-w-xs">
+                                <label className="nts-label">When should we pick up?</label>
                                 <input
                                     className="nts-input"
                                     type="date"
@@ -472,17 +472,26 @@ const QuotePage: React.FC<QuotePageProps> = ({ onClose, addQuote, errorText, set
                         </div>
                     </div> */}
 
-                    {/* Submit Button */}
-                    <div className="flex justify-end pt-6 border-t border-gray-200">
-                        <button type="submit" className="nts-button-primary">
+                    {/* Submit */}
+                    <div className="flex flex-col items-stretch gap-4 rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-start gap-2 text-sm text-slate-500">
+                            <ShieldCheck className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-600" />
+                            <span>No commitment &mdash; a broker reviews your details and sends a rate.</span>
+                        </div>
+                        <button
+                            type="submit"
+                            className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 active:bg-blue-800"
+                        >
+                            <Send className="h-4 w-4" />
                             Submit Quote Request
                         </button>
                     </div>
                 </form>
 
                 {errorText && (
-                    <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-md">
-                        <p className="text-red-700">{errorText}</p>
+                    <div className="mt-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
+                        <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" />
+                        <p className="text-sm font-medium text-red-700">{errorText}</p>
                     </div>
                 )}
             </div>

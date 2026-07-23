@@ -1,6 +1,7 @@
 import React, { ReactNode, useState, useEffect } from 'react';
 import UserSideNav from './UserSideNav';
 import UserTopNav from './UserTopNav';
+import DemoBanner from '@/components/common/DemoBanner';
 import { ProfilesUserProvider, useProfilesUser } from '@/context/ProfilesUserContext';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 
@@ -87,6 +88,7 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
                         
                         {/* Main Content */}
                         <main className="nts-main-content">
+                            <DemoBanner />
                             <div className="nts-content-container">
                                 {children}
                             </div>
