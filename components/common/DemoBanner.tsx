@@ -13,7 +13,7 @@ const DemoBanner: React.FC = () => {
     return (
         <div className="sticky top-0 z-30 flex items-center justify-center gap-2 bg-amber-400 px-4 py-1.5 text-center text-[11px] font-semibold uppercase tracking-wide text-amber-950 shadow-sm sm:text-xs">
             <FlaskConical className="h-3.5 w-3.5 flex-shrink-0" />
-            <span>Demo Environment — sample data for demonstration only. Not a live account.</span>
+            <span className="z-50">Demo Environment — sample data for demonstration only. Not a live account.</span>
         </div>
     );
 };

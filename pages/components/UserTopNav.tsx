@@ -182,7 +182,7 @@ const UserTopNav: React.FC<UserTopNavProps> = ({ className = '', toggleSidebar }
                             <>
                                 {/* Backdrop */}
                                 <div
-                                    className="fixed inset-0 z-10"
+                                    className="fixed inset-0 z-40"
                                     onClick={() => setDropdownOpen(false)}
                                 />
                                 
