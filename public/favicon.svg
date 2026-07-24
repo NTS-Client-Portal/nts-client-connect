@@ -1,15 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="NTS Shipper Connect">
-  <!-- Rounded blue tile — matches the app's primary bg-blue-700 accent -->
-  <rect width="32" height="32" rx="7" fill="#1d4ed8"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="NTS Client Connect">
+  <defs>
+    <linearGradient id="ntsBg" x1="0" y1="0" x2="0" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3b82f6"/>
+      <stop offset="1" stop-color="#1d4ed8"/>
+    </linearGradient>
+  </defs>
 
-  <!-- Lucide-style delivery truck, centered on a 24×24 grid with 4px padding -->
-  <g transform="translate(4 4)" fill="none" stroke="#ffffff" stroke-width="2.4"
-     stroke-linecap="round" stroke-linejoin="round">
-    <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/>
-    <path d="M15 18H9"/>
-    <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/>
-    <circle cx="17" cy="18" r="2"/>
-    <circle cx="7" cy="18" r="2"/>
-  </g>
+  <!-- Rounded brand tile -->
+  <rect width="32" height="32" rx="8" fill="url(#ntsBg)"/>
+
+  <!-- Dotted connecting route: origin -> destination ("Connect") -->
+  <path d="M9.5 22.5 C 15 22.5, 13.5 12.5, 20 12"
+        fill="none" stroke="#ffffff" stroke-width="2.2"
+        stroke-linecap="round" stroke-dasharray="0.1 5" opacity="0.9"/>
+
+  <!-- Origin node -->
+  <circle cx="9.5" cy="22.5" r="3.1" fill="#ffffff"/>
+  <circle cx="9.5" cy="22.5" r="1.35" fill="#1d4ed8"/>
+
+  <!-- Destination pin -->
+  <path d="M20.5 6.2a5.2 5.2 0 0 0-5.2 5.2c0 3.7 5.2 8.1 5.2 8.1s5.2-4.4 5.2-8.1a5.2 5.2 0 0 0-5.2-5.2z"
+        fill="#ffffff"/>
+  <circle cx="20.5" cy="11.4" r="2" fill="#1d4ed8"/>
 </svg>
