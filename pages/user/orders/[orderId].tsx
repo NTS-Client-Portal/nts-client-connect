@@ -8,6 +8,8 @@ import { formatQuoteId, parseQuoteId } from '@/lib/quoteUtils';
 import { formatDate, freightTypeMapping } from '@/components/user/quotetabs/QuoteUtils';
 import { getStatusLabel, getStatusStyle } from '@/lib/statusManagement';
 import OrderDocuments from '@/components/user/orders/OrderDocuments';
+import ShipmentStatusHistory from '@/components/user/orders/ShipmentStatusHistory';
+import CarrierInfoCard from '@/components/user/orders/CarrierInfoCard';
 import {
     ArrowLeft,
     MapPin,
@@ -21,6 +23,7 @@ import {
     RefreshCw,
     Info,
     Clock,
+    Copy,
 } from 'lucide-react';
 
 type ShippingQuote = Database['public']['Tables']['shippingquotes']['Row'];
@@ -111,6 +114,7 @@ const OrderDetailPage: React.FC = () => {
     const [locations, setLocations] = useState<TrackingLocation[]>([]);
     const [events, setEvents] = useState<TrackingEvent[]>([]);
     const [refreshing, setRefreshing] = useState(false);
+    const [reordering, setReordering] = useState(false);
 
     const fetchOrder = useCallback(async () => {
         if (!router.isReady || authLoading) return;
@@ -194,6 +198,44 @@ const OrderDetailPage: React.FC = () => {
             setRefreshing(false);
         }
     }, [fetchTracking]);
+
+    // Idea 7 — Reorder / repeat lane. Duplicate this shipment into a fresh
+    // quote (same freight + route + PO), reset to 'quote' with no price, so the
+    // shipper can re-request a recurring lane in one click.
+    const handleReorder = useCallback(async () => {
+        if (!order || !session?.user?.id) return;
+        setReordering(true);
+        try {
+            const {
+                id,
+                inserted_at,
+                created_at,
+                price,
+                status,
+                is_complete,
+                is_archived,
+                ...rest
+            } = order as any;
+            const newQuote = {
+                ...rest,
+                user_id: session.user.id,
+                status: 'quote',
+                price: null,
+                created_at: new Date().toISOString(),
+            };
+            const { error } = await (supabase.from('shippingquotes') as any)
+                .insert([newQuote])
+                .select()
+                .single();
+            if (error) {
+                console.error('Error reordering shipment:', error.message);
+            } else {
+                router.push('/user/logistics-management');
+            }
+        } finally {
+            setReordering(false);
+        }
+    }, [order, session?.user?.id, supabase, router]);
 
     const latestLocation = locations[0] || null;
     const currentStage = getStageFromEvents(events, order?.status ?? null);
@@ -279,6 +321,22 @@ const OrderDetailPage: React.FC = () => {
                                     )}
                                 </div>
                                 <div className="h-1.5 w-full bg-gradient-to-r from-orange-400 to-orange-500" />
+                            </div>
+
+                            {/* Reorder action */}
+                            <div className="flex justify-end">
+                                <button
+                                    onClick={handleReorder}
+                                    disabled={reordering}
+                                    className="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-white px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm transition-colors hover:bg-blue-50 disabled:opacity-60"
+                                >
+                                    {reordering ? (
+                                        <RefreshCw className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <Copy className="h-4 w-4" />
+                                    )}
+                                    {reordering ? 'Creating\u2026' : 'Reorder this shipment'}
+                                </button>
                             </div>
 
                             {/* Live Tracking */}
@@ -387,6 +445,15 @@ const OrderDetailPage: React.FC = () => {
                                     )}
                                 </div>
                             </div>
+
+                            {/* Status history (broker milestone timeline) */}
+                            <ShipmentStatusHistory
+                                quoteId={order.id}
+                                currentStatus={(order as any).brokers_status || order.status}
+                            />
+
+                            {/* Carrier information (broker-optional, shown after dispatch) */}
+                            <CarrierInfoCard order={order} />
 
                             {/* Route Information */}
                             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">

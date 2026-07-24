@@ -4,6 +4,9 @@ import SelectOption from './SelectOption';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import axios from 'axios';
+import OversizePreflight from './quote/OversizePreflight';
+import HighValueCargoNotice from './quote/HighValueCargoNotice';
+import SavedLibraryBar from './quote/SavedLibraryBar';
 
 interface QuoteFormProps {
     isOpen: boolean;
@@ -29,9 +32,16 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
     const [destinationCity, setDestinationCity] = useState('');
     const [destinationState, setDestinationState] = useState('');
     const [destinationZip, setDestinationZip] = useState('');
+    const [originName, setOriginName] = useState('');
+    const [originPhone, setOriginPhone] = useState('');
+    const [originStreet, setOriginStreet] = useState('');
+    const [destinationName, setDestinationName] = useState('');
+    const [destinationPhone, setDestinationPhone] = useState('');
+    const [destinationStreet, setDestinationStreet] = useState('');
     const [dueDate, setDueDate] = useState<string | null>(null);
     const [formData, setFormData] = useState<any>({});
     const [poNumber, setPoNumber] = useState('');
+    const [insuranceRequested, setInsuranceRequested] = useState(false);
     const [saveToInventory, setSaveToInventory] = useState(false);
     const [inventoryItems, setInventoryItems] = useState<any[]>([]);
     const [selectedInventoryItem, setSelectedInventoryItem] = useState('');
@@ -217,6 +227,47 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
         }
     };
 
+    const applySavedFreight = (row: any) => {
+        setSelectedInventoryItem('');
+        setSelectedOption(row.freight_type || '');
+        setFormData({
+            year: row.year || '',
+            make: row.make || '',
+            model: row.model || '',
+            commodity: row.commodity || '',
+            length: row.length || '',
+            length_unit: row.length_unit || 'ft',
+            width: row.width || '',
+            width_unit: row.width_unit || 'ft',
+            height: row.height || '',
+            height_unit: row.height_unit || 'ft',
+            weight: row.weight || '',
+            weight_unit: row.weight_unit || 'lbs',
+            operational_condition: row.operational_condition ?? null,
+        });
+    };
+
+    const applySavedLocation = (target: 'origin' | 'destination', row: any) => {
+        const display = `${[row.city, row.state].filter(Boolean).join(', ')}${row.zip ? ` ${row.zip}` : ''}`.trim();
+        if (target === 'origin') {
+            setOriginInput(display);
+            setOriginCity(row.city || '');
+            setOriginState(row.state || '');
+            setOriginZip(row.zip || '');
+            setOriginName(row.contact_name || '');
+            setOriginPhone(row.phone || '');
+            setOriginStreet(row.street || '');
+        } else {
+            setDestinationInput(display);
+            setDestinationCity(row.city || '');
+            setDestinationState(row.state || '');
+            setDestinationZip(row.zip || '');
+            setDestinationName(row.contact_name || '');
+            setDestinationPhone(row.phone || '');
+            setDestinationStreet(row.street || '');
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -245,15 +296,22 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
             origin_zip: originZip,
             origin_city: originCity,
             origin_state: originState,
+            origin_name: originName || null,
+            origin_phone: originPhone || null,
+            origin_street: originStreet || null,
             destination_zip: destinationZip,
             destination_city: destinationCity,
             destination_state: destinationState,
+            destination_name: destinationName || null,
+            destination_phone: destinationPhone || null,
+            destination_street: destinationStreet || null,
             due_date: dueDate,
             created_at: new Date(),
             freight_type: selectedOption,
             status: 'quote', // Fix: Use lowercase for consistency
             ...formData,
             po_number: poNumber || null,
+            insurance_requested: insuranceRequested,
             save_to_inventory: saveToInventory,
             needs_admin_review: !finalCompanyId, // Flag for admin review if needed
         };
@@ -393,6 +451,47 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                 </div>
                 <div className={isModal ? "flex-1 overflow-y-auto bg-white" : ""}>
                     <form onSubmit={handleSubmit} className={isModal ? "flex flex-col gap-3 p-4" : "flex flex-col gap-4"}>
+                        {/* Saved freight + location library (reuse in one click) */}
+                        <SavedLibraryBar
+                            session={session}
+                            companyId={companyId}
+                            selectedFreightType={selectedOption}
+                            currentFreight={{
+                                freight_type: selectedOption,
+                                year: formData.year,
+                                make: formData.make,
+                                model: formData.model,
+                                commodity: formData.commodity,
+                                length: formData.length,
+                                length_unit: formData.length_unit,
+                                width: formData.width,
+                                width_unit: formData.width_unit,
+                                height: formData.height,
+                                height_unit: formData.height_unit,
+                                weight: formData.weight,
+                                weight_unit: formData.weight_unit,
+                                operational_condition: formData.operational_condition,
+                            }}
+                            currentOrigin={{
+                                contact_name: originName,
+                                phone: originPhone,
+                                street: originStreet,
+                                city: originCity,
+                                state: originState,
+                                zip: originZip,
+                            }}
+                            currentDestination={{
+                                contact_name: destinationName,
+                                phone: destinationPhone,
+                                street: destinationStreet,
+                                city: destinationCity,
+                                state: destinationState,
+                                zip: destinationZip,
+                            }}
+                            onApplyFreight={applySavedFreight}
+                            onApplyLocation={applySavedLocation}
+                        />
+
                         {/* Inventory Selection & Route - Combined Top Row */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                             {/* Inventory Selection */}
@@ -491,6 +590,28 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ isOpen, onClose, addQuote, errorT
                             formData={formData}
                             disabled={false}
                         />
+
+                        {/* Oversize / permit pre-flight + high-value coverage prompt.
+                            Both read the dimensions/value already captured above. */}
+                        {selectedOption && (
+                            <div className="flex flex-col gap-3">
+                                <OversizePreflight
+                                    length={formData.length}
+                                    width={formData.width}
+                                    height={formData.height}
+                                    weight={formData.weight}
+                                    lengthUnit={formData.length_unit}
+                                    widthUnit={formData.width_unit}
+                                    heightUnit={formData.height_unit}
+                                    weightUnit={formData.weight_unit}
+                                />
+                                <HighValueCargoNotice
+                                    goodsValue={formData.goods_value}
+                                    checked={insuranceRequested}
+                                    onChange={setInsuranceRequested}
+                                />
+                            </div>
+                        )}
 
                         {/* Options & Actions - Combined Bottom Row */}
                         <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-3 border-t border-gray-200">

@@ -1833,7 +1833,14 @@ export type Database = {
           beam: string | null
           brokers_status: string | null
           buyer_number: string | null
+          carrier_contact: string | null
+          carrier_dispatched_at: string | null
+          carrier_dot_number: string | null
+          carrier_mc_number: string | null
+          carrier_name: string | null
           carrier_pay: number | null
+          carrier_phone: string | null
+          carrier_visible_to_shipper: boolean | null
           class_type: string | null
           commodity: string | null
           company_id: string | null
@@ -1855,6 +1862,8 @@ export type Database = {
           destination_zip: string | null
           dock_no_dock: string | null
           driveaway_or_towaway: boolean | null
+          driver_name: string | null
+          driver_phone: string | null
           due_date: string | null
           earliest_pickup_date: string | null
           email: string | null
@@ -1866,6 +1875,7 @@ export type Database = {
           height_unit: string | null
           id: number
           inserted_at: string | null
+          insurance_requested: boolean | null
           is_archived: boolean | null
           is_complete: boolean | null
           is_loaded: boolean | null
@@ -1913,6 +1923,8 @@ export type Database = {
           tracking_number_type: string | null
           tracking_status: string | null
           trailer: boolean | null
+          trailer_number: string | null
+          truck_number: string | null
           type: string | null
           unloading_by: boolean | null
           updated_at: string | null
@@ -1934,7 +1946,14 @@ export type Database = {
           beam?: string | null
           brokers_status?: string | null
           buyer_number?: string | null
+          carrier_contact?: string | null
+          carrier_dispatched_at?: string | null
+          carrier_dot_number?: string | null
+          carrier_mc_number?: string | null
+          carrier_name?: string | null
           carrier_pay?: number | null
+          carrier_phone?: string | null
+          carrier_visible_to_shipper?: boolean | null
           class_type?: string | null
           commodity?: string | null
           company_id?: string | null
@@ -1956,6 +1975,8 @@ export type Database = {
           destination_zip?: string | null
           dock_no_dock?: string | null
           driveaway_or_towaway?: boolean | null
+          driver_name?: string | null
+          driver_phone?: string | null
           due_date?: string | null
           earliest_pickup_date?: string | null
           email?: string | null
@@ -1967,6 +1988,7 @@ export type Database = {
           height_unit?: string | null
           id?: number
           inserted_at?: string | null
+          insurance_requested?: boolean | null
           is_archived?: boolean | null
           is_complete?: boolean | null
           is_loaded?: boolean | null
@@ -2014,6 +2036,8 @@ export type Database = {
           tracking_number_type?: string | null
           tracking_status?: string | null
           trailer?: boolean | null
+          trailer_number?: string | null
+          truck_number?: string | null
           type?: string | null
           unloading_by?: boolean | null
           updated_at?: string | null
@@ -2035,7 +2059,14 @@ export type Database = {
           beam?: string | null
           brokers_status?: string | null
           buyer_number?: string | null
+          carrier_contact?: string | null
+          carrier_dispatched_at?: string | null
+          carrier_dot_number?: string | null
+          carrier_mc_number?: string | null
+          carrier_name?: string | null
           carrier_pay?: number | null
+          carrier_phone?: string | null
+          carrier_visible_to_shipper?: boolean | null
           class_type?: string | null
           commodity?: string | null
           company_id?: string | null
@@ -2057,6 +2088,8 @@ export type Database = {
           destination_zip?: string | null
           dock_no_dock?: string | null
           driveaway_or_towaway?: boolean | null
+          driver_name?: string | null
+          driver_phone?: string | null
           due_date?: string | null
           earliest_pickup_date?: string | null
           email?: string | null
@@ -2068,6 +2101,7 @@ export type Database = {
           height_unit?: string | null
           id?: number
           inserted_at?: string | null
+          insurance_requested?: boolean | null
           is_archived?: boolean | null
           is_complete?: boolean | null
           is_loaded?: boolean | null
@@ -2115,6 +2149,8 @@ export type Database = {
           tracking_number_type?: string | null
           tracking_status?: string | null
           trailer?: boolean | null
+          trailer_number?: string | null
+          truck_number?: string | null
           type?: string | null
           unloading_by?: boolean | null
           updated_at?: string | null

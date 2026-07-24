@@ -322,18 +322,39 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
                     <h4 className="text-lg font-medium text-gray-900">Special Requirements</h4>
                 </div>
                 <div className="nts-form-section-body">
-                    <div className="nts-form-group">
-                        <label className="nts-label">Loading/Unloading Requirements</label>
-                        <input
-                            className="nts-input"
-                            type="text"
-                            placeholder="e.g. Crane, Forklift, Ramp, Loading Dock"
-                            value={loadingUnloadingRequirements}
-                            onChange={e => { setErrorText(''); setLoadingUnloadingRequirements(e.target.value); }}
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                            💡 Specify any special equipment needed for loading/unloading
-                        </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="nts-form-group">
+                            <label className="nts-label">Loading/Unloading Requirements</label>
+                            <input
+                                className="nts-input"
+                                type="text"
+                                placeholder="e.g. Crane, Forklift, Ramp, Loading Dock"
+                                value={loadingUnloadingRequirements}
+                                onChange={e => { setErrorText(''); setLoadingUnloadingRequirements(e.target.value); }}
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                                💡 Specify any special equipment needed for loading/unloading
+                            </p>
+                        </div>
+                        <div className="nts-form-group">
+                            <label className="nts-label">Tarping Required?</label>
+                            <select
+                                className="nts-input"
+                                title='tarping requirement selection'
+                                value={tarping === null ? '' : tarping ? 'yes' : 'no'}
+                                onChange={e => {
+                                    setErrorText('');
+                                    setTarping(e.target.value === '' ? null : e.target.value === 'yes');
+                                }}
+                            >
+                                <option value="">Select...</option>
+                                <option value="yes">Yes — load must be tarped</option>
+                                <option value="no">No tarping needed</option>
+                            </select>
+                            <p className="text-xs text-gray-500 mt-1">
+                                Tarping protects the load and is a common flatbed accessorial.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>

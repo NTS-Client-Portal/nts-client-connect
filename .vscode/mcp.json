@@ -1,0 +1,36 @@
+{
+    // NTS Carrier MCP server — FMCSA carrier lookup + write-back to shippingquotes.
+    // See mcp/carrier-lookup/README.md. Fill the three inputs when VS Code prompts,
+    // or move them into mcp/carrier-lookup/.env (the server reads dotenv too).
+    "inputs": [
+        {
+            "id": "fmcsa-webkey",
+            "type": "promptString",
+            "description": "FMCSA QCMobile web key (https://mobile.fmcsa.dot.gov/QCDevsite/docs/getStarted)",
+            "password": true
+        },
+        {
+            "id": "supabase-url",
+            "type": "promptString",
+            "description": "Supabase project URL (NEXT_PUBLIC_SUPABASE_URL)"
+        },
+        {
+            "id": "supabase-service-role-key",
+            "type": "promptString",
+            "description": "Supabase service role key (server-side only)",
+            "password": true
+        }
+    ],
+    "servers": {
+        "nts-carrier": {
+            "type": "stdio",
+            "command": "node",
+            "args": ["${workspaceFolder}/mcp/carrier-lookup/server.mjs"],
+            "env": {
+                "FMCSA_WEBKEY": "${input:fmcsa-webkey}",
+                "NEXT_PUBLIC_SUPABASE_URL": "${input:supabase-url}",
+                "SUPABASE_SERVICE_ROLE_KEY": "${input:supabase-service-role-key}"
+            }
+        }
+    }
+}
