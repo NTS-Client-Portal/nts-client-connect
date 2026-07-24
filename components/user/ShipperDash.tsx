@@ -2,34 +2,35 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/initSupabase';
 import { useSession } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
-import Image from 'next/image';
-import { useProfilesUser } from '@/context/ProfilesUserContext';
 import ShippingCalendar from './ShippingCalendar';
-import { 
-    Package, 
-    Truck, 
-    CheckCircle, 
-    Clock, 
-    TrendingUp, 
+import {
+    Package,
+    Truck,
+    CheckCircle,
+    Clock,
+    TrendingUp,
     Calendar,
     User,
     Mail,
     Phone,
-    MapPin,
-    DollarSign,
     AlertCircle,
-    BarChart3
+    BarChart3,
+    ArrowUpRight,
 } from 'lucide-react';
-
-type NtsUsersRow = Database['public']['Tables']['nts_users']['Row'];
-type AssignedSalesUser = Database['public']['Tables']['nts_users']['Row'];
 
 interface DashboardStats {
     activeOrders: number;
     pendingQuotes: number;
     completedOrders: number;
-    totalValue: number;
 }
+
+// Demo account manager — mock data so no real rep PII is surfaced in the demo.
+const ACCOUNT_MANAGER = {
+    name: 'Jordan Avery',
+    title: 'Dedicated Account Manager',
+    email: 'jordan.avery@ntslogistics.com',
+    phone: '(800) 555-0142',
+};
 
 const ShipperDash = () => {
     const [errorText, setErrorText] = useState<string>('');
@@ -38,11 +39,8 @@ const ShipperDash = () => {
         activeOrders: 0,
         pendingQuotes: 0,
         completedOrders: 0,
-        totalValue: 0
     });
     const [recentOrders, setRecentOrders] = useState<Database['public']['Tables']['shippingquotes']['Row'][]>([]);
-    const [assignedSalesUsers, setAssignedSalesUsers] = useState<AssignedSalesUser[]>([]);
-    const { userProfile } = useProfilesUser();
     const session = useSession();
 
     // Fetch dashboard statistics
@@ -75,18 +73,10 @@ const ShipperDash = () => {
                 return quote.is_complete === true;
             });
 
-            // Calculate stats
-            const activeOrders = activeOrdersData?.length || 0;
-            const pendingQuotes = pendingQuotesData?.length || 0;
-            const completedOrders = completedOrdersData?.length || 0;
-            const totalValue = [...(activeOrdersData || []), ...(completedOrdersData || [])]
-                .reduce((sum, order) => sum + (order.price || 0), 0);
-
             setStats({
-                activeOrders,
-                pendingQuotes,
-                completedOrders,
-                totalValue
+                activeOrders: activeOrdersData?.length || 0,
+                pendingQuotes: pendingQuotesData?.length || 0,
+                completedOrders: completedOrdersData?.length || 0,
             });
 
         } catch (error) {
@@ -124,45 +114,32 @@ const ShipperDash = () => {
         }
     }, [session, fetchDashboardStats, fetchRecentOrders]);
 
-    useEffect(() => {
-        const fetchAssignedSalesUsers = async () => {
-            if (userProfile?.company_id) {
-                const { data, error } = await supabase
-                    .from('company_sales_users')
-                    .select(`
-                        sales_user_id,
-                            nts_users (
-                                id,
-                                first_name,
-                                last_name,
-                                email,
-                                phone_number,
-                                profile_picture
-                            )
-                    `)
-                    .eq('company_id', userProfile.company_id);
-
-                if (error) {
-                    console.error('Error fetching assigned sales users:', error.message);
-                } else if (data) {
-                    setAssignedSalesUsers(data.map((item: any) => item.nts_users));
-                }
-            }
-        };
-
-        fetchAssignedSalesUsers();
-    }, [userProfile]);
-
-    const rep = assignedSalesUsers[0];
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-        }).format(amount);
-    };
+    const statCards = [
+        {
+            label: 'Active Orders',
+            value: stats.activeOrders,
+            hint: 'Orders in progress',
+            icon: Truck,
+            accent: 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
+            bar: 'from-blue-500 to-blue-600',
+        },
+        {
+            label: 'Pending Quotes',
+            value: stats.pendingQuotes,
+            hint: 'Awaiting response',
+            icon: Clock,
+            accent: 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
+            bar: 'from-amber-400 to-amber-500',
+        },
+        {
+            label: 'Completed',
+            value: stats.completedOrders,
+            hint: 'Delivered orders',
+            icon: CheckCircle,
+            accent: 'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400',
+            bar: 'from-green-500 to-emerald-600',
+        },
+    ];
 
     const getStatusIcon = (status: string) => {
         switch (status?.toLowerCase()) {
@@ -229,165 +206,77 @@ const ShipperDash = () => {
                     </div>
                 ) : (
                     <div className="space-y-6">
-                        {/* Statistics Cards */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                                <div className="flex items-center justify-between">
+                        {/* Shipping Schedule — top of the page */}
+                        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-blue-50 dark:bg-blue-900/30 p-2 rounded-lg">
+                                        <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                    </div>
                                     <div>
-                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Orders</p>
-                                        <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.activeOrders}</p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Orders in progress</p>
-                                    </div>
-                                    <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg">
-                                        <Truck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending Quotes</p>
-                                        <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.pendingQuotes}</p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Awaiting response</p>
-                                    </div>
-                                    <div className="bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded-lg">
-                                        <Clock className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Completed</p>
-                                        <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.completedOrders}</p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Delivered orders</p>
-                                    </div>
-                                    <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg">
-                                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Value</p>
-                                        <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{formatCurrency(stats.totalValue)}</p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Lifetime shipments</p>
-                                    </div>
-                                    <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg">
-                                        <DollarSign className="w-6 h-6 text-green-600 dark:text-green-400" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Main Content Grid */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            {/* Calendar Section - Takes up 2 columns on large screens */}
-                            <div className="lg:col-span-2">
-                                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                                    <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                                        <div className="flex items-center gap-3">
-                                            <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                                            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Shipping Schedule</h2>
-                                        </div>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Shipping Schedule</h2>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400">
                                             View and manage your pickup and delivery dates
                                         </p>
                                     </div>
-                                    <div className="p-6">
-                                        <ShippingCalendar />
-                                    </div>
                                 </div>
                             </div>
+                            <div className="p-4 sm:p-6">
+                                <ShippingCalendar />
+                            </div>
+                        </div>
 
-                            {/* Sidebar */}
-                            <div className="space-y-6">
-                                {/* Sales Representative Card */}
-                                {rep && (
-                                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                                        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                                            <div className="flex items-center gap-3">
-                                                <User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Your Dedicated Account Manager</h3>
-                                            </div>
+                        {/* Statistics Cards */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                            {statCards.map(({ label, value, hint, icon: Icon, accent, bar }) => (
+                                <div
+                                    key={label}
+                                    className="group relative bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 overflow-hidden transition-all hover:shadow-md hover:-translate-y-0.5"
+                                >
+                                    <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${bar}`} />
+                                    <div className="flex items-start justify-between">
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{label}</p>
+                                            <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{value}</p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{hint}</p>
                                         </div>
-                                        <div className="p-6">
-                                            <div className="text-center mb-6">
-                                                {rep.profile_picture ? (
-                                                    <Image
-                                                        src={rep.profile_picture}
-                                                        alt={`${rep.first_name} ${rep.last_name}`}
-                                                        className="w-20 h-20 rounded-full mx-auto object-cover border-4 border-gray-100 dark:border-gray-700"
-                                                        width={80}
-                                                        height={80}
-                                                    />
-                                                ) : (
-                                                    <div className="w-20 h-20 bg-gray-200 dark:bg-gray-600 rounded-full mx-auto flex items-center justify-center border-4 border-gray-100 dark:border-gray-700">
-                                                        <User className="w-8 h-8 text-gray-500 dark:text-gray-400" />
-                                                    </div>
-                                                )}
-                                                <h4 className="text-xl font-semibold text-gray-900 dark:text-white mt-4">
-                                                    {rep.first_name} {rep.last_name}
-                                                </h4>
-                                                <p className="text-sm text-gray-600 dark:text-gray-400">Logistics Representative</p>
-                                            </div>
-                                            
-                                            <div className="space-y-4">
-                                                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                                                    <Mail className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-                                                    <div>
-                                                        <p className="text-sm font-medium text-gray-900 dark:text-white">Email</p>
-                                                        <a 
-                                                            href={`mailto:${rep.email}`}
-                                                            className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
-                                                        >
-                                                            {rep.email}
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                                
-                                                {rep.phone_number && (
-                                                    <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                                                        <Phone className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-                                                        <div>
-                                                            <p className="text-sm font-medium text-gray-900 dark:text-white">Phone</p>
-                                                            <a 
-                                                                href={`tel:${rep.phone_number}`}
-                                                                className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-                                                            >
-                                                                {rep.phone_number}
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
+                                        <div className={`p-3 rounded-lg ${accent}`}>
+                                            <Icon className="w-6 h-6" />
                                         </div>
                                     </div>
-                                )}
+                                </div>
+                            ))}
+                        </div>
 
-                                {/* Recent Activity Card */}
-                                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                        {/* Recent Activity + Account Manager */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            {/* Recent Activity */}
+                            <div className="lg:col-span-2">
+                                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden h-full">
                                     <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                                         <div className="flex items-center gap-3">
-                                            <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                            <div className="bg-blue-50 dark:bg-blue-900/30 p-2 rounded-lg">
+                                                <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                            </div>
                                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Activity</h3>
                                         </div>
                                     </div>
                                     <div className="p-6">
                                         {recentOrders.length === 0 ? (
-                                            <div className="text-center py-8">
-                                                <Package className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                                            <div className="text-center py-10">
+                                                <Package className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
                                                 <p className="text-sm text-gray-600 dark:text-gray-400">No recent activity</p>
                                             </div>
                                         ) : (
-                                            <div className="space-y-4">
+                                            <div className="space-y-3">
                                                 {recentOrders.map((order) => (
-                                                    <div key={order.id} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                                                        {getStatusIcon(order.status)}
+                                                    <div
+                                                        key={order.id}
+                                                        className="flex items-center gap-3 p-3 rounded-lg border border-transparent bg-gray-50 dark:bg-gray-700/50 hover:border-gray-200 dark:hover:border-gray-600 transition-colors"
+                                                    >
+                                                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600">
+                                                            {getStatusIcon(order.status)}
+                                                        </div>
                                                         <div className="flex-1 min-w-0">
                                                             <p className="text-sm font-medium text-gray-900 dark:text-white">
                                                                 Order #{order.id}
@@ -403,6 +292,61 @@ const ShipperDash = () => {
                                                 ))}
                                             </div>
                                         )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Account Manager */}
+                            <div className="lg:col-span-1">
+                                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden h-full">
+                                    <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                                        <div className="flex items-center gap-3">
+                                            <div className="bg-blue-50 dark:bg-blue-900/30 p-2 rounded-lg">
+                                                <User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                            </div>
+                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Your Dedicated Account Manager</h3>
+                                        </div>
+                                    </div>
+                                    <div className="p-6">
+                                        <div className="text-center mb-6">
+                                            <div className="w-20 h-20 rounded-full mx-auto flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-700 text-white text-2xl font-semibold border-4 border-white dark:border-gray-700 shadow-sm">
+                                                {ACCOUNT_MANAGER.name.split(' ').map((n) => n[0]).join('')}
+                                            </div>
+                                            <h4 className="text-xl font-semibold text-gray-900 dark:text-white mt-4">
+                                                {ACCOUNT_MANAGER.name}
+                                            </h4>
+                                            <p className="text-sm text-gray-600 dark:text-gray-400">{ACCOUNT_MANAGER.title}</p>
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            <a
+                                                href={`mailto:${ACCOUNT_MANAGER.email}`}
+                                                className="group flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                                            >
+                                                <Mail className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Email</p>
+                                                    <p className="text-sm text-blue-600 dark:text-blue-400 break-all">
+                                                        {ACCOUNT_MANAGER.email}
+                                                    </p>
+                                                </div>
+                                                <ArrowUpRight className="w-4 h-4 text-gray-300 group-hover:text-blue-500 transition-colors" />
+                                            </a>
+
+                                            <a
+                                                href={`tel:${ACCOUNT_MANAGER.phone}`}
+                                                className="group flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                                            >
+                                                <Phone className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Phone</p>
+                                                    <p className="text-sm text-blue-600 dark:text-blue-400">
+                                                        {ACCOUNT_MANAGER.phone}
+                                                    </p>
+                                                </div>
+                                                <ArrowUpRight className="w-4 h-4 text-gray-300 group-hover:text-blue-500 transition-colors" />
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

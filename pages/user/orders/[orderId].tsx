@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSupabaseClient, useSessionContext } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import UserLayout from '@/pages/components/UserLayout';
 import { formatQuoteId, parseQuoteId } from '@/lib/quoteUtils';
@@ -93,8 +93,16 @@ const DetailRow: React.FC<{ label: string; value?: React.ReactNode }> = ({ label
 
 const OrderDetailPage: React.FC = () => {
     const router = useRouter();
-    const session = useSession();
+    const { session, isLoading: authLoading } = useSessionContext();
     const supabase = useSupabaseClient<Database>();
+
+    // Once auth has settled, send unauthenticated users to the login page
+    // instead of leaving them stuck on the "Loading order…" spinner.
+    useEffect(() => {
+        if (!authLoading && !session) {
+            router.replace('/');
+        }
+    }, [authLoading, session, router]);
 
     const { orderId } = router.query;
     const [order, setOrder] = useState<ShippingQuote | null>(null);
@@ -105,7 +113,13 @@ const OrderDetailPage: React.FC = () => {
     const [refreshing, setRefreshing] = useState(false);
 
     const fetchOrder = useCallback(async () => {
-        if (!router.isReady || !session?.user?.id) return;
+        if (!router.isReady || authLoading) return;
+
+        if (!session?.user?.id) {
+            // Auth finished with no session — stop loading (redirect handled above).
+            setLoading(false);
+            return;
+        }
 
         const raw = Array.isArray(orderId) ? orderId[0] : orderId;
         const numericId = parseQuoteId(raw || '');
@@ -132,7 +146,7 @@ const OrderDetailPage: React.FC = () => {
             setOrder(data);
         }
         setLoading(false);
-    }, [router.isReady, orderId, session?.user?.id, supabase]);
+    }, [router.isReady, authLoading, orderId, session?.user?.id, supabase]);
 
     useEffect(() => {
         fetchOrder();
