@@ -632,7 +632,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                                    className="absolute right-3 top-2/3 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
                                                 >
                                                     {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                                 </button>
