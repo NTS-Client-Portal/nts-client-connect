@@ -77,10 +77,14 @@ const CustomSignInForm = () => {
     setError(null);
 
     try {
-      // Restrict users with emails from ntslogistics.com or nationwidetransportservices.com
+      // Keep brokers/staff out of the shipper portal: block internal NTS domains,
+      // EXCEPT for explicitly allow-listed demo shipper accounts (which happen to
+      // share the ntslogistics.com domain).
       const restrictedDomains = ['ntslogistics.com', 'nationwidetransportservices.com'];
-      const emailDomain = email.split('@')[1];
-      if (restrictedDomains.includes(emailDomain)) {
+      const allowedShipperEmails = ['demo.shipper@ntslogistics.com'];
+      const normalizedEmail = email.trim().toLowerCase();
+      const emailDomain = normalizedEmail.split('@')[1];
+      if (restrictedDomains.includes(emailDomain) && !allowedShipperEmails.includes(normalizedEmail)) {
         setError('Users with this email domain are not allowed to sign in through this form.');
         return;
       }

@@ -239,7 +239,12 @@ const OrderDetailPage: React.FC = () => {
     }, [order, session?.user?.id, supabase, router]);
 
     const latestLocation = locations[0] || null;
-    const currentStage = getStageFromEvents(events, order?.status ?? null);
+    // Derive the stage from real tracking events when available, otherwise fall
+    // back to the broker milestone (brokers_status), then the top-level status.
+    const currentStage = getStageFromEvents(
+        events,
+        (order as any)?.brokers_status || order?.status || null
+    );
     const isDelivered = currentStage >= 3 || (order?.status || '').toLowerCase().includes('deliver');
     const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     const hasLiveLocation = !!(latestLocation && latestLocation.latitude != null && latestLocation.longitude != null);
@@ -417,8 +422,11 @@ const OrderDetailPage: React.FC = () => {
                                         })}
                                     </div>
 
-                                    {/* Live map (renders once MacroPoint pushes a location) */}
-                                    {hasLiveLocation && mapsKey ? (
+                                    {/* Live map (renders once a location ping exists).
+                                        Uses Google Maps when a key is configured, otherwise
+                                        falls back to a key-free OpenStreetMap embed so the
+                                        in-app map works with no external setup. */}
+                                    {hasLiveLocation ? (
                                         <div className="mt-6 space-y-2">
                                             <div className="overflow-hidden rounded-xl border border-slate-200">
                                                 <iframe
@@ -428,7 +436,11 @@ const OrderDetailPage: React.FC = () => {
                                                     style={{ border: 0 }}
                                                     loading="lazy"
                                                     referrerPolicy="no-referrer-when-downgrade"
-                                                    src={`https://www.google.com/maps/embed/v1/place?key=${mapsKey}&q=${latestLocation!.latitude},${latestLocation!.longitude}&zoom=8`}
+                                                    src={
+                                                        mapsKey
+                                                            ? `https://www.google.com/maps/embed/v1/place?key=${mapsKey}&q=${latestLocation!.latitude},${latestLocation!.longitude}&zoom=8`
+                                                            : `https://www.openstreetmap.org/export/embed.html?bbox=${latestLocation!.longitude! - 1.2}%2C${latestLocation!.latitude! - 0.8}%2C${latestLocation!.longitude! + 1.2}%2C${latestLocation!.latitude! + 0.8}&layer=mapnik&marker=${latestLocation!.latitude}%2C${latestLocation!.longitude}`
+                                                    }
                                                 />
                                             </div>
                                             <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
@@ -444,6 +456,19 @@ const OrderDetailPage: React.FC = () => {
                                                     Updated {formatDateTime(latestLocation!.created_at_utc)}
                                                 </span>
                                             </div>
+                                            {trackingShareUrl && (
+                                                <div className="pt-1">
+                                                    <a
+                                                        href={trackingShareUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700"
+                                                    >
+                                                        <ExternalLink className="h-3.5 w-3.5" />
+                                                        Open full MacroPoint tracking
+                                                    </a>
+                                                </div>
+                                            )}
                                         </div>
                                     ) : (
                                         <div className="mt-6 flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center">
