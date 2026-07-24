@@ -1921,6 +1921,7 @@ export type Database = {
           template_id: string | null
           tracking_number: string | null
           tracking_number_type: string | null
+          tracking_share_url: string | null
           tracking_status: string | null
           trailer: boolean | null
           trailer_number: string | null
@@ -2034,6 +2035,7 @@ export type Database = {
           template_id?: string | null
           tracking_number?: string | null
           tracking_number_type?: string | null
+          tracking_share_url?: string | null
           tracking_status?: string | null
           trailer?: boolean | null
           trailer_number?: string | null
@@ -2147,6 +2149,7 @@ export type Database = {
           template_id?: string | null
           tracking_number?: string | null
           tracking_number_type?: string | null
+          tracking_share_url?: string | null
           tracking_status?: string | null
           trailer?: boolean | null
           trailer_number?: string | null

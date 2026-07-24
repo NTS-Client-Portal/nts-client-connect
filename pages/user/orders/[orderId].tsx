@@ -24,6 +24,7 @@ import {
     Info,
     Clock,
     Copy,
+    ExternalLink,
 } from 'lucide-react';
 
 type ShippingQuote = Database['public']['Tables']['shippingquotes']['Row'];
@@ -242,6 +243,7 @@ const OrderDetailPage: React.FC = () => {
     const isDelivered = currentStage >= 3 || (order?.status || '').toLowerCase().includes('deliver');
     const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     const hasLiveLocation = !!(latestLocation && latestLocation.latitude != null && latestLocation.longitude != null);
+    const trackingShareUrl = (order as any)?.tracking_share_url as string | null | undefined;
 
     return (
         <UserLayout>
@@ -347,6 +349,17 @@ const OrderDetailPage: React.FC = () => {
                                         <h3 className="text-base font-semibold text-slate-900">Live Tracking</h3>
                                     </div>
                                     <div className="flex items-center gap-2">
+                                        {trackingShareUrl && (
+                                            <a
+                                                href={trackingShareUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-2.5 py-1 text-xs font-semibold text-white transition-colors hover:bg-blue-700"
+                                            >
+                                                <ExternalLink className="h-3.5 w-3.5" />
+                                                View live tracking
+                                            </a>
+                                        )}
                                         <button
                                             onClick={handleRefresh}
                                             disabled={refreshing}
@@ -441,6 +454,17 @@ const OrderDetailPage: React.FC = () => {
                                                     : 'Live GPS location will appear here once the carrier is dispatched.'}
                                             </p>
                                             <p className="text-xs text-slate-400">Powered by MacroPoint — updates automatically once tracking starts.</p>
+                                            {trackingShareUrl && (
+                                                <a
+                                                    href={trackingShareUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blue-700"
+                                                >
+                                                    <ExternalLink className="h-3.5 w-3.5" />
+                                                    Open live MacroPoint tracking
+                                                </a>
+                                            )}
                                         </div>
                                     )}
                                 </div>
