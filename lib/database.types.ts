@@ -476,6 +476,7 @@ export type Database = {
           id: number
           is_favorite: boolean | null
           nts_user_id: string | null
+          quote_id: number | null
           template_id: string | null
           title: string | null
           user_id: string | null
@@ -489,6 +490,7 @@ export type Database = {
           id?: number
           is_favorite?: boolean | null
           nts_user_id?: string | null
+          quote_id?: number | null
           template_id?: string | null
           title?: string | null
           user_id?: string | null
@@ -502,11 +504,19 @@ export type Database = {
           id?: number
           is_favorite?: boolean | null
           nts_user_id?: string | null
+          quote_id?: number | null
           template_id?: string | null
           title?: string | null
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "documents_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "shippingquotes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "documents_template_id_fkey"
             columns: ["template_id"]
@@ -1616,6 +1626,153 @@ export type Database = {
           },
         ]
       }
+      saved_freight: {
+        Row: {
+          commodity: string | null
+          company_id: string | null
+          created_at: string | null
+          freight_type: string | null
+          height: string | null
+          height_unit: string | null
+          id: number
+          label: string
+          length: string | null
+          length_unit: string | null
+          make: string | null
+          model: string | null
+          notes: string | null
+          operational_condition: boolean | null
+          user_id: string | null
+          weight: string | null
+          weight_unit: string | null
+          width: string | null
+          width_unit: string | null
+          year: string | null
+        }
+        Insert: {
+          commodity?: string | null
+          company_id?: string | null
+          created_at?: string | null
+          freight_type?: string | null
+          height?: string | null
+          height_unit?: string | null
+          id?: number
+          label: string
+          length?: string | null
+          length_unit?: string | null
+          make?: string | null
+          model?: string | null
+          notes?: string | null
+          operational_condition?: boolean | null
+          user_id?: string | null
+          weight?: string | null
+          weight_unit?: string | null
+          width?: string | null
+          width_unit?: string | null
+          year?: string | null
+        }
+        Update: {
+          commodity?: string | null
+          company_id?: string | null
+          created_at?: string | null
+          freight_type?: string | null
+          height?: string | null
+          height_unit?: string | null
+          id?: number
+          label?: string
+          length?: string | null
+          length_unit?: string | null
+          make?: string | null
+          model?: string | null
+          notes?: string | null
+          operational_condition?: boolean | null
+          user_id?: string | null
+          weight?: string | null
+          weight_unit?: string | null
+          width?: string | null
+          width_unit?: string | null
+          year?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_freight_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_freight_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_locations: {
+        Row: {
+          city: string | null
+          company_id: string | null
+          contact_name: string | null
+          created_at: string | null
+          id: number
+          label: string
+          location_type: string | null
+          notes: string | null
+          phone: string | null
+          state: string | null
+          street: string | null
+          user_id: string | null
+          zip: string | null
+        }
+        Insert: {
+          city?: string | null
+          company_id?: string | null
+          contact_name?: string | null
+          created_at?: string | null
+          id?: number
+          label: string
+          location_type?: string | null
+          notes?: string | null
+          phone?: string | null
+          state?: string | null
+          street?: string | null
+          user_id?: string | null
+          zip?: string | null
+        }
+        Update: {
+          city?: string | null
+          company_id?: string | null
+          contact_name?: string | null
+          created_at?: string | null
+          id?: number
+          label?: string
+          location_type?: string | null
+          notes?: string | null
+          phone?: string | null
+          state?: string | null
+          street?: string | null
+          user_id?: string | null
+          zip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_locations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_locations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       semi_trucks: {
         Row: {
           driveaway_or_towaway: boolean | null
@@ -1741,6 +1898,7 @@ export type Database = {
           origin_zip: string | null
           packaging_type: string | null
           pallet_count: string | null
+          po_number: string | null
           price: number | null
           quote_id: number | null
           roadworthy: boolean | null
@@ -1841,6 +1999,7 @@ export type Database = {
           origin_zip?: string | null
           packaging_type?: string | null
           pallet_count?: string | null
+          po_number?: string | null
           price?: number | null
           quote_id?: number | null
           roadworthy?: boolean | null
@@ -1941,6 +2100,7 @@ export type Database = {
           origin_zip?: string | null
           packaging_type?: string | null
           pallet_count?: string | null
+          po_number?: string | null
           price?: number | null
           quote_id?: number | null
           roadworthy?: boolean | null
