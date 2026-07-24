@@ -3,6 +3,7 @@ import { supabase } from '@/lib/initSupabase';
 import { useSession } from '@supabase/auth-helpers-react';
 import { Database } from '@/lib/database.types';
 import ShippingCalendar from './ShippingCalendar';
+import SpendDashboard from './SpendDashboard';
 import {
     Package,
     Truck,
@@ -247,6 +248,9 @@ const ShipperDash = () => {
                                 </div>
                             ))}
                         </div>
+
+                        {/* Spend & Performance */}
+                        <SpendDashboard />
 
                         {/* Recent Activity + Account Manager */}
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -16,7 +16,8 @@
         "start": "next start",
         "supabase": "supabase",
         "db:types": "supabase gen types typescript --project-id cbarvnrqvxroetrcuikv --schema public > lib/database.types.ts",
-        "seed:demo": "node scripts/seedDemo.mjs"
+        "seed:demo": "node scripts/seedDemo.mjs",
+        "unseed:demo": "node scripts/unseedDemo.mjs"
     },
     "dependencies": {
         "@ckeditor/ckeditor5-build-classic": "^41.4.2",
