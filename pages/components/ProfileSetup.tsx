@@ -4,7 +4,6 @@ import Head from 'next/head';
 import { useSupabaseClient, useSession } from '@supabase/auth-helpers-react';
 import { sendInvitations } from '@/lib/invitationService'; // Adjust the import path as needed
 import { v4 as uuidv4 } from 'uuid'; // Import uuidv4
-import { assignSalesUser } from '@/lib/assignSalesUser'; // Import the assignSalesUser function
 
 const ProfileSetup = () => {
     const router = useRouter();
@@ -102,8 +101,21 @@ const ProfileSetup = () => {
 
                     console.log('New company created:', newCompany);
 
-                    // Assign a sales user to the new company
-                    await assignSalesUser(companyId);
+                    // Assign a sales user to the new company (server-side).
+                    // This is non-blocking: a failure here must not prevent
+                    // the shipper from completing profile setup.
+                    try {
+                        const assignResp = await fetch('/api/assign-sales-user', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ companyId }),
+                        });
+                        if (!assignResp.ok) {
+                            console.warn('Sales user assignment did not complete:', assignResp.status);
+                        }
+                    } catch (assignErr) {
+                        console.warn('Sales user assignment failed (non-blocking):', assignErr);
+                    }
                 }
             } else {
                 companyId = uuidv4();
