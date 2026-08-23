@@ -10,6 +10,7 @@ import { supabase } from '@/lib/initSupabase';
 
 function AppContent({ Component, pageProps }: AppProps) {
   const router = useRouter();
+  const { pathname, replace } = router;
   const session = useSession();
   const supabaseClient = useSupabaseClient();
   const [userType, setUserType] = useState<string | null>(null);
@@ -17,46 +18,50 @@ function AppContent({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      if (session) {
-        try {
-          const { data: profile, error } = await supabaseClient
-            .from('profiles')
-            .select('id')
-            .eq('id', session.user.id)
-            .maybeSingle();
+      if (!session) {
+        setLoading(false);
+        return;
+      }
 
-          if (profile) {
-            setUserType('profile');
-          } else if (router.pathname === '/profile-setup') {
-            setUserType('profile');
-          } else {
-            const { data: ntsUser, error: ntsError } = await supabaseClient
-              .from('nts_users')
-              .select('email')
-              .eq('email', session.user.email)
-              .maybeSingle();
+      try {
+        const { data: profile } = await supabaseClient
+          .from('profiles')
+          .select('id')
+          .eq('id', session.user.id)
+          .maybeSingle();
 
-            if (ntsUser) {
-              setUserType('nts_user');
-            } else {
-              setUserType(null);
-              router.push('/unauthorized');
-            }
-          }
-        } catch (error) {
-          console.error('Error fetching user profile:', error);
-          setUserType(null);
-          router.push('/unauthorized');
-        } finally {
-          setLoading(false);
+        if (profile) {
+          setUserType('profile');
+          return;
         }
-      } else {
+
+        const { data: ntsUser } = await supabaseClient
+          .from('nts_users')
+          .select('id')
+          .eq('id', session.user.id)
+          .maybeSingle();
+
+        if (ntsUser) {
+          setUserType('nts_user');
+          return;
+        }
+
+        // Neither a shipper profile nor an NTS (broker) record yet.
+        // This is an incomplete shipper: send them to profile setup.
+        setUserType('profile');
+        if (pathname !== '/profile-setup') {
+          replace('/profile-setup');
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        setUserType(null);
+      } finally {
         setLoading(false);
       }
     };
 
     fetchUserProfile();
-  }, [session, supabaseClient, router]);
+  }, [session, supabaseClient, pathname, replace]);
 
   if (loading) {
     return <div>Loading...</div>;

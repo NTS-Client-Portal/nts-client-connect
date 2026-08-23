@@ -33,10 +33,16 @@ export default function LoginPage() {
                     .from('profiles')
                     .select('first_name, last_name, team_role')
                     .eq('id', session.user.id)
-                    .single();
+                    .maybeSingle();
 
                 if (error) {
                     console.error('Error fetching user profile:', error.message);
+                    return;
+                }
+
+                if (!userProfile) {
+                    // No profile yet — complete setup before entering the app.
+                    router.replace('/profile-setup');
                     return;
                 }
 

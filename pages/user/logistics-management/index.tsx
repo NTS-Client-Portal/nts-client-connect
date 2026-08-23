@@ -9,15 +9,16 @@ import { NtsUsersProvider } from '@/context/NtsUsersContext';
 const FreightRFQPage: React.FC = () => {
     const session = useSession();
     const router = useRouter();
+    const { pathname, replace } = router;
     const { userProfile, loading } = useProfilesUser();
     const profiles = [];
     const companyId = userProfile?.company_id ?? null;
 
     React.useEffect(() => {
-        if (!loading && session?.user && !userProfile && router.pathname !== '/profile-setup') {
-            router.replace('/profile-setup');
+        if (!loading && session?.user && !userProfile?.company_id && pathname !== '/profile-setup') {
+            replace('/profile-setup');
         }
-    }, [loading, router, session, userProfile]);
+    }, [loading, pathname, replace, session, userProfile]);
 
     if (loading) {
         return <p>Loading...</p>;
