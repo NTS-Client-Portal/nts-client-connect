@@ -2,7 +2,7 @@ import React, { ReactNode, useState, useEffect } from 'react';
 import UserSideNav from './UserSideNav';
 import UserTopNav from './UserTopNav';
 import DemoBanner from '@/components/common/DemoBanner';
-import { ProfilesUserProvider, useProfilesUser } from '@/context/ProfilesUserContext';
+import { useProfilesUser } from '@/context/ProfilesUserContext';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 
 interface UserLayoutProps {
@@ -67,7 +67,6 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
 
 
     return (
-        <ProfilesUserProvider>
             <div className="nts-app-container">
                 {/* Desktop Layout - Modern Architecture */}
                 <div className="nts-desktop-layout">
@@ -109,7 +108,6 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
                     </aside>
                 </div>
             </div>
-        </ProfilesUserProvider>
     );
 };
 

@@ -247,7 +247,7 @@ export default function LoginPage() {
         <AnimatedWelcome
             userName={userName}
             message="Preparing your dashboard"
-            onComplete={() => router.push('/user/freight-rfq')}
+            onComplete={() => router.push('/user')}
         />
     );
 }

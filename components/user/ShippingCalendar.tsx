@@ -83,7 +83,7 @@ const ShippingCalendar: React.FC<ShippingCalendarProps> = () => {
                 .from("profiles")
                 .select("company_id")
                 .eq("id", session.user.id)
-                .single();
+                .maybeSingle();
 
             if (userProfileError) {
                 console.error("Error fetching user profile:", userProfileError.message);

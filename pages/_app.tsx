@@ -23,16 +23,18 @@ function MyApp({ Component, pageProps }: AppProps) {
             .from('profiles')
             .select('id')
             .eq('id', session.user.id)
-            .single();
+            .maybeSingle();
 
           if (profile) {
+            setUserType('profile');
+          } else if (router.pathname === '/profile-setup') {
             setUserType('profile');
           } else {
             const { data: ntsUser, error: ntsError } = await supabaseClient
               .from('nts_users')
               .select('email')
               .eq('email', session.user.email)
-              .single();
+              .maybeSingle();
 
             if (ntsUser) {
               setUserType('nts_user');

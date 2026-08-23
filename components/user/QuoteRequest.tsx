@@ -54,7 +54,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                 .from('profiles')
                 .select('company_id')
                 .eq('id', session.user.id)
-                .single();
+                .maybeSingle();
 
             if (error) {
                 console.error('Error fetching user profile from profiles:', error.message);
