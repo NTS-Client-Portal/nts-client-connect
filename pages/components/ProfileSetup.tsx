@@ -214,16 +214,19 @@ const ProfileSetup = () => {
                 .from('companies')
                 .select('id')
                 .eq('name', companyName)
-                .single();
+                .maybeSingle();
 
             if (companyError) {
                 setError(companyError.message);
                 return;
             }
 
-            const companyId = existingCompany.id;
+            if (!existingCompany) {
+                setError('Save your profile first before sending invitations.');
+                return;
+            }
 
-            await sendInvitations(inviteEmails, session.user.id, companyId);
+            await sendInvitations(inviteEmails, session.user.id, existingCompany.id);
             setInviteEmails([]);
         }
     };
@@ -234,111 +237,147 @@ const ProfileSetup = () => {
                 <title>Complete Profile</title>
                 <meta name="description" content="Complete your profile" />
             </Head>
-            <div className="w-full h-full bg-200">
-                <div className="md:grid min-w-full min-h-screen md:grid-cols-1 ">
-                    <div className="sm:row-span-1 md:col-span-1 w-full h-full flex flex-col justify-center items-center bg-zinc-100">
-                        <div className=" w-full text-zinc-900 h-full sm:h-auto sm:w-full max-w-md p-5 bg-white shadow flex flex-col justify-center items-center text-base">
-                            <h2 className="mt-12 md:mt-0 text-2xl font-bold text-center">SHIPPER CONNECT</h2>
-                            <div className="xs:w-2/5 md:w-full h-full sm:h-auto p-5 bg-white shadow flex flex-col text-base">
-                                <span className="font-sans text-4xl text-center pb-2 mb-1 border-b mx-4 align-center">
-                                    Complete Profile
-                                </span>
-                                {error && <div className="text-red-500 text-center mb-4">{error}</div>}
-                                {success ? (
-                                    <div className="text-green-500 text-center mb-4 border border-zinc-900 p-4 rounded">
+            <div className="min-h-screen bg-slate-100 py-10 px-4">
+                <div className="mx-auto max-w-2xl">
+                    <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+                        {/* Header */}
+                        <div className="bg-blue-700 px-8 py-8 text-white">
+                            <h2 className="text-2xl font-bold tracking-tight">SHIPPER CONNECT</h2>
+                            <p className="text-blue-100 mt-1">Complete your profile to start shipping</p>
+                        </div>
+
+                        <div className="p-8">
+                            {error && (
+                                <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm font-medium">
+                                    {error}
+                                </div>
+                            )}
+
+                            {success ? (
+                                <div className="text-center py-10">
+                                    <div className="text-green-600 text-lg font-semibold mb-2">
                                         Your profile has been completed successfully!
                                     </div>
-                                ) : (
-                                    <form className="mt-4" onSubmit={handleCompleteProfile}>
-                                        <label htmlFor="firstName">First Name</label>
+                                    <p className="text-slate-500">Redirecting you to your dashboard…</p>
+                                </div>
+                            ) : (
+                                <form onSubmit={handleCompleteProfile} className="space-y-5">
+                                    <div>
+                                        <label htmlFor="firstName" className="block text-sm font-semibold text-slate-700 mb-1.5">
+                                            First Name
+                                        </label>
                                         <input
                                             type="text"
                                             id="firstName"
                                             value={firstName}
                                             onChange={(e) => setFirstName(e.target.value)}
                                             required
-                                            className="w-full p-2 mt-2 border rounded"
+                                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800"
                                             disabled={loading}
                                         />
-                                        <label htmlFor="lastName" className="mt-4">Last Name</label>
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="lastName" className="block text-sm font-semibold text-slate-700 mb-1.5">
+                                            Last Name
+                                        </label>
                                         <input
                                             type="text"
                                             id="lastName"
                                             value={lastName}
                                             onChange={(e) => setLastName(e.target.value)}
                                             required
-                                            className="w-full p-2 mt-2 border rounded"
+                                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800"
                                             disabled={loading}
                                         />
-                                        <label htmlFor="companyName" className="mt-4">Company Name</label>
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="companyName" className="block text-sm font-semibold text-slate-700 mb-1.5">
+                                            Company Name
+                                        </label>
                                         <input
                                             type="text"
                                             id="companyName"
                                             value={companyName}
                                             onChange={(e) => setCompanyName(e.target.value)}
-                                            className="w-full p-2 mt-2 border rounded"
+                                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800"
                                             disabled={loading}
                                         />
-                                        <label htmlFor="phoneNumber" className="mt-4">Phone Number</label>
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="phoneNumber" className="block text-sm font-semibold text-slate-700 mb-1.5">
+                                            Phone Number
+                                        </label>
                                         <input
                                             type="text"
                                             id="phoneNumber"
                                             value={phoneNumber}
                                             onChange={(e) => setPhoneNumber(e.target.value)}
-                                            className="w-full p-2 mt-2 border rounded"
+                                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800"
                                             disabled={loading}
                                         />
-                                        <div className="mt-8">
-                                            <h3 className="text-xl font-bold text-center">Invite Your Team!</h3>
-                                            <div className="flex mt-4">
-                                                <input
-                                                    type="email"
-                                                    placeholder="Enter email"
-                                                    value={inviteEmail}
-                                                    onChange={(e) => setInviteEmail(e.target.value)}
-                                                    className="w-full p-2 border rounded"
-                                                />
-                                                <select
-                                                    value={inviteRole}
-                                                    onChange={(e) => setInviteRole(e.target.value as 'manager' | 'member')}
-                                                    className="ml-2 p-2 border rounded"
-                                                >
-                                                    <option value="manager">Manager</option>
-                                                    <option value="member">Member</option>
-                                                </select>
-                                                <button
-                                                    type="button"
-                                                    onClick={handleAddInviteEmail}
-                                                    className="ml-2 px-4 py-2 bg-blue-500 text-white rounded"
-                                                >
-                                                    Add
-                                                </button>
-                                            </div>
-                                            <ul className="mt-4">
+                                    </div>
+
+                                    {/* Invite team */}
+                                    <div className="pt-4 border-t border-slate-200">
+                                        <h3 className="text-lg font-bold text-slate-800">Invite Your Team</h3>
+                                        <p className="text-sm text-slate-500 mb-3">Add teammates to your company (optional).</p>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="email"
+                                                placeholder="Enter email"
+                                                value={inviteEmail}
+                                                onChange={(e) => setInviteEmail(e.target.value)}
+                                                className="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800"
+                                            />
+                                            <select
+                                                value={inviteRole}
+                                                onChange={(e) => setInviteRole(e.target.value as 'manager' | 'member')}
+                                                className="px-3 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-800"
+                                            >
+                                                <option value="manager">Manager</option>
+                                                <option value="member">Member</option>
+                                            </select>
+                                            <button
+                                                type="button"
+                                                onClick={handleAddInviteEmail}
+                                                className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors"
+                                            >
+                                                Add
+                                            </button>
+                                        </div>
+
+                                        {inviteEmails.length > 0 && (
+                                            <ul className="mt-4 space-y-2">
                                                 {inviteEmails.map((invite, index) => (
-                                                    <li key={index} className="flex justify-between items-center">
-                                                        <span>{invite.email} ({invite.role})</span>
+                                                    <li key={index} className="flex justify-between items-center bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
+                                                        <span className="text-sm text-slate-700">{invite.email}</span>
+                                                        <span className="text-xs uppercase font-semibold text-slate-500">{invite.role}</span>
                                                     </li>
                                                 ))}
                                             </ul>
-                                            <button
-                                                type="button"
-                                                onClick={handleSendInvitations}
-                                                className="mt-4 w-full px-4 py-2 bg-green-500 text-white rounded"
-                                            >
-                                                Send Invitations
-                                            </button>
-                                        </div>
+                                        )}
+
                                         <button
-                                            type="submit"
-                                            className="w-full body-btn mt-8"
-                                            disabled={loading}
+                                            type="button"
+                                            onClick={handleSendInvitations}
+                                            className="mt-4 w-full px-4 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-semibold transition-colors"
                                         >
-                                            {loading ? 'Completing Profile...' : 'Complete Profile'}
+                                            Send Invitations
                                         </button>
-                                    </form>
-                                )}
-                            </div>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        className="w-full px-4 py-3 bg-blue-700 text-white rounded-lg hover:bg-blue-800 font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                                        disabled={loading}
+                                    >
+                                        {loading ? 'Completing Profile...' : 'Complete Profile'}
+                                    </button>
+                                </form>
+                            )}
                         </div>
                     </div>
                 </div>

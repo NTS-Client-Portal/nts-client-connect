@@ -37,7 +37,7 @@ const CustomSignInForm = () => {
           .from('profiles')
           .select('id, email, team_role, inserted_at')
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error('Error fetching user profile:', error.message);
@@ -54,7 +54,7 @@ const CustomSignInForm = () => {
             .insert({
               id: session.user.id,
               email: session.user.email,
-              team_role: 'shipper',
+              team_role: 'member',
               inserted_at: new Date().toISOString(),
             })
             .select();
@@ -105,7 +105,7 @@ const CustomSignInForm = () => {
           .from('profiles')
           .select('id, email, team_role, inserted_at')
           .eq('id', authData.user.id)
-          .single();
+          .maybeSingle();
 
         if (profileError && profileError.code !== 'PGRST116') {
           console.error('Error fetching user profile:', profileError.message);
@@ -123,7 +123,7 @@ const CustomSignInForm = () => {
             .insert({
               id: authData.user.id,
               email: authData.user.email,
-              team_role: 'shipper',
+              team_role: 'member',
               inserted_at: new Date().toISOString(),
             })
             .select()
