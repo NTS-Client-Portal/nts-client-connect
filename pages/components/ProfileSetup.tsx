@@ -23,20 +23,15 @@ const ProfileSetup = () => {
     const [email, setEmail] = useState(session?.user?.email || ''); // Add email state
 
     useEffect(() => {
-        const fetchUserEmail = async () => {
-            if (session?.user?.id) {
-                const { data, error } = await supabase.auth.getUser();
+        if (!session?.user) return;
 
-                if (error) {
-                    setError(error.message);
-                } else {
-                    setEmail(data.user.email);
-                }
-            }
-        };
-
-        fetchUserEmail();
-    }, [session, supabase]);
+        const metadata = session.user.user_metadata ?? {};
+        setEmail(session.user.email ?? '');
+        setFirstName(metadata.first_name ?? '');
+        setLastName(metadata.last_name ?? '');
+        setCompanyName(metadata.company_name ?? '');
+        setPhoneNumber(metadata.phone_number ?? '');
+    }, [session]);
 
     const handleCompleteProfile = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -51,7 +46,7 @@ const ProfileSetup = () => {
                     .from('companies')
                     .select('*')
                     .eq('name', companyName)
-                    .single();
+                    .maybeSingle();
 
                 if (companyError && companyError.code !== 'PGRST116') {
                     throw new Error(companyError.message);
@@ -118,8 +113,8 @@ const ProfileSetup = () => {
             const { data: existingProfile, error: profileError } = await supabase
                 .from('profiles')
                 .select('id')
-                .eq('email', email)
-                .single();
+                .eq('id', session?.user?.id)
+                .maybeSingle();
 
             if (profileError && profileError.code !== 'PGRST116') {
                 throw new Error(profileError.message);

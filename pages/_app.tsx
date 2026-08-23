@@ -8,7 +8,7 @@ import { NtsUsersProvider } from '@/context/NtsUsersContext';
 import { DocumentNotificationProvider } from '@/context/DocumentNotificationContext';
 import { supabase } from '@/lib/initSupabase';
 
-function MyApp({ Component, pageProps }: AppProps) {
+function AppContent({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const session = useSession();
   const supabaseClient = useSupabaseClient();
@@ -63,23 +63,20 @@ function MyApp({ Component, pageProps }: AppProps) {
   }
 
   return (
+    <DocumentNotificationProvider>
+      <NtsUsersProvider>
+        <ProfilesUserProvider>
+          <Component {...pageProps} />
+        </ProfilesUserProvider>
+      </NtsUsersProvider>
+    </DocumentNotificationProvider>
+  );
+}
+
+function MyApp(props: AppProps) {
+  return (
     <SessionContextProvider supabaseClient={supabase}>
-      <DocumentNotificationProvider>
-        {/*
-          Always mount BOTH user-profile providers. Components like
-          QuoteRequest call `useProfilesUser()` and `useNtsUsers()`
-          unconditionally, so if only one provider is mounted the
-          other hook throws and produces a client-side exception
-          (e.g. brokers loading /companies/[companyId]).
-          Each provider only fetches when its own table has a row
-          matching the session, so having both mounted is safe.
-        */}
-        <NtsUsersProvider>
-          <ProfilesUserProvider>
-            <Component {...pageProps} />
-          </ProfilesUserProvider>
-        </NtsUsersProvider>
-      </DocumentNotificationProvider>
+      <AppContent {...props} />
     </SessionContextProvider>
   );
 }
