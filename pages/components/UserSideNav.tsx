@@ -121,14 +121,14 @@ const UserSideNav: React.FC<UserSideNavProps> = ({ isSidebarOpen, toggleSidebar,
             icon: ChartArea,
             label: 'Dashboard',
             description: 'Overview & Analytics',
-            color: 'from-blue-500 to-blue-600'
+            color: 'from-orange-500 to-orange-600'
         },
         {
             href: '/user/logistics-management',
             icon: TruckIcon,
             label: 'Logistics Management',
             description: 'Transportation Hub',
-            color: 'from-blue-500 to-blue-600',
+            color: 'from-orange-500 to-orange-600',
             // Remove hasDropdown, make it a clickable navigation item
             subMenu: [
                 {

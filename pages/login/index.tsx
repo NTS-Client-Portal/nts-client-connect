@@ -73,7 +73,7 @@ export default function LoginPage() {
                 type: 'signup',
                 email: session.user.email,
                 options: {
-                    emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/profile-setup`
+                    emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/user`
                 }
             });
 
@@ -105,7 +105,7 @@ export default function LoginPage() {
                             <div className="w-full max-w-md">
                                 {/* Header */}
                                 <div className="text-center mb-8">
-                                    <div className="mx-auto h-16 w-16 bg-blue-700 rounded-lg flex items-center justify-center shadow-md mb-4">
+                                    <div className="mx-auto h-16 w-16 bg-orange-600 rounded-lg flex items-center justify-center shadow-md mb-4">
                                         <Truck className="h-10 w-10 text-white" />
                                     </div>
                                     <h2 className="text-3xl font-bold text-slate-800 mb-2">Welcome Back</h2>
@@ -121,7 +121,7 @@ export default function LoginPage() {
                                 <div className="mt-6 space-y-4 text-center">
                                     <div className="text-slate-600">
                                         Don't have an account?{' '}
-                                        <Link href="/signup" className="text-blue-700 hover:text-blue-800 font-semibold transition-colors duration-200">
+                                        <Link href="/signup" className="text-orange-600 hover:text-orange-700 font-semibold transition-colors duration-200">
                                             Sign up here
                                         </Link>
                                     </div>
@@ -135,10 +135,10 @@ export default function LoginPage() {
                             </div>
                         </div>
                         {/* Left Side - Branding */}
-                        <div className="relative bg-blue-700 flex flex-col justify-center p-8 lg:p-12 text-white">
+                        <div className="relative bg-black flex flex-col justify-center p-8 lg:p-12 text-white">
                             {/* Header */}
                             <div className="flex items-center space-x-3 mb-8">
-                                <div className="p-3 bg-white/20 rounded-lg">
+                                <div className="p-3 bg-orange-600 rounded-lg">
                                     <Truck className="h-10 w-10" />
                                 </div>
                                 <h1 className="text-2xl lg:text-3xl font-bold">NTS LOGISTICS</h1>
@@ -150,7 +150,7 @@ export default function LoginPage() {
                                     <h2 className="text-3xl lg:text-4xl font-bold leading-tight">
                                         Professional Freight & Logistics
                                     </h2>
-                                    <p className="text-lg text-blue-100 leading-relaxed">
+                                    <p className="text-lg text-slate-300 leading-relaxed">
                                         Comprehensive transportation solutions for all your shipping needs nationwide.
                                     </p>
                                 </div>
@@ -158,46 +158,46 @@ export default function LoginPage() {
                                 {/* Key Points */}
                                 <div className="space-y-4">
                                     <div className="flex items-center space-x-4">
-                                        <div className="p-2 bg-blue-600 rounded-lg">
+                                        <div className="p-2 bg-orange-600 rounded-lg">
                                             <CheckCircle2 className="h-6 w-6" />
                                         </div>
                                         <div>
                                             <p className="font-semibold">Reliable On-Time Delivery</p>
-                                            <p className="text-sm text-blue-100">Your freight arrives when you need it</p>
+                                            <p className="text-sm text-slate-300">Your freight arrives when you need it</p>
                                         </div>
                                     </div>
 
                                     <div className="flex items-center space-x-4">
-                                        <div className="p-2 bg-blue-600 rounded-lg">
+                                        <div className="p-2 bg-orange-600 rounded-lg">
                                             <Shield className="h-6 w-6" />
                                         </div>
                                         <div>
                                             <p className="font-semibold">Fully Insured & Licensed</p>
-                                            <p className="text-sm text-blue-100">Complete protection for all freight types</p>
+                                            <p className="text-sm text-slate-300">Complete protection for all freight types</p>
                                         </div>
                                     </div>
 
                                     <div className="flex items-center space-x-4">
-                                        <div className="p-2 bg-blue-600 rounded-lg">
+                                        <div className="p-2 bg-orange-600 rounded-lg">
                                             <Users className="h-6 w-6" />
                                         </div>
                                         <div>
                                             <p className="font-semibold">24/7 Customer Support</p>
-                                            <p className="text-sm text-blue-100">Real people when you need help</p>
+                                            <p className="text-sm text-slate-300">Real people when you need help</p>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Stats */}
-                                <div className="pt-6 border-t border-blue-600">
+                                <div className="pt-6 border-t border-slate-700">
                                     <div className="grid grid-cols-2 gap-4 text-center">
                                         <div>
-                                            <div className="text-2xl font-bold">150K+</div>
-                                            <div className="text-sm text-blue-200">Trucks Nationwide</div>
+                                            <div className="text-2xl font-bold text-orange-500">150K+</div>
+                                            <div className="text-sm text-slate-400">Trucks Nationwide</div>
                                         </div>
                                         <div>
-                                            <div className="text-2xl font-bold">30K+</div>
-                                            <div className="text-sm text-blue-200">Carriers</div>
+                                            <div className="text-2xl font-bold text-orange-500">30K+</div>
+                                            <div className="text-sm text-slate-400">Carriers</div>
                                         </div>
                                     </div>
                                 </div>

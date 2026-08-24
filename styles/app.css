@@ -5020,12 +5020,12 @@ main:is(.dark *) {
 }
 
 .modern-table th {
-  background: #2563eb;
+  background: #ea580c;
   color: white;
   font-weight: 600;
   text-align: left;
   padding: 12px 16px;
-  border-right: 1px solid #3b82f6;
+  border-right: 1px solid #fb923c;
   white-space: nowrap;
 }
 
@@ -5045,7 +5045,7 @@ main:is(.dark *) {
 }
 
 .modern-table tr:hover {
-  background-color: #eff6ff;
+  background-color: #fff7ed;
 }
 
 .modern-table tr:nth-child(even) {
@@ -5053,7 +5053,7 @@ main:is(.dark *) {
 }
 
 .modern-table tr:nth-child(even):hover {
-  background-color: #eff6ff;
+  background-color: #fff7ed;
 }
 
 /* Fixed column widths - no overflow */
@@ -5086,12 +5086,12 @@ main:is(.dark *) {
 }
 
 .modern-table .btn-edit {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: #ffedd5;
+  color: #c2410c;
 }
 
 .modern-table .btn-edit:hover {
-  background: #bfdbfe;
+  background: #fed7aa;
 }
 
 .modern-table .btn-copy {
@@ -5428,16 +5428,16 @@ main:is(.dark *) {
 
 /* Color Palette */
 :root {
-  --nts-primary-50: #eff6ff;
-  --nts-primary-100: #dbeafe;
-  --nts-primary-200: #bfdbfe;
-  --nts-primary-300: #93c5fd;
-  --nts-primary-400: #60a5fa;
-  --nts-primary-500: #3b82f6;
-  --nts-primary-600: #2563eb;
-  --nts-primary-700: #1d4ed8;
-  --nts-primary-800: #1e40af;
-  --nts-primary-900: #1e3a8a;
+  --nts-primary-50: #fff7ed;
+  --nts-primary-100: #ffedd5;
+  --nts-primary-200: #fed7aa;
+  --nts-primary-300: #fdba74;
+  --nts-primary-400: #fb923c;
+  --nts-primary-500: #f97316;
+  --nts-primary-600: #ea580c;
+  --nts-primary-700: #c2410c;
+  --nts-primary-800: #9a3412;
+  --nts-primary-900: #7c2d12;
 
   --nts-success-50: #f0fdf4;
   --nts-success-100: #dcfce7;

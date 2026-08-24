@@ -30,7 +30,7 @@ export default function HomePage() {
         <link rel="icon" href="/hc-28.png" />
       </Head>
       
-      <div className="min-h-screen bg-slate-900 relative overflow-hidden">
+      <div className="min-h-screen bg-slate-950 relative overflow-hidden">
         {/* Hero Background with D8T Image */}
         <div className="absolute inset-0">
           <Image
@@ -40,23 +40,23 @@ export default function HomePage() {
             className="object-cover opacity-30"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-slate-900/60 to-slate-900/80" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/60 to-slate-950/90" />
         </div>
 
         {/* Navigation */}
         <nav className="relative z-10 px-4 py-6">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-600 rounded-lg shadow-lg">
+              <div className="p-2 bg-orange-600 rounded-lg shadow-lg">
                 <Truck className="h-8 w-8 text-white" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">NTS Logistics</h1>
-                <p className="text-sm text-blue-200 font-medium">Nationwide Freight Solutions</p>
+                <p className="text-sm text-orange-200 font-medium">Nationwide Freight Solutions</p>
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-6">
-              <Link href="/login" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+              <Link href="/login" className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors font-medium">
                 Client Portal
               </Link>
             </div>
@@ -71,41 +71,41 @@ export default function HomePage() {
               {/* Left Side - Hero Content */}
               <div className="text-center lg:text-left space-y-8">
                 <div className="space-y-6">
-                  <div className="inline-flex items-center space-x-2 bg-blue-600/20 backdrop-blur-sm border border-blue-400/30 rounded-full px-4 py-2">
-                    <Award className="h-5 w-5 text-blue-400" />
-                    <span className="text-blue-100 font-medium">Trusted by Industry Leaders</span>
+                  <div className="inline-flex items-center space-x-2 bg-orange-600/20 backdrop-blur-sm border border-orange-400/30 rounded-full px-4 py-2">
+                    <Award className="h-5 w-5 text-orange-400" />
+                    <span className="text-orange-100 font-medium">Trusted by Industry Leaders</span>
                   </div>
                   
                   <h1 className="text-4xl lg:text-6xl font-bold text-white leading-tight">
                     Professional
-                    <span className="block text-blue-400">Freight & Logistics</span>
+                    <span className="block text-orange-400">Freight & Logistics</span>
                     <span className="block">Solutions</span>
                   </h1>
                   
                   <p className="text-xl lg:text-2xl text-slate-300 leading-relaxed">
                     From auto transport to heavy equipment, agricultural machinery to general freight - we handle it all. 
-                    <span className="block mt-2 text-blue-200 font-semibold">Honest, dependable, efficient, and productive transportation nationwide.</span>
+                    <span className="block mt-2 text-orange-200 font-semibold">Honest, dependable, efficient, and productive transportation nationwide.</span>
                   </p>
                 </div>
 
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-6 py-8">
                   <div className="text-center">
-                    <div className="text-3xl lg:text-4xl font-bold text-blue-400">15+</div>
+                    <div className="text-3xl lg:text-4xl font-bold text-orange-400">15+</div>
                     <div className="text-sm text-slate-300">Years Experience</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl lg:text-4xl font-bold text-blue-400">150K+</div>
+                    <div className="text-3xl lg:text-4xl font-bold text-orange-400">150K+</div>
                     <div className="text-sm text-slate-300">Trucks Nationwide</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl lg:text-4xl font-bold text-blue-400">30K+</div>
+                    <div className="text-3xl lg:text-4xl font-bold text-orange-400">30K+</div>
                     <div className="text-sm text-slate-300">Contracted Carriers</div>
                   </div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-8 lg:p-10">
                   <div className="text-center mb-8">
-                    <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-xl mb-6">
+                    <div className="mx-auto h-16 w-16 bg-gradient-to-r from-orange-600 to-orange-700 rounded-xl flex items-center justify-center shadow-xl mb-6">
                       <Truck className="h-10 w-10 text-white" />
                     </div>
                     <h2 className="text-3xl font-bold text-white mb-3">Client Portal</h2>
@@ -116,7 +116,7 @@ export default function HomePage() {
                     {/* Sign In Button */}
                     <Link 
                       href="/login" 
-                      className="w-full flex items-center justify-center space-x-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 px-8 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-semibold text-lg group shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+                      className="w-full flex items-center justify-center space-x-3 bg-gradient-to-r from-orange-600 to-orange-700 text-white py-4 px-8 rounded-xl hover:from-orange-700 hover:to-orange-800 transition-all duration-300 font-semibold text-lg group shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
                     >
                       <span>Access Portal</span>
                       <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
@@ -148,11 +148,11 @@ export default function HomePage() {
                       <p className="mb-1">Questions about freight shipping?</p>
                       <p>
                         Call us at{' '}
-                        <a href="tel:+18773830580" className="text-blue-400 hover:text-blue-300 font-semibold">
+                        <a href="tel:+18773830580" className="text-orange-400 hover:text-orange-300 font-semibold">
                           (877) 383-0580
                         </a>
                         {' '}or email{' '}
-                        <a href="mailto:quotes@ntslogistics.com" className="text-blue-400 hover:text-blue-300 font-semibold">
+                        <a href="mailto:quotes@ntslogistics.com" className="text-orange-400 hover:text-orange-300 font-semibold">
                           quotes@ntslogistics.com
                         </a>
                       </p>
@@ -171,7 +171,7 @@ export default function HomePage() {
                       <span className="text-slate-200">Fully insured & licensed nationwide</span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <Clock className="h-5 w-5 text-blue-400 flex-shrink-0" />
+                      <Clock className="h-5 w-5 text-orange-400 flex-shrink-0" />
                       <span className="text-slate-200">Real-time tracking & updates</span>
                     </div>
                     <div className="flex items-center space-x-3">
@@ -212,23 +212,23 @@ export default function HomePage() {
         </div>
 
         {/* Bottom CTA Strip */}
-        <div className="relative z-10 bg-blue-500/90 backdrop-blur-sm border-t border-blue-400/30">
+        <div className="relative z-10 bg-orange-500/90 backdrop-blur-sm border-t border-orange-400/30">
           <div className="max-w-7xl mx-auto px-4 py-6">
             <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
               <div className="text-center md:text-left">
                 <h3 className="text-xl font-bold text-white">Ready to ship your freight?</h3>
-                <p className="text-blue-100">Get a quote in minutes for cars, equipment, or any freight nationwide</p>
+                <p className="text-orange-100">Get a quote in minutes for cars, equipment, or any freight nationwide</p>
               </div>
               <div className="flex space-x-4">
                 <Link 
                   href="/signup" 
-                  className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+                  className="bg-white text-orange-600 px-6 py-3 rounded-lg font-semibold hover:bg-orange-50 transition-colors"
                 >
                   Request Quote
                 </Link>
                 <a 
                   href="tel:+18773830580" 
-                  className="bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-colors"
+                  className="bg-orange-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-800 transition-colors"
                 >
                   Call Now
                 </a>
