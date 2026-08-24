@@ -51,18 +51,32 @@ const SignUpPage = () => {
     }));
   };
 
+  // Live password requirements
+  const passwordChecks = [
+    { label: 'At least 8 characters', valid: formData.password.length >= 8 },
+    { label: 'One uppercase letter', valid: /[A-Z]/.test(formData.password) },
+    { label: 'One number', valid: /[0-9]/.test(formData.password) },
+    { label: 'One special character', valid: /[^A-Za-z0-9]/.test(formData.password) }
+  ];
+  const passwordMeetsRequirements = passwordChecks.every((check) => check.valid);
+
   const validateStep = (step: number): boolean => {
-    switch (step) {
-      case 1:
-        return !!(formData.email && formData.password && formData.confirmPassword && 
-               formData.password === formData.confirmPassword);
-      case 2:
-        return !!(formData.firstName && formData.lastName && formData.phoneNumber);
-      case 3:
-        return !!(formData.companyName && formData.companySize && formData.industry);
-      default:
-        return false;
+    if (step === 1) {
+      return !!(formData.firstName && formData.lastName && formData.phoneNumber);
     }
+    if (step === 2) {
+      return !!(formData.companyName && formData.companySize && formData.industry);
+    }
+    if (step === 3) {
+      return !!(
+        formData.email &&
+        formData.password &&
+        formData.confirmPassword &&
+        formData.password === formData.confirmPassword &&
+        passwordMeetsRequirements
+      );
+    }
+    return false;
   };
 
   const nextStep = () => {
@@ -80,12 +94,12 @@ const SignUpPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateStep(3)) return;
-    
+
     setLoading(true);
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
@@ -97,16 +111,41 @@ const SignUpPage = () => {
             company_size: formData.companySize,
             industry: formData.industry
           },
-          emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/profile-setup`
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/user`
         }
       });
 
       if (error) {
         setError(error.message);
-      } else {
-        setSuccess('Account created successfully! Please check your email to verify your account.');
-        setTimeout(() => router.push('/login'), 3000);
+        return;
       }
+
+      // Provision the company + profile server-side now so the user skips
+      // the profile-setup step after confirming their email.
+      const userId = data?.user?.id;
+      if (userId) {
+        try {
+          await fetch('/api/complete-signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId,
+              email: formData.email,
+              firstName: formData.firstName,
+              lastName: formData.lastName,
+              companyName: formData.companyName,
+              companySize: formData.companySize,
+              industry: formData.industry,
+              phoneNumber: formData.phoneNumber
+            })
+          });
+        } catch (provisionErr) {
+          console.warn('Could not provision profile/company yet:', provisionErr);
+        }
+      }
+
+      setSuccess('Account created successfully! Please check your email to verify your account.');
+      setTimeout(() => router.push('/login'), 3000);
     } catch (error) {
       setError('An unexpected error occurred. Please try again.');
     } finally {
@@ -116,7 +155,7 @@ const SignUpPage = () => {
 
   const renderStep = () => {
     switch (currentStep) {
-      case 1:
+      case 3:
         return (
           <div className="space-y-6">
             <div>
@@ -163,6 +202,26 @@ const SignUpPage = () => {
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
+
+                {formData.password.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {passwordChecks.map((check) => (
+                      <div
+                        key={check.label}
+                        className={`flex items-center space-x-2 text-sm ${
+                          check.valid ? 'text-green-600' : 'text-slate-500'
+                        }`}
+                      >
+                        {check.valid ? (
+                          <Check className="h-4 w-4" />
+                        ) : (
+                          <div className="h-4 w-4 rounded-full border border-slate-300" />
+                        )}
+                        <span>{check.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div>
@@ -196,7 +255,7 @@ const SignUpPage = () => {
           </div>
         );
 
-      case 2:
+      case 1:
         return (
           <div className="space-y-6">
             <div>
@@ -255,7 +314,7 @@ const SignUpPage = () => {
           </div>
         );
 
-      case 3:
+      case 2:
         return (
           <div className="space-y-6">
             <div>
@@ -339,17 +398,17 @@ const SignUpPage = () => {
         <link rel="icon" href="/hc-28.png" />
       </Head>
       
-      <div className="min-h-screen bg-slate-100">
+      <div className="min-h-screen bg-white">
         <div className="flex min-h-screen">
           {/* Left Side - Form */}
-          <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+          <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-10">
             <div className="w-full max-w-md space-y-6">
               {/* Header */}
               <div className="text-center">
-                <div className="mx-auto h-20 w-20 bg-blue-700 rounded-lg flex items-center justify-center shadow-md">
+                <div className="mx-auto h-20 w-20 bg-orange-600 rounded-lg flex items-center justify-center shadow-md">
                   <Truck className="h-12 w-12 text-white" />
                 </div>
-                <h1 className="mt-4 text-3xl font-bold text-slate-800">
+                <h1 className="mt-4 text-3xl font-bold text-slate-900">
                   Sign Up for NTS Logistics
                 </h1>
                 <p className="mt-2 text-slate-600 font-medium">
@@ -363,7 +422,7 @@ const SignUpPage = () => {
                   <div key={step} className="flex items-center">
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold border-2 ${
                       currentStep >= step
-                        ? 'bg-blue-700 text-white border-blue-700'
+                        ? 'bg-orange-600 text-white border-orange-600'
                         : 'bg-white text-slate-500 border-slate-300'
                     }`}>
                       {currentStep > step ? (
@@ -374,7 +433,7 @@ const SignUpPage = () => {
                     </div>
                     {step < 3 && (
                       <div className={`w-6 h-1 mx-1 ${
-                        currentStep > step ? 'bg-blue-700' : 'bg-slate-300'
+                        currentStep > step ? 'bg-orange-600' : 'bg-slate-300'
                       }`} />
                     )}
                   </div>
@@ -416,7 +475,7 @@ const SignUpPage = () => {
                         Back
                       </button>
                     )}
-                    
+
                     <div className="ml-auto">
                       {currentStep < 3 ? (
                         <button
@@ -425,7 +484,7 @@ const SignUpPage = () => {
                           disabled={!validateStep(currentStep)}
                           className={`px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center space-x-2 ${
                             validateStep(currentStep)
-                              ? 'bg-blue-700 text-white hover:bg-blue-800 border border-blue-700'
+                              ? 'bg-orange-600 text-white hover:bg-orange-700 border border-orange-600'
                               : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300'
                           }`}
                         >
@@ -438,7 +497,7 @@ const SignUpPage = () => {
                           disabled={loading || !validateStep(3)}
                           className={`px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center space-x-2 ${
                             validateStep(3) && !loading
-                              ? 'bg-green-700 text-white hover:bg-green-800 border border-green-700'
+                              ? 'bg-orange-600 text-white hover:bg-orange-700 border border-orange-600'
                               : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300'
                           }`}
                         >
@@ -463,9 +522,9 @@ const SignUpPage = () => {
                 <div className="mt-6 pt-6 border-t border-slate-200">
                   <p className="text-center text-sm text-slate-600">
                     Already have an account?{' '}
-                    <Link 
-                      href="/login" 
-                      className="text-blue-600 hover:text-blue-700 font-semibold transition-colors duration-200"
+                    <Link
+                      href="/login"
+                      className="text-orange-600 hover:text-orange-700 font-semibold transition-colors duration-200"
                     >
                       Sign in here
                     </Link>
@@ -476,76 +535,76 @@ const SignUpPage = () => {
           </div>
 
           {/* Right Side - Features */}
-          <div className="hidden lg:flex lg:flex-1 bg-blue-700">
+          <div className="hidden lg:flex lg:flex-1 bg-black">
             <div className="flex flex-col justify-center px-8 text-white">
               <div className="mb-8">
-                <h2 className="text-3xl font-bold mb-4">
+                <h2 className="text-3xl font-bold mb-4 uppercase tracking-wide">
                   Comprehensive Freight Solutions
                 </h2>
-                <p className="text-lg text-blue-100">
+                <p className="text-lg text-slate-300">
                   From auto transport to heavy equipment - trusted by businesses nationwide
                 </p>
               </div>
 
               <div className="space-y-6">
                 <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <div className="flex-shrink-0 w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center">
                     <Truck className="h-6 w-6" />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold mb-2">Reliable Delivery</h3>
-                    <p className="text-blue-100">Your freight arrives safely and on schedule</p>
+                    <p className="text-slate-300">Your freight arrives safely and on schedule</p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <div className="flex-shrink-0 w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center">
                     <Shield className="h-6 w-6" />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold mb-2">Fully Insured</h3>
-                    <p className="text-blue-100">Complete protection for all types of freight and cargo</p>
+                    <p className="text-slate-300">Complete protection for all types of freight and cargo</p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <div className="flex-shrink-0 w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center">
                     <Package className="h-6 w-6" />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold mb-2">All Freight Types</h3>
-                    <p className="text-blue-100">Cars, equipment, machinery - we handle everything</p>
+                    <p className="text-slate-300">Cars, equipment, machinery - we handle everything</p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <div className="flex-shrink-0 w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center">
                     <Users className="h-6 w-6" />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold mb-2">24/7 Support</h3>
-                    <p className="text-blue-100">Real people you can call when you need help or updates</p>
+                    <p className="text-slate-300">Real people you can call when you need help or updates</p>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-8 pt-6 border-t border-blue-600">
+              <div className="mt-8 pt-6 border-t border-slate-700">
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold">15+ Years</div>
-                    <div className="text-sm text-blue-200">In Business</div>
+                    <div className="text-2xl font-bold text-orange-500">15+ Years</div>
+                    <div className="text-sm text-slate-400">In Business</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold">150K+</div>
-                    <div className="text-sm text-blue-200">Trucks Available</div>
+                    <div className="text-2xl font-bold text-orange-500">150K+</div>
+                    <div className="text-sm text-slate-400">Trucks Available</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold">30K+</div>
-                    <div className="text-sm text-blue-200">Carriers</div>
+                    <div className="text-2xl font-bold text-orange-500">30K+</div>
+                    <div className="text-sm text-slate-400">Carriers</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold">$0</div>
-                    <div className="text-sm text-blue-200">Setup Fees</div>
+                    <div className="text-2xl font-bold text-orange-500">$0</div>
+                    <div className="text-sm text-slate-400">Setup Fees</div>
                   </div>
                 </div>
               </div>
