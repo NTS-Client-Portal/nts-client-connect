@@ -471,7 +471,7 @@ const QuoteRequest: React.FC<QuoteRequestProps> = ({ session, profiles = [], com
                 <p className='font-semibold py-2 text-gray-800 text-nowrap'>Manage your shipments here</p>
                 <button 
                     onClick={() => setIsModalOpen(true)} 
-                    className="text-base mr-6 text-white rounded-md bg-blue-700 hover:bg-blue-800 px-4 py-2 font-semibold transition-colors"
+                    className="text-base mr-6 text-white rounded-md bg-[#020a14] hover:bg-[#0f172a] px-4 py-2 font-semibold transition-colors"
                 >
                     {activeTab === 'orders' ? 'Request a Shipping Order' : 'Request a Shipping Estimate'}
                 </button>

@@ -261,7 +261,7 @@ const RvTrailerForm: React.FC<RvTrailerFormProps> = ({
             {/* Condition & Transport Section */}
             <div className="nts-form-section">
                 <div className="nts-form-section-header">
-                    <Car className="w-5 h-5 text-blue-600" />
+                    <Car className="w-5 h-5 text-[#020a14]" />
                     <h3>Condition & Transport</h3>
                 </div>
                 <div className="nts-form-section-body">

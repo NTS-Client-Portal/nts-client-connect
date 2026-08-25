@@ -43,7 +43,7 @@ const AutoForm: React.FC<AutoFormProps> = ({
             {/* Vehicle Information */}
             <div className="nts-form-section">
                 <div className="nts-form-section-header">
-                    <Car className="w-5 h-5 text-blue-600" />
+                    <Car className="w-5 h-5 text-[#020a14]" />
                     <h4 className="text-lg font-medium text-gray-900">Vehicle Information</h4>
                 </div>
                 <div className="nts-form-section-body">

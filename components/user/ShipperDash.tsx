@@ -121,8 +121,8 @@ const ShipperDash = () => {
             value: stats.activeOrders,
             hint: 'Orders in progress',
             icon: Truck,
-            accent: 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
-            bar: 'from-blue-500 to-blue-600',
+            accent: 'bg-slate-100 text-[#020a14] dark:bg-slate-800 dark:text-slate-300',
+            bar: 'from-[#020a14] to-[#0f172a]',
         },
         {
             label: 'Pending Quotes',
@@ -212,7 +212,7 @@ const ShipperDash = () => {
                             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                                 <div className="flex items-center gap-3">
                                     <div className="bg-blue-50 dark:bg-blue-900/30 p-2 rounded-lg">
-                                        <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                        <Calendar className="w-5 h-5 text-[#020a14] dark:text-slate-300" />
                                     </div>
                                     <div>
                                         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Shipping Schedule</h2>
@@ -260,7 +260,7 @@ const ShipperDash = () => {
                                     <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                                         <div className="flex items-center gap-3">
                                             <div className="bg-blue-50 dark:bg-blue-900/30 p-2 rounded-lg">
-                                                <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                                <TrendingUp className="w-5 h-5 text-[#020a14] dark:text-slate-300" />
                                             </div>
                                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Activity</h3>
                                         </div>
@@ -306,7 +306,7 @@ const ShipperDash = () => {
                                     <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                                         <div className="flex items-center gap-3">
                                             <div className="bg-blue-50 dark:bg-blue-900/30 p-2 rounded-lg">
-                                                <User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                                <User className="w-5 h-5 text-[#020a14] dark:text-slate-300" />
                                             </div>
                                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Your Dedicated Account Manager</h3>
                                         </div>

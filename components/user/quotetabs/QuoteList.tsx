@@ -828,7 +828,7 @@ const QuoteList: React.FC<QuoteListProps> = ({ session, isAdmin, fetchQuotes, co
                             className={`px-4 py-2 rounded transition-colors ${
                                 showEditRequests
                                     ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                    : 'bg-blue-500 text-white hover:bg-blue-600'
+                                    : 'bg-[#020a14] text-white hover:bg-[#0f172a]'
                             }`}
                         >
                             {showEditRequests ? 'View Quotes' : 'View Edit Requests'}

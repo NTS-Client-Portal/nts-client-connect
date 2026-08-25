@@ -53,7 +53,7 @@ const BoatForm: React.FC<BoatFormProps> = ({
             {/* Vessel Details Section */}
             <div className="nts-form-section">
                 <div className="nts-form-section-header">
-                    <Anchor className="w-5 h-5 text-blue-600" />
+                    <Anchor className="w-5 h-5 text-[#020a14]" />
                     <h3>Vessel Details</h3>
                 </div>
                 <div className="nts-form-section-body">

@@ -569,12 +569,12 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
         };
 
         return (
-            <button onClick={handleSortClick} className="flex items-center hover:text-blue-200 transition-colors">
+            <button onClick={handleSortClick} className="flex items-center hover:text-white transition-colors">
                 {columnDisplayNames[column] || column}
                 {sortOrder ? (
                     // Active sorting - always up arrow, different colors for asc/desc
                     <svg 
-                        className={`w-4 h-4 ml-1 ${sortOrder === 'asc' ? 'text-blue-300' : 'text-yellow-300'}`} 
+                        className={`w-4 h-4 ml-1 ${sortOrder === 'asc' ? 'text-slate-200' : 'text-yellow-300'}`} 
                         fill="currentColor" 
                         viewBox="0 0 24 24"
                     >
@@ -587,7 +587,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                     </svg>
                 )}
                 {sortOrder && (
-                    <span className={`ml-1 text-xs ${sortOrder === 'asc' ? 'text-blue-300' : 'text-yellow-300'}`}>
+                    <span className={`ml-1 text-xs ${sortOrder === 'asc' ? 'text-slate-200' : 'text-yellow-300'}`}>
                         {sortOrder === 'asc' ? 'A-Z' : 'Z-A'}
                     </span>
                 )}
@@ -601,7 +601,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                        <Package className="w-6 h-6 text-blue-600" />
+                        <Package className="w-6 h-6 text-[#020a14]" />
                         Quote Requests
                     </h2>
                     <p className="text-gray-600 mt-1">Manage shipping quote requests and pricing</p>
@@ -763,13 +763,13 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                     {/* Quick Actions Section */}
                                                     <div className="bg-blue-50 rounded-lg p-3 mb-4 border border-blue-200">
                                                         <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                                                            <Zap className="w-4 h-4 text-blue-600" />
+                                                            <Zap className="w-4 h-4 text-[#020a14]" />
                                                             Quick Actions
                                                         </h4>
                                                         <div className="flex gap-2">
                                                             <button 
                                                                 onClick={(e) => { e.stopPropagation(); duplicateQuote(quote); }} 
-                                                                className="flex-1 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 transition-colors"
+                                                                className="flex-1 bg-[#020a14] text-white px-3 py-2 rounded-lg hover:bg-[#0f172a] flex items-center justify-center gap-2 transition-colors"
                                                             >
                                                                 <Copy className="w-4 h-4" />
                                                                 <div className="text-left">
@@ -914,7 +914,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                     {/* Desktop Table View - Grandma-Friendly Design! */}
                     <div className="hidden lg:block bg-white rounded-lg shadow-sm border border-gray-200">
                         <table className="modern-table">
-                            <thead className="modern-table-header bg-gradient-to-r from-blue-600 text-nowrap to-blue-700 text-white">
+                            <thead className="modern-table-header bg-gradient-to-r from-[#020a14] text-nowrap to-[#0f172a] text-white">
                                 <tr>
                                     <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
                                         <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
@@ -945,7 +945,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                     <React.Fragment key={quote.id}>
                                         <tr 
                                             onClick={() => handleRowClick(quote.id)}
-                                            className={`cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors duration-200`}
+                                            className={`cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-slate-50 transition-colors duration-200`}
                                         >
                                             <td className="modern-table-cell font-medium text-blue-600 underline">
                                                 <div className="flex items-center gap-2">
@@ -1081,7 +1081,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                                 e.stopPropagation();
                                                                 handleEditClick(quote);
                                                             }}
-                                                            className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-800 flex items-center gap-1"
+                                                            className="bg-[#020a14] text-white px-2 py-1 rounded hover:bg-[#0f172a] flex items-center gap-1"
                                                         >
                                                             <Edit className="w-4 h-4" />
                                                         {isAdmin ? <span className="text-xs">Edit</span> : <span className="text-xs">Request Edit</span>}
@@ -1140,13 +1140,13 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                     {/* Quick Actions Section */}
                                                     <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-200">
                                                         <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                                            <Zap className="w-4 h-4 text-blue-600" />
+                                                            <Zap className="w-4 h-4 text-[#020a14]" />
                                                             Quick Actions
                                                         </h4>
                                                         <div className="flex items-center gap-3 flex-wrap">
                                                             <button 
                                                                 onClick={(e) => { e.stopPropagation(); duplicateQuote(quote); }} 
-                                                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors"
+                                                                className="bg-[#020a14] text-white px-4 py-2 rounded-lg hover:bg-[#0f172a] flex items-center gap-2 transition-colors"
                                                             >
                                                                 <Copy className="w-4 h-4" />
                                                                 <div className="text-left">
@@ -1171,7 +1171,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                         {/* Quote Details Card */}
                                                         <div className="bg-white rounded-lg p-4 border border-gray-200">
                                                             <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                                                <Package className="w-4 h-4 text-blue-600" />
+                                                                <Package className="w-4 h-4 text-[#020a14]" />
                                                                 Quote Details
                                                             </h4>
                                                             <div className="space-y-2">
@@ -1183,7 +1183,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                         {(isAdmin || !isUser) && (
                                                             <div className="bg-white rounded-lg p-4 border border-gray-200">
                                                                 <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                                                    <Settings className="w-4 h-4 text-blue-600" />
+                                                                    <Settings className="w-4 h-4 text-[#020a14]" />
                                                                     Admin Controls
                                                                 </h4>
                                                                 <div className="space-y-4">
@@ -1211,7 +1211,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                                         >
                                                                             <form onSubmit={(e) => handlePriceSubmit(e, quote.id)} className="space-y-3" onClick={(e) => e.stopPropagation()}>
                                                                                 <div className="flex items-center gap-2 mb-2">
-                                                                                    <DollarSign className="w-4 h-4 text-blue-600" />
+                                                                                    <DollarSign className="w-4 h-4 text-[#020a14]" />
                                                                                     <span className="text-sm font-medium text-blue-800">Set Quote Price</span>
                                                                                 </div>
                                                                                 
@@ -1235,7 +1235,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                                                 <div className="flex gap-2 pt-1">
                                                                                     <button
                                                                                         type="submit"
-                                                                                        className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 py-2 rounded-md text-xs font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center justify-center gap-1.5 shadow-sm"
+                                                                                        className="flex-1 bg-gradient-to-r from-[#020a14] to-[#0f172a] text-white px-3 py-2 rounded-md text-xs font-medium hover:from-[#0f172a] hover:to-[#020a14] transition-all duration-200 flex items-center justify-center gap-1.5 shadow-sm"
                                                                                         onClick={(e) => e.stopPropagation()}
                                                                                     >
                                                                                         <CheckCircle className="w-3 h-3" />
@@ -1262,7 +1262,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                                                     e.stopPropagation();
                                                                                     setShowPriceInput(quote.id);
                                                                                 }}
-                                                                                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm flex items-center justify-center gap-2"
+                                                                                className="w-full bg-gradient-to-r from-[#020a14] to-[#0f172a] text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-[#0f172a] hover:to-[#020a14] transition-all duration-200 shadow-sm flex items-center justify-center gap-2"
                                                                             >
                                                                                 <DollarSign className="w-4 h-4" />
                                                                                 {quote.price ? 'Edit Quote' : 'Price Quote Request'}
@@ -1286,7 +1286,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                                         {/* Edit History Card */}
                                                         <div className="bg-white rounded-lg p-4 border border-gray-200 lg:col-span-2">
                                                             <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                                                <Clock className="w-4 h-4 text-blue-600" />
+                                                                <Clock className="w-4 h-4 text-[#020a14]" />
                                                                 Edit History
                                                             </h4>
                                                             <div className="max-h-64 overflow-y-auto">
@@ -1312,7 +1312,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                                     onClick={() => handlePageChange(index + 1)}
                                     className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                                         currentPage === index + 1
-                                            ? 'bg-blue-600 text-white'
+                                            ? 'bg-[#020a14] text-white'
                                             : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                                     }`}
                                 >

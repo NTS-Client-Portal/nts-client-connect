@@ -524,7 +524,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                                         <form onSubmit={(e) => handlePriceSubmit(e, order.id)} onClick={(e) => e.stopPropagation()}>
                                                             <div className="space-y-3">
                                                                 <div className="flex items-center gap-2 mb-2">
-                                                                    <DollarSign className="w-4 h-4 text-blue-600" />
+                                                                    <DollarSign className="w-4 h-4 text-[#020a14]" />
                                                                     <span className="text-sm font-semibold text-blue-800">Set Order Price</span>
                                                                 </div>
                                                                 <div>
@@ -571,7 +571,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                                             e.stopPropagation();
                                                             setShowPriceInput(order.id);
                                                         }}
-                                                        className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-2 rounded-lg text-xs font-medium hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm flex items-center gap-1.5"
+                                                        className="bg-gradient-to-r from-[#020a14] to-[#0f172a] text-white px-3 py-2 rounded-lg text-xs font-medium hover:from-[#0f172a] hover:to-[#020a14] transition-all duration-200 shadow-sm flex items-center gap-1.5"
                                                     >
                                                         <DollarSign className="w-3 h-3" />
                                                         Set Price
@@ -621,7 +621,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                                     {/* Quick Actions Section */}
                                                     <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-200">
                                                         <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                                            <Zap className="w-4 h-4 text-blue-600" />
+                                                            <Zap className="w-4 h-4 text-[#020a14]" />
                                                             Quick Actions
                                                         </h4>
                                                         <div className="flex items-center gap-3 flex-wrap">
@@ -630,7 +630,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                                                     e.stopPropagation();
                                                                     duplicateQuote(order);
                                                                 }}
-                                                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors"
+                                                                className="bg-[#020a14] text-white px-4 py-2 rounded-lg hover:bg-[#0f172a] flex items-center gap-2 transition-colors"
                                                             >
                                                                 <Copy className="w-4 h-4" />
                                                                 <div className="text-left">
@@ -880,7 +880,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                                     onClick={() => handlePageChange(index + 1)}
                                     className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                                         currentPage === index + 1
-                                            ? 'bg-blue-600 text-white'
+                                            ? 'bg-[#020a14] text-white'
                                             : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                                     }`}
                                 >

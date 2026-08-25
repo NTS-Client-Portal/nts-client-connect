@@ -356,12 +356,12 @@ const OrderForm: React.FC<OrderFormProps> = ({ isOpen, onClose, addOrder, errorT
                 bottom: 0
             }}
         >
-            <div className="border-2 bg-blue-600 border-x-0 border-b-0 pt-2 rounded w-full max-w-6xl max-h-[90vh] flex flex-col">
+            <div className="border-2 bg-[#020a14] border-x-0 border-b-0 pt-2 rounded w-full max-w-6xl max-h-[90vh] flex flex-col">
                 <div className="flex items-center justify-between pl-4 pr-3 mb-2 flex-shrink-0">
                     <h2 className="text-xl text-white font-semibold">Request a Shipping Order</h2>
                     <button
                         onClick={onClose}
-                        className="text-white hover:text-gray-200 transition-colors p-1 rounded-md hover:bg-blue-700"
+                        className="text-white hover:text-gray-200 transition-colors p-1 rounded-md hover:bg-[#0f172a]"
                         aria-label="Close modal"
                     >
                         <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -595,7 +595,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ isOpen, onClose, addOrder, errorT
                     {/* Action Buttons */}
                     <div className='flex justify-center pt-4 border-t border-gray-200'>
                         <div className='flex gap-4 w-full max-w-md'>
-                            <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md font-medium transition-colors">
+                            <button type="submit" className="flex-1 bg-[#020a14] hover:bg-[#0f172a] text-white px-6 py-3 rounded-md font-medium transition-colors">
                                 Request Shipping Order
                             </button>
                             <button type="button" onClick={onClose} className="px-6 py-3 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-colors">

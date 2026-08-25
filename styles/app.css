@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-blue-50: #f8fafc;
+  --color-blue-100: #f1f5f9;
+  --color-blue-200: #e2e8f0;
+  --color-blue-300: #cbd5e1;
+  --color-blue-400: #94a3b8;
+  --color-blue-500: #0f172a;
+  --color-blue-600: #020a14;
+  --color-blue-700: #0f172a;
+  --color-blue-800: #111928;
+  --color-blue-900: #020a14;
+}
+
 
 *, ::before, ::after {
   --tw-border-spacing-x: 0;
@@ -6103,7 +6118,7 @@ main:is(.dark *) {
   font-size: 0.875rem;
   font-weight: 600;
   color: white;
-  background-color: rgb(37 99 235);
+  background-color: rgb(2 10 20);
   border: 1px solid transparent;
   border-radius: 0.5rem;
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -6112,17 +6127,17 @@ main:is(.dark *) {
 }
 
 .nts-button-primary:hover {
-  background-color: rgb(29 78 216);
+  background-color: rgb(15 23 42);
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 .nts-button-primary:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgb(59 130 246 / 0.5);
+  box-shadow: 0 0 0 2px rgb(2 10 20 / 0.5);
 }
 
 .nts-button-primary:active {
-  background-color: rgb(30 64 175);
+  background-color: rgb(17 25 40);
 }
 
 .nts-button-secondary {
@@ -6145,4 +6160,50 @@ main:is(.dark *) {
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
+/* Retarget light-blue focus accents to the sidenav navy (#020a14) */
+.focus\:ring-blue-500:focus,
+.focus\:ring-blue-600:focus,
+.focus\:ring-blue-400:focus {
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(2 10 20 / var(--tw-ring-opacity, 1));
+}
+
+.focus\:border-blue-500:focus,
+.focus\:border-blue-600:focus,
+.focus\:border-blue-400:focus,
+.focus\:border-blue-300:focus {
+  border-color: rgb(2 10 20);
+}
+
 /* ========== END NTS MODERN COMPONENT SYSTEM ========== */
+
+/* ========== NAVY ACCENT REBRAND (light blue → sidenav navy #020a14) ========== */
+/* Overrides for pre-compiled Tailwind utilities already present in this file. */
+.bg-blue-50 { background-color: #f8fafc; }
+.bg-blue-100 { background-color: #f1f5f9; }
+.bg-blue-400 { background-color: #94a3b8; }
+.bg-blue-500 { background-color: #0f172a; }
+
+.text-blue-500 { color: #0f172a; }
+.text-blue-600 { color: #020a14; }
+.text-blue-700 { color: #0f172a; }
+
+.hover\:bg-blue-600:hover { background-color: #020a14; }
+.hover\:text-blue-900:hover { color: #020a14; }
+
+.dark\:text-blue-200:is(.dark *) { color: #e2e8f0; }
+.dark\:text-blue-400:is(.dark *) { color: #94a3b8; }
+
+.side-nav-btn.active { background-color: #020a14 !important; }
+
+/* ntsLightBlue token → navy */
+.bg-ntsLightBlue { background-color: #020a14; }
+.text-ntsLightBlue { color: #111928; }
+.border-ntsLightBlue { border-color: #020a14; }
+.border-ntsLightBlue\/30 { border-color: rgb(2 10 20 / 0.3); }
+.hover\:bg-ntsLightBlue:hover { background-color: #0f172a; }
+.hover\:bg-ntsLightBlue\/80:hover { background-color: rgb(2 10 20 / 0.8); }
+.hover\:bg-ntsLightBlue\/90:hover { background-color: rgb(2 10 20 / 0.9); }
+.hover\:text-ntsLightBlue\/90:hover { color: rgb(17 25 40 / 0.9); }
+.focus\:border-ntsLightBlue:focus { border-color: #020a14; }
+.focus\:ring-ntsLightBlue:focus { --tw-ring-color: #020a14; }

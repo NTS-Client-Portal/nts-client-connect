@@ -236,7 +236,7 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
                                     {/* Quick Actions Section */}
                                     <div className="bg-blue-100 rounded-lg p-3 border border-blue-200">
                                         <div className="flex items-center gap-2 mb-3">
-                                            <Zap className="w-4 h-4 text-blue-600" />
+                                            <Zap className="w-4 h-4 text-[#020a14]" />
                                             <h4 className="text-sm font-semibold text-blue-800">Quick Actions</h4>
                                         </div>
                                         <div className="grid grid-cols-1 gap-2">
@@ -245,7 +245,7 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
                                                     e.stopPropagation();
                                                     duplicateQuote(quote);
                                                 }}
-                                                className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors text-xs"
+                                                className="bg-[#020a14] text-white px-3 py-2 rounded-lg hover:bg-[#0f172a] flex items-center gap-2 transition-colors text-xs"
                                             >
                                                 <Copy className="w-3 h-3" />
                                                 <div className="text-left">
@@ -373,13 +373,13 @@ const ArchivedTable: React.FC<ArchivedTableProps> = ({
                                         <td colSpan={7} className="px-4 py-6">
                                             <div className="bg-blue-100 rounded-lg p-4 border border-blue-200">
                                                 <div className="flex items-center gap-2 mb-4">
-                                                    <Zap className="w-5 h-5 text-blue-600" />
+                                                    <Zap className="w-5 h-5 text-[#020a14]" />
                                                     <h4 className="text-lg font-semibold text-blue-800">Quick Actions</h4>
                                                 </div>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <button
                                                         onClick={() => duplicateQuote(quote)}
-                                                        className="bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors"
+                                                        className="bg-[#020a14] text-white px-4 py-3 rounded-lg hover:bg-[#0f172a] flex items-center gap-2 transition-colors"
                                                     >
                                                         <Copy className="w-4 h-4" />
                                                         <div className="text-left">

@@ -30,7 +30,7 @@ const SelectOption: React.FC<SelectOptionProps> = ({
     return (
         <div className="nts-form-section">
             <div className="nts-form-section-header">
-                <Package className="w-5 h-5 text-blue-600" />
+                <Package className="w-5 h-5 text-[#020a14]" />
                 <h3 className="text-lg font-semibold text-gray-900">Load Type</h3>
             </div>
             <div className="nts-form-section-body space-y-6">

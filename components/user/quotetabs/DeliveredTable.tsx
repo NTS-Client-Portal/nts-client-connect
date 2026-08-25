@@ -70,7 +70,7 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                        <CheckCircle className="w-6 h-6 text-blue-600" />
+                        <CheckCircle className="w-6 h-6 text-[#020a14]" />
                         Delivered Orders
                     </h2>
                     <p className="text-gray-600 mt-1">Successfully completed shipments and deliveries</p>
@@ -135,7 +135,7 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
                                             onClick={() => handlePageChange(index + 1)}
                                             className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                                                 currentPage === index + 1
-                                                    ? 'bg-blue-600 text-white'
+                                                    ? 'bg-[#020a14] text-white'
                                                     : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                                             }`}
                                         >
@@ -150,7 +150,7 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
                     {/* Desktop Table View */}
                     <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200">
                         <table className="modern-table">
-                            <thead className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+                            <thead className="bg-gradient-to-r from-[#020a14] to-[#0f172a] text-white">
                                 <tr>
                                     <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
                                         <TableHeaderSort column="id" sortOrder={sortConfig.column === 'id' ? sortConfig.order : null} onSort={handleSort} />
@@ -179,7 +179,7 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
                                 {currentRows.map((quote, index) => (
                                     <React.Fragment key={quote.id}>
                                         <tr 
-                                            className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors duration-200`}
+                                            className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-slate-50 transition-colors duration-200`}
                                         >
                                         <td className="modern-table-cell font-medium text-blue-600">
                                             #{quote.id}
@@ -238,13 +238,13 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
                                             <td colSpan={7} className="px-4 py-6">
                                                 <div className="bg-blue-100 rounded-lg p-4 border border-blue-200">
                                                     <div className="flex items-center gap-2 mb-4">
-                                                        <Zap className="w-5 h-5 text-blue-600" />
+                                                        <Zap className="w-5 h-5 text-[#020a14]" />
                                                         <h4 className="text-lg font-semibold text-blue-800">Quick Actions</h4>
                                                     </div>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                         <button
                                                             onClick={() => duplicateQuote(quote)}
-                                                            className="bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors"
+                                                            className="bg-[#020a14] text-white px-4 py-3 rounded-lg hover:bg-[#0f172a] flex items-center gap-2 transition-colors"
                                                         >
                                                             <Copy className="w-4 h-4" />
                                                             <div className="text-left">
@@ -282,7 +282,7 @@ const DeliveredTable: React.FC<DeliveredTableProps> = ({
                                     onClick={() => handlePageChange(index + 1)}
                                     className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                                         currentPage === index + 1
-                                            ? 'bg-blue-600 text-white'
+                                            ? 'bg-[#020a14] text-white'
                                             : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                                     }`}
                                 >

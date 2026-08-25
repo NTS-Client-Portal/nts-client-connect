@@ -185,8 +185,8 @@ const SpendDashboard: React.FC = () => {
             value: String(analytics.shipmentCount),
             hint: `${analytics.activeCount} active · ${analytics.deliveredCount} delivered`,
             icon: Package,
-            accent: 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
-            bar: 'from-blue-500 to-blue-600',
+            accent: 'bg-slate-100 text-[#020a14] dark:bg-slate-800 dark:text-slate-300',
+            bar: 'from-[#020a14] to-[#0f172a]',
         },
         {
             label: 'Avg / Shipment',
