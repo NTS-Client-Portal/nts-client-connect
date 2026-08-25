@@ -87,7 +87,7 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
                         
                         {/* Main Content */}
                         <main className="nts-main-content">
-                            <DemoBanner />
+                            {/* <DemoBanner /> */}
                             <div className="nts-content-container">
                                 {children}
                             </div>

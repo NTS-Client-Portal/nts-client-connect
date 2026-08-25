@@ -1,4 +1,4 @@
-import jsPDF from "jspdf";
+import { jsPDF } from "jspdf";
 import { supabase } from "@/lib/initSupabase";
 import { Database } from "@/lib/database.types";
 

@@ -71,7 +71,7 @@ const SalesLayout: React.FC<SalesLayoutProps> = ({ children }) => {
 
                     {/* Main Content */}
                     <main className="nts-main-content relative">
-                        <DemoBanner />
+                        {/* <DemoBanner /> */}
                         <div className="nts-content-container relative">
                             {children}
                         </div>

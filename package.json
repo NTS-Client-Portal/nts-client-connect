@@ -8,7 +8,6 @@
         "os": false
     },
     "scripts": {
-        "preinstall": "npx npm-force-resolutions",
         "dev": "NODE_OPTIONS=--max-http-header-size=32768 next dev",
         "dev:css": "echo 'CSS building handled by PostCSS in dev mode'",
         "build": "next build",
@@ -61,12 +60,12 @@
         "framer-motion": "^12.23.22",
         "fuse.js": "^7.1.0",
         "html-react-parser": "^5.2.2",
-        "jspdf": "^3.0.0",
+        "jspdf": "^4.2.1",
         "lucide-react": "^0.476.0",
         "moment": "^2.30.1",
-        "next": "15.5.20",
+        "next": "15.5.24",
         "node-cron": "^3.0.3",
-        "nodemailer": "^6.10.0",
+        "nodemailer": "^9.0.5",
         "papaparse": "^5.5.2",
         "pg": "^8.13.3",
         "react-big-calendar": "^1.18.0",
@@ -78,11 +77,20 @@
         "tailwind-merge": "^3.0.2",
         "tailwindcss-animate": "^1.0.7",
         "uuid": "^11.1.0",
-        "xlsx": "^0.18.5"
+        "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
     },
-    "resolutions": {
-        "lodash": "4.17.21",
-        "nanoid": "3.3.8"
+    "overrides": {
+        "lodash": "4.18.1",
+        "lodash-es": "4.18.1",
+        "nanoid": "3.3.18",
+        "axios": "1.19.0",
+        "postcss": "8.5.26",
+        "ws": "8.21.3",
+        "form-data": "4.0.6",
+        "flatted": "3.4.4",
+        "tmp": "0.2.7",
+        "qs": "6.15.3",
+        "js-yaml": "4.3.1"
     },
     "devDependencies": {
         "@netlify/plugin-lighthouse": "^6.0.3",
@@ -91,7 +99,7 @@
         "@types/leaflet-draw": "^1.0.11",
         "@types/moment": "^2.11.29",
         "@types/node-cron": "^3.0.11",
-        "@types/nodemailer": "^6.4.17",
+        "@types/nodemailer": "^8.0.1",
         "@types/papaparse": "^5.3.15",
         "@types/pg": "^8.11.11",
         "@types/react-big-calendar": "^1.16.1",

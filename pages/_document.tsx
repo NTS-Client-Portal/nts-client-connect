@@ -11,7 +11,7 @@ export default function Document() {
         */}
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="alternate icon" href="/favicon.ico" sizes="any" />
-        <meta name="theme-color" content="#1d4ed8" />
+        <meta name="theme-color" content="#020a14" />
       </Head>
       <body>
         <Main />

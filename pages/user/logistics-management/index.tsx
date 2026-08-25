@@ -15,13 +15,26 @@ const FreightRFQPage: React.FC = () => {
     const companyId = userProfile?.company_id ?? null;
 
     React.useEffect(() => {
-        if (!loading && session?.user && !userProfile?.company_id && pathname !== '/profile-setup') {
+        if (loading) return;
+
+        // Idle logout: Supabase clears the session. Send the user back to
+        // the login page instead of leaving them on the profile-setup screen.
+        if (!session) {
+            replace('/');
+            return;
+        }
+
+        if (session.user && !userProfile?.company_id && pathname !== '/profile-setup') {
             replace('/profile-setup');
         }
     }, [loading, pathname, replace, session, userProfile]);
 
     if (loading) {
         return <p>Loading...</p>;
+    }
+
+    if (!session) {
+        return null; // Redirecting to login
     }
 
     if (!companyId) {

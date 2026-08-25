@@ -2,8 +2,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="NTS Client Connect">
   <defs>
     <linearGradient id="ntsBg" x1="0" y1="0" x2="0" y2="32" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#3b82f6"/>
-      <stop offset="1" stop-color="#1d4ed8"/>
+      <stop offset="0" stop-color="#111928"/>
+      <stop offset="1" stop-color="#020a14"/>
     </linearGradient>
   </defs>
 
@@ -17,10 +17,10 @@
 
   <!-- Origin node -->
   <circle cx="9.5" cy="22.5" r="3.1" fill="#ffffff"/>
-  <circle cx="9.5" cy="22.5" r="1.35" fill="#1d4ed8"/>
+  <circle cx="9.5" cy="22.5" r="1.35" fill="#111928"/>
 
   <!-- Destination pin -->
   <path d="M20.5 6.2a5.2 5.2 0 0 0-5.2 5.2c0 3.7 5.2 8.1 5.2 8.1s5.2-4.4 5.2-8.1a5.2 5.2 0 0 0-5.2-5.2z"
-        fill="#ffffff"/>
-  <circle cx="20.5" cy="11.4" r="2" fill="#1d4ed8"/>
+        fill="#f97316"/>
+  <circle cx="20.5" cy="11.4" r="2" fill="#ffffff"/>
 </svg>
