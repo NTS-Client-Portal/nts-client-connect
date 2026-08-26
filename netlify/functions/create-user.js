@@ -64,20 +64,20 @@ exports.handler = async function (event, context) {
                 throw new Error(profileError.message);
             }
 
-            // Send magic link for setting the password
-            const { data: magicLinkData, error: signInError } = await supabase.auth.api.generateLink({
-                type: 'magiclink',
+            // Generate a password-set link for the newly created user.
+            const { data: magicLinkData, error: linkError } = await supabase.auth.admin.generateLink({
+                type: 'recovery',
                 email,
                 options: {
-                    emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/invite`,
+                    redirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/invite`,
                 },
             });
 
-            if (signInError) {
-                throw new Error(signInError.message);
+            if (linkError) {
+                throw new Error(linkError.message);
             }
 
-            const magicLink = magicLinkData.action_link;
+            const magicLink = magicLinkData?.properties?.action_link || magicLinkData?.action_link;
 
             const msg = {
                 to: email,

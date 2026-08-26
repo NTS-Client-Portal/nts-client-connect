@@ -43,7 +43,7 @@ const CustomSignInForm = () => {
             type: 'signup',
             email,
             options: {
-                emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}`
+                emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/user`
             }
         });
 
