@@ -2,6 +2,7 @@ import React, { ReactNode, useState, useEffect } from 'react';
 import UserSideNav from './UserSideNav';
 import UserTopNav from './UserTopNav';
 import DemoBanner from '@/components/common/DemoBanner';
+import TeamInviteModal from '@/components/user/TeamInviteModal';
 import { useProfilesUser } from '@/context/ProfilesUserContext';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 
@@ -16,6 +17,7 @@ interface AssignedSalesUser {
 const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [assignedSalesUsers, setAssignedSalesUsers] = useState<AssignedSalesUser[]>([]);
+    const [showInviteModal, setShowInviteModal] = useState(false);
     const session = useSession();
     const supabase = useSupabaseClient();
     const { userProfile } = useProfilesUser();
@@ -39,6 +41,25 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
 
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
+    };
+
+    // Show the team-invite prompt once after profile setup.
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        if (localStorage.getItem('nts_invite_prompt_dismissed') === '1') return;
+        if (localStorage.getItem('nts_show_invite_prompt') === '1') {
+            setShowInviteModal(true);
+        }
+    }, []);
+
+    const handleInviteModalClose = (dontShowAgain: boolean) => {
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('nts_show_invite_prompt');
+            if (dontShowAgain) {
+                localStorage.setItem('nts_invite_prompt_dismissed', '1');
+            }
+        }
+        setShowInviteModal(false);
     };
 
     useEffect(() => {
@@ -107,6 +128,12 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
                         />
                     </aside>
                 </div>
+
+                <TeamInviteModal
+                    open={showInviteModal}
+                    companyId={userProfile?.company_id ?? null}
+                    onClose={handleInviteModalClose}
+                />
             </div>
     );
 };

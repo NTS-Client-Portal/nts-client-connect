@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useSupabaseClient, useSession } from '@supabase/auth-helpers-react';
-import { sendInvitations } from '@/lib/invitationService'; // Adjust the import path as needed
 import { v4 as uuidv4 } from 'uuid'; // Import uuidv4
 
 const ProfileSetup = () => {
@@ -13,9 +12,6 @@ const ProfileSetup = () => {
     const [lastName, setLastName] = useState('');
     const [companyName, setCompanyName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState(''); // Add phone number state
-    const [inviteEmails, setInviteEmails] = useState<{ email: string, role: 'manager' | 'member' }[]>([]);
-    const [inviteEmail, setInviteEmail] = useState('');
-    const [inviteRole, setInviteRole] = useState<'manager' | 'member'>('member');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -173,24 +169,8 @@ const ProfileSetup = () => {
                 console.log('Profile created successfully');
             }
 
-            // Store invitations with roles and add invited users to the companies table
-            for (const invite of inviteEmails) {
-                const id = uuidv4(); // Generate a unique ID for the invitation
-                const token = uuidv4(); // Generate a unique token for the invitation
-                const { error: inviteError } = await supabase
-                    .from('invitations')
-                    .insert({
-                        id, // Set the id field
-                        email: invite.email,
-                        team_role: invite.role,
-                        company_id: companyId,
-                        token, // Set the token field
-                    });
-
-                if (inviteError) {
-                    throw new Error(inviteError.message);
-                }
-            }
+            // Flag the team-invite prompt to show on the dashboard after setup.
+            localStorage.setItem('nts_show_invite_prompt', '1');
 
             setSuccess(true);
             router.push('/user');
@@ -198,36 +178,6 @@ const ProfileSetup = () => {
             setError(error.message);
         } finally {
             setLoading(false);
-        }
-    };
-
-    const handleAddInviteEmail = () => {
-        if (inviteEmail && !inviteEmails.some(invite => invite.email === inviteEmail)) {
-            setInviteEmails([...inviteEmails, { email: inviteEmail, role: inviteRole }]);
-            setInviteEmail('');
-        }
-    };
-
-    const handleSendInvitations = async () => {
-        if (session?.user?.id && companyName) {
-            const { data: existingCompany, error: companyError } = await supabase
-                .from('companies')
-                .select('id')
-                .eq('name', companyName)
-                .maybeSingle();
-
-            if (companyError) {
-                setError(companyError.message);
-                return;
-            }
-
-            if (!existingCompany) {
-                setError('Save your profile first before sending invitations.');
-                return;
-            }
-
-            await sendInvitations(inviteEmails, session.user.id, existingCompany.id);
-            setInviteEmails([]);
         }
     };
 
@@ -318,55 +268,6 @@ const ProfileSetup = () => {
                                             className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800"
                                             disabled={loading}
                                         />
-                                    </div>
-
-                                    {/* Invite team */}
-                                    <div className="pt-4 border-t border-slate-200">
-                                        <h3 className="text-lg font-bold text-slate-800">Invite Your Team</h3>
-                                        <p className="text-sm text-slate-500 mb-3">Add teammates to your company (optional).</p>
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="email"
-                                                placeholder="Enter email"
-                                                value={inviteEmail}
-                                                onChange={(e) => setInviteEmail(e.target.value)}
-                                                className="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800"
-                                            />
-                                            <select
-                                                value={inviteRole}
-                                                onChange={(e) => setInviteRole(e.target.value as 'manager' | 'member')}
-                                                className="px-3 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-800"
-                                            >
-                                                <option value="manager">Manager</option>
-                                                <option value="member">Member</option>
-                                            </select>
-                                            <button
-                                                type="button"
-                                                onClick={handleAddInviteEmail}
-                                                className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors"
-                                            >
-                                                Add
-                                            </button>
-                                        </div>
-
-                                        {inviteEmails.length > 0 && (
-                                            <ul className="mt-4 space-y-2">
-                                                {inviteEmails.map((invite, index) => (
-                                                    <li key={index} className="flex justify-between items-center bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
-                                                        <span className="text-sm text-slate-700">{invite.email}</span>
-                                                        <span className="text-xs uppercase font-semibold text-slate-500">{invite.role}</span>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        )}
-
-                                        <button
-                                            type="button"
-                                            onClick={handleSendInvitations}
-                                            className="mt-4 w-full px-4 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-semibold transition-colors"
-                                        >
-                                            Send Invitations
-                                        </button>
                                     </div>
 
                                     <button
